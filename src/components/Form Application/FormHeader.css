@@ -13,14 +13,13 @@
 .logo {
     width: 100px;
     height: 100px;
-    margin-right: 20px;
 }
 
-.header-text {
+.header-text h1 {
     text-align: center;
-    font-size: 5px;
-}
+    font-size: 18px;
+    font-weight: bold;
+    margin: -5px 80px;
 
-.header-text h1, .header-text h2, .header-text h3 {
-    margin: 5px 0;
+
 }

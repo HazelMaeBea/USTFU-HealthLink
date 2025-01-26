@@ -3,12 +3,15 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  background-color: #EDEDED;
+
 }
 
 .Layout {
   display: flex;
   flex: 1;
   overflow: hidden;
+  
 }
 
 header {
