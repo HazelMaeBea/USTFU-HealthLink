@@ -1,0 +1,19 @@
+.ApplicationForm {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* change this because it's redundant*/
+.form-row-1, .form-row-2, .form-row-3 {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 15px;
+}
+
+.form-row-1 > *:not(:last-child),
+.form-row-2 > *:not(:last-child),
+.form-row-3  > * {
+  flex-grow: 1; /* Allows all elements except the last one to stretch */
+}
