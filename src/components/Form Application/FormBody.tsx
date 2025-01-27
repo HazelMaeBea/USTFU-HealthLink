@@ -1,9 +1,11 @@
 import FormTextBox from "./FormTextBox";
 import FormDropdown from "./FormDropdown";
+import "./FormBody.css";
 
 
 const FormBody = () => {
-  const suffixOptions = ['Male', 'Female'];
+  const suffixOptions = ['Mr.', 'Ms.', 'Mrs.'];
+  const genderOptions = ['Male', 'Female'];
 
   {/* Double check later */}
   const collegeOptions = [
@@ -38,29 +40,49 @@ const FormBody = () => {
   const teachingLoadOptions = ['idk', 'the', 'options'];
 
     return (
-      <div>
-        <h1>Form Body</h1>
-        <FormTextBox label="Last Name" placeholder="Type Here" value="" onChange={() => {}} name = "LastNameTextBox"/>
-        <FormTextBox label="First Name" placeholder="Type Here" value="" onChange={() => {}} name = "FirstNameTextBox"/>
-        <FormTextBox label="Middle Name" placeholder="Type Here" value="" onChange={() => {}} name = "MiddleNameTextBox"/>
-        <FormDropdown label="Suffix" value="" onChange={() => {}} name = "SuffixDropdown" options = {suffixOptions} />
+      <div className = "ApplicationForm">
+        <p>Please fill out the following boxes.</p>
+          <fieldset className="PersonalInfo">
+            <div className="form-row-1">
+              <FormTextBox label="Last Name" placeholder="Type Here" value="" onChange={() => {}} name = "LastNameTextBox"/>
+              <FormTextBox label="First Name" placeholder="Type Here" value="" onChange={() => {}} name = "FirstNameTextBox"/>
+              <FormTextBox label="Middle Name" placeholder="Type Here" value="" onChange={() => {}} name = "MiddleNameTextBox"/>
+              <FormDropdown label="Suffix" placeholder="" value="" onChange={() => {}} name = "SuffixDropdown" options = {suffixOptions} />
+              
+            </div>
+            <div className="form-row-2"> 
+              <FormTextBox label="Age" placeholder="Type Here" value="" onChange={() => {}} name = "AgeTextBox"/>
+              <FormDropdown label="Gender" placeholder="" value="" onChange={() => {}} name = "GenderDropdown" options = {genderOptions} />
+              <FormDropdown label="College" placeholder="" value="" onChange={() => {}} name = "CollegeDropdown" options = {collegeOptions} />
+              <FormTextBox label="Contact Number" placeholder="Type Here" value="" onChange={() => {}} name = "ContactNumberTextBox"/>
+            
+            </div>
+            </fieldset>        
+          <fieldset className="MedicalInfo">
+            <div className="form-row-3">
+              <FormTextBox label="Hospital" placeholder="Type Here" value="" onChange={() => {}} name = "HospitalTextBox"/>
+              <FormTextBox label="Nature of Illness" placeholder="Type Here" value="" onChange={() => {}} name = "NatureOfIllnessTextBox"/>
+              <FormTextBox label="Physician" placeholder="Type Here" value="" onChange={() => {}} name = "PhysicianTextBox"/>
+              
+            </div>
+            <div className="form-row-4">
+             <FormTextBox label="Procedures" placeholder="Type Here" value="" onChange={() => {}} name = "ProceduresTextBox"/>
 
-        {/* revise to only be able to put numbers */}
-        <FormTextBox label="Age" placeholder="Type Here" value="" onChange={() => {}} name = "AgeTextBox"/>
+            </div>
+          </fieldset>
 
-        <FormDropdown label="College" value="" onChange={() => {}} name = "CollegeDropdown" options = {collegeOptions} />
-          
-        <FormTextBox label="Hospital" placeholder="Type Here" value="" onChange={() => {}} name = "HospitalTextBox"/>
-        <FormTextBox label="Nature of Illness" placeholder="Type Here" value="" onChange={() => {}} name = "NatureOfIllnessTextBox"/>
-        <FormTextBox label="Physician" placeholder="Type Here" value="" onChange={() => {}} name = "PhysicianTextBox"/>
-        <FormTextBox label="Procedures" placeholder="Type Here" value="" onChange={() => {}} name = "ProceduresTextBox"/>
-
-        <FormDropdown label="Academic Term" value="" onChange={() => {}} name = "AcademicTermDropdown" options = {academicTermOptions} />
-        <FormDropdown label="Academic Year" value="" onChange={() => {}} name = "AcademicYearDropdown" options = {academicYearOptions} />
-        <FormDropdown label="Present Teaching Load (Units)" value="" onChange={() => {}} name = "teachingLoadDropdown" options = {teachingLoadOptions} />
+            
 
 
-        </div>
+
+            
+
+              <FormDropdown label="Academic Term" placeholder="" value="" onChange={() => {}} name = "AcademicTermDropdown" options = {academicTermOptions} />
+              <FormDropdown label="Academic Year" placeholder="" value="" onChange={() => {}} name = "AcademicYearDropdown" options = {academicYearOptions} />
+              <FormDropdown label="Present Teaching Load (Units)" placeholder="" value="" onChange={() => {}} name = "teachingLoadDropdown" options = {teachingLoadOptions} />
+
+
+          </div>
     );
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import "./FormTextBox.css";
-
+import "./FormBody.css";
 
 interface FormTextBoxProps {
   label: string;
@@ -12,7 +12,7 @@ interface FormTextBoxProps {
 
 const FormTextBox = ({ label, placeholder, value, onChange, name }: FormTextBoxProps) => {
   return (
-    <div className="mb-3">
+    <div>
       <label className="form-label">{label}</label>
       <input
         type="text"
