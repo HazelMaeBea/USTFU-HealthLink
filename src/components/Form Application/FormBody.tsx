@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -45,11 +45,20 @@ const schema = z.object({
     term: z.enum(["idk", "idk2"], { invalid_type_error: 'Academic Term is required' }),
     year: z.enum(["idk", "idk2"], { invalid_type_error: 'Academic Year is required' }),
     load: z.enum(["idk", "idk2"], { invalid_type_error: 'Teaching Load is required' }),
-    dateHired: z.date().optional(),
-    dateRetired: z.date().optional(),
+    dateHired: z.string().optional(),
+    dateRetired: z.string().optional(),
     healthBenefits: z.enum(['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree'], { invalid_type_error: 'Health Benefits is required' }),
     benefits: z.enum(['HMO', 'PCSO', 'Senior Citizen'], { invalid_type_error: 'Health Benefits is required' }),
     hmo: z.string().optional(),
+    docRequest: z.string({ invalid_type_error: 'Doctor\'s Note or Request is required' }),
+    hospitalReceipt: z.string({ invalid_type_error: 'Hospital Receipt/Invoice is required' }),
+    labReceipt: z.string({ invalid_type_error: 'Laboratory Receipt/Invoice is required' }),
+    ustID: z.string({ invalid_type_error: 'Employee/UST ID Receipt/Invoice is required' }),
+    signature: z.string({ invalid_type_error: 'Applicant\'s Signature is required' }),
+    claims: z.number({ invalid_type_error: 'Claims is required' }).min(1),
+    hospitalStatus: z.enum(['In-Patient', 'Out-Patient', 'ER Consultation'], { invalid_type_error: 'Hospital Status is required' }),
+    certify: z.enum([' '], { invalid_type_error: 'Certification is required' })
+
 
 
 
@@ -63,6 +72,11 @@ const FormBody = () => {
     handleSubmit,
     formState: { errors, isValid }
   } = useForm<FormData>({ resolver: zodResolver(schema) });
+
+  const [claims, setClaims] = useState(1);
+
+  const incrementClaims = () => setClaims(claims + 1);
+  const decrementClaims = () => setClaims(claims > 1 ? claims - 1 : 1);
 
   const onSubmit = (data: FieldValues) => console.log(data);
 
@@ -97,6 +111,8 @@ const FormBody = () => {
   const yearOptions = ["idk", "idk2"]
   const loadOptions = ["idk", "idk2"]
   const benefitsOptions = ['HMO', 'PCSO', 'Senior Citizen']
+  const hospitalStatusOptions = ['In-Patient', 'Out-Patient', 'ER Consultation']
+  const certifyOptions = [' '];
 
 
 
@@ -272,6 +288,7 @@ const FormBody = () => {
             )}
           </div>
         </div>
+
       </fieldset>
 {/* TEACHING INFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */}
       <fieldset className="TeachingInfo">
@@ -408,7 +425,163 @@ const FormBody = () => {
           
         </div>
       </fieldset>
-      <button type="submit" className="btn btn-primary form-submit" disabled={!isValid}>Submit</button>
+
+
+      <fieldset className="uploadDisclaimer">
+        <p>Kindly upload the necessary documents needed. </p>
+        <div className="row">
+        <div className="mb-1 col-md-4"><strong>Required Attachments</strong></div>
+        <div className="mb-1 col-md-4"><strong>File Type</strong></div>
+        <div className="mb-1 col-md-4"><strong>Upload here</strong></div>
+      </div>
+      </fieldset>
+
+      <fieldset className="medicalFiles">
+        <div className="row">
+          <div className="mb-1 col-md-4 docRequest">Doctor's Note or Request</div>
+          <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
+          <div className="mb-1 col-md-4">
+            <label htmlFor="docRequest" className="form-label"></label>
+            <input
+              {...register('docRequest')}
+              id="docRequest"
+              type="file"
+              className="form-control"
+            />
+            {errors.docRequest && (
+              <p className="text-danger">{errors.docRequest.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="mb-1 col-md-4 hospitalReceipt">Hospital Receipt/Invoice</div>
+          <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
+          <div className="mb-1 col-md-4">
+            <label htmlFor="hospitalReceipt" className="form-label"></label>
+            <input
+              {...register('hospitalReceipt')}
+              id="hospitalReceipt"
+              type="file"
+              className="form-control"
+            />
+            {errors.hospitalReceipt && (
+              <p className="text-danger">{errors.hospitalReceipt.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="mb-1 col-md-4 labReceipt">Laboratory Receipt/Invoice</div>
+          <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
+          <div className="mb-1 col-md-4">
+            <label htmlFor="labReceipt" className="form-label"></label>
+            <input
+              {...register('labReceipt')}
+              id="labReceipt"
+              type="file"
+              className="form-control"
+            />
+            {errors.labReceipt && (
+              <p className="text-danger">{errors.labReceipt.message}</p>
+            )}
+          </div>
+        </div>
+
+
+        <div className="row">
+          <div className="mb-1 col-md-4 ustID">Employee/UST ID Receipt/Invoice</div>
+          <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
+          <div className="mb-1 col-md-4">
+            <label htmlFor="ustID" className="form-label"></label>
+            <input
+              {...register('ustID')}
+              id="ustID"
+              type="file"
+              className="form-control"
+            />
+            {errors.ustID && (
+              <p className="text-danger">{errors.ustID.message}</p>
+            )}
+          </div>
+        </div>
+
+
+        <div className="row">
+          <div className="mb-1 col-md-4 signature">Applicant's Signature</div>
+          <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
+          <div className="mb-1 col-md-4">
+            <label htmlFor="signature" className="form-label"></label>
+            <input
+              {...register('signature')}
+              id="signature"
+              type="file"
+              className="form-control"
+            />
+            {errors.signature && (
+              <p className="text-danger">{errors.signature.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="row claimCount">
+          <div>How many claims do you need to request?</div>
+          <div>
+            <button type="button" onClick={decrementClaims} className="btn btn-secondary claimCompute">-</button>
+            <span className="claims-count">{claims}</span>
+            <button type="button" onClick={incrementClaims} className="btn btn-secondary claimCompute">+</button>
+            </div>
+        </div>
+
+      </fieldset>
+      <fieldset>
+        <label className="form-label"></label>
+            {hospitalStatusOptions.map((option, index) => (
+              <div key={index} className="form-check form-check-inline">
+                <input
+                  {...register('hospitalStatus')}
+                  id={`hospitalStatus-${index}`}
+                  type="radio"
+                  value={option}
+                  className="form-check-input"
+                />
+                <label htmlFor={`hospitalStatus-${index}`} className="form-check-label">
+                  {option}
+                </label>
+              </div>
+            ))}
+            {errors.hospitalStatus && (
+              <p className="text-danger">{errors.hospitalStatus.message}</p>
+            )}
+      </fieldset>
+
+ 
+      <fieldset className="certify">
+        <div className="form-check form-check-inline">
+          <input
+            {...register('certify')}
+            id="certify"
+            type="radio"
+            value=" "
+            className="form-check-input"
+          />
+          <label htmlFor="certify" className="form-check-label">
+            <p>I hereby certify that all information in this application is TRUE and CORRECT and any misrepresentation of facts shall be <br>
+            </br>sufficient cause for denial of this benefit. For any amount in excess of my maximum medical & hospitalization benefit, I am<br></br>personally liable to pay directly to UST Hospital</p>
+          </label>
+        </div>
+        {errors.certify && (
+          <p className="text-danger">{errors.certify.message}</p>
+        )}
+
+
+      </fieldset>
+
+      <div className="buttonDiv">
+        <button type="submit" className="btn btn-submit form-submit">Submit</button>
+        <button type="reset" className="btn btn-clear form-submit">Clear</button>
+      </div>
+      
     </form>
   );
 };
