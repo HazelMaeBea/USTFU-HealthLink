@@ -1,7 +1,7 @@
 import FormHeader from "./FormHeader";
 import FormBody from "./FormBody";
 
-const EyeglassesForm = () => {
+function EyeglassesForm() {
     return (
       <div>
         <FormHeader formType = "Eyeglasses Reimbursement" />

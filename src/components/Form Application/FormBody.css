@@ -1,0 +1,37 @@
+.ApplicationForm {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+fieldset {
+  border: none;
+  border-top: 1px solid black !important;
+}
+
+.note {
+  color: red;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+
+.btn.btn-primary {  
+  background-color: black;  
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+.form-submit {
+  display: flex;
+  justify-content: r;
+  margin-top: 20px;
+}
