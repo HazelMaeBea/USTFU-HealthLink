@@ -23,6 +23,15 @@ fieldset.medicalFiles .row {
     margin: -15px 0;
   }
 
+  fieldset.medicalFiles .form-control[type="file"] {
+    width: auto;
+    height: 35px;
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s ease;
+  }
 fieldset.medicalFiles .form-control[type="file"] {
   width: auto;
   height: 35px;
@@ -36,6 +45,7 @@ fieldset.medicalFiles .form-control[type="file"] {
 .claimCount {
   font-size: 18px;
   font-weight: bold;
+  margin-top: 20px !important;
 }
 
 .claims-count {
@@ -51,7 +61,6 @@ fieldset.medicalFiles .form-control[type="file"] {
   margin-top: 10px;
   font-size: 5px;
 }
-
 
 .btn-secondary {
   padding: 5px 10px;
@@ -75,8 +84,14 @@ fieldset.uploadDisclaimer {
   align-items: flex-start;
 }
 
+.certify .form-check-label {
+  display: flex;
+  align-items: center;
+}
+
 .certify .form-check-label p {
   margin: 0;
+  margin-left: 5px;
 }
 
 body {
@@ -109,4 +124,20 @@ body {
 
 .buttonDiv .btn-clear:hover {
   background-color: #f0f0f0;
+}
+
+/* removes arrows from number input */
+/* only for Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none; 
+  margin: 0;
+}
+
+.admissionTeaching {
+  align-items: center;
+}
+
+.claimCount * {
+  margin-top: 10px;
 }
