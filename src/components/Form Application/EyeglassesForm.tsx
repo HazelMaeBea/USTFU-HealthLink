@@ -38,32 +38,25 @@ const schema = z.object({
     "UST Junior High School", 
     "UST Education High School"], { errorMap: () => ({ message: 'College Affiliation is required' }) }),
   contact: z.number().min(21, 'Contact number is required'),
-  hospital: z.string().nonempty('Hospital is required'),
-  illness: z.string().nonempty('Nature of Illness is required'),
-  physician: z.string().nonempty('Physician is required'),
-  term: z.enum(["idk", "idk2"], { errorMap: () => ({ message: 'Academic Term is required' }) }),
-  year: z.enum(["idk", "idk2"], { errorMap: () => ({ message: 'Academic Year is required' }) }),
-  load: z.enum(["idk", "idk2"], { errorMap: () => ({ message: 'Teaching Load is required' }) }),
-  dateHired: z.string().optional(),
-  dateRetired: z.string().optional(),
-  healthBenefits: z.enum(['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree'], { errorMap: () => ({ message: 'Health Benefits are required' }) }),
-  benefits: z.enum(['HMO', 'PCSO', 'Senior Citizen'], { errorMap: () => ({ message: 'Health Benefits are required' }) }),
-  hmo: z.string().optional(),
-  docRequest: z.string().nonempty('Doctor\'s Note or Request is required'),
-  hospitalReceipt: z.string().nonempty('Hospital Receipt/Invoice is required'),
-  labReceipt: z.string().nonempty('Laboratory Receipt/Invoice is required'),
-  ustID: z.string().nonempty('Employee/UST ID is required'),
-  file: z.instanceof(File).refine((file) => file.size > 0, {
-    message: "A file is required",
-  }),
-  signature: z.string().nonempty('Applicant\'s Signature is required'),
+  ustID: z
+      .instanceof(FileList)
+      .refine((files) => files.length > 0, { message: 'Must be a file' })
+      .refine((files) => {
+        const fileType = files[0]?.type;
+        return fileType === 'application/pdf' || fileType === 'image/png' || fileType === 'image/jpeg' || fileType === 'image/jpg';
+      }, { message: 'Only PDF, PNG, JPG, or JPEG file types allowed' }),
+    signature: z
+    .instanceof(FileList)
+    .refine((files) => files.length > 0, { message: 'Must be a file' })
+    .refine((files) => {
+      const fileType = files[0]?.type;
+      return fileType === 'application/pdf' || fileType === 'image/png' || fileType === 'image/jpeg' || fileType === 'image/jpg';
+    }, { message: 'Only PDF, PNG, JPG, or JPEG file types allowed' }),
   claims: z.number().min(1, 'Claims are required'),
-  hospitalStatus: z.enum(['In-Patient', 'Out-Patient', 'ER Consultation'], { errorMap: () => ({ message: 'Hospital Status is required' }) }),
   certify: z.enum([' '], { errorMap: () => ({ message: 'Certification is required' }) }),
   ORNumber: z.string().nonempty('OR Number is required'),
   issuedBy: z.string().nonempty('Issued by is required'),
   amountPaid: z.number().min(1, 'Amount Paid is required'),
-  contactNumber: z.number().min(1, 'Contact Number is required')
 
 });
 
@@ -81,7 +74,9 @@ const EyeglassesForm = () => {
   const incrementClaims = () => setClaims(claims + 1);
   const decrementClaims = () => setClaims(claims > 1 ? claims - 1 : 1);
 
-  const onSubmit = (data: FieldValues) => console.log(data);
+  const onSubmit = (data: FieldValues) => {
+    console.log(data)
+  };
 
   const suffixOptions = ['Sr.', 'Jr.', 'II', 'III', 'IV', 'MD', 'PhD', 'Lord', 'Master', 'Optimus Prime'];
   const genderOptions = ['Male', 'Female'];
@@ -222,15 +217,15 @@ const EyeglassesForm = () => {
               )}
             </div>
             <div className="mb-1 col-md-3">
-            <label htmlFor="contactNumber" className="form-label">Contact Number</label>
+            <label htmlFor="contact" className="form-label">Contact Number</label>
             <input
-              {...register('contactNumber', { valueAsNumber: true })}
-              id="contactNumber"
+              {...register('contact', { valueAsNumber: true })}
+              id="contact"
               type="number"
               className="form-control"
             />
-            {errors.contactNumber && (
-              <p className="text-danger">{errors.contactNumber.message}</p>
+            {errors.contact && (
+              <p className="text-danger">{errors.contact.message}</p>
             )}
           </div>
         </div>
@@ -298,6 +293,7 @@ const EyeglassesForm = () => {
               {...register('ustID')}
               id="ustID"
               type="file"
+              accept=".pdf, .png, .jpg, .jpeg"
               className="form-control"
             />
             {errors.ustID && (
@@ -314,6 +310,7 @@ const EyeglassesForm = () => {
               {...register('signature')}
               id="signature"
               type="file"
+              accept=".pdf, .png, .jpg, .jpeg"
               className="form-control"
             />
             {errors.signature && (
@@ -350,7 +347,8 @@ const EyeglassesForm = () => {
         )}
       </fieldset>
       <div className="buttonDiv">
-        <button type="submit" className="btn btn-submit form-submit" disabled={!isValid}>Submit</button>
+        {/* disabled={!isValid} */}
+        <button type="submit" className="btn btn-submit form-submit" >Submit</button>
         <button type="reset" className="btn btn-clear form-submit">Clear</button>
       </div>
         </form>

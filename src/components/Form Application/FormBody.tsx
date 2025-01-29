@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { FieldValues, useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { useForm, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import './FormBody.css';
 
 const schema = z.object({
@@ -50,11 +50,41 @@ const schema = z.object({
   healthBenefits: z.enum(['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree'], { errorMap: () => ({ message: 'Health Benefits are required' }) }),
   benefits: z.enum(['HMO', 'PCSO', 'Senior Citizen'], { errorMap: () => ({ message: 'Health Benefits are required' }) }),
   hmo: z.string().optional(),
-  docRequest: z.string().nonempty('Doctor\'s Note or Request is required'),
-  hospitalReceipt: z.string().nonempty('Hospital Receipt/Invoice is required'),
-  labReceipt: z.string().nonempty('Laboratory Receipt/Invoice is required'),
-  ustID: z.string().nonempty('Employee/UST ID is required'),
-  signature: z.string().nonempty('Applicant\'s Signature is required'),
+  docRequest: z.z
+  .instanceof(FileList)
+  .refine((files) => files.length > 0, { message: 'Must be a file' })
+  .refine((files) => {
+    const fileType = files[0]?.type;
+    return fileType === 'application/pdf' || fileType === 'image/png' || fileType === 'image/jpeg' || fileType === 'image/jpg';
+  }, { message: 'Only PDF, PNG, JPG, or JPEG file types allowed' }),
+  hospitalReceipt: z
+  .instanceof(FileList)
+  .refine((files) => files.length > 0, { message: 'Must be a file' })
+  .refine((files) => {
+    const fileType = files[0]?.type;
+    return fileType === 'application/pdf' || fileType === 'image/png' || fileType === 'image/jpeg' || fileType === 'image/jpg';
+  }, { message: 'Only PDF, PNG, JPG, or JPEG file types allowed' }),
+  labReceipt: z
+  .instanceof(FileList)
+  .refine((files) => files.length > 0, { message: 'Must be a file' })
+  .refine((files) => {
+    const fileType = files[0]?.type;
+    return fileType === 'application/pdf' || fileType === 'image/png' || fileType === 'image/jpeg' || fileType === 'image/jpg';
+  }, { message: 'Only PDF, PNG, JPG, or JPEG file types allowed' }),
+  ustID: z
+    .instanceof(FileList)
+    .refine((files) => files.length > 0, { message: 'Must be a file' })
+    .refine((files) => {
+      const fileType = files[0]?.type;
+      return fileType === 'application/pdf' || fileType === 'image/png' || fileType === 'image/jpeg' || fileType === 'image/jpg';
+    }, { message: 'Only PDF, PNG, JPG, or JPEG file types allowed' }),
+  signature: z
+  .instanceof(FileList)
+  .refine((files) => files.length > 0, { message: 'Must be a file' })
+  .refine((files) => {
+    const fileType = files[0]?.type;
+    return fileType === 'application/pdf' || fileType === 'image/png' || fileType === 'image/jpeg' || fileType === 'image/jpg';
+  }, { message: 'Only PDF, PNG, JPG, or JPEG file types allowed' }),
   claims: z.number().min(1, 'Claims are required'),
   hospitalStatus: z.enum(['In-Patient', 'Out-Patient', 'ER Consultation'], { errorMap: () => ({ message: 'Hospital Status is required' }) }),
   certify: z.enum([' '], { errorMap: () => ({ message: 'Certification is required' }) }),
@@ -74,7 +104,11 @@ const FormBody = () => {
   const incrementClaims = () => setClaims(claims + 1);
   const decrementClaims = () => setClaims(claims > 1 ? claims - 1 : 1);
 
-  const onSubmit = (data: FieldValues) => console.log(data);
+  const onSubmit = (data: FieldValues) => {
+    const formData = new FormData();
+    // Append other form data as needed
+    console.log(formData);
+  };
 
   const suffixOptions = ['Sr.', 'Jr.', 'II', 'III', 'IV', 'MD', 'PhD', 'Lord', 'Master', 'Optimus Prime'];
   const genderOptions = ['Male', 'Female'];
@@ -112,7 +146,7 @@ const FormBody = () => {
   const hospitalStatusOptions = ['In-Patient', 'Out-Patient', 'ER Consultation'];
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(data => console.log(data))}>
       <p className="note">Please fill out the following boxes</p>
       <fieldset className="PersonalInfo line">
         <div className="row">
@@ -444,6 +478,8 @@ const FormBody = () => {
               {...register('docRequest')}
               id="docRequest"
               type="file"
+              accept=".pdf, .png, .jpg, .jpeg"
+
               className="form-control"
             />
             {errors.docRequest && (
@@ -460,6 +496,7 @@ const FormBody = () => {
               {...register('hospitalReceipt')}
               id="hospitalReceipt"
               type="file"
+              accept=".pdf, .png, .jpg, .jpeg"
               className="form-control"
             />
             {errors.hospitalReceipt && (
@@ -476,6 +513,7 @@ const FormBody = () => {
               {...register('labReceipt')}
               id="labReceipt"
               type="file"
+              accept=".pdf, .png, .jpg, .jpeg"
               className="form-control"
             />
             {errors.labReceipt && (
@@ -485,14 +523,16 @@ const FormBody = () => {
         </div>
         <div className="row">
           <div className="mb-1 col-md-4 ustID">Employee/UST ID</div>
-          <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
+          <div className="mb-1 col-md-4 fileType">PDF, PNG, JPG, JPEG </div>
           <div className="mb-1 col-md-4">
             <label htmlFor="ustID" className="form-label"></label>
             <input
               {...register('ustID')}
               id="ustID"
+              accept=".pdf, .png, .jpg, .jpeg"
               type="file"
               className="form-control"
+              
             />
             {errors.ustID && (
               <p className="text-danger">{errors.ustID.message}</p>
@@ -507,6 +547,7 @@ const FormBody = () => {
             <input
               {...register('signature')}
               id="signature"
+              accept=".pdf, .png, .jpg, .jpeg"
               type="file"
               className="form-control"
             />
