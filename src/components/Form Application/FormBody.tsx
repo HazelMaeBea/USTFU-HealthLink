@@ -5,12 +5,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import './FormBody.css';
 
 const schema = z.object({
-  lastname: z.string({ invalid_type_error: 'Last name is required' }),
-  firstname: z.string({ invalid_type_error: 'First name is required' }),
-  middlename: z.string({ invalid_type_error: 'Middle name is required' }),
-  age: z.number({ invalid_type_error: 'Age is required' }).min(18),
+  lastname: z.string().nonempty('Last name is required'),
+  firstname: z.string().nonempty('First name is required'),
+  middlename: z.string().nonempty('Middle name is required'),
+  age: z.number().min(18, 'Age must be at least 18'),
   suffix: z.string().optional(),
-  gender: z.enum(['Male', 'Female'], { invalid_type_error: 'Gender is required' }),
+  gender: z.enum(['Male', 'Female'], { errorMap: () => ({ message: 'Gender is required' }) }),
   college: z.enum([
     "Faculty of Sacred Theology", 
     "Faculty of Philosophy", 
@@ -35,33 +35,29 @@ const schema = z.object({
     "Institute of Physical Education and Athletics (IPEA)", 
     "UST Senior High School", 
     "UST Junior High School", 
-    "UST Education High School"], { invalid_type_error: 'College Affiliation is required' }),
-    contact: z.number({ invalid_type_error: 'Contact number is required' }).min(21),
-    hospital: z.string({ invalid_type_error: 'Hospital is required' }),
-    illness: z.string({ invalid_type_error: 'Nature of Illness is required' }),
-    physician: z.string({ invalid_type_error: 'Physician is required' }),
-    procedures: z.string({ invalid_type_error: 'Procedures is required' }),
-    status: z.enum(['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree'], { invalid_type_error: 'Status is required' }),
-    term: z.enum(["idk", "idk2"], { invalid_type_error: 'Academic Term is required' }),
-    year: z.enum(["idk", "idk2"], { invalid_type_error: 'Academic Year is required' }),
-    load: z.enum(["idk", "idk2"], { invalid_type_error: 'Teaching Load is required' }),
-    dateHired: z.string().optional(),
-    dateRetired: z.string().optional(),
-    healthBenefits: z.enum(['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree'], { invalid_type_error: 'Health Benefits is required' }),
-    benefits: z.enum(['HMO', 'PCSO', 'Senior Citizen'], { invalid_type_error: 'Health Benefits is required' }),
-    hmo: z.string().optional(),
-    docRequest: z.string({ invalid_type_error: 'Doctor\'s Note or Request is required' }),
-    hospitalReceipt: z.string({ invalid_type_error: 'Hospital Receipt/Invoice is required' }),
-    labReceipt: z.string({ invalid_type_error: 'Laboratory Receipt/Invoice is required' }),
-    ustID: z.string({ invalid_type_error: 'Employee/UST ID Receipt/Invoice is required' }),
-    signature: z.string({ invalid_type_error: 'Applicant\'s Signature is required' }),
-    claims: z.number({ invalid_type_error: 'Claims is required' }).min(1),
-    hospitalStatus: z.enum(['In-Patient', 'Out-Patient', 'ER Consultation'], { invalid_type_error: 'Hospital Status is required' }),
-    certify: z.enum([' '], { invalid_type_error: 'Certification is required' })
-
-
-
-
+    "UST Education High School"], { errorMap: () => ({ message: 'College Affiliation is required' }) }),
+  contact: z.number().min(21, 'Contact number is required'),
+  hospital: z.string().nonempty('Hospital is required'),
+  illness: z.string().nonempty('Nature of Illness is required'),
+  physician: z.string().nonempty('Physician is required'),
+  procedures: z.string().nonempty('Procedures are required'),
+  status: z.enum(['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree'], { errorMap: () => ({ message: 'Status is required' }) }),
+  term: z.enum(["idk", "idk2"], { errorMap: () => ({ message: 'Academic Term is required' }) }),
+  year: z.enum(["idk", "idk2"], { errorMap: () => ({ message: 'Academic Year is required' }) }),
+  load: z.enum(["idk", "idk2"], { errorMap: () => ({ message: 'Teaching Load is required' }) }),
+  dateHired: z.string().optional(),
+  dateRetired: z.string().optional(),
+  healthBenefits: z.enum(['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree'], { errorMap: () => ({ message: 'Health Benefits are required' }) }),
+  benefits: z.enum(['HMO', 'PCSO', 'Senior Citizen'], { errorMap: () => ({ message: 'Health Benefits are required' }) }),
+  hmo: z.string().optional(),
+  docRequest: z.string().nonempty('Doctor\'s Note or Request is required'),
+  hospitalReceipt: z.string().nonempty('Hospital Receipt/Invoice is required'),
+  labReceipt: z.string().nonempty('Laboratory Receipt/Invoice is required'),
+  ustID: z.string().nonempty('Employee/UST ID is required'),
+  signature: z.string().nonempty('Applicant\'s Signature is required'),
+  claims: z.number().min(1, 'Claims are required'),
+  hospitalStatus: z.enum(['In-Patient', 'Out-Patient', 'ER Consultation'], { errorMap: () => ({ message: 'Hospital Status is required' }) }),
+  certify: z.enum([' '], { errorMap: () => ({ message: 'Certification is required' }) }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -71,7 +67,7 @@ const FormBody = () => {
     register,
     handleSubmit,
     formState: { errors, isValid }
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
+  } = useForm<FormData>({ resolver: zodResolver(schema), mode: 'onChange' });
 
   const [claims, setClaims] = useState(1);
 
@@ -81,40 +77,39 @@ const FormBody = () => {
   const onSubmit = (data: FieldValues) => console.log(data);
 
   const suffixOptions = ['Sr.', 'Jr.', 'II', 'III', 'IV', 'MD', 'PhD', 'Lord', 'Master', 'Optimus Prime'];
-  const genderOptions = ['Male', 'Female']
-  const collegeOptions = ["Faculty of Sacred Theology",
-		"Faculty of Philosophy",
-		"Faculty of Canon Law",
-		"Faculty of Civil Law",
-		"Faculty of Medicine and Surgery",
-		"Faculty of Pharmacy",
-		"Faculty of Engineering",
-		"Faculty of Arts and Letters",
-		"College of Architecture",
-		"College of Commerce and Business Administration",
-		"College of Education",
-		"College of Fine Arts and Design",
-		"College of Nursing",
-		"College of Rehabilitation Sciences",
-		"College of Science",
-		"College of Tourism and Hospitality Management",
-		"College of Information and Computing Sciences (CICS)",
-		"Graduate School",
-		"Graduate School of Law",
-		"Conservatory of Music",
-		"Institute of Physical Education and Athletics (IPEA)",
-		"UST Senior High School",
-		"UST Junior High School",
-		"UST Education High School"]
-  const statusOptions = ['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree']
-  const termOptions = ["idk", "idk2"]
-  const yearOptions = ["idk", "idk2"]
-  const loadOptions = ["idk", "idk2"]
-  const benefitsOptions = ['HMO', 'PCSO', 'Senior Citizen']
-  const hospitalStatusOptions = ['In-Patient', 'Out-Patient', 'ER Consultation']
-  const certifyOptions = [' '];
-
-
+  const genderOptions = ['Male', 'Female'];
+  const collegeOptions = [
+    "Faculty of Sacred Theology",
+    "Faculty of Philosophy",
+    "Faculty of Canon Law",
+    "Faculty of Civil Law",
+    "Faculty of Medicine and Surgery",
+    "Faculty of Pharmacy",
+    "Faculty of Engineering",
+    "Faculty of Arts and Letters",
+    "College of Architecture",
+    "College of Commerce and Business Administration",
+    "College of Education",
+    "College of Fine Arts and Design",
+    "College of Nursing",
+    "College of Rehabilitation Sciences",
+    "College of Science",
+    "College of Tourism and Hospitality Management",
+    "College of Information and Computing Sciences (CICS)",
+    "Graduate School",
+    "Graduate School of Law",
+    "Conservatory of Music",
+    "Institute of Physical Education and Athletics (IPEA)",
+    "UST Senior High School",
+    "UST Junior High School",
+    "UST Education High School"
+  ];
+  const statusOptions = ['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree'];
+  const termOptions = ["idk", "idk2"];
+  const yearOptions = ["idk", "idk2"];
+  const loadOptions = ["idk", "idk2"];
+  const benefitsOptions = ['HMO', 'PCSO', 'Senior Citizen'];
+  const hospitalStatusOptions = ['In-Patient', 'Out-Patient', 'ER Consultation'];
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -173,9 +168,8 @@ const FormBody = () => {
               </select>
             </div>
         </div>
-{/* THIS IS THE NEXT ROW, PUTTING THIS SO I CAN SEE PROPERLY */}
         <div className="row">
-          <div className="mb-1 col-md-3">
+          <div className="mb-1 col-md-1">
             <label htmlFor="age" className="form-label">Age</label>
             <input
               {...register('age', { valueAsNumber: true })}
@@ -187,7 +181,7 @@ const FormBody = () => {
               <p className="text-danger">{errors.age.message}</p>
             )}
           </div>
-          <div className="mb-1 col-md-3">
+          <div className="mb-1 col-md-2">
               <label htmlFor="gender" className="form-label">Gender</label>
               <select
                 {...register('gender')}
@@ -201,6 +195,9 @@ const FormBody = () => {
                   </option>
                 ))}
               </select>
+              {errors.gender && (
+                <p className="text-danger">{errors.gender.message}</p>
+              )}
             </div>
             <div className="mb-1 col-md-6">
               <label htmlFor="college" className="form-label">College Affiliation</label>
@@ -216,10 +213,11 @@ const FormBody = () => {
                   </option>
                 ))}
               </select>
+              {errors.college && (
+                <p className="text-danger">{errors.college.message}</p>
+              )}
             </div>
-        </div>
-        <div className="row">
-          <div className="mb-1 col-md-3">
+            <div className="mb-1 col-md-3">
             <label htmlFor="contact" className="form-label">Contact Number</label>
             <input
               {...register('contact', { valueAsNumber: true })}
@@ -232,9 +230,8 @@ const FormBody = () => {
             )}
           </div>
         </div>
-      </fieldset>
-{/* MEDICAL INFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */}
 
+      </fieldset>
       <fieldset className="MedicalInfo">
         <div className="row">
           <div className="mb-1 col-md-3">
@@ -275,7 +272,7 @@ const FormBody = () => {
           </div>
         </div>
         <div className="row">
-        <div className="mb-1 col-md-6">
+          <div className="mb-1 col-md-6">
             <label htmlFor="procedures" className="form-label">Procedures</label>
             <input
               {...register('procedures')}
@@ -288,13 +285,11 @@ const FormBody = () => {
             )}
           </div>
         </div>
-
       </fieldset>
-{/* TEACHING INFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */}
       <fieldset className="TeachingInfo">
         <div className="row">
           <div className="mb-1 col-md-3">
-            <div className = "row">
+            <div className="row">
               <div className="mb-1 col-md-6">
                 <label htmlFor="term" className="form-label">Academic Term</label>
                 <select
@@ -309,24 +304,29 @@ const FormBody = () => {
                     </option>
                   ))}
                 </select>
+                {errors.term && (
+                  <p className="text-danger">{errors.term.message}</p>
+                )}
               </div>
-            <div className="mb-1 col-md-6">
-              <label htmlFor="year" className="form-label">Academic Year</label>
-              <select
-                {...register('year')}
-                id="year"
-                className="form-select"
-              >
-                <option value="" disabled selected hidden></option>
-                {yearOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+              <div className="mb-1 col-md-6">
+                <label htmlFor="year" className="form-label">Academic Year</label>
+                <select
+                  {...register('year')}
+                  id="year"
+                  className="form-select"
+                >
+                  <option value="" disabled selected hidden></option>
+                  {yearOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                {errors.year && (
+                  <p className="text-danger">{errors.year.message}</p>
+                )}
+              </div>
             </div>
-            </div>
-            
             <div className="mb-1 col-md-12">
               <label htmlFor="load" className="form-label">Teaching Load</label>
               <select
@@ -341,15 +341,11 @@ const FormBody = () => {
                   </option>
                 ))}
               </select>
+              {errors.load && (
+                <p className="text-danger">{errors.load.message}</p>
+              )}
             </div>
           </div>
-          
-
-
-
-{/* STATUS INFO*/ }
-
-
           <div className="mb-1 col-md-3">
             <label className="form-label">Status</label>
             {statusOptions.map((option, index) => (
@@ -373,21 +369,27 @@ const FormBody = () => {
           <div className="mb-1 col-md-3">
             <div className="mb-1 col-md-12">
               <label htmlFor="dateHired" className="form-label">If Tenure-Track, please input DATE HIRED:</label>
-                <input
-                  {...register('dateHired', { valueAsNumber: true })}
-                  id="dateHired"
-                  type="date"
-                  className="form-control"
-                />
+              <input
+                {...register('dateHired')}
+                id="dateHired"
+                type="date"
+                className="form-control"
+              />
+              {errors.dateHired && (
+                <p className="text-danger">{errors.dateHired.message}</p>
+              )}
             </div>
             <div className="mb-1 col-md-12">
               <label htmlFor="dateRetired" className="form-label">If Retiree, please input DATE RETIRED:</label>
-                <input
-                  {...register('dateRetired', { valueAsNumber: true })}
-                  id="dateRetired"
-                  type="date"
-                  className="form-control"
-                />
+              <input
+                {...register('dateRetired')}
+                id="dateRetired"
+                type="date"
+                className="form-control"
+              />
+              {errors.dateRetired && (
+                <p className="text-danger">{errors.dateRetired.message}</p>
+              )}
             </div>
           </div>
           <div className="mb-1 col-md-3">
@@ -410,32 +412,28 @@ const FormBody = () => {
               <p className="text-danger">{errors.benefits.message}</p>
             )}
             <div className="mb-1 col-md-12">
-            <label htmlFor="hmo" className="form-label">If HMO, please specify:</label>
-            <input
-              {...register('hmo')}
-              id="hmo"
-              type="text"
-              className="form-control"
-            />
-            {errors.hmo && (
-              <p className="text-danger">{errors.hmo.message}</p>
-            )}
+              <label htmlFor="hmo" className="form-label">If HMO, please specify:</label>
+              <input
+                {...register('hmo')}
+                id="hmo"
+                type="text"
+                className="form-control"
+              />
+              {errors.hmo && (
+                <p className="text-danger">{errors.hmo.message}</p>
+              )}
+            </div>
           </div>
-          </div>
-          
         </div>
       </fieldset>
-
-
       <fieldset className="uploadDisclaimer">
         <p>Kindly upload the necessary documents needed. </p>
         <div className="row">
-        <div className="mb-1 col-md-4"><strong>Required Attachments</strong></div>
-        <div className="mb-1 col-md-4"><strong>File Type</strong></div>
-        <div className="mb-1 col-md-4"><strong>Upload here</strong></div>
-      </div>
+          <div className="mb-1 col-md-4"><strong>Required Attachments</strong></div>
+          <div className="mb-1 col-md-4"><strong>File Type</strong></div>
+          <div className="mb-1 col-md-4"><strong>Upload here</strong></div>
+        </div>
       </fieldset>
-
       <fieldset className="medicalFiles">
         <div className="row">
           <div className="mb-1 col-md-4 docRequest">Doctor's Note or Request</div>
@@ -453,7 +451,6 @@ const FormBody = () => {
             )}
           </div>
         </div>
-
         <div className="row">
           <div className="mb-1 col-md-4 hospitalReceipt">Hospital Receipt/Invoice</div>
           <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
@@ -470,7 +467,6 @@ const FormBody = () => {
             )}
           </div>
         </div>
-
         <div className="row">
           <div className="mb-1 col-md-4 labReceipt">Laboratory Receipt/Invoice</div>
           <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
@@ -487,10 +483,8 @@ const FormBody = () => {
             )}
           </div>
         </div>
-
-
         <div className="row">
-          <div className="mb-1 col-md-4 ustID">Employee/UST ID Receipt/Invoice</div>
+          <div className="mb-1 col-md-4 ustID">Employee/UST ID</div>
           <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
           <div className="mb-1 col-md-4">
             <label htmlFor="ustID" className="form-label"></label>
@@ -505,8 +499,6 @@ const FormBody = () => {
             )}
           </div>
         </div>
-
-
         <div className="row">
           <div className="mb-1 col-md-4 signature">Applicant's Signature</div>
           <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
@@ -523,39 +515,35 @@ const FormBody = () => {
             )}
           </div>
         </div>
-
         <div className="row claimCount">
           <div>How many claims do you need to request?</div>
           <div>
             <button type="button" onClick={decrementClaims} className="btn btn-secondary claimCompute">-</button>
             <span className="claims-count">{claims}</span>
             <button type="button" onClick={incrementClaims} className="btn btn-secondary claimCompute">+</button>
-            </div>
+          </div>
         </div>
-
       </fieldset>
       <fieldset>
         <label className="form-label"></label>
-            {hospitalStatusOptions.map((option, index) => (
-              <div key={index} className="form-check form-check-inline">
-                <input
-                  {...register('hospitalStatus')}
-                  id={`hospitalStatus-${index}`}
-                  type="radio"
-                  value={option}
-                  className="form-check-input"
-                />
-                <label htmlFor={`hospitalStatus-${index}`} className="form-check-label">
-                  {option}
-                </label>
-              </div>
-            ))}
-            {errors.hospitalStatus && (
-              <p className="text-danger">{errors.hospitalStatus.message}</p>
-            )}
+        {hospitalStatusOptions.map((option, index) => (
+          <div key={index} className="form-check form-check-inline">
+            <input
+              {...register('hospitalStatus')}
+              id={`hospitalStatus-${index}`}
+              type="radio"
+              value={option}
+              className="form-check-input"
+            />
+            <label htmlFor={`hospitalStatus-${index}`} className="form-check-label">
+              {option}
+            </label>
+          </div>
+        ))}
+        {errors.hospitalStatus && (
+          <p className="text-danger">{errors.hospitalStatus.message}</p>
+        )}
       </fieldset>
-
- 
       <fieldset className="certify">
         <div className="form-check form-check-inline">
           <input
@@ -573,15 +561,11 @@ const FormBody = () => {
         {errors.certify && (
           <p className="text-danger">{errors.certify.message}</p>
         )}
-
-
       </fieldset>
-
       <div className="buttonDiv">
         <button type="submit" className="btn btn-submit form-submit">Submit</button>
         <button type="reset" className="btn btn-clear form-submit">Clear</button>
       </div>
-      
     </form>
   );
 };
