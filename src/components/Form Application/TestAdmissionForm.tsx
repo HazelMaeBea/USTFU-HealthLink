@@ -86,7 +86,7 @@ const hospitalStatusOptions = ["In-Patient", "Out-Patient", "ER Consultation"];
 // const incrementClaims = () => setClaims(claims + 1);
 // const decrementClaims = () => setClaims(claims > 1 ? claims - 1 : 1);
 
-const TestForm = () => {
+const TestAdmissionForm = () => {
   const {
     register,
     handleSubmit,
@@ -597,19 +597,19 @@ const TestForm = () => {
             </div>
           </div>
 
-          <div className="row claimRow">
-            <div className="claimText">
-              <p>
-                <strong>How many claims do you need to request?</strong>
-              </p>
-            </div>
-            <div className="claimRequest">
-              <label htmlFor="claimRequestCount" className="form-label"></label>
+          <div className="form-group row mt-2">
+            <label
+              htmlFor="claimRequestCount"
+              className="form-label col-sm-5 col-form-label col-form-label fw-bolder claimRequest"
+            >
+              How many claims do you want to request?
+            </label>
+            <div className="col-sm-1">
               <input
                 {...register("claimRequestCount", { valueAsNumber: true })}
                 id="claimRequestCount"
                 type="number"
-                className="form-control"
+                className="form-control "
               />
               {errors.claimRequestCount && (
                 <p className="text-danger">
@@ -683,4 +683,4 @@ const TestForm = () => {
   );
 };
 
-export default TestForm;
+export default TestAdmissionForm;

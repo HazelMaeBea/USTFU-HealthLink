@@ -42,8 +42,6 @@ fieldset.medicalFiles .form-control[type="file"] {
   transition: border-color 0.3s ease;
 }
 
-
-
 .claimRequest {
   width: fit-content !important;
 }
