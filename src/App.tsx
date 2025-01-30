@@ -4,6 +4,9 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import Header from "./components/Landing_Home Page/Header";
 import Sidebar from "./components/Landing_Home Page/Sidebar";
 import MainContainer from "./components/Landing_Home Page/MainContainer";
+import InpatientForm from "./components/Form Application/InpatientForm";
+import AdmissionForm from "./components/Form Application/AdmissionForm";
+import OutpatientForm from "./components/Form Application/OutpatientForm";
 import EyeglassesForm from "./components/Form Application/EyeglassesForm";
 import LoginPage from "./components/Login Page/LoginPage"; // Import the Login Page
 import "./App.css";
@@ -31,6 +34,9 @@ const App = () => {
               <Routes>
                 <Route path="/home" element={<MainContainer isSidebarOpen={isSidebarOpen} />} />
                 <Route path="/eyeglasses" element={<EyeglassesForm />} />
+                <Route path="/admission" element={<AdmissionForm />} />
+						    <Route path="/outpatient" element={<OutpatientForm />} />
+						    <Route path="/eyeglasses" element={<EyeglassesForm />} />
                 <Route path="*" element={<Navigate to="/home" />} /> {/* Redirect after login */}
               </Routes>
             </div>

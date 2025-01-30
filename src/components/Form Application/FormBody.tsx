@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { FieldValues, useForm } from "react-hook-form";
-import { z } from "zod";
+import React, { useState } from "react";
+import { useForm, FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import "./FormBody.css";
 
 const schema = z.object({
-	lastname: z.string({ invalid_type_error: "Last name is required" }),
-	firstname: z.string({ invalid_type_error: "First name is required" }),
-	middlename: z.string({ invalid_type_error: "Middle name is required" }),
-	age: z.number({ invalid_type_error: "Age is required" }).min(18),
+	lastname: z.string().nonempty("Last name is required"),
+	firstname: z.string().nonempty("First name is required"),
+	middlename: z.string().nonempty("Middle name is required"),
+	age: z.number().min(18, "Age must be at least 18"),
 	suffix: z.string().optional(),
 	gender: z.enum(["Male", "Female"], {
-		invalid_type_error: "Gender is required",
+		errorMap: () => ({ message: "Gender is required" }),
 	}),
 	college: z.enum(
 		[
@@ -40,15 +40,13 @@ const schema = z.object({
 			"UST Junior High School",
 			"UST Education High School",
 		],
-		{ invalid_type_error: "College Affiliation is required" }
+		{ errorMap: () => ({ message: "College Affiliation is required" }) }
 	),
-	contact: z
-		.number({ invalid_type_error: "Contact number is required" })
-		.min(21),
-	hospital: z.string({ invalid_type_error: "Hospital is required" }),
-	illness: z.string({ invalid_type_error: "Nature of Illness is required" }),
-	physician: z.string({ invalid_type_error: "Physician is required" }),
-	procedures: z.string({ invalid_type_error: "Procedures is required" }),
+	contact: z.number().min(21, "Contact number is required"),
+	hospital: z.string().nonempty("Hospital is required"),
+	illness: z.string().nonempty("Nature of Illness is required"),
+	physician: z.string().nonempty("Physician is required"),
+	procedures: z.string().nonempty("Procedures are required"),
 	status: z.enum(
 		[
 			"Tenured",
@@ -57,16 +55,16 @@ const schema = z.object({
 			"Extendee",
 			"Retiree",
 		],
-		{ invalid_type_error: "Status is required" }
+		{ errorMap: () => ({ message: "Status is required" }) }
 	),
 	term: z.enum(["idk", "idk2"], {
-		invalid_type_error: "Academic Term is required",
+		errorMap: () => ({ message: "Academic Term is required" }),
 	}),
 	year: z.enum(["idk", "idk2"], {
-		invalid_type_error: "Academic Year is required",
+		errorMap: () => ({ message: "Academic Year is required" }),
 	}),
 	load: z.enum(["idk", "idk2"], {
-		invalid_type_error: "Teaching Load is required",
+		errorMap: () => ({ message: "Teaching Load is required" }),
 	}),
 	dateHired: z.string().optional(),
 	dateRetired: z.string().optional(),
@@ -78,32 +76,94 @@ const schema = z.object({
 			"Extendee",
 			"Retiree",
 		],
-		{ invalid_type_error: "Health Benefits is required" }
+		{ errorMap: () => ({ message: "Health Benefits are required" }) }
 	),
 	benefits: z.enum(["HMO", "PCSO", "Senior Citizen"], {
-		invalid_type_error: "Health Benefits is required",
+		errorMap: () => ({ message: "Health Benefits are required" }),
 	}),
 	hmo: z.string().optional(),
-	docRequest: z.string({
-		invalid_type_error: "Doctor's Note or Request is required",
-	}),
-	hospitalReceipt: z.string({
-		invalid_type_error: "Hospital Receipt/Invoice is required",
-	}),
-	labReceipt: z.string({
-		invalid_type_error: "Laboratory Receipt/Invoice is required",
-	}),
-	ustID: z.string({
-		invalid_type_error: "Employee/UST ID Receipt/Invoice is required",
-	}),
-	signature: z.string({
-		invalid_type_error: "Applicant's Signature is required",
-	}),
-	claims: z.number({ invalid_type_error: "Claims is required" }).min(1),
+	docRequest: z.z
+		.instanceof(FileList)
+		.refine((files) => files.length > 0, { message: "Must be a file" })
+		.refine(
+			(files) => {
+				const fileType = files[0]?.type;
+				return (
+					fileType === "application/pdf" ||
+					fileType === "image/png" ||
+					fileType === "image/jpeg" ||
+					fileType === "image/jpg"
+				);
+			},
+			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
+		),
+	hospitalReceipt: z
+		.instanceof(FileList)
+		.refine((files) => files.length > 0, { message: "Must be a file" })
+		.refine(
+			(files) => {
+				const fileType = files[0]?.type;
+				return (
+					fileType === "application/pdf" ||
+					fileType === "image/png" ||
+					fileType === "image/jpeg" ||
+					fileType === "image/jpg"
+				);
+			},
+			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
+		),
+	labReceipt: z
+		.instanceof(FileList)
+		.refine((files) => files.length > 0, { message: "Must be a file" })
+		.refine(
+			(files) => {
+				const fileType = files[0]?.type;
+				return (
+					fileType === "application/pdf" ||
+					fileType === "image/png" ||
+					fileType === "image/jpeg" ||
+					fileType === "image/jpg"
+				);
+			},
+			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
+		),
+	ustID: z
+		.instanceof(FileList)
+		.refine((files) => files.length > 0, { message: "Must be a file" })
+		.refine(
+			(files) => {
+				const fileType = files[0]?.type;
+				return (
+					fileType === "application/pdf" ||
+					fileType === "image/png" ||
+					fileType === "image/jpeg" ||
+					fileType === "image/jpg"
+				);
+			},
+			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
+		),
+	signature: z
+		.instanceof(FileList)
+		.refine((files) => files.length > 0, { message: "Must be a file" })
+		.refine(
+			(files) => {
+				const fileType = files[0]?.type;
+				return (
+					fileType === "application/pdf" ||
+					fileType === "image/png" ||
+					fileType === "image/jpeg" ||
+					fileType === "image/jpg"
+				);
+			},
+			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
+		),
+	claims: z.number().min(1, "Claims are required"),
 	hospitalStatus: z.enum(["In-Patient", "Out-Patient", "ER Consultation"], {
-		invalid_type_error: "Hospital Status is required",
+		errorMap: () => ({ message: "Hospital Status is required" }),
 	}),
-	certify: z.enum([" "], { invalid_type_error: "Certification is required" }),
+	certify: z.enum([" "], {
+		errorMap: () => ({ message: "Certification is required" }),
+	}),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -113,14 +173,18 @@ const FormBody = () => {
 		register,
 		handleSubmit,
 		formState: { errors, isValid },
-	} = useForm<FormData>({ resolver: zodResolver(schema) });
+	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
 	const [claims, setClaims] = useState(1);
 
 	const incrementClaims = () => setClaims(claims + 1);
 	const decrementClaims = () => setClaims(claims > 1 ? claims - 1 : 1);
 
-	const onSubmit = (data: FieldValues) => console.log(data);
+	const onSubmit = (data: FieldValues) => {
+		const formData = new FormData();
+		// Append other form data as needed
+		console.log(formData);
+	};
 
 	const suffixOptions = [
 		"Sr.",
@@ -177,10 +241,9 @@ const FormBody = () => {
 		"Out-Patient",
 		"ER Consultation",
 	];
-	const certifyOptions = [" "];
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)}>
+		<form onSubmit={handleSubmit((data) => console.log(data))}>
 			<p className="note">Please fill out the following boxes</p>
 			<fieldset className="PersonalInfo line">
 				<div className="row">
@@ -250,9 +313,8 @@ const FormBody = () => {
 						</select>
 					</div>
 				</div>
-				{/* THIS IS THE NEXT ROW, PUTTING THIS SO I CAN SEE PROPERLY */}
 				<div className="row">
-					<div className="mb-1 col-md-3">
+					<div className="mb-1 col-md-1">
 						<label htmlFor="age" className="form-label">
 							Age
 						</label>
@@ -266,7 +328,7 @@ const FormBody = () => {
 							<p className="text-danger">{errors.age.message}</p>
 						)}
 					</div>
-					<div className="mb-1 col-md-3">
+					<div className="mb-1 col-md-2">
 						<label htmlFor="gender" className="form-label">
 							Gender
 						</label>
@@ -282,6 +344,11 @@ const FormBody = () => {
 								</option>
 							))}
 						</select>
+						{errors.gender && (
+							<p className="text-danger">
+								{errors.gender.message}
+							</p>
+						)}
 					</div>
 					<div className="mb-1 col-md-6">
 						<label htmlFor="college" className="form-label">
@@ -299,9 +366,12 @@ const FormBody = () => {
 								</option>
 							))}
 						</select>
+						{errors.college && (
+							<p className="text-danger">
+								{errors.college.message}
+							</p>
+						)}
 					</div>
-				</div>
-				<div className="row">
 					<div className="mb-1 col-md-3">
 						<label htmlFor="contact" className="form-label">
 							Contact Number
@@ -320,8 +390,6 @@ const FormBody = () => {
 					</div>
 				</div>
 			</fieldset>
-			{/* MEDICAL INFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */}
-
 			<fieldset className="MedicalInfo">
 				<div className="row">
 					<div className="mb-1 col-md-3">
@@ -392,7 +460,6 @@ const FormBody = () => {
 					</div>
 				</div>
 			</fieldset>
-			{/* TEACHING INFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO */}
 			<fieldset className="TeachingInfo">
 				<div className="row">
 					<div className="mb-1 col-md-3">
@@ -418,6 +485,11 @@ const FormBody = () => {
 										</option>
 									))}
 								</select>
+								{errors.term && (
+									<p className="text-danger">
+										{errors.term.message}
+									</p>
+								)}
 							</div>
 							<div className="mb-1 col-md-6">
 								<label htmlFor="year" className="form-label">
@@ -440,9 +512,13 @@ const FormBody = () => {
 										</option>
 									))}
 								</select>
+								{errors.year && (
+									<p className="text-danger">
+										{errors.year.message}
+									</p>
+								)}
 							</div>
 						</div>
-
 						<div className="mb-1 col-md-12">
 							<label htmlFor="load" className="form-label">
 								Teaching Load
@@ -464,11 +540,13 @@ const FormBody = () => {
 									</option>
 								))}
 							</select>
+							{errors.load && (
+								<p className="text-danger">
+									{errors.load.message}
+								</p>
+							)}
 						</div>
 					</div>
-
-					{/* STATUS INFO*/}
-
 					<div className="mb-1 col-md-3">
 						<label className="form-label">Status</label>
 						{statusOptions.map((option, index) => (
@@ -500,26 +578,32 @@ const FormBody = () => {
 								If Tenure-Track, please input DATE HIRED:
 							</label>
 							<input
-								{...register("dateHired", {
-									valueAsNumber: true,
-								})}
+								{...register("dateHired")}
 								id="dateHired"
 								type="date"
 								className="form-control"
 							/>
+							{errors.dateHired && (
+								<p className="text-danger">
+									{errors.dateHired.message}
+								</p>
+							)}
 						</div>
 						<div className="mb-1 col-md-12">
 							<label htmlFor="dateRetired" className="form-label">
 								If Retiree, please input DATE RETIRED:
 							</label>
 							<input
-								{...register("dateRetired", {
-									valueAsNumber: true,
-								})}
+								{...register("dateRetired")}
 								id="dateRetired"
 								type="date"
 								className="form-control"
 							/>
+							{errors.dateRetired && (
+								<p className="text-danger">
+									{errors.dateRetired.message}
+								</p>
+							)}
 						</div>
 					</div>
 					<div className="mb-1 col-md-3">
@@ -565,7 +649,6 @@ const FormBody = () => {
 					</div>
 				</div>
 			</fieldset>
-
 			<fieldset className="uploadDisclaimer">
 				<p>Kindly upload the necessary documents needed. </p>
 				<div className="row">
@@ -580,7 +663,6 @@ const FormBody = () => {
 					</div>
 				</div>
 			</fieldset>
-
 			<fieldset className="medicalFiles">
 				<div className="row">
 					<div className="mb-1 col-md-4 docRequest">
@@ -596,6 +678,7 @@ const FormBody = () => {
 							{...register("docRequest")}
 							id="docRequest"
 							type="file"
+							accept=".pdf, .png, .jpg, .jpeg"
 							className="form-control"
 						/>
 						{errors.docRequest && (
@@ -605,7 +688,6 @@ const FormBody = () => {
 						)}
 					</div>
 				</div>
-
 				<div className="row">
 					<div className="mb-1 col-md-4 hospitalReceipt">
 						Hospital Receipt/Invoice
@@ -620,6 +702,7 @@ const FormBody = () => {
 							{...register("hospitalReceipt")}
 							id="hospitalReceipt"
 							type="file"
+							accept=".pdf, .png, .jpg, .jpeg"
 							className="form-control"
 						/>
 						{errors.hospitalReceipt && (
@@ -629,7 +712,6 @@ const FormBody = () => {
 						)}
 					</div>
 				</div>
-
 				<div className="row">
 					<div className="mb-1 col-md-4 labReceipt">
 						Laboratory Receipt/Invoice
@@ -644,6 +726,7 @@ const FormBody = () => {
 							{...register("labReceipt")}
 							id="labReceipt"
 							type="file"
+							accept=".pdf, .png, .jpg, .jpeg"
 							className="form-control"
 						/>
 						{errors.labReceipt && (
@@ -653,17 +736,17 @@ const FormBody = () => {
 						)}
 					</div>
 				</div>
-
 				<div className="row">
-					<div className="mb-1 col-md-4 ustID">
-						Employee/UST ID Receipt/Invoice
+					<div className="mb-1 col-md-4 ustID">Employee/UST ID</div>
+					<div className="mb-1 col-md-4 fileType">
+						PDF, PNG, JPG, JPEG{" "}
 					</div>
-					<div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
 					<div className="mb-1 col-md-4">
 						<label htmlFor="ustID" className="form-label"></label>
 						<input
 							{...register("ustID")}
 							id="ustID"
+							accept=".pdf, .png, .jpg, .jpeg"
 							type="file"
 							className="form-control"
 						/>
@@ -674,7 +757,6 @@ const FormBody = () => {
 						)}
 					</div>
 				</div>
-
 				<div className="row">
 					<div className="mb-1 col-md-4 signature">
 						Applicant's Signature
@@ -688,6 +770,7 @@ const FormBody = () => {
 						<input
 							{...register("signature")}
 							id="signature"
+							accept=".pdf, .png, .jpg, .jpeg"
 							type="file"
 							className="form-control"
 						/>
@@ -698,7 +781,6 @@ const FormBody = () => {
 						)}
 					</div>
 				</div>
-
 				<div className="row claimCount">
 					<div>How many claims do you need to request?</div>
 					<div>
@@ -745,7 +827,6 @@ const FormBody = () => {
 					</p>
 				)}
 			</fieldset>
-
 			<fieldset className="certify">
 				<div className="form-check form-check-inline">
 					<input
@@ -771,7 +852,6 @@ const FormBody = () => {
 					<p className="text-danger">{errors.certify.message}</p>
 				)}
 			</fieldset>
-
 			<div className="buttonDiv">
 				<button type="submit" className="btn btn-submit form-submit">
 					Submit
