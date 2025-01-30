@@ -597,12 +597,25 @@ const TestForm = () => {
             </div>
           </div>
 
-          <div className="row">
-            <div className="row mb-3 mt-2 ">
-              <label htmlFor="inputEmail3" className="col-sm-6 col-form-label claimRequest"><p className="font-weight-bold text-right">How many claims do you want to request?</p></label>
-              <div className="col-sm-1">
-                <input type="email" className="form-control" id="inputEmail3"></input>
-              </div>
+          <div className="row claimRow">
+            <div className="claimText">
+              <p>
+                <strong>How many claims do you need to request?</strong>
+              </p>
+            </div>
+            <div className="claimRequest">
+              <label htmlFor="claimRequestCount" className="form-label"></label>
+              <input
+                {...register("claimRequestCount", { valueAsNumber: true })}
+                id="claimRequestCount"
+                type="number"
+                className="form-control"
+              />
+              {errors.claimRequestCount && (
+                <p className="text-danger">
+                  {errors.claimRequestCount.message}
+                </p>
+              )}
             </div>
           </div>
         </fieldset>
