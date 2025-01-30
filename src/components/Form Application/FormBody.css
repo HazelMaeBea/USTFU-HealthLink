@@ -43,10 +43,10 @@ fieldset.medicalFiles .form-control[type="file"] {
 }
 
 
-.claimRequest {
-  font-size: 18px !important;
-}
 
+.claimRequest {
+  width: fit-content !important;
+}
 
 .btn-secondary {
   padding: 5px 10px;
