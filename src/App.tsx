@@ -7,6 +7,10 @@ import InpatientForm from "./components/Form Application/InpatientForm";
 import AdmissionForm from "./components/Form Application/AdmissionForm";
 import OutpatientForm from "./components/Form Application/OutpatientForm";
 import EyeglassesForm from "./components/Form Application/EyeglassesForm";
+import TestForm from "./components/Form Application/TestForm";
+import Form from "./components/Form Application/Form";
+
+
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
@@ -30,6 +34,13 @@ const App = () => {
 						<Route path="/admission" element={<AdmissionForm />} />
 						<Route path="/outpatient" element={<OutpatientForm />} />
 						<Route path="/eyeglasses" element={<EyeglassesForm />} />
+
+
+
+						<Route path="/testform" element={<TestForm />} />
+						<Route path="/form" element={<Form />} />
+
+
 					</Routes>
 				</div>
 			</Router>

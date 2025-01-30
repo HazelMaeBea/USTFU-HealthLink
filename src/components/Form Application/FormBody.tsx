@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import {z} from 'zod';
 import './FormBody.css';
 
 const schema = z.object({
@@ -50,8 +50,7 @@ const schema = z.object({
   healthBenefits: z.enum(['Tenured', 'Tenured-Track', 'Lecturer Before 2001', 'Extendee', 'Retiree'], { errorMap: () => ({ message: 'Health Benefits are required' }) }),
   benefits: z.enum(['HMO', 'PCSO', 'Senior Citizen'], { errorMap: () => ({ message: 'Health Benefits are required' }) }),
   hmo: z.string().optional(),
-  docRequest: z.z
-  .instanceof(FileList)
+  docRequest: z.instanceof(FileList)
   .refine((files) => files.length > 0, { message: 'Must be a file' })
   .refine((files) => {
     const fileType = files[0]?.type;
@@ -88,6 +87,7 @@ const schema = z.object({
   claims: z.number().min(1, 'Claims are required'),
   hospitalStatus: z.enum(['In-Patient', 'Out-Patient', 'ER Consultation'], { errorMap: () => ({ message: 'Hospital Status is required' }) }),
   certify: z.enum([' '], { errorMap: () => ({ message: 'Certification is required' }) }),
+  
 });
 
 type FormData = z.infer<typeof schema>;
@@ -106,8 +106,14 @@ const FormBody = () => {
 
   const onSubmit = (data: FieldValues) => {
     const formData = new FormData();
-    // Append other form data as needed
-    console.log(formData);
+    Object.entries(data).forEach(([key, value]) => {
+      if (value instanceof FileList) {
+        formData.append(key, value[0]);
+      } else {
+        formData.append(key, value as string);
+      }
+    });
+    console.log(Object.fromEntries(formData.entries()));
   };
 
   const suffixOptions = ['Sr.', 'Jr.', 'II', 'III', 'IV', 'MD', 'PhD', 'Lord', 'Master', 'Optimus Prime'];
@@ -146,7 +152,7 @@ const FormBody = () => {
   const hospitalStatusOptions = ['In-Patient', 'Out-Patient', 'ER Consultation'];
 
   return (
-    <form onSubmit={handleSubmit(data => console.log(data))}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <p className="note">Please fill out the following boxes</p>
       <fieldset className="PersonalInfo line">
         <div className="row">
@@ -565,6 +571,9 @@ const FormBody = () => {
           </div>
         </div>
       </fieldset>
+
+
+      
       <fieldset>
         <label className="form-label"></label>
         {hospitalStatusOptions.map((option, index) => (

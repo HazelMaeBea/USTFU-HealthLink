@@ -42,25 +42,11 @@ fieldset.medicalFiles .form-control[type="file"] {
   transition: border-color 0.3s ease;
 }
 
-.claimCount {
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 20px !important;
+
+.claimRequest {
+  font-size: 18px !important;
 }
 
-.claims-count {
-  margin: 0 10px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.claims-buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
-  font-size: 5px;
-}
 
 .btn-secondary {
   padding: 5px 10px;
