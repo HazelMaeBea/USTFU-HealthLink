@@ -8,12 +8,12 @@ import InpatientForm from "./components/Form Application/InpatientForm";
 import AdmissionForm from "./components/Form Application/AdmissionForm";
 import OutpatientForm from "./components/Form Application/OutpatientForm";
 import EyeglassesForm from "./components/Form Application/EyeglassesForm";
-import LoginPage from "./components/Login Page/LoginPage"; // Import the Login Page
+import LoginPage from "./components/Login Page/LoginPage";
 import "./App.css";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -33,11 +33,11 @@ const App = () => {
               <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
               <Routes>
                 <Route path="/home" element={<MainContainer isSidebarOpen={isSidebarOpen} />} />
-                <Route path="/eyeglasses" element={<EyeglassesForm />} />
+                <Route path="/inpatient" element={<InpatientForm />} />
                 <Route path="/admission" element={<AdmissionForm />} />
-						    <Route path="/outpatient" element={<OutpatientForm />} />
-						    <Route path="/eyeglasses" element={<EyeglassesForm />} />
-                <Route path="*" element={<Navigate to="/home" />} /> {/* Redirect after login */}
+				<Route path="/outpatient" element={<OutpatientForm />} />
+				<Route path="/eyeglasses" element={<EyeglassesForm />} />
+                <Route path="*" element={<Navigate to="/home" />} /> {}
               </Routes>
             </div>
           </>
