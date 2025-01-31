@@ -17,7 +17,6 @@ import EyeglassesForm from "./components/Form Application/EyeglassesForm";
 import TestAdmissionForm from "./components/Form Application/TestAdmissionForm";
 import TestEyeglassesForm from "./components/Form Application/TestEyeglassesForm";
 
-
 import Form from "./components/Form Application/Form";
 
 import LoginPage from "./components/Login Page/LoginPage";
@@ -54,9 +53,6 @@ const App = () => {
                 <Route path="/eyeglasses" element={<EyeglassesForm />} />
                 <Route path="*" element={<Navigate to="/home" />} /> {}
                 <Route path="/form" element={<Form />} />
-
-				<Route path="/testadmission" element={<TestAdmissionForm />} />
-				<Route path="/testeyeglasses" element={<TestEyeglassesForm />} />
               </Routes>
             </div>
           </>
