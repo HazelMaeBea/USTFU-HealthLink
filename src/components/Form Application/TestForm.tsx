@@ -4,6 +4,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "./FormBody.css";
 import FormHeader from "./FormHeader";
+import { db } from "../../config/firebase";
+import { getDocs ,collection, addDoc } from "firebase/firestore";
 
 type FormData = z.infer<typeof schema>;
 
@@ -93,8 +95,21 @@ const TestForm = () => {
     formState: { errors, isValid },
   } = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-  const onSubmit = (data: FieldValues) => {
-    console.log(data);
+  const formsCollectionRef = collection(db, "FormRequests");
+
+  const onSubmit = async (data: FieldValues) => {
+    // console.log(data["age"]);
+    // console.log(data["firstname"]);
+    // console.log(data["lastname"]);
+    // console.log(data["illness"]);
+    // console.log(data["physician"]);
+    await addDoc(formsCollectionRef, {
+      Age: data["age"],
+      FirstName: data["firstname"],
+      LastName: data["lastname"],
+      Illness: data["illness"],
+      Physician: data["physician"],
+    })
   };
 
   return (
