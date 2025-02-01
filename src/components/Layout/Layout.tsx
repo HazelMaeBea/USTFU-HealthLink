@@ -3,18 +3,13 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import StickySidebar from "./StickySidebar";
+import { Container } from "react-bootstrap";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
-
-  const toggleSidebar = () => {
-    setSidebarOpen((prevState) => !prevState);
-  };
-  
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
 	useEffect(() => {
@@ -29,14 +24,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="layout">
-      <Header />
-      <div className="layout-body" style={{ display: "flex" }}>
-        {/* Pass `isSidebarOpen` and `toggleSidebar` to Sidebar */}
-        {isMobile ? (
+      <div className="HeaderContainer">
+        <Header />
+      </div>
+      {isMobile ? (
           <StickySidebar />
         ) : (
-          <Sidebar isCollapsed={!isSidebarOpen} toggleSidebar={toggleSidebar} />
+          <Container className="SidebarContainer">
+            <Sidebar/>
+          </Container>
         )}
+      <div className="layout-body" style={{ display: "flex" }}>
         <main className="page-content" style={{ flex: 1, padding: "1rem" }}>
           {children}
         </main>

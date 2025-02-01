@@ -8,14 +8,11 @@ import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { RiSettings5Line } from "react-icons/ri";
 import { useState } from "react";
 
-// Define the props interface
-interface SidebarProps {
-    isCollapsed: boolean;
-    toggleSidebar: () => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
+const Sidebar = () => {
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
+
+    const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
     const menuItems = [
         { name: "HOSPITALIZATION APPLICATION", icon: <TbHomeEdit size={20} />, path: "/home" },
