@@ -30,20 +30,24 @@
     align-items: center;
     justify-content: flex-end;
   }
-  
+  /* Page Logo */
+  .page-logo {
+    height: 95px;
+    margin: 10px;
+  }
   /* White box for login */
   .white-box {
     position: relative;
     width: 546px;
     height: 489.16px;
-    background: #FAF9F6;
+    background: #faf9f6;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     padding: 40px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-top: 10px solid #F4BB00; /* Add this line for the yellow top border */
   }
+  
   
   /* Sign-in title */
   .sign-in-title {
@@ -52,6 +56,8 @@
     font-weight: 700;
     color: #000000;
     margin-bottom: 20px;
+    margin-left: 30px;
+    margin-top: 30px;
   }
   
   /* Sign-in description */
@@ -60,8 +66,8 @@
     font-size: 18px;
     font-weight: 400;
     color: #000000;
-    text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    margin-left: 30px;
   }
   
   /* Requirement text */
@@ -70,16 +76,8 @@
     font-size: 18px;
     font-weight: 400;
     color: #000000;
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  
-  /* Yellow line */
-  .yellow-line {
-    width: 546px;
-    height: 10px;
-    background: #F4BB00;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
+    margin-left: 30px;
   }
   
   /* Google sign-in button */
@@ -87,8 +85,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 201px;
-    height: 43px;
+    width: 250px;
+    height: 50px;
     background: #FFFFFF;
     border: 1px solid #000000;
     border-radius: 8px;
@@ -97,6 +95,7 @@
     font-size: 18px;
     font-weight: 400;
     color: #000000;
+    margin-left: 30px;
   }
   
   .google-signin:hover {
