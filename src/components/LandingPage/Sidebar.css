@@ -1,0 +1,95 @@
+.sidebar-wrapper {
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transition: width 0.3s ease;
+}
+
+.sidebar {
+    background-color: #1c1c1e;
+    width: 250px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    font-size: 12px;
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar.collapsed .menu-text {
+    display: none;
+}
+
+.sidebar.collapsed .menu-item {
+    justify-content: center;
+}
+
+.sidebar.collapsed .menu-item a {
+    padding: 10px;
+}
+
+.Profile {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    justify-content: center;
+}
+
+.toggle-btn {
+    align-self: flex-end;
+    align-items: center;
+    /* background: none; */
+    /* background-color: aqua; */
+    border: none;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    padding: 5px;
+    height: 2rem;
+    width: 3.5rem;
+    
+}
+
+.sidebar.collapsed .toggle-btn {
+    align-self: flex-start;
+}
+
+.SidebarMenu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-item a {
+    color: white;
+    text-decoration: none;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0px 10px 0px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.menu-item a:hover {    
+    color: #f4bb00;
+}
+
+.menu-item.active a {    
+    color: #f4bb00;
+    text-decoration: underline 1.3px;
+    text-decoration-color: #ffffff; 
+    text-underline-offset: 8px;
+}
+
+/* Responsive for screen widths smaller than 768px */
+
+@media (max-width: 768px) {
+    
+}

@@ -7,7 +7,37 @@ import HospitalizationTracking from "./components/Pages/HospitalizationTracking"
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/Settings";
 import Logout from "./components/Pages/Logout";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useState, useEffect } from "react";
+import {
+	BrowserRouter as Router,
+	Route,
+	Routes,
+	Navigate,
+} from "react-router-dom";
+import { Container } from "react-bootstrap";
+import Header from "./components/LandingPage/Header";
+import Footer from "./components/LandingPage/Footer";
+import Sidebar from "./components/LandingPage/Sidebar";
+import ServiceCards from "./components/LandingPage/ServiceCards";
+import StickySidebar from "./components/LandingPage/StickySidebar";
+import Settings from "./components/Settings Page/Settings";
 
+import LoginPage from "./components/Login Page/LoginPage";
+import "./App.css";
+
+const App: React.FC = () => {
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+	useEffect(() => {
+		const handleResize = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
+
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, []);
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 

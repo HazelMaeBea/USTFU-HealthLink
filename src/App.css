@@ -1,20 +1,97 @@
 .App {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  min-width: auto;
+  min-block-size: auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 0px 0px;
+  grid-template-areas:
+      "Header Header"
+      "Sidebar Main"
+      "Footer Footer";    
+}
+
+
+.HeaderContainer { 
+  grid-area: Header; 
+}
+
+.StickySidebar {
+  display: none;
+}
+
+.SidebarContainer { 
+  grid-area: Sidebar; 
+  position: sticky;
+  top:0;
+  background-color: #1C1C1E;
+}
+
+.MainContainer { 
+  grid-area: Main;
+  width: 100%;
+  overflow: hidden; /* Prevent horizontal scroll */
   background-color: #EDEDED;
-
 }
 
-.Layout {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  
+.MainContainer .MainContent {
+  overflow-y: auto;
 }
 
-header {
-  flex-shrink: 0;
-  height: 60px;
+.FooterContainer { 
+  grid-area: Footer;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+.row {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.col-md-12 {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Responsive for screens smaller than 768px */
+@media (max-width: 768px) {
+  .App {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+          "Header"
+          "Main"
+          "Footer";
+  }
+
+  .HeaderContainer {
+      grid-area: Header;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+  }
+
+  .StickySidebar {
+      display: block;
+  }
+
+  .SidebarContainer {
+      display: none;
+  }
+
+  .MainContainer {
+      grid-area: Main;
+  }
+
+  .FooterContainer {
+      grid-area: Footer;
+      position: relative;
+      bottom:0;
+      width: 100%;
+  }
 }
