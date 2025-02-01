@@ -16,7 +16,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
       <div className="row">
         <div className="mb-1 col-md-4 docRequest">Doctor's Note or Request</div>
         <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
-        <div className="mb-1 col-md-4">
+        <div className="mb-1 col-md-4 first-file">
           <label htmlFor="docRequest" className="form-label"></label>
           <input
             id="docRequest"
