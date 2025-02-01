@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import Profile from "../Landing_Home Page/Profile";
+import Profile from "./Profile";
 import "./Sidebar.css";
 
 const Sidebar = ({
