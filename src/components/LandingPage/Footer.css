@@ -1,0 +1,61 @@
+.Footer {
+    background: #212529;
+    color: white;
+    padding: 2rem;
+    width: 100%;
+    justify-items: center;
+  }
+  
+  .footer-container {
+    display: grid;
+    grid-template-columns: 1fr, 0.5fr, 3fr;
+    grid-template-areas:
+    "contact vision mission mission mission";
+    column-gap: 4rem;
+  }
+
+  .footer-section:first-child {
+    grid-area:contact;
+  }
+
+  .footer-section:nth-child(2) {
+    grid-area: vision;
+    /* max-width: 400px; */
+  }
+
+  .footer-section:last-child {
+    grid-area: mission;
+  }
+  
+  .footer-section .footer-title {
+    color: #ffcc00;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  
+  .footer-section p {
+    margin: 5px 0;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+  
+  .footer-icon {
+    margin-right: 10px;
+    font-size: 0.8rem;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .footer-container {
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      justify-content: space-between;
+    }
+  
+    .footer-section {
+      text-align: left;
+    }
+  }
