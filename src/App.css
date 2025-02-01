@@ -12,6 +12,7 @@
       "Footer Footer";    
 }
 
+
 .HeaderContainer { 
   grid-area: Header; 
 }
@@ -30,7 +31,7 @@
 .MainContainer { 
   grid-area: Main;
   width: 100%;
-  overflow: none;
+  overflow: hidden; /* Prevent horizontal scroll */
   background-color: #EDEDED;
 }
 
@@ -43,6 +44,18 @@
   position: relative;
   bottom: 0;
   width: 100%;
+}
+
+.row {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.col-md-12 {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* Responsive for screens smaller than 768px */
