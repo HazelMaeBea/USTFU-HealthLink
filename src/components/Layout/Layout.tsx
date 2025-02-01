@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import StickySidebar from "./StickySidebar";
 import { Container } from "react-bootstrap";
+import "./Layout.css";
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,7 +24,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
 
   return (
-    <div className="layout">
+    <body className="layout">
       <div className="HeaderContainer">
         <Header />
       </div>
@@ -34,13 +35,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Sidebar/>
           </Container>
         )}
-      <div className="layout-body" style={{ display: "flex" }}>
-        <main className="page-content" style={{ flex: 1, padding: "1rem" }}>
+      <div className="MainContainer">
+        <main className="MainContent">
           {children}
         </main>
       </div>
-      <Footer />
-    </div>
+      <div className="Footer">
+        <Footer />
+      </div>
+    </body>
   );
 };
 
