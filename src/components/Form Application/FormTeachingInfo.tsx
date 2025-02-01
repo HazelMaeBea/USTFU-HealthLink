@@ -10,8 +10,6 @@ interface FormTeachingInfoProps {
   setDateHired: React.Dispatch<React.SetStateAction<Date>>;
   dateRetired: Date;
   setDateRetired: React.Dispatch<React.SetStateAction<Date>>;
-  handleHmoChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  isHmoSelected: boolean;
 }
 
 const termOptions = ["1st", "2nd"];
@@ -33,8 +31,6 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
   setDateHired,
   dateRetired,
   setDateRetired,
-  handleHmoChange,
-  isHmoSelected,
 }) => {
   return (
     <fieldset className="TeachingInfo">
@@ -151,7 +147,6 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
                 type="radio"
                 value={option}
                 className="form-check-input"
-                onChange={handleHmoChange}
               />
               <label htmlFor={`benefits-${index}`} className="form-check-label">
                 {option}
@@ -170,7 +165,6 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
               id="hmo"
               type="text"
               className="form-control"
-              required={isHmoSelected}
             />
             {errors.hmo && <p className="text-danger">{errors.hmo.message}</p>}
           </div>

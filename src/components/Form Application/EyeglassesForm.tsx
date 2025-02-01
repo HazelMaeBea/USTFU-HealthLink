@@ -7,7 +7,7 @@ import FormHeader from "./FormHeader";
 import FormPersonalInfo from "./FormPersonalInfo";
 import FormInvoice from "./FormInvoice";
 import FormUploadDisclaimer from "./FormUploadDisclaimer";
-import FormMedicalFiles from "./FormMedicalFiles";
+import FormSigIDFiles from "./FormSigIDFiles";
 import FormCertify from "./FormCertify";
 
 type FormData = z.infer<typeof schema>;
@@ -27,15 +27,6 @@ const schema = z.object({
   amountPaid: z.number().min(1, "Amount Paid is required"),
 
   college: z.string().nonempty("College is required"),
-  docRequest: z.any().refine((files) => files && files.length > 0, {
-    message: "File is required",
-  }),
-  hospitalInvoice: z.any().refine((files) => files && files.length > 0, {
-    message: "File is required",
-  }),
-  labInvoice: z.any().refine((files) => files && files.length > 0, {
-    message: "File is required",
-  }),
 
   employeeID: z.any().refine((files) => files && files.length > 0, {
     message: "File is required",
@@ -70,7 +61,7 @@ const EyeglassesForm = () => {
         <FormPersonalInfo register={register} errors={errors} />
         <FormInvoice register={register} errors={errors} />
         <FormUploadDisclaimer />
-        <FormMedicalFiles register={register} errors={errors} />
+        <FormSigIDFiles register={register} errors={errors} />
         <FormCertify register={register} errors={errors} />
 
         <div className="buttonDiv">

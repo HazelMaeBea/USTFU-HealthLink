@@ -56,7 +56,7 @@ const schema = z.object({
   hospitalStatus: z.enum(["In-Patient", "Out-Patient", "ER Consultation"], {
     errorMap: () => ({ message: "Hospital Status is required" }),
   }),
-  certify: z.enum([" "], {
+  certify: z.enum(["Yes"], {
     errorMap: () => ({ message: "Certification is required" }),
   }),
   claimRequestCount: z.number().min(1, "Claim Request Count is required"),
@@ -110,11 +110,7 @@ const FormBody = () => {
         <FormCertify register={register} errors={errors} />
 
         <div className="buttonDiv">
-          <button
-            type="submit"
-            disabled={!isValid}
-            className="btn btn-submit form-submit"
-          >
+          <button type="submit" className="btn btn-submit form-submit">
             Submit
           </button>
           <button type="reset" className="btn btn-clear form-submit">
