@@ -16,21 +16,16 @@ const App: React.FC = () => {
   };
 
   return (
-    <Router>
+    <Router> {/* BrowserRouter is wrapping everything */}
       <div className="App">
         {isAuthenticated ? (
           <Layout>
             <Routes>
-              {/* Hospitalization Application Routes */}
               <Route path="/home/*" element={<HospitalizationApplication />} />
-
-              {/* Other Pages */}
               <Route path="/tracking" element={<HospitalizationTracking />} />
               <Route path="/faqs" element={<FAQs />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/logout" element={<Logout />} />
-
-              {/* Redirect any unknown routes to /home */}
               <Route path="*" element={<Navigate to="/home" replace />} />
             </Routes>
           </Layout>
