@@ -12,7 +12,7 @@
 	min-height: 60dvh;
 	background-size: cover;
 	background-position: center;
-    background-image: linear-gradient(rgba(234, 234, 234, 0.2), rgba(0, 0, 0, 0.8)), url('../../assets/ustmain.jpg');
+    background-image: linear-gradient(rgba(234, 234, 234, 0.2), rgba(0, 0, 0, 0.8)), url('../../../../assets/ustmain.jpg');
 	display: flex;
 	flex-direction: column;
 	align-items: center;
