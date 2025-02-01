@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import StickySidebar from "./StickySidebar";
 import { Container } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./Layout.css";
 
 interface LayoutProps {
@@ -25,24 +26,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <body className="layout">
-      <div className="HeaderContainer">
-        <Header />
-      </div>
-      {isMobile ? (
-          <StickySidebar />
-        ) : (
-          <Container className="SidebarContainer">
-            <Sidebar/>
-          </Container>
-        )}
-      <div className="MainContainer">
-        <main className="MainContent">
-          {children}
-        </main>
-      </div>
-      <div className="Footer">
-        <Footer />
-      </div>
+      <>
+        <div className="HeaderContainer">
+          <Header />
+        </div>
+        {isMobile ? (
+            <StickySidebar />
+          ) : (
+            <Container className="SidebarContainer">
+              <Sidebar/>
+            </Container>
+          )}
+        <div className="MainContainer">
+          <main className="MainContent">
+            {children}
+          </main>
+        </div>
+        <div className="Footer">
+          <Footer />
+        </div>
+      </>
     </body>
   );
 };
