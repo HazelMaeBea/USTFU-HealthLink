@@ -12,6 +12,7 @@ import Footer from "./components/LandingPage/Footer";
 import Sidebar from "./components/LandingPage/Sidebar";
 import ServiceCards from "./components/LandingPage/ServiceCards";
 import StickySidebar from "./components/LandingPage/StickySidebar";
+import Settings from "./components/Settings Page/Settings";
 
 import LoginPage from "./components/Login Page/LoginPage";
 import "./App.css";
@@ -69,7 +70,7 @@ const App: React.FC = () => {
 									/>
 									<Route
 										path="/settings"
-										element={<div>Settings Content</div>}
+										element={<Settings />}
 									/>
 									<Route
 										path="/logout"
