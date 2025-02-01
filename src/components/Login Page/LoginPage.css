@@ -2,110 +2,154 @@
 
 /* Full-screen container */
 .login-container {
-    position: relative;
-    width: 1920px;
-    height: 1080px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: url(../../assets/LoginBg.png) no-repeat center center/cover;
-  }
-  
-  /* Background overlay */
-  .background-overlay {
-    position: absolute;
-    width: 1944px;
-    height: 1106px;
-    left: -15px;
-    top: -8px;
-    background: rgba(27, 43, 77, 0.59);
-  }
-  
-  /* Content wrapper */
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url(../../assets/LoginBg.png) no-repeat center center/cover;
+}
+
+/* Background overlay */
+.background-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: rgba(27, 43, 77, 0.59);
+}
+
+/* Content wrapper */
+.content {
+  position: relative;
+  width: 80%;
+  max-width: 1141px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+  gap: 20px; /* Adds spacing between logo and login box */
+}
+
+/* Page Logo */
+.page-logo {
+  width: auto;
+  max-height: 100px; /* Adjust height */
+}
+
+/* White box for login */
+.white-box {
+  background: #faf9f6;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  width: 90%;
+  max-width: 500px;
+  border-top: 10px solid #F4BB00;
+}
+
+/* Sign-in title */
+.sign-in-title {
+  font-family: 'Raleway', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 20px;
+}
+
+/* Sign-in description */
+.sign-in-description,
+.requirement {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #000000;
+  margin-bottom: 15px;
+}
+
+/* Google sign-in button */
+.google-signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: 300px;
+  height: 50px;
+  background: #FFFFFF;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #000000;
+}
+
+.google-signin:hover {
+  background: #f0f0f0;
+}
+
+/* Google logo inside button */
+.google-logo {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
   .content {
-    position: absolute;
-    width: 1141px;
-    height: 489.16px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    flex-direction: column; /* Stack elements vertically */
+    text-align: center;
   }
-  /* Page Logo */
+
   .page-logo {
-    height: 95px;
-    margin: 10px;
+    margin-bottom: 10px;
   }
-  /* White box for login */
+
   .white-box {
-    position: relative;
-    width: 546px;
-    height: 489.16px;
-    background: #faf9f6;
-    display: flex;
-    flex-direction: column;
-    padding: 40px;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    border-top: 10px solid #F4BB00; /* Add this line for the yellow top border */
+    width: 95%;
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
   }
-  
-  
-  /* Sign-in title */
+
   .sign-in-title {
-    font-family: 'Raleway', sans-serif;
-    font-size: 36px;
-    font-weight: 700;
-    color: #000000;
-    margin-bottom: 20px;
-    margin-left: 30px;
-    margin-top: 30px;
+    font-size: 1.5rem;
   }
-  
-  /* Sign-in description */
+
   .sign-in-description {
-    font-family: 'Roboto', sans-serif;
-    font-size: 18px;
-    font-weight: 400;
-    color: #000000;
-    margin-bottom: 15px;
-    margin-left: 30px;
+    font-size: 1rem;
   }
-  
-  /* Requirement text */
-  .requirement {
-    font-family: 'Roboto', sans-serif;
-    font-size: 18px;
-    font-weight: 400;
-    color: #000000;
-    margin-bottom: 35px;
-    margin-left: 30px;
-  }
-  
-  /* Google sign-in button */
+
   .google-signin {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 250px;
-    height: 50px;
-    background: #FFFFFF;
-    border: 1px solid #000000;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'Roboto', sans-serif;
-    font-size: 18px;
-    font-weight: 400;
-    color: #000000;
-    margin-left: 30px;
+    width: 100%;
+    font-size: 0.9rem;
   }
-  
-  .google-signin:hover {
-    background: #f0f0f0;
+}
+
+@media (max-width: 480px) {
+  .white-box {
+    padding: 15px;
   }
-  
-  /* Google logo inside button */
-  .google-logo {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
+
+  .sign-in-title {
+    font-size: 1.2rem;
   }
-  
+
+  .sign-in-description {
+    font-size: 0.9rem;
+  }
+
+  .google-signin {
+    height: 45px;
+    font-size: 0.8rem;
+  }
+}

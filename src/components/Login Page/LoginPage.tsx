@@ -16,7 +16,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         <div className="white-box">
           <h1 className="sign-in-title">Sign in</h1>
           <p className="sign-in-description">
-            To access MyUSTFU Portal, please make sure you meet the following requirement:
+            To access MyUSTFU HealthLink, please make sure you meet the following requirement: 
           </p>
           <p className="requirement">UST Google Workspace Personal Account</p>
           <button className="google-signin" onClick={onLogin}>
