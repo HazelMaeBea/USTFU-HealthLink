@@ -11,6 +11,14 @@ interface FormTeachingInfoProps {
   dateRetired: Date;
   setDateRetired: React.Dispatch<React.SetStateAction<Date>>;
 }
+interface FormTeachingInfoProps {
+  register: UseFormRegister<FormData>;
+  errors: FieldErrors<FormData>;
+  dateHired: Date;
+  setDateHired: React.Dispatch<React.SetStateAction<Date>>;
+  dateRetired: Date;
+  setDateRetired: React.Dispatch<React.SetStateAction<Date>>;
+}
 
 const termOptions = ["1st", "2nd"];
 const yearOptions = ["2021-2022", "2022-2023", "2023-2024"];
@@ -156,6 +164,8 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
           {errors.benefits && (
             <p className="text-danger">{errors.benefits.message}</p>
           )}
+          <p></p>
+          {/* empty space */}
           <div className="mb-1 col-md-12">
             <label htmlFor="hmo" className="form-label">
               If HMO, please specify:

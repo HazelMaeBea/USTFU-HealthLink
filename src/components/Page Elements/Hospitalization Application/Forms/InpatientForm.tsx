@@ -3,7 +3,7 @@ import FormBody from "./FormBody";
 
 const InpatientForm = () => {
 	return (
-		<div>
+		<div className="form-body">
 			<FormHeader formType="Inpatient Form" />
 			<FormBody />
 		</div>

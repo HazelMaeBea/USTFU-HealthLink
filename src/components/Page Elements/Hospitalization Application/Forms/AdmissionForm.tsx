@@ -60,8 +60,8 @@ const AdmissionForm = () => {
   };
 
   return (
-    <div>
-      <FormHeader formType="Test Form" />
+    <div className="form-body">
+      <FormHeader formType="Hospital Admission Form" />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <p className="note">Please fill out the following boxes</p>
