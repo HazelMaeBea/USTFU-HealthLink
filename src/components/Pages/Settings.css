@@ -2,12 +2,15 @@ body {
     max-width: 100%;
     box-sizing: border-box;
     overflow-x: hidden !important; /* Prevent horizontal scroll */
+    
 }
+
+
 .settings-container {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 50px;
+    padding: 50px 80px;
 }
 
 .form-check {
@@ -57,7 +60,11 @@ body {
     transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
     border-radius: 15px;
 }
-
+hr {
+    background-color: #F4BB00;
+    height: 5px;
+    border: none !important;
+}
 .form-check-toggle input + span:after {
     width: 28px;
     height: 28px;
@@ -87,3 +94,24 @@ body {
     border-color: #86be4e;
     transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
+
+.settings-form {
+    margin-top: 50px !important;
+}
+
+.buttonDiv {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+.buttonDiv .btn-submit {
+    margin-left: 10px;
+    background-color: black; 
+    color: white; 
+    border: none; 
+  }
+  
+  .buttonDiv .btn-submit:hover {
+    background-color: #333; 
+  }
+  

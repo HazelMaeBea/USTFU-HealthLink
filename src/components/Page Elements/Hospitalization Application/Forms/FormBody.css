@@ -1,9 +1,7 @@
-.ApplicationForm {
-  display: flex;
-  flex-direction: column;
-    width: 100%;
-  }
-  
+.form-body {
+  padding: 50px 80px !important;  
+}
+
 fieldset {
   border: none;
   border-top: 1px solid black !important;

@@ -21,10 +21,10 @@ const FormCertify: React.FC<FormCertifyProps> = ({ register, errors }) => {
         <label htmlFor="certify" className="form-check-label">
           <p>
             I hereby certify that all information in this application is TRUE
-            and CORRECT and any misrepresentation of facts shall be <br></br>
+            and CORRECT and any misrepresentation of facts shall be 
             sufficient cause for denial of this benefit. For any amount in
-            excess of my maximum medical & hospitalization benefit, I am
-            <br></br>personally liable to pay directly to UST Hospital
+            excess of my maximum medical & hospitalization benefit, I 
+            am personally liable to pay directly to UST Hospital
           </p>
         </label>
       </div>

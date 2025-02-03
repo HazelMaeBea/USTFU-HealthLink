@@ -52,7 +52,7 @@ const EyeglassesForm = () => {
 	};
 
 	return (
-		<div>
+		<div className="form-body">
 			<FormHeader formType="Test Form" />
 
 			<form onSubmit={handleSubmit(onSubmit)}>
