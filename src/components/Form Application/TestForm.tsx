@@ -103,13 +103,54 @@ const TestForm = () => {
     // console.log(data["lastname"]);
     // console.log(data["illness"]);
     // console.log(data["physician"]);
-    await addDoc(formsCollectionRef, {
-      Age: data["age"],
-      FirstName: data["firstname"],
-      LastName: data["lastname"],
-      Illness: data["illness"],
-      Physician: data["physician"],
-    })
+    // console.log(data["applicantSignature"]);
+    // console.log(data["benefits"]);
+    // console.log(data["claimRequestCount"]);
+    // console.log(data["college"]);
+    // console.log(data["contact"]);
+    // console.log(data["dateHired"]);
+    // console.log(data["dateRetired"]);
+    // console.log(data["hmo"]);
+    // console.log(data["hospital"]);
+    // console.log(data["hospitalStatus"]);
+    // console.log(data["load"]);
+    // console.log(data["procedures"]);
+    // console.log(data["status"]);
+    // console.log(data["suffix"]);
+    // console.log(data["term"]);
+    // console.log(data["year"]);
+    console.log(data["applicantSignature"]);
+    console.log(data["docRequest"]);
+    console.log(data["employeeID"]);
+    console.log(data["hospitalInvoice"]);
+    console.log(data["labInvoice"]);
+    // try {
+    //   await addDoc(formsCollectionRef, {
+    //     Age: data["age"],
+    //     FirstName: data["firstname"],
+    //     LastName: data["lastname"],
+    //     Illness: data["illness"],
+    //     Physician: data["physician"],
+    //     // ApplicantsSignature: data["applicantSignature"],
+    //     Benefits: data["benefits"],
+    //     ClaimRequestCount: data["claimRequestCount"],
+    //     College: data["college"],
+    //     Contact: data["contact"],
+    //     DateHired: data["dateHired"],
+    //     DateRetired: data["dateRetired"],
+    //     HMO: data["hmo"],
+    //     Hospital: data["hospital"],
+    //     HospitalStatus: data["hospitalStatus"],
+    //     Load: data["load"],
+    //     Procedures: data["procedures"],
+    //     Status: data["status"],
+    //     Suffix: data["suffix"],
+    //     Term: data["term"],
+    //     Year: data["year"],
+    //   })
+    // } catch (error) {
+    //   console.error(error);
+    // }
   };
 
   return (
