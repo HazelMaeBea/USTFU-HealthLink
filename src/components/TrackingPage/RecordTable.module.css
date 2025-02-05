@@ -10,7 +10,6 @@
     text-transform: uppercase;
 }
 
-
 .table-footer {
     display: flex;
     justify-content: space-between;
@@ -42,9 +41,9 @@
 
 .record-content {
     display: flex;
-    flex-direction: row; /* Display content horizontally */
     gap: 1rem;
     align-items: flex-start;
+    /* background-color: #d7e8f8; */
 }
 
 .record-content.mobile {
@@ -70,12 +69,19 @@
 
 .details-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
+    flex-grow: 1;
+    /* background-color: bisque; */
+    width: 90%;
 }
 
 .button-container {
-    width: 20%;
+    padding: 0.2rem;
+    width: 10%;
+    display: flex;
+    align-content: center;
+    justify-content: center;
 }
 
 .table-component {
@@ -112,28 +118,26 @@
     }
 
     .record-content {
+        flex-direction: row;
+    }
+
+    .details-container {
         flex-direction: column;
+        width: 70%;
+        gap: 0.1rem;
+        font-size: small;
     }
 
-    .record-dateTime {
-        width: 100%;
+    .button-container {
+        width: 30%;
+        /* background-color: aqua; */
+        align-self: center;
     }
 
-    .record-transactionID {
-        width: 100%;
-    }
-
-    .record-typeOfForm {
-        width: 100%;
-    }
-
+    .record-dateTime,
+    .record-transactionID,
+    .record-typeOfForm,
     .record-status {
         width: 100%;
-    }
-    
-    .details-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
     }
 }

@@ -9,6 +9,7 @@ interface Record {
   status: string;
 }
 
+// you can edit this out later for the actual data
 const RecordTable: React.FC = () => {
   const [records, setRecords] = useState<Record[]>([
     { dateTime: '10/28/2024 - 11:11 AM', transactionID: 'TRN20359211934', typeOfForm: 'In-Patient Form', status: 'Approved' },
@@ -42,7 +43,6 @@ const RecordTable: React.FC = () => {
 
   return (
     <div className={styles['table-component-container']}>
-      <h3>Previous Records</h3> 
       <div className={styles['records-container']}>
         {currentRecords.map((record, index) => (
           <div
@@ -50,13 +50,13 @@ const RecordTable: React.FC = () => {
             className={`${styles['record-box']} ${record.status === 'Approved' ? styles['approved'] : styles['rejected']}`}
           >
             <div className={styles['record-content']}>
-              <div className="details-container">
+              <div className={styles['details-container']}>
                 <div className={styles['record-dateTime']}>{record.dateTime}</div>
-                <div className={styles['record-transactionID']}>Transaction ID: {record.transactionID}</div>
+                <div className={styles['record-transactionID']}> {record.transactionID}</div>
                 <div className={styles['record-typeOfForm']}>{record.typeOfForm}</div>
                 <div className={styles['record-status']}>{record.status}</div>
               </div>
-              <div className="button-container">
+              <div className={styles['button-container']}>
                 <button className={styles['details-button']}>Details</button>
               </div>
             </div>
@@ -64,9 +64,13 @@ const RecordTable: React.FC = () => {
         ))}
       </div>
       <div className="d-flex justify-content-between align-items-center">
+        
+        {/* temporary button only to show if 
+        pagination works you can comment this out later */}
         <Button onClick={addDefaultEntry} variant="success">
           Add Default Entry
         </Button>
+
         <Pagination>
           {[...Array(totalPages)].map((_, index) => (
             <Pagination.Item
