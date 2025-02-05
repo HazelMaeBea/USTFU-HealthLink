@@ -1,13 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { Navigate } from "react-router-dom";
 
-const Logout: React.FC = () => {
-    console.log("Logout loaded");
-  return (
-    <div style={{ padding: "1rem" }}>
-      <h2>Logout</h2>
-      <p>This is a dummy page for Logout.</p>
-    </div>
-  );
+const Logout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
+	useEffect(() => {
+		onLogout();
+	}, [onLogout]); // call onLogout when the component mounts
+
+	return <Navigate to="/login" replace />; //Redicred to login page
 };
 
 export default Logout;
