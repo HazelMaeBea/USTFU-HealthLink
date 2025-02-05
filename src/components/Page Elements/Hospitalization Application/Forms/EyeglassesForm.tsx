@@ -35,7 +35,7 @@ const schema = z.object({
 		message: "File is required",
 	}),
 	claimRequestCount: z.number().min(1, "Claim Request Count is required"),
-	certify: z.enum([" "], {
+	certify: z.enum(["Yes"], {
 		errorMap: () => ({ message: "Certification is required" }),
 	}),
 });
