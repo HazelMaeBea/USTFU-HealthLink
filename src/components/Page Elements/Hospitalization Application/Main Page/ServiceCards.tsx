@@ -31,24 +31,30 @@ const ServiceCards = () => {
   ];
 
   return (
-    <div className="service-cards">
-      {cards.map((card, index) => (
-        <div
-          className="card"
-          key={index}
-          onClick={() => {
-            console.log("Navigating to:", card.path); // Debug line to check paths
-            navigate(card.path); // Use the full path relative to /home
-          }}
-        >
-          <img
-            className="card-icon"
-            src={card.icon}
-            alt={card.title}
-          />
-          <p>{card.title}</p>
-        </div>
-      ))}
+    <div className="HospiAppli">
+      <div className="WelcomeSection">
+        <h1> Welcome to the USTFU HealthLink! 
+        <br></br> Choose your desired service below. </h1>
+      </div>
+      <div className="service-cards">
+        {cards.map((card, index) => (
+          <div
+            className="card"
+            key={index}
+            onClick={() => {
+              console.log("Navigating to:", card.path); // Debug line to check paths
+              navigate(card.path); // Use the full path relative to /home
+            }}
+          >
+            <img
+              className="card-icon"
+              src={card.icon}
+              alt={card.title}
+            />
+            <p>{card.title}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

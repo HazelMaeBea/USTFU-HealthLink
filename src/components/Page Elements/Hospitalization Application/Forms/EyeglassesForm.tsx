@@ -1,360 +1,83 @@
-import React, { useState } from 'react';
-import { FieldValues, useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import './FormBody.css';
+import { FieldValues, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import "react-datepicker/dist/react-datepicker.css";
+import "./FormBody.css";
 import FormHeader from "./FormHeader";
+import FormPersonalInfo from "./FormPersonalInfo";
+import FormInvoice from "./FormInvoice";
+import FormUploadDisclaimer from "./FormUploadDisclaimer";
+import FormSigIDFiles from "./FormSigIDFiles";
+import FormCertify from "./FormCertify";
+
+export type FormData = z.infer<typeof schema>;
 
 const schema = z.object({
-  lastname: z.string().nonempty('Last name is required'),
-  firstname: z.string().nonempty('First name is required'),
-  middlename: z.string().nonempty('Middle name is required'),
-  age: z.number().min(18, 'Age must be at least 18'),
-  suffix: z.string().optional(),
-  gender: z.enum(['Male', 'Female'], { errorMap: () => ({ message: 'Gender is required' }) }),
-  college: z.enum([
-    "Faculty of Sacred Theology", 
-    "Faculty of Philosophy", 
-    "Faculty of Canon Law", 
-    "Faculty of Civil Law", 
-    "Faculty of Medicine and Surgery", 
-    "Faculty of Pharmacy", 
-    "Faculty of Engineering", 
-    "Faculty of Arts and Letters", 
-    "College of Architecture", 
-    "College of Commerce and Business Administration",
-    "College of Education", 
-    "College of Fine Arts and Design", 
-    "College of Nursing", 
-    "College of Rehabilitation Sciences", 
-    "College of Science", 
-    "College of Tourism and Hospitality Management", 
-    "College of Information and Computing Sciences (CICS)", 
-    "Graduate School", 
-    "Graduate School of Law", 
-    "Conservatory of Music", 
-    "Institute of Physical Education and Athletics (IPEA)", 
-    "UST Senior High School", 
-    "UST Junior High School", 
-    "UST Education High School"], { errorMap: () => ({ message: 'College Affiliation is required' }) }),
-  contact: z.number().min(21, 'Contact number is required'),
-  ustID: z
-      .instanceof(FileList)
-      .refine((files) => files.length > 0, { message: 'Must be a file' })
-      .refine((files) => {
-        const fileType = files[0]?.type;
-        return fileType === 'application/pdf' || fileType === 'image/png' || fileType === 'image/jpeg' || fileType === 'image/jpg';
-      }, { message: 'Only PDF, PNG, JPG, or JPEG file types allowed' }),
-    signature: z
-    .instanceof(FileList)
-    .refine((files) => files.length > 0, { message: 'Must be a file' })
-    .refine((files) => {
-      const fileType = files[0]?.type;
-      return fileType === 'application/pdf' || fileType === 'image/png' || fileType === 'image/jpeg' || fileType === 'image/jpg';
-    }, { message: 'Only PDF, PNG, JPG, or JPEG file types allowed' }),
-  claims: z.number().min(1, 'Claims are required'),
-  certify: z.enum([' '], { errorMap: () => ({ message: 'Certification is required' }) }),
-  ORNumber: z.string().nonempty('OR Number is required'),
-  issuedBy: z.string().nonempty('Issued by is required'),
-  amountPaid: z.number().min(1, 'Amount Paid is required'),
+	lastname: z.string().nonempty("Last name is required"),
+	firstname: z.string().nonempty("First name is required"),
+	middlename: z.string().nonempty("Middle name is required"),
+	suffix: z.string().optional(),
+	age: z.number().min(18, "Age must be at least 18"),
+	gender: z.enum(["Male", "Female"], {
+		errorMap: () => ({ message: "Gender is required" }),
+	}),
+	contact: z.number().min(21, "Contact number is required"),
+	ORNumber: z.string().nonempty("OR Number is required"),
+	issuedBy: z.string().nonempty("Issued by is required"),
+	amountPaid: z.number().min(1, "Amount Paid is required"),
 
+	college: z.string().nonempty("College is required"),
+
+	employeeID: z.any().refine((files) => files && files.length > 0, {
+		message: "File is required",
+	}),
+	applicantSignature: z.any().refine((files) => files && files.length > 0, {
+		message: "File is required",
+	}),
+	claimRequestCount: z.number().min(1, "Claim Request Count is required"),
+	certify: z.enum([" "], {
+		errorMap: () => ({ message: "Certification is required" }),
+	}),
 });
 
-type FormData = z.infer<typeof schema>;
-
 const EyeglassesForm = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid }
-  } = useForm<FormData>({ resolver: zodResolver(schema), mode: 'onChange' });
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-  const [claims, setClaims] = useState(1);
+	const onSubmit = (data: FieldValues) => {
+		console.log(data); // Ensure this logs the data correctly
+	};
 
-  const incrementClaims = () => setClaims(claims + 1);
-  const decrementClaims = () => setClaims(claims > 1 ? claims - 1 : 1);
+	return (
+		<div className="form-body">
+			<FormHeader formType="Test Form" />
 
-  const onSubmit = (data: FieldValues) => {
-    console.log(data)
-  };
+			<form onSubmit={handleSubmit(onSubmit)}>
+				<p className="note">Please fill out the following boxes</p>
 
-  const suffixOptions = ['Sr.', 'Jr.', 'II', 'III', 'IV', 'MD', 'PhD', 'Lord', 'Master', 'Optimus Prime'];
-  const genderOptions = ['Male', 'Female'];
-  const collegeOptions = [
-    "Faculty of Sacred Theology",
-    "Faculty of Philosophy",
-    "Faculty of Canon Law",
-    "Faculty of Civil Law",
-    "Faculty of Medicine and Surgery",
-    "Faculty of Pharmacy",
-    "Faculty of Engineering",
-    "Faculty of Arts and Letters",
-    "College of Architecture",
-    "College of Commerce and Business Administration",
-    "College of Education",
-    "College of Fine Arts and Design",
-    "College of Nursing",
-    "College of Rehabilitation Sciences",
-    "College of Science",
-    "College of Tourism and Hospitality Management",
-    "College of Information and Computing Sciences (CICS)",
-    "Graduate School",
-    "Graduate School of Law",
-    "Conservatory of Music",
-    "Institute of Physical Education and Athletics (IPEA)",
-    "UST Senior High School",
-    "UST Junior High School",
-    "UST Education High School"
-  ];
+				<FormPersonalInfo register={register} errors={errors} />
+				<FormInvoice register={register} errors={errors} />
+				<FormUploadDisclaimer />
+				<FormSigIDFiles register={register} errors={errors} />
+				<FormCertify register={register} errors={errors} />
 
-
-  return (
-    <div>
-        <FormHeader formType = "Eyeglasses Form" />
-        <form onSubmit={handleSubmit(onSubmit)}>
-      <p className="note">Please fill out the following boxes</p>
-      <fieldset className="PersonalInfo line">
-        <div className="row">
-          <div className="mb-1 col-md-3">
-            <label htmlFor="lastname" className="form-label">Last Name</label>
-            <input
-              {...register('lastname')}
-              id="lastname"
-              type="text"
-              className="form-control"
-            />
-            {errors.lastname && (
-              <p className="text-danger">{errors.lastname.message}</p>
-            )}
-          </div>
-          <div className="mb-1 col-md-3">
-            <label htmlFor="firstname" className="form-label">First Name</label>
-            <input
-              {...register('firstname')}
-              id="firstname"
-              type="text"
-              className="form-control"
-            />
-            {errors.firstname && (
-              <p className="text-danger">{errors.firstname.message}</p>
-            )}
-          </div>
-          <div className="mb-1 col-md-3">
-            <label htmlFor="middlename" className="form-label">Middle Name</label>
-            <input
-              {...register('middlename')}
-              id="middlename"
-              type="text"
-              className="form-control"
-            />
-            {errors.middlename && (
-              <p className="text-danger">{errors.middlename.message}</p>
-            )}
-          </div>
-          <div className="mb-1 col-md-3">
-              <label htmlFor="suffix" className="form-label">Suffix</label>
-              <select
-                {...register('suffix')}
-                id="suffix"
-                className="form-select"
-              >
-                <option value="" disabled selected hidden></option>
-                {suffixOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-        </div>
-        <div className="row">
-          <div className="mb-1 col-md-1">
-            <label htmlFor="age" className="form-label">Age</label>
-            <input
-              {...register('age', { valueAsNumber: true })}
-              id="age"
-              type="number"
-              className="form-control"
-            />
-            {errors.age && (
-              <p className="text-danger">{errors.age.message}</p>
-            )}
-          </div>
-          <div className="mb-1 col-md-2">
-              <label htmlFor="gender" className="form-label">Gender</label>
-              <select
-                {...register('gender')}
-                id="gender"
-                className="form-select"
-              >
-                <option value="" disabled selected hidden></option>
-                {genderOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              {errors.gender && (
-                <p className="text-danger">{errors.gender.message}</p>
-              )}
-            </div>
-            <div className="mb-1 col-md-6">
-              <label htmlFor="college" className="form-label">College Affiliation</label>
-              <select
-                {...register('college')}
-                id="college"
-                className="form-select"
-              >
-                <option value="" disabled selected hidden></option>
-                {collegeOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              {errors.college && (
-                <p className="text-danger">{errors.college.message}</p>
-              )}
-            </div>
-            <div className="mb-1 col-md-3">
-            <label htmlFor="contact" className="form-label">Contact Number</label>
-            <input
-              {...register('contact', { valueAsNumber: true })}
-              id="contact"
-              type="number"
-              className="form-control"
-            />
-            {errors.contact && (
-              <p className="text-danger">{errors.contact.message}</p>
-            )}
-          </div>
-        </div>
-        
-      </fieldset>
-      <fieldset className="MedicalInfo">
-        <legend>Medical Information</legend>
-        <div className="row">
-          <div className="mb-1 col-md-3">
-            <label htmlFor="ORNumber" className="form-label">OR Number</label>
-            <input
-              {...register('ORNumber')}
-              id="ORNumber"
-              type="text"
-              className="form-control"
-            />
-            {errors.ORNumber && (
-              <p className="text-danger">{errors.ORNumber.message}</p>
-            )}
-          </div>
-          
-          <div className="mb-1 col-md-3">
-            <label htmlFor="issuedBy" className="form-label">Issued by</label>
-            <input
-              {...register('issuedBy')}
-              id="issuedBy"
-              type="text"
-              className="form-control"
-            />
-            {errors.issuedBy && (
-              <p className="text-danger">{errors.issuedBy.message}</p>
-            )}
-          </div>
-
-          <div className="mb-1 col-md-3">
-            <label htmlFor="amountPaid" className="form-label">Amount Paid</label>
-            <input
-              {...register('amountPaid', { valueAsNumber: true })}
-              id="amountPaid"
-              type="number"
-              className="form-control"
-            />
-            {errors.amountPaid && (
-              <p className="text-danger">{errors.amountPaid.message}</p>
-            )}
-          </div>
-        </div>
-      </fieldset>
-      
-      <fieldset className="uploadDisclaimer">
-        <p>Kindly upload the necessary documents needed. </p>
-        <div className="row">
-          <div className="mb-1 col-md-4"><strong>Required Attachments</strong></div>
-          <div className="mb-1 col-md-4"><strong>File Type</strong></div>
-          <div className="mb-1 col-md-4"><strong>Upload here</strong></div>
-        </div>
-      </fieldset>
-      <fieldset className="medicalFiles">
-        <div className="row">
-          <div className="mb-1 col-md-4 ustID">Employee/UST ID</div>
-          <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
-          <div className="mb-1 col-md-4">
-            <label htmlFor="ustID" className="form-label"></label>
-            <input
-              {...register('ustID')}
-              id="ustID"
-              type="file"
-              accept=".pdf, .png, .jpg, .jpeg"
-              className="form-control"
-            />
-            {errors.ustID && (
-              <p className="text-danger">{errors.ustID.message}</p>
-            )}
-          </div>
-        </div>
-        <div className="row">
-          <div className="mb-1 col-md-4 signature">Applicant's Signature</div>
-          <div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
-          <div className="mb-1 col-md-4">
-            <label htmlFor="signature" className="form-label"></label>
-            <input
-              {...register('signature')}
-              id="signature"
-              type="file"
-              accept=".pdf, .png, .jpg, .jpeg"
-              className="form-control"
-            />
-            {errors.signature && (
-              <p className="text-danger">{errors.signature.message}</p>
-            )}
-          </div>
-        </div>
-        <div className="row claimCount">
-          <div>How many claims do you need to request?</div>
-          <div>
-            <button type="button" onClick={decrementClaims} className="btn btn-secondary claimCompute">-</button>
-            <span className="claims-count">{claims}</span>
-            <button type="button" onClick={incrementClaims} className="btn btn-secondary claimCompute">+</button>
-          </div>
-        </div>
-      </fieldset>
-
-      <fieldset className="certify">
-        <div className="form-check form-check-inline">
-          <input
-            {...register('certify')}
-            id="certify"
-            type="radio"
-            value=" "
-            className="form-check-input"
-          />
-          <label htmlFor="certify" className="form-check-label">
-            <p>I hereby certify that all information in this application is TRUE and CORRECT and any misrepresentation of facts shall be <br>
-            </br>sufficient cause for denial of this benefit. For any amount in excess of my maximum medical & hospitalization benefit, I am<br></br>personally liable to pay directly to UST Hospital</p>
-          </label>
-        </div>
-        {errors.certify && (
-          <p className="text-danger">{errors.certify.message}</p>
-        )}
-      </fieldset>
-      <div className="buttonDiv">
-        {/* disabled={!isValid} */}
-        <button type="submit" className="btn btn-submit form-submit" >Submit</button>
-        <button type="reset" className="btn btn-clear form-submit">Clear</button>
-      </div>
-        </form>
-    </div>
-    
-  );
+				<div className="buttonDiv">
+					<button
+						type="submit"
+						className="btn btn-submit form-submit"
+					>
+						Submit
+					</button>
+					<button type="reset" className="btn btn-clear form-submit">
+						Clear
+					</button>
+				</div>
+			</form>
+		</div>
+	);
 };
 
 export default EyeglassesForm;

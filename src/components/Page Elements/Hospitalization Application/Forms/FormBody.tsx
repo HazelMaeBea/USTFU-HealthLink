@@ -1,873 +1,120 @@
 import React, { useState } from "react";
-import { useForm, FieldValues } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import "react-datepicker/dist/react-datepicker.css";
 import "./FormBody.css";
+import FormHeader from "./FormHeader";
+import FormPersonalInfo from "./FormPersonalInfo";
+import FormMedicalInfo from "./FormMedicalInfo";
+import FormTeachingInfo from "./FormTeachingInfo";
+import FormUploadDisclaimer from "./FormUploadDisclaimer";
+import FormMedicalFiles from "./FormMedicalFiles";
+import FormHospitalStatus from "./FormHospitalStatus";
+import FormCertify from "./FormCertify";
+
+export type FormData = z.infer<typeof schema>;
 
 const schema = z.object({
 	lastname: z.string().nonempty("Last name is required"),
 	firstname: z.string().nonempty("First name is required"),
 	middlename: z.string().nonempty("Middle name is required"),
-	age: z.number().min(18, "Age must be at least 18"),
 	suffix: z.string().optional(),
+	age: z.number().min(18, "Age must be at least 18"),
 	gender: z.enum(["Male", "Female"], {
 		errorMap: () => ({ message: "Gender is required" }),
 	}),
-	college: z.enum(
-		[
-			"Faculty of Sacred Theology",
-			"Faculty of Philosophy",
-			"Faculty of Canon Law",
-			"Faculty of Civil Law",
-			"Faculty of Medicine and Surgery",
-			"Faculty of Pharmacy",
-			"Faculty of Engineering",
-			"Faculty of Arts and Letters",
-			"College of Architecture",
-			"College of Commerce and Business Administration",
-			"College of Education",
-			"College of Fine Arts and Design",
-			"College of Nursing",
-			"College of Rehabilitation Sciences",
-			"College of Science",
-			"College of Tourism and Hospitality Management",
-			"College of Information and Computing Sciences (CICS)",
-			"Graduate School",
-			"Graduate School of Law",
-			"Conservatory of Music",
-			"Institute of Physical Education and Athletics (IPEA)",
-			"UST Senior High School",
-			"UST Junior High School",
-			"UST Education High School",
-		],
-		{ errorMap: () => ({ message: "College Affiliation is required" }) }
-	),
 	contact: z.number().min(21, "Contact number is required"),
+	college: z.string().nonempty("College is required"),
 	hospital: z.string().nonempty("Hospital is required"),
-	illness: z.string().nonempty("Nature of Illness is required"),
+	illness: z.string().nonempty("Illness is required"),
 	physician: z.string().nonempty("Physician is required"),
-	procedures: z.string().nonempty("Procedures are required"),
-	status: z.enum(
-		[
-			"Tenured",
-			"Tenured-Track",
-			"Lecturer Before 2001",
-			"Extendee",
-			"Retiree",
-		],
-		{ errorMap: () => ({ message: "Status is required" }) }
-	),
-	term: z.enum(["idk", "idk2"], {
-		errorMap: () => ({ message: "Academic Term is required" }),
-	}),
-	year: z.enum(["idk", "idk2"], {
-		errorMap: () => ({ message: "Academic Year is required" }),
-	}),
-	load: z.enum(["idk", "idk2"], {
-		errorMap: () => ({ message: "Teaching Load is required" }),
-	}),
-	dateHired: z.string().optional(),
-	dateRetired: z.string().optional(),
-	healthBenefits: z.enum(
-		[
-			"Tenured",
-			"Tenured-Track",
-			"Lecturer Before 2001",
-			"Extendee",
-			"Retiree",
-		],
-		{ errorMap: () => ({ message: "Health Benefits are required" }) }
-	),
-	benefits: z.enum(["HMO", "PCSO", "Senior Citizen"], {
-		errorMap: () => ({ message: "Health Benefits are required" }),
-	}),
+	procedures: z.string().nonempty("Procedures is required"),
+	term: z.string().nonempty("Term is required"),
+	year: z.string().nonempty("Year is required"),
+	load: z.string().nonempty("Load is required"),
+	status: z.string().nonempty("Status is required"),
+	dateHired: z.date().optional(),
+	dateRetired: z.date().optional(),
+	benefits: z.string().nonempty("Benefits is required"),
 	hmo: z.string().optional(),
-	docRequest: z
-		.instanceof(FileList)
-		.refine((files) => files.length > 0, { message: "Must be a file" })
-		.refine(
-			(files) => {
-				const fileType = files[0]?.type;
-				return (
-					fileType === "application/pdf" ||
-					fileType === "image/png" ||
-					fileType === "image/jpeg" ||
-					fileType === "image/jpg"
-				);
-			},
-			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
-		),
-	hospitalReceipt: z
-		.instanceof(FileList)
-		.refine((files) => files.length > 0, { message: "Must be a file" })
-		.refine(
-			(files) => {
-				const fileType = files[0]?.type;
-				return (
-					fileType === "application/pdf" ||
-					fileType === "image/png" ||
-					fileType === "image/jpeg" ||
-					fileType === "image/jpg"
-				);
-			},
-			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
-		),
-	labReceipt: z
-		.instanceof(FileList)
-		.refine((files) => files.length > 0, { message: "Must be a file" })
-		.refine(
-			(files) => {
-				const fileType = files[0]?.type;
-				return (
-					fileType === "application/pdf" ||
-					fileType === "image/png" ||
-					fileType === "image/jpeg" ||
-					fileType === "image/jpg"
-				);
-			},
-			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
-		),
-	ustID: z
-		.instanceof(FileList)
-		.refine((files) => files.length > 0, { message: "Must be a file" })
-		.refine(
-			(files) => {
-				const fileType = files[0]?.type;
-				return (
-					fileType === "application/pdf" ||
-					fileType === "image/png" ||
-					fileType === "image/jpeg" ||
-					fileType === "image/jpg"
-				);
-			},
-			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
-		),
-	signature: z
-		.instanceof(FileList)
-		.refine((files) => files.length > 0, { message: "Must be a file" })
-		.refine(
-			(files) => {
-				const fileType = files[0]?.type;
-				return (
-					fileType === "application/pdf" ||
-					fileType === "image/png" ||
-					fileType === "image/jpeg" ||
-					fileType === "image/jpg"
-				);
-			},
-			{ message: "Only PDF, PNG, JPG, or JPEG file types allowed" }
-		),
-	claims: z.number().min(1, "Claims are required"),
+	docRequest: z.any().refine((files) => files && files.length > 0, {
+		message: "File is required",
+	}),
+	hospitalInvoice: z.any().refine((files) => files && files.length > 0, {
+		message: "File is required",
+	}),
+	labInvoice: z.any().refine((files) => files && files.length > 0, {
+		message: "File is required",
+	}),
+	employeeID: z.any().refine((files) => files && files.length > 0, {
+		message: "File is required",
+	}),
+	applicantSignature: z.any().refine((files) => files && files.length > 0, {
+		message: "File is required",
+	}),
 	hospitalStatus: z.enum(["In-Patient", "Out-Patient", "ER Consultation"], {
 		errorMap: () => ({ message: "Hospital Status is required" }),
 	}),
-	certify: z.enum([" "], {
+	certify: z.enum(["Yes"], {
 		errorMap: () => ({ message: "Certification is required" }),
 	}),
+	claimRequestCount: z.number().min(1, "Claim Request Count is required"),
 });
 
-type FormData = z.infer<typeof schema>;
-
 const FormBody = () => {
+	// const [dateHired, setDateHired] = useState(new Date());
+	// const [dateRetired, setDateRetired] = useState(new Date());
+	const [dateHired, setDateHired] = useState<Date | null>(null);
+	const [dateRetired, setDateRetired] = useState<Date | null>(null);
+
 	const {
 		register,
 		handleSubmit,
 		formState: { errors, isValid },
-	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
-
-	const [claims, setClaims] = useState(1);
-
-	const incrementClaims = () => setClaims(claims + 1);
-	const decrementClaims = () => setClaims(claims > 1 ? claims - 1 : 1);
+	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
 	const onSubmit = (data: FieldValues) => {
-		const formData = new FormData();
-		Object.entries(data).forEach(([key, value]) => {
-			if (value instanceof FileList) {
-				formData.append(key, value[0]);
-			} else {
-				formData.append(key, value as string);
-			}
+		console.log({
+			...data,
+			dateHired,
+			dateRetired,
 		});
-		console.log(Object.fromEntries(formData.entries()));
 	};
 
-	const suffixOptions = [
-		"Sr.",
-		"Jr.",
-		"II",
-		"III",
-		"IV",
-		"MD",
-		"PhD",
-		"Lord",
-		"Master",
-		"Optimus Prime",
-	];
-	const genderOptions = ["Male", "Female"];
-	const collegeOptions = [
-		"Faculty of Sacred Theology",
-		"Faculty of Philosophy",
-		"Faculty of Canon Law",
-		"Faculty of Civil Law",
-		"Faculty of Medicine and Surgery",
-		"Faculty of Pharmacy",
-		"Faculty of Engineering",
-		"Faculty of Arts and Letters",
-		"College of Architecture",
-		"College of Commerce and Business Administration",
-		"College of Education",
-		"College of Fine Arts and Design",
-		"College of Nursing",
-		"College of Rehabilitation Sciences",
-		"College of Science",
-		"College of Tourism and Hospitality Management",
-		"College of Information and Computing Sciences (CICS)",
-		"Graduate School",
-		"Graduate School of Law",
-		"Conservatory of Music",
-		"Institute of Physical Education and Athletics (IPEA)",
-		"UST Senior High School",
-		"UST Junior High School",
-		"UST Education High School",
-	];
-	const statusOptions = [
-		"Tenured",
-		"Tenured-Track",
-		"Lecturer Before 2001",
-		"Extendee",
-		"Retiree",
-	];
-	const termOptions = ["idk", "idk2"];
-	const yearOptions = ["idk", "idk2"];
-	const loadOptions = ["idk", "idk2"];
-	const benefitsOptions = ["HMO", "PCSO", "Senior Citizen"];
-	const hospitalStatusOptions = [
-		"In-Patient",
-		"Out-Patient",
-		"ER Consultation",
-	];
-
 	return (
-		<form onSubmit={handleSubmit(onSubmit)}>
-			<p className="note">Please fill out the following boxes</p>
-			<fieldset className="PersonalInfo line">
-				<div className="row">
-					<div className="mb-1 col-md-3">
-						<label htmlFor="lastname" className="form-label">
-							Last Name
-						</label>
-						<input
-							{...register("lastname")}
-							id="lastname"
-							type="text"
-							className="form-control"
-						/>
-						{errors.lastname && (
-							<p className="text-danger">
-								{errors.lastname.message}
-							</p>
-						)}
-					</div>
-					<div className="mb-1 col-md-3">
-						<label htmlFor="firstname" className="form-label">
-							First Name
-						</label>
-						<input
-							{...register("firstname")}
-							id="firstname"
-							type="text"
-							className="form-control"
-						/>
-						{errors.firstname && (
-							<p className="text-danger">
-								{errors.firstname.message}
-							</p>
-						)}
-					</div>
-					<div className="mb-1 col-md-3">
-						<label htmlFor="middlename" className="form-label">
-							Middle Name
-						</label>
-						<input
-							{...register("middlename")}
-							id="middlename"
-							type="text"
-							className="form-control"
-						/>
-						{errors.middlename && (
-							<p className="text-danger">
-								{errors.middlename.message}
-							</p>
-						)}
-					</div>
-					<div className="mb-1 col-md-3">
-						<label htmlFor="suffix" className="form-label">
-							Suffix
-						</label>
-						<select
-							{...register("suffix")}
-							id="suffix"
-							className="form-select"
-						>
-							<option value="" disabled selected hidden></option>
-							{suffixOptions.map((option, index) => (
-								<option key={index} value={option}>
-									{option}
-								</option>
-							))}
-						</select>
-					</div>
-				</div>
-				<div className="row">
-					<div className="mb-1 col-md-1">
-						<label htmlFor="age" className="form-label">
-							Age
-						</label>
-						<input
-							{...register("age", { valueAsNumber: true })}
-							id="age"
-							type="number"
-							className="form-control"
-						/>
-						{errors.age && (
-							<p className="text-danger">{errors.age.message}</p>
-						)}
-					</div>
-					<div className="mb-1 col-md-2">
-						<label htmlFor="gender" className="form-label">
-							Gender
-						</label>
-						<select
-							{...register("gender")}
-							id="gender"
-							className="form-select"
-						>
-							<option value="" disabled selected hidden></option>
-							{genderOptions.map((option, index) => (
-								<option key={index} value={option}>
-									{option}
-								</option>
-							))}
-						</select>
-						{errors.gender && (
-							<p className="text-danger">
-								{errors.gender.message}
-							</p>
-						)}
-					</div>
-					<div className="mb-1 col-md-6">
-						<label htmlFor="college" className="form-label">
-							College Affiliation
-						</label>
-						<select
-							{...register("college")}
-							id="college"
-							className="form-select"
-						>
-							<option value="" disabled selected hidden></option>
-							{collegeOptions.map((option, index) => (
-								<option key={index} value={option}>
-									{option}
-								</option>
-							))}
-						</select>
-						{errors.college && (
-							<p className="text-danger">
-								{errors.college.message}
-							</p>
-						)}
-					</div>
-					<div className="mb-1 col-md-3">
-						<label htmlFor="contact" className="form-label">
-							Contact Number
-						</label>
-						<input
-							{...register("contact", { valueAsNumber: true })}
-							id="contact"
-							type="number"
-							className="form-control"
-						/>
-						{errors.contact && (
-							<p className="text-danger">
-								{errors.contact.message}
-							</p>
-						)}
-					</div>
-				</div>
-			</fieldset>
-			<fieldset className="MedicalInfo">
-				<div className="row">
-					<div className="mb-1 col-md-3">
-						<label htmlFor="hospital" className="form-label">
-							Hospital Name
-						</label>
-						<input
-							{...register("hospital")}
-							id="hospital"
-							type="text"
-							className="form-control"
-						/>
-						{errors.hospital && (
-							<p className="text-danger">
-								{errors.hospital.message}
-							</p>
-						)}
-					</div>
-					<div className="mb-1 col-md-6">
-						<label htmlFor="illness" className="form-label">
-							Nature of Illness
-						</label>
-						<input
-							{...register("illness")}
-							id="illness"
-							type="text"
-							className="form-control"
-						/>
-						{errors.illness && (
-							<p className="text-danger">
-								{errors.illness.message}
-							</p>
-						)}
-					</div>
-					<div className="mb-1 col-md-3">
-						<label htmlFor="physician" className="form-label">
-							Physician
-						</label>
-						<input
-							{...register("physician")}
-							id="physician"
-							type="text"
-							className="form-control"
-						/>
-						{errors.physician && (
-							<p className="text-danger">
-								{errors.physician.message}
-							</p>
-						)}
-					</div>
-				</div>
-				<div className="row">
-					<div className="mb-1 col-md-6">
-						<label htmlFor="procedures" className="form-label">
-							Procedures
-						</label>
-						<input
-							{...register("procedures")}
-							id="procedures"
-							type="text"
-							className="form-control"
-						/>
-						{errors.procedures && (
-							<p className="text-danger">
-								{errors.procedures.message}
-							</p>
-						)}
-					</div>
-				</div>
-			</fieldset>
-			<fieldset className="TeachingInfo">
-				<div className="row">
-					<div className="mb-1 col-md-3">
-						<div className="row">
-							<div className="mb-1 col-md-6">
-								<label htmlFor="term" className="form-label">
-									Academic Term
-								</label>
-								<select
-									{...register("term")}
-									id="term"
-									className="form-select"
-								>
-									<option
-										value=""
-										disabled
-										selected
-										hidden
-									></option>
-									{termOptions.map((option, index) => (
-										<option key={index} value={option}>
-											{option}
-										</option>
-									))}
-								</select>
-								{errors.term && (
-									<p className="text-danger">
-										{errors.term.message}
-									</p>
-								)}
-							</div>
-							<div className="mb-1 col-md-6">
-								<label htmlFor="year" className="form-label">
-									Academic Year
-								</label>
-								<select
-									{...register("year")}
-									id="year"
-									className="form-select"
-								>
-									<option
-										value=""
-										disabled
-										selected
-										hidden
-									></option>
-									{yearOptions.map((option, index) => (
-										<option key={index} value={option}>
-											{option}
-										</option>
-									))}
-								</select>
-								{errors.year && (
-									<p className="text-danger">
-										{errors.year.message}
-									</p>
-								)}
-							</div>
-						</div>
-						<div className="mb-1 col-md-12">
-							<label htmlFor="load" className="form-label">
-								Teaching Load
-							</label>
-							<select
-								{...register("load")}
-								id="load"
-								className="form-select"
-							>
-								<option
-									value=""
-									disabled
-									selected
-									hidden
-								></option>
-								{loadOptions.map((option, index) => (
-									<option key={index} value={option}>
-										{option}
-									</option>
-								))}
-							</select>
-							{errors.load && (
-								<p className="text-danger">
-									{errors.load.message}
-								</p>
-							)}
-						</div>
-					</div>
-					<div className="mb-1 col-md-3">
-						<label className="form-label">Status</label>
-						{statusOptions.map((option, index) => (
-							<div key={index} className="form-check">
-								<input
-									{...register("status")}
-									id={`status-${index}`}
-									type="radio"
-									value={option}
-									className="form-check-input"
-								/>
-								<label
-									htmlFor={`status-${index}`}
-									className="form-check-label"
-								>
-									{option}
-								</label>
-							</div>
-						))}
-						{errors.status && (
-							<p className="text-danger">
-								{errors.status.message}
-							</p>
-						)}
-					</div>
-					<div className="mb-1 col-md-3">
-						<div className="mb-1 col-md-12">
-							<label htmlFor="dateHired" className="form-label">
-								If Tenure-Track, please input DATE HIRED:
-							</label>
-							<input
-								{...register("dateHired")}
-								id="dateHired"
-								type="date"
-								className="form-control"
-							/>
-							{errors.dateHired && (
-								<p className="text-danger">
-									{errors.dateHired.message}
-								</p>
-							)}
-						</div>
-						<div className="mb-1 col-md-12">
-							<label htmlFor="dateRetired" className="form-label">
-								If Retiree, please input DATE RETIRED:
-							</label>
-							<input
-								{...register("dateRetired")}
-								id="dateRetired"
-								type="date"
-								className="form-control"
-							/>
-							{errors.dateRetired && (
-								<p className="text-danger">
-									{errors.dateRetired.message}
-								</p>
-							)}
-						</div>
-					</div>
-					<div className="mb-1 col-md-3">
-						<label className="form-label">Health Benefits</label>
-						{benefitsOptions.map((option, index) => (
-							<div key={index} className="form-check">
-								<input
-									{...register("benefits")}
-									id={`benefits-${index}`}
-									type="radio"
-									value={option}
-									className="form-check-input"
-								/>
-								<label
-									htmlFor={`benefits-${index}`}
-									className="form-check-label"
-								>
-									{option}
-								</label>
-							</div>
-						))}
-						{errors.benefits && (
-							<p className="text-danger">
-								{errors.benefits.message}
-							</p>
-						)}
-						<div className="mb-1 col-md-12">
-							<label htmlFor="hmo" className="form-label">
-								If HMO, please specify:
-							</label>
-							<input
-								{...register("hmo")}
-								id="hmo"
-								type="text"
-								className="form-control"
-							/>
-							{errors.hmo && (
-								<p className="text-danger">
-									{errors.hmo.message}
-								</p>
-							)}
-						</div>
-					</div>
-				</div>
-			</fieldset>
-			<fieldset className="uploadDisclaimer">
-				<p>Kindly upload the necessary documents needed. </p>
-				<div className="row">
-					<div className="mb-1 col-md-4">
-						<strong>Required Attachments</strong>
-					</div>
-					<div className="mb-1 col-md-4">
-						<strong>File Type</strong>
-					</div>
-					<div className="mb-1 col-md-4">
-						<strong>Upload here</strong>
-					</div>
-				</div>
-			</fieldset>
-			<fieldset className="medicalFiles">
-				<div className="row">
-					<div className="mb-1 col-md-4 docRequest">
-						Doctor's Note or Request
-					</div>
-					<div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
-					<div className="mb-1 col-md-4">
-						<label
-							htmlFor="docRequest"
-							className="form-label"
-						></label>
-						<input
-							{...register("docRequest")}
-							id="docRequest"
-							type="file"
-							accept=".pdf, .png, .jpg, .jpeg"
-							className="form-control"
-						/>
-						{errors.docRequest && (
-							<p className="text-danger">
-								{errors.docRequest.message}
-							</p>
-						)}
-					</div>
-				</div>
-				<div className="row">
-					<div className="mb-1 col-md-4 hospitalReceipt">
-						Hospital Receipt/Invoice
-					</div>
-					<div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
-					<div className="mb-1 col-md-4">
-						<label
-							htmlFor="hospitalReceipt"
-							className="form-label"
-						></label>
-						<input
-							{...register("hospitalReceipt")}
-							id="hospitalReceipt"
-							type="file"
-							accept=".pdf, .png, .jpg, .jpeg"
-							className="form-control"
-						/>
-						{errors.hospitalReceipt && (
-							<p className="text-danger">
-								{errors.hospitalReceipt.message}
-							</p>
-						)}
-					</div>
-				</div>
-				<div className="row">
-					<div className="mb-1 col-md-4 labReceipt">
-						Laboratory Receipt/Invoice
-					</div>
-					<div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
-					<div className="mb-1 col-md-4">
-						<label
-							htmlFor="labReceipt"
-							className="form-label"
-						></label>
-						<input
-							{...register("labReceipt")}
-							id="labReceipt"
-							type="file"
-							accept=".pdf, .png, .jpg, .jpeg"
-							className="form-control"
-						/>
-						{errors.labReceipt && (
-							<p className="text-danger">
-								{errors.labReceipt.message}
-							</p>
-						)}
-					</div>
-				</div>
-				<div className="row">
-					<div className="mb-1 col-md-4 ustID">Employee/UST ID</div>
-					<div className="mb-1 col-md-4 fileType">
-						PDF, PNG, JPG, JPEG{" "}
-					</div>
-					<div className="mb-1 col-md-4">
-						<label htmlFor="ustID" className="form-label"></label>
-						<input
-							{...register("ustID")}
-							id="ustID"
-							accept=".pdf, .png, .jpg, .jpeg"
-							type="file"
-							className="form-control"
-						/>
-						{errors.ustID && (
-							<p className="text-danger">
-								{errors.ustID.message}
-							</p>
-						)}
-					</div>
-				</div>
-				<div className="row">
-					<div className="mb-1 col-md-4 signature">
-						Applicant's Signature
-					</div>
-					<div className="mb-1 col-md-4 fileType">PNG, JPG, PDF </div>
-					<div className="mb-1 col-md-4">
-						<label
-							htmlFor="signature"
-							className="form-label"
-						></label>
-						<input
-							{...register("signature")}
-							id="signature"
-							accept=".pdf, .png, .jpg, .jpeg"
-							type="file"
-							className="form-control"
-						/>
-						{errors.signature && (
-							<p className="text-danger">
-								{errors.signature.message}
-							</p>
-						)}
-					</div>
-				</div>
-				<div className="row claimCount">
-					<div>How many claims do you need to request?</div>
-					<div>
-						<button
-							type="button"
-							onClick={decrementClaims}
-							className="btn btn-secondary claimCompute"
-						>
-							-
-						</button>
-						<span className="claims-count">{claims}</span>
-						<button
-							type="button"
-							onClick={incrementClaims}
-							className="btn btn-secondary claimCompute"
-						>
-							+
-						</button>
-					</div>
-				</div>
-			</fieldset>
+		<div className="form-body">
+			<form onSubmit={handleSubmit(onSubmit)}>
+				<p className="note">Please fill out the following boxes</p>
 
-			<fieldset>
-				<label className="form-label"></label>
-				{hospitalStatusOptions.map((option, index) => (
-					<div key={index} className="form-check form-check-inline">
-						<input
-							{...register("hospitalStatus")}
-							id={`hospitalStatus-${index}`}
-							type="radio"
-							value={option}
-							className="form-check-input"
-						/>
-						<label
-							htmlFor={`hospitalStatus-${index}`}
-							className="form-check-label"
-						>
-							{option}
-						</label>
-					</div>
-				))}
-				{errors.hospitalStatus && (
-					<p className="text-danger">
-						{errors.hospitalStatus.message}
-					</p>
-				)}
-			</fieldset>
-			<fieldset className="certify">
-				<div className="form-check form-check-inline">
-					<input
-						{...register("certify")}
-						id="certify"
-						type="radio"
-						value=" "
-						className="form-check-input"
-					/>
-					<label htmlFor="certify" className="form-check-label">
-						<p>
-							I hereby certify that all information in this
-							application is TRUE and CORRECT and any
-							misrepresentation of facts shall be <br></br>
-							sufficient cause for denial of this benefit. For any
-							amount in excess of my maximum medical &
-							hospitalization benefit, I am<br></br>personally
-							liable to pay directly to UST Hospital
-						</p>
-					</label>
+				<FormPersonalInfo register={register} errors={errors} />
+				<FormMedicalInfo register={register} errors={errors} />
+				<FormTeachingInfo
+					register={register}
+					errors={errors}
+					dateHired={dateHired}
+					setDateHired={setDateHired}
+					dateRetired={dateRetired}
+					setDateRetired={setDateRetired}
+				/>
+				<FormUploadDisclaimer />
+				<FormMedicalFiles register={register} errors={errors} />
+				<FormHospitalStatus register={register} errors={errors} />
+				<FormCertify register={register} errors={errors} />
+
+				<div className="buttonDiv">
+					<button
+						type="submit"
+						className="btn btn-submit form-submit"
+					>
+						Submit
+					</button>
+					<button type="reset" className="btn btn-clear form-submit">
+						Clear
+					</button>
 				</div>
-				{errors.certify && (
-					<p className="text-danger">{errors.certify.message}</p>
-				)}
-			</fieldset>
-			<div className="buttonDiv">
-				<button type="submit" className="btn btn-submit form-submit">
-					Submit
-				</button>
-				<button type="reset" className="btn btn-clear form-submit">
-					Clear
-				</button>
-			</div>
-		</form>
+			</form>
+		</div>
 	);
 };
 

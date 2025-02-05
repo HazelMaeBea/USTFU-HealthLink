@@ -1,7 +1,6 @@
 // src/components/Pages/HospitalizationApplication.tsx
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Layout from "../Layout/Layout"; // use the existing layout component
 import ServiceCards from "../Page Elements/Hospitalization Application/Main Page/ServiceCards"; // import ServiceCards component
 import InpatientForm from "../Page Elements/Hospitalization Application/Forms/InpatientForm";
 import AdmissionForm from "../Page Elements/Hospitalization Application/Forms/AdmissionForm";
@@ -13,7 +12,7 @@ const HospitalizationApplication: React.FC = () => {
   console.log("Hospitalization Application loaded");
 
   return (
-    <Layout>
+    <>
       {/* Only show ServiceCards on the /home route */}
       {location.pathname === "/home" && <ServiceCards />}
 
@@ -26,7 +25,7 @@ const HospitalizationApplication: React.FC = () => {
         {/* Default route when none of the above match */}
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
-    </Layout>
+    </>
   );
 };
 

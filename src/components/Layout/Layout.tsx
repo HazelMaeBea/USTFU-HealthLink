@@ -1,28 +1,48 @@
-// src/components/Layout.tsx
-import React, { useState, ReactNode } from "react";
+import React, { useState, ReactNode, useEffect } from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import Footer from "./Footer";
+import StickySidebar from "./StickySidebar";
+import { Container } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./Layout.css";
 
-// Adding children prop to the Layout component
 interface LayoutProps {
   children: ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  const toggleSidebar = () => {
-    setSidebarOpen((prevState) => !prevState);
-  };
+	useEffect(() => {
+		const handleResize = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
+
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, []);
+
 
   return (
     <div className="layout">
-      <Header />
-      <div className="layout-body" style={{ display: "flex" }}>
-        <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-        <main className="page-content" style={{ flex: 1, padding: "1rem" }}>
-          {children} {/* This renders the children passed to Layout */}
-        </main>
+      <div className="HeaderContainer">
+        <Header />
+      </div>
+      {isMobile ? (
+          <StickySidebar />
+        ) : (
+          <Container className="SidebarContainer">
+            <Sidebar/>
+          </Container>
+        )}
+      <div className="MainContainer">
+        <div className="MainContent">
+          {children}
+        </div>
+      </div>
+      <div className="FooterContainer">
+        <Footer />
       </div>
     </div>
   );

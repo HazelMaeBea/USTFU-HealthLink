@@ -3,11 +3,12 @@
     align-items: center;
     gap: 15px;
     padding: 10px;
+    transition: all 0.3s ease;
 }
 
 .profile-image {
-    width: 50px;
-    height: 50px;
+    width: 40px !important;
+    height: 40px !important;
     overflow: hidden; 
     border-radius: 50%; 
 }
@@ -20,18 +21,32 @@
 
 .profile-name {
     height: 50px;
-   
     display: flex;
     flex-direction: column;
-    gap: auto;
-    color: white; /* Change text color to white */
-    /* background-color: brown; */
+    color: white;
     justify-content: center;
-}
-h3 {
-    font-size: 12px;
-}
-.profile-name h3:last-child {
-    color: rgb(141, 163, 169); /* Lighter blue color for "Member" */
+    white-space: nowrap; 
+    overflow: hidden; 
+    max-width: 150px;
+    transition: max-width 0.3s ease, opacity 0.3s ease;
 }
 
+.profile-name h1 {
+    font-size: 12px;
+}
+
+.profile-name h1:last-child {
+    color: rgb(141, 163, 169);
+}
+
+.profile-section.collapsed .profile-name {
+    display: none;
+    padding: none;
+    max-width: 0;
+    opacity: 0;
+}
+
+.profile-section.collapsed {
+    padding: 10px 0px 10px 0px; 
+    justify-content: center;
+}

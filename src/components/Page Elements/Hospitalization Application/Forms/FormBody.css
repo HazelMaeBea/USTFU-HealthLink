@@ -1,9 +1,7 @@
-.ApplicationForm {
-  display: flex;
-  flex-direction: column;
-    width: 100%;
-  }
-  
+.form-body {
+  padding: 50px 80px !important;  
+}
+
 fieldset {
   border: none;
   border-top: 1px solid black !important;
@@ -18,6 +16,7 @@ fieldset {
   margin-bottom: 8px;
   }
   
+
 fieldset.medicalFiles .row {
     align-items: center;
     margin: -15px 0;
@@ -41,8 +40,6 @@ fieldset.medicalFiles .form-control[type="file"] {
   border: 1px solid #ccc;
   transition: border-color 0.3s ease;
 }
-
-
 
 .claimRequest {
   width: fit-content !important;

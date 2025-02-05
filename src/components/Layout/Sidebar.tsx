@@ -1,53 +1,46 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Profile from "./Profile";
 import "./Sidebar.css";
+import { Link } from "react-router-dom";
+import { MdOutlineMenu } from "react-icons/md";
+import { TbHomeEdit, TbLogout } from "react-icons/tb";
+import { MdHistory } from "react-icons/md";
+import { AiOutlineQuestionCircle } from "react-icons/ai";
+import { RiSettings5Line } from "react-icons/ri";
+import { useState } from "react";
 
-const Sidebar = ({
-  isOpen,
-  toggleSidebar,
-}: {
-  isOpen: boolean;
-  toggleSidebar: () => void;
-}) => {
-  const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
-  const navigate = useNavigate(); // Initialize useNavigate
+const Sidebar = () => {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
 
-  const menuItems = [
-    { name: "HOSPITALIZATION APPLICATION", path: "/home" },
-    { name: "HOSPITALIZATION TRACKING", path: "/tracking" },
-    { name: "FAQ", path: "/faqs" },
-    { name: "SETTINGS", path: "/settings" },
-    { name: "LOGOUT", path: "/logout" },
-  ];
+    const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
-  const handleMenuClick = (itemName: string, path: string) => {
-    setActiveItem(itemName);
-    navigate(path); // Navigate to the selected route
-  };
+    const menuItems = [
+        { name: "HOSPITALIZATION APPLICATION", icon: <TbHomeEdit size={20} />, path: "/home" },
+        { name: "HOSPITALIZATION TRACKING", icon: <MdHistory size={20} />, path: "/tracking" },
+        { name: "FAQ", icon: <AiOutlineQuestionCircle size={20} />, path: "/faqs" },
+        { name: "SETTINGS", icon: <RiSettings5Line size={20} />, path: "/settings" },
+        { name: "LOGOUT", icon: <TbLogout size={20} />, path: "/logout" },
+    ];
 
-  return (
-    <div className={`Sidebar ${isOpen ? "open" : "collapsed"}`}>
-      <div className="Profile">
-        <Profile />
-      </div>
-      <button className="toggle-btn" onClick={toggleSidebar}>
-        {isOpen ? "Close" : "Menu"}
-      </button>
-      <ul className="SidebarMenu">
-        {menuItems.map((item) => (
-          <li
-            key={item.name}
-            className={activeItem === item.name ? "active" : ""}
-            onClick={() => handleMenuClick(item.name, item.path)} // Handle click and navigate
-          >
-            <span className="menu-icon"></span>
-            {item.name}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+    return (
+        <div className={`sidebar-wrapper ${isCollapsed ? 'collapsed' : ''}`}>
+            <button onClick={toggleSidebar} className="toggle-btn">
+                <MdOutlineMenu size={20} />
+            </button>
+            <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+                <Profile isCollapsed={isCollapsed} />
+                <nav className="SidebarMenu">
+                    {menuItems.map((item) => (
+                        <div key={item.name} className={`menu-item ${activeItem === item.name ? "active" : ""}`}>
+                            <Link to={item.path} onClick={() => setActiveItem(item.name)}>
+                                {item.icon} <span className="menu-text">{item.name}</span>
+                            </Link>
+                        </div>
+                    ))}
+                </nav>
+            </aside>
+        </div>
+    );
 };
 
 export default Sidebar;
