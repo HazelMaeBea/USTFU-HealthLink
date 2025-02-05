@@ -4,7 +4,10 @@
 // npm install -g firebase-tools
 
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
+// import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAd9o-IK10EQF28NR7mCjP97ELtz1JTMmI",
@@ -18,6 +21,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
 
 // Not really needed atm
 // const analytics = getAnalytics(app);
