@@ -14,11 +14,19 @@ import HospitalizationTracking from "./components/Pages/HospitalizationTracking"
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/Settings";
 import Logout from "./components/Pages/Logout";
+import { auth } from "./config/firebase";
+import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "./config/firebase";
+
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+	hd: "ust.edu.ph",
+});
 import Popout from "./components/Page Elements/Popout/Popout";
 
 const App: React.FC = () => {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
 
 	const handleLogin = () => {
 		setIsAuthenticated(true); // Simulate login process
@@ -26,19 +34,6 @@ const App: React.FC = () => {
 
 	const handleLogout = () => {
 		setIsAuthenticated(false);
-	};
-
-	const confirmLogout = () => {
-		setIsPopoutOpen(true);
-	};
-
-	const handleConfirmLogout = () => {
-		setIsPopoutOpen(false);
-		handleLogout();
-	};
-
-	const handleCancelLogout = () => {
-		setIsPopoutOpen(false);
 	};
 
 	return (
@@ -61,7 +56,7 @@ const App: React.FC = () => {
 							<Route path="/settings" element={<Settings />} />
 							<Route
 								path="/logout"
-								element={<Logout onLogout={confirmLogout} />}
+								element={<Logout onLogout={handleLogout} />}
 							/>
 							<Route
 								path="*"
@@ -81,13 +76,6 @@ const App: React.FC = () => {
 						/>
 					</Routes>
 				)}
-				<Popout
-					title="Confirm Logout"
-					message="Are you sure you want to logout?"
-					onConfirm={handleConfirmLogout}
-					onCancel={handleCancelLogout}
-					isOpen={isPopoutOpen}
-				/>
 			</div>
 		</Router>
 	);
