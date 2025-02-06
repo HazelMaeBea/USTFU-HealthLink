@@ -73,7 +73,6 @@ const App: React.FC = () => {
 	const handleLogout = async () => {
 		try {
 			await signOut(auth);
-			setIsAuthenticated(false);
 			setIsPopoutOpen(true);
 		} catch (error) {
 			console.error("Logout error:", error);
@@ -82,7 +81,7 @@ const App: React.FC = () => {
 
 	const handleConfirmLogout = () => {
 		setIsPopoutOpen(false);
-		handleLogout();
+		setIsAuthenticated(false);
 	};
 
 	const handleCancelLogout = () => {
@@ -90,54 +89,59 @@ const App: React.FC = () => {
 	};
 
 	return (
-		<Router>
-			{" "}
-			{/* BrowserRouter is wrapping everything */}
-			<div className="App">
-				{isAuthenticated ? (
-					<Layout>
+		<>
+			<Router>
+				{" "}
+				{/* BrowserRouter is wrapping everything */}
+				<div className="App">
+					{isAuthenticated ? (
+						<Layout>
+							<Routes>
+								<Route
+									path="/home/*"
+									element={<HospitalizationApplication />}
+								/>
+								<Route
+									path="/tracking"
+									element={<HospitalizationTracking />}
+								/>
+								<Route path="/faqs" element={<FAQs />} />
+								<Route
+									path="/settings"
+									element={<Settings />}
+								/>
+								<Route
+									path="/logout"
+									element={<Logout onLogout={handleLogout} />}
+								/>
+								<Route
+									path="*"
+									element={<Navigate to="/home" replace />}
+								/>
+							</Routes>
+						</Layout>
+					) : (
 						<Routes>
 							<Route
-								path="/home/*"
-								element={<HospitalizationApplication />}
-							/>
-							<Route
-								path="/tracking"
-								element={<HospitalizationTracking />}
-							/>
-							<Route path="/faqs" element={<FAQs />} />
-							<Route path="/settings" element={<Settings />} />
-							<Route
-								path="/logout"
-								element={<Logout onLogout={handleLogout} />}
+								path="/login"
+								element={<LoginPage onLogin={handleLogin} />}
 							/>
 							<Route
 								path="*"
-								element={<Navigate to="/home" replace />}
+								element={<Navigate to="/login" replace />}
 							/>
 						</Routes>
-					</Layout>
-				) : (
-					<Routes>
-						<Route
-							path="/login"
-							element={<LoginPage onLogin={handleLogin} />}
-						/>
-						<Route
-							path="*"
-							element={<Navigate to="/login" replace />}
-						/>
-					</Routes>
-				)}
-				<Popout
-					title="Confirm Logout"
-					message="Are you sure you want to logout?"
-					onConfirm={handleConfirmLogout}
-					onCancel={handleCancelLogout}
-					isOpen={isPopoutOpen}
-				/>
-			</div>
-		</Router>
+					)}
+				</div>
+			</Router>
+			<Popout
+				title="Confirm Logout"
+				message="Are you sure you want to logout?"
+				onConfirm={handleConfirmLogout}
+				onCancel={handleCancelLogout}
+				isOpen={isPopoutOpen}
+			/>
+		</>
 	);
 };
 
