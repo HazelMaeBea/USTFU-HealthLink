@@ -1,11 +1,42 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Popout from "../Page Elements/Popout/Popout";
 
-const Logout: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
-	useEffect(() => {
-		onLogout();
-	}, [onLogout]); // call onLogout when the component mounts
+interface LogoutProps {
+  onLogout: () => Promise<void>;
+}
 
-	return 0; //Redicred to login page --- try to find a way to return to current active URL
+const Logout: React.FC<LogoutProps> = ({ onLogout }) => {
+  const [isPopoutOpen, setIsPopoutOpen] = useState(true);
+  const navigate = useNavigate();
+
+  const handleConfirm = async () => {
+    try {
+      await onLogout();
+      navigate("/login"); 
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsPopoutOpen(false);
+    navigate(-1); // Return to previous URL
+  };
+
+  return (
+    <>
+      {isPopoutOpen && (
+        <Popout
+          title="Confirm Logout"
+          message="Are you sure you want to logout?"
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+          isOpen={isPopoutOpen}
+        />
+      )}
+    </>
+  );
 };
 
 export default Logout;

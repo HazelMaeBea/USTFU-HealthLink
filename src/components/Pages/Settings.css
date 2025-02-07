@@ -128,5 +128,6 @@ hr {
 }
 
 .buttonDiv .btn-submit:hover {
-	background-color: #333;
+	background-color: rgb(22, 22, 22);
+	color: white;
 }
