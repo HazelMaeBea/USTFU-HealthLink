@@ -1,15 +1,28 @@
 .history-header {
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
     width: 100%;
     height: 100%;
     text-align: center; 
 }
 
+.left-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.title-header {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
 .header {
     margin: 0; 
     flex-grow: 1;
+    text-align: center
 }
 
 .btn {
@@ -23,7 +36,7 @@
 }
 
 .btn-filter {
-    background-color: #d3d0d0 !important; 
+    background-color: #d0d0d0 !important; 
     color: #fff;
     padding: 0.4em 0.8em; 
     font-size: 0.8em !important; 
@@ -34,6 +47,21 @@
     color: #fff !important;
     padding: 0.4em 0.8em; 
     font-size: 0.8em !important; 
+}
+
+.btn-history {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+    background-color: #FFF;
+    margin: 0 5px;
+    padding: 0.4em 0.8em;
+    font-size: 0.8em !important;
+    cursor: pointer;
+}
+
+.btn-active {
+    background-color: #000 !important;
+    color: #FFF !important;
 }
 
 .btn:hover {
@@ -63,5 +91,18 @@
     color: black;
     text-align: center; 
     font-size: 0.9em;
+}
+
+.filter-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
