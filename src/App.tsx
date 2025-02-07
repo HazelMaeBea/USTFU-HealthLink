@@ -11,10 +11,13 @@ import Layout from "./components/Layout/Layout";
 import LoginPage from "./components/Pages/LoginPage";
 import HospitalizationApplication from "./components/Pages/HospitalizationApplication";
 import HospitalizationTracking from "./components/Pages/HospitalizationTracking";
+import HospitalizationHistory from "./components/Pages/HospitalizationHistory";
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/Settings";
 import Logout from "./components/Pages/Logout";
 import Popout from "./components/Page Elements/Popout/Popout";
+import PendingRequests from "./components/Pages/PendingRequests";
+import AdminSettings from "./components/Pages/AdminSettings";
 
 import { auth } from "./config/firebase";
 import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
@@ -27,7 +30,7 @@ provider.setCustomParameters({
 });
 
 const App: React.FC = () => {
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [isAuthenticated, setIsAuthenticated] = useState(true);
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
 
 	const handleLogin = async () => {
@@ -105,7 +108,18 @@ const App: React.FC = () => {
 									path="/tracking"
 									element={<HospitalizationTracking />}
 								/>
-								<Route path="/faqs" element={<FAQs />} />
+								<Route
+									path="/history"
+									element={<HospitalizationHistory />}
+								/>
+								<Route
+									path="/pendingrequests"
+									element={<PendingRequests />}
+								/>
+								<Route 
+									path="/faqs" 
+									element={<FAQs />} 
+								/>
 								<Route
 									path="/settings"
 									element={<Settings />}
@@ -113,6 +127,10 @@ const App: React.FC = () => {
 								<Route
 									path="/logout"
 									element={<Logout onLogout={handleLogout} />}
+								/>
+								<Route
+									path="/adminsettings"
+									element={<AdminSettings />}
 								/>
 								<Route
 									path="*"

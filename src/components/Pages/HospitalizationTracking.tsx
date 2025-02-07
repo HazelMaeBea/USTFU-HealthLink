@@ -1,5 +1,5 @@
 import React from "react";
-import TrackingPage from "../TrackingPage/TrackingPage";
+import TrackingPage from "../Page Elements/TrackingPage/TrackingPage";
 
 const HospitalizationTracking: React.FC = () => {
     console.log("Hospitalization Tracking loaded");

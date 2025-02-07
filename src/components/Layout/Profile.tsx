@@ -1,19 +1,40 @@
+import React, { useEffect, useState } from 'react';
 import "./Profile.css";
+import NameRole from "./NameRole";
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../config/firebase'; // Adjust the path to your Firebase config
 
 interface ProfileProps {
     isCollapsed: boolean;
 }
 
 const Profile: React.FC<ProfileProps> = ({ isCollapsed }) => {
+    const [profileImageUrl, setProfileImageUrl] = useState('');
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setProfileImageUrl(user.photoURL || '');
+            }
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className={`profile-section ${isCollapsed ? "collapsed" : ""}`}>
             <div className="profile-image">
-                <img src="https://media.gettyimages.com/id/1389408711/photo/64th-annual-grammy-awards-arrivals.jpg?s=1024x1024&w=gi&k=20&c=zDyYSIA635n6gE82xx0eyhJ4BY19lMPU-8m121GVZDo=" alt="Profile" />
+                <img src={profileImageUrl} alt="Profile" />
             </div>
             {!isCollapsed && (
                 <div className="profile-name">
-                    <h1>JEON JUNGKOOK</h1>
-                    <h1>MEMBER</h1>
+                    <NameRole />
                 </div>
             )}
         </div>

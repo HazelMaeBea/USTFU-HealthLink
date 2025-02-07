@@ -9,6 +9,10 @@ import { MdHistory } from "react-icons/md";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { RiSettings5Line } from "react-icons/ri";
 import Profile from "./Profile.tsx";
+import { FaRegFolderOpen } from "react-icons/fa";
+import { AiOutlineFileProtect } from "react-icons/ai";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
+
 
 const StickySidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +27,9 @@ const StickySidebar = () => {
         { name: "HOSPITALIZATION TRACKING", icon: <MdHistory size={20} />, path: "/tracking" },
         { name: "FAQ", icon: <AiOutlineQuestionCircle size={20} />, path: "/faq" },
         { name: "SETTINGS", icon: <RiSettings5Line size={20} />, path: "/settings" },
+        { name: "HOSPITALIZATION HISTORY", icon: <FaRegFolderOpen size={20} />, path: "/history" },
+        { name: "PENDING REQUESTS", icon: <AiOutlineFileProtect size={20} />, path: "/pendingrequests" },
+        { name: "ADMIN SETTINGS", icon: <MdOutlineAdminPanelSettings size={20} />, path: "/adminsettings" },
         { name: "LOGOUT", icon: <TbLogout size={20} />, path: "/logout" },
     ];
 

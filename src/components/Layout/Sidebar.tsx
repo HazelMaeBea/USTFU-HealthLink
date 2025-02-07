@@ -6,6 +6,10 @@ import { TbHomeEdit, TbLogout } from "react-icons/tb";
 import { MdHistory } from "react-icons/md";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { RiSettings5Line } from "react-icons/ri";
+import { FaRegFolderOpen } from "react-icons/fa";
+import { AiOutlineFileProtect } from "react-icons/ai";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
+
 import { useState } from "react";
 
 const Sidebar = () => {
@@ -19,6 +23,9 @@ const Sidebar = () => {
         { name: "HOSPITALIZATION TRACKING", icon: <MdHistory size={20} />, path: "/tracking" },
         { name: "FAQ", icon: <AiOutlineQuestionCircle size={20} />, path: "/faqs" },
         { name: "SETTINGS", icon: <RiSettings5Line size={20} />, path: "/settings" },
+        { name: "HOSPITALIZATION HISTORY", icon: <FaRegFolderOpen size={20} />, path: "/history" }, // Correct path
+        { name: "PENDING REQUESTS", icon: <AiOutlineFileProtect size={20} />, path: "/pendingrequests" },
+        { name: "ADMIN SETTINGS", icon: <MdOutlineAdminPanelSettings size={20} />, path: "/adminsettings" },
         { name: "LOGOUT", icon: <TbLogout size={20} />, path: "/logout" },
     ];
 

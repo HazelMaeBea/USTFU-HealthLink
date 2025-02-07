@@ -1,7 +1,7 @@
 .profile-section {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     padding: 10px;
     transition: all 0.3s ease;
 }
@@ -20,23 +20,27 @@
 }
 
 .profile-name {
-    height: 50px;
     display: flex;
     flex-direction: column;
-    color: white;
     justify-content: center;
-    white-space: nowrap; 
-    overflow: hidden; 
-    max-width: 150px;
+    align-items: flex-start;
+    overflow: hidden;
+    max-width: 180px;
     transition: max-width 0.3s ease, opacity 0.3s ease;
+    margin-bottom: none;
+    height: 60px;
 }
 
-.profile-name h1 {
+.name {
+    text-transform: uppercase;
     font-size: 12px;
-}
-
-.profile-name h1:last-child {
-    color: rgb(141, 163, 169);
+    font-weight: 600;
+    color: white;
+    hyphens: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
 }
 
 .profile-section.collapsed .profile-name {
@@ -49,4 +53,61 @@
 .profile-section.collapsed {
     padding: 10px 0px 10px 0px; 
     justify-content: center;
+}
+
+.role-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 160px;
+}
+
+.role-dropdown {
+    background-color: transparent;
+    border: 1px solid #90A4AE;
+    color: #90A4AE;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    border-radius: 20px;
+    padding: 2px 4px 2px 4px;
+}
+
+.role-dropdown option {
+    background-color: #333;
+    color: white;
+}
+
+.single-role {
+    color: #90A4AE;
+    font-size: 12px;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+    .profile-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-name {
+        align-items: center;
+        text-align: center;
+    }
+
+    .name {
+        max-width: 100%;
+    }
+
+    .role-container {
+        width: 100%;
+    }
+
+    .role-dropdown {
+        width: 100%;
+    }
 }
