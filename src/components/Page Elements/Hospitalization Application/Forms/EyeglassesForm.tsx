@@ -10,7 +10,7 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormSigIDFiles from "./FormSigIDFiles";
 import FormCertify from "./FormCertify";
 import { collection, addDoc } from "firebase/firestore";
-import { db, storage } from '../../../../config/firebase.ts'
+import { auth, db, storage } from '../../../../config/firebase.ts'
 import { ref, uploadBytes } from "firebase/storage";
 
 export type FormData = z.infer<typeof schema>;
@@ -54,11 +54,13 @@ const EyeglassesForm = () => {
 	const onSubmit = async (data: FieldValues) => {
 		// console.log(data); // Ensure this logs the data correctly
 		try {
-			let imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.applicantSignature[0].name);
+			const email = auth?.currentUser?.email;
+
+			let imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name);
 			await uploadBytes(imageRef, data.applicantSignature[0]);
 			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.docRequest[0].name);
 			// await uploadBytes(imageRef, data.docRequest[0]);
-			imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.employeeID[0].name);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name);
 			await uploadBytes(imageRef, data.employeeID[0]);
 			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.hospitalInvoice[0].name);
 			// await uploadBytes(imageRef, data.hospitalInvoice[0]);
