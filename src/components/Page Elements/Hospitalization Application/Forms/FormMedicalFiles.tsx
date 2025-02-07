@@ -31,6 +31,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                 accept=".pdf, .png, .jpg, .jpeg"
                 className={`form-control ${errors.docRequest ? "is-invalid" : ""}`}
                 {...register("docRequest")}
+                name="docRequest"
               />
               {errors.docRequest && (
                 <p className="invalid-feedback">
@@ -49,6 +50,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                 accept=".pdf, .png, .jpg, .jpeg"
                 className={`form-control ${errors.hospitalInvoice ? "is-invalid" : ""}`}
                 {...register("hospitalInvoice")}
+                name="hospitalInvoice"
               />
               {errors.hospitalInvoice && (
                 <p className="invalid-feedback">
@@ -67,6 +69,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                 accept=".pdf, .png, .jpg, .jpeg"
                 className={`form-control ${errors.labInvoice ? "is-invalid" : ""}`}
                 {...register("labInvoice")}
+                name="labInvoice"
               />
               {errors.labInvoice && (
                 <p className="invalid-feedback">
@@ -85,6 +88,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                 accept=".pdf, .png, .jpg, .jpeg"
                 className={`form-control ${errors.employeeID ? "is-invalid" : ""}`}
                 {...register("employeeID")}
+                name="employeeID"
               />
               {errors.employeeID && (
                 <p className="invalid-feedback">
@@ -103,6 +107,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                 accept=".pdf, .png, .jpg, .jpeg"
                 className={`form-control ${errors.applicantSignature ? "is-invalid" : ""}`}
                 {...register("applicantSignature")}
+                name="applicantSignature"
               />
               {errors.applicantSignature && (
                 <p className="invalid-feedback">

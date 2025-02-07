@@ -10,7 +10,7 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormSigIDFiles from "./FormSigIDFiles";
 import FormCertify from "./FormCertify";
 import { collection, addDoc } from "firebase/firestore";
-import { auth, db, storage } from '../../../../config/firebase.ts'
+import { auth, db, storage } from '../../../../config/firebase.ts';
 import { ref, uploadBytes } from "firebase/storage";
 
 export type FormData = z.infer<typeof schema>;
