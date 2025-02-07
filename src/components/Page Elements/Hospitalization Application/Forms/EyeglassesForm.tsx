@@ -58,14 +58,8 @@ const EyeglassesForm = () => {
 
 			let imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name);
 			await uploadBytes(imageRef, data.applicantSignature[0]);
-			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.docRequest[0].name);
-			// await uploadBytes(imageRef, data.docRequest[0]);
 			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name);
 			await uploadBytes(imageRef, data.employeeID[0]);
-			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.hospitalInvoice[0].name);
-			// await uploadBytes(imageRef, data.hospitalInvoice[0]);
-			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.labInvoice[0].name);
-			// await uploadBytes(imageRef, data.labInvoice[0]);
 	  
 			await addDoc(formsCollectionRef, {
 			  Age: data["age"],
@@ -80,6 +74,8 @@ const EyeglassesForm = () => {
 			  AmountPaid: data["amountPaid"],
 			  Gender: data["gender"],
 			  IssuedBy: data["issuedBy"],
+			  ApplicantSignature: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name,
+			  EmployeeED: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name,
 			})
 		  } catch (error) {
 			console.error(error);
