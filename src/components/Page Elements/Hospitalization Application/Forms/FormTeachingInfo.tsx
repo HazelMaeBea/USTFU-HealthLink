@@ -2,6 +2,7 @@ import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import { FormData } from "./FormBody";
+import { Timestamp } from "firebase/firestore";
 
 interface FormTeachingInfoProps {
 	register: UseFormRegister<FormData>;
@@ -148,6 +149,8 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							}
 							id="dateHired"
 							className="form-control"
+							name="dateHired"
+							dateFormat={'dd-MM-yyyy'}
 						/>
 						{errors.dateHired && (
 							<p className="text-danger">
@@ -166,6 +169,8 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							}
 							id="dateRetired"
 							className="form-control"
+							name="dateRetired"
+							dateFormat={'dd-MM-yyyy'}
 						/>
 						{errors.dateRetired && (
 							<p className="text-danger">
