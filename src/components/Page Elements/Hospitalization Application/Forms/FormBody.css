@@ -1,153 +1,148 @@
 .form-body {
-  padding: 50px 80px;  
+	padding: 50px 80px;
 }
 
 fieldset {
-  border: none;
-  border-top: 1px solid black !important;
-  margin-top: 20px!important;
-  padding-top: 20px !important;
+	border: none;
+	border-top: 1px solid black !important;
+	margin-top: 20px !important;
+	padding-top: 20px !important;
+}
 
-  }
-  
 .note {
-  color: red;
-  font-size: 15px;
-  margin-bottom: 8px;
-  }
-  
+	color: red;
+	font-size: 15px;
+	margin-bottom: 8px;
+}
 
 fieldset.medicalFiles .row {
-    align-items: center;
-    margin: -15px 0;
-  }
+	align-items: center;
+	margin: -15px 0;
+}
 
-  fieldset.medicalFiles .form-control[type="file"] {
-    width: auto;
-    height: 35px;
-    padding: 5px 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    transition: border-color 0.3s ease;
-  }
 fieldset.medicalFiles .form-control[type="file"] {
-  width: auto;
-  height: 35px;
-  padding: 5px 10px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  transition: border-color 0.3s ease;
+	width: auto;
+	height: 35px;
+	padding: 5px 10px;
+	font-size: 14px;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+	transition: border-color 0.3s ease;
+}
+fieldset.medicalFiles .form-control[type="file"] {
+	width: auto;
+	height: 35px;
+	padding: 5px 10px;
+	font-size: 14px;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+	transition: border-color 0.3s ease;
 }
 
 .claimRequest {
-  width: fit-content !important;
+	width: fit-content !important;
 }
 
 .btn-secondary {
-  padding: 5px 10px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: #f0f0f0;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+	padding: 5px 10px;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+	background-color: #f0f0f0;
+	transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .btn-secondary:hover {
-  background-color: #e0e0e0;
-  border-color: #bbb;
+	background-color: #e0e0e0;
+	border-color: #bbb;
 }
 
 fieldset.uploadDisclaimer {
-  margin-bottom: -20px;
+	margin-bottom: -20px;
 }
 
 .certify .form-check-inline {
-  display: flex;
-  align-items: flex-start;
+	display: flex;
+	align-items: flex-start;
 }
 
 .certify .form-check-label {
-  display: flex;
-  align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .certify .form-check-label p {
-  margin: 0;
-  margin-left: 5px;
+	margin: 0;
+	margin-left: 5px;
 }
 
 body {
-  overflow-y:scroll; /* why is is not working */
+	overflow-y: scroll; /* why is is not working */
 }
 
 .buttonDiv {
-  margin-top: 50px;
-  display: flex;
-  justify-content: right;  
+	margin-top: 50px;
+	display: flex;
+	justify-content: right;
 }
 
 .buttonDiv .btn-submit {
-  margin-left: 10px;
-  background-color: black; 
-  color: white; 
-  border: none; 
+	margin-left: 10px;
+	background-color: black;
+	color: white;
+	border: none;
 }
 
 .buttonDiv .btn-submit:hover {
-  background-color: #333; 
+	background-color: #333;
 }
 
 .buttonDiv .btn-clear {
-  margin-left: 10px;
-  background-color: white; 
-  color: black;
-  border: 1px solid black; 
+	margin-left: 10px;
+	background-color: white;
+	color: black;
+	border: 1px solid black;
 }
 
 .buttonDiv .btn-clear:hover {
-  background-color: #f0f0f0;
+	background-color: #f0f0f0;
+	border: 1px solid black;
 }
 
 /* removes arrows from number input */
 /* only for Chrome, Safari, Edge, Opera */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none; 
-  margin: 0;
+	-webkit-appearance: none;
+	margin: 0;
 }
 
 .admissionTeaching {
-  align-items: center;
+	align-items: center;
 }
 
 .claimCount * {
-  margin-top: 10px;
+	margin-top: 10px;
 }
 
 @media screen and (max-width: 768px) {
-  .form-body {
-    padding: 0.5rem;
-  }
+	.form-body {
+		padding: 0.5rem;
+	}
 
-  .buttonDiv {
-    flex-direction: row-reverse;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-  }
+	.buttonDiv {
+		flex-direction: row-reverse;
+		align-items: center;
+		justify-content: space-between;
+		gap: 15px;
+	}
 
-  .btn-submit, .btn-clear {
-    height: 40px;
-    width: 100%;
-  }
-
-
-
-
-  
+	.btn-submit,
+	.btn-clear {
+		height: 40px;
+		width: 100%;
+	}
 }
 
 .fieldset-no-line {
-  border: none !important;
+	border: none !important;
 }
