@@ -13,7 +13,6 @@ import HospitalizationApplication from "./components/Pages/HospitalizationApplic
 import HospitalizationTracking from "./components/Pages/HospitalizationTracking";
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/Settings";
-import Logout from "./components/Pages/Logout";
 
 import { auth } from "./config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -57,7 +56,7 @@ const App: React.FC = () => {
     <Router>
       <div className="App">
         {isAuthenticated ? (
-          <Layout>
+          <Layout onLogout={handleLogout}>
             <Routes>
               <Route
                 path="/home/*"
@@ -69,7 +68,6 @@ const App: React.FC = () => {
               />
               <Route path="/faqs" element={<FAQs />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/logout" element={<Logout onLogout={handleLogout} />} />
               <Route path="*" element={<Navigate to="/home" replace />} />
             </Routes>
           </Layout>

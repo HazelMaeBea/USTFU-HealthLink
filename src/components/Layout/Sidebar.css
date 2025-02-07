@@ -77,7 +77,20 @@
     overflow: hidden;
 }
 
-.menu-item a:hover {    
+.logout-item {
+    color: white;
+    text-decoration: none;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0px 10px 0px;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer; /* Makes it feel clickable */
+}
+
+.menu-item a:hover, .logout-item:hover {    
     color: #f4bb00;
 }
 
