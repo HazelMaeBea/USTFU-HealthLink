@@ -16,7 +16,7 @@ import Settings from "./components/Pages/Settings";
 
 import { auth } from "./config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { login, logout } from "./services/auth";
+import { login } from "./services/auth";
 
 const App: React.FC = () => {
   // Use null as the initial state to indicate "unknown".
@@ -39,14 +39,6 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleLogout = useCallback(async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  }, []);
-
   // While auth state is unknown, don't render anything (or render a loading indicator)
   if (isAuthenticated === null) {
     return null; // or return <div>Loading...</div>
@@ -56,7 +48,7 @@ const App: React.FC = () => {
     <Router>
       <div className="App">
         {isAuthenticated ? (
-          <Layout onLogout={handleLogout}>
+          <Layout>
             <Routes>
               <Route
                 path="/home/*"

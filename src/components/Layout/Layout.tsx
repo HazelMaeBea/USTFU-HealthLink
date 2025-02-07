@@ -10,7 +10,6 @@ import { logout } from "../../services/auth";
 
 interface LayoutProps {
   children: ReactNode;
-  onLogout: () => Promise<void>;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
