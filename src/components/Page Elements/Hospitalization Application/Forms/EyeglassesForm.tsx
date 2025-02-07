@@ -9,6 +9,9 @@ import FormInvoice from "./FormInvoice";
 import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormSigIDFiles from "./FormSigIDFiles";
 import FormCertify from "./FormCertify";
+import { collection, addDoc } from "firebase/firestore";
+import { auth, db, storage } from '../../../../config/firebase.ts';
+import { ref, uploadBytes } from "firebase/storage";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -35,7 +38,7 @@ const schema = z.object({
 		message: "File is required",
 	}),
 	claimRequestCount: z.number().min(1, "Claim Request Count is required"),
-	certify: z.enum([" "], {
+	certify: z.enum(["Yes"], {
 		errorMap: () => ({ message: "Certification is required" }),
 	}),
 });
@@ -47,8 +50,40 @@ const EyeglassesForm = () => {
 		formState: { errors },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-	const onSubmit = (data: FieldValues) => {
-		console.log(data); // Ensure this logs the data correctly
+	const formsCollectionRef = collection(db, "FormRequests");
+	const onSubmit = async (data: FieldValues) => {
+		// console.log(data); // Ensure this logs the data correctly
+		try {
+			const email = auth?.currentUser?.email;
+
+			let imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name);
+			await uploadBytes(imageRef, data.applicantSignature[0]);
+			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.docRequest[0].name);
+			// await uploadBytes(imageRef, data.docRequest[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name);
+			await uploadBytes(imageRef, data.employeeID[0]);
+			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.hospitalInvoice[0].name);
+			// await uploadBytes(imageRef, data.hospitalInvoice[0]);
+			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.labInvoice[0].name);
+			// await uploadBytes(imageRef, data.labInvoice[0]);
+	  
+			await addDoc(formsCollectionRef, {
+			  Age: data["age"],
+			  FirstName: data["firstname"],
+			  LastName: data["lastname"],
+			  MiddleName: data["middlename"],
+			  ClaimRequestCount: data["claimRequestCount"],
+			  College: data["college"],
+			  Contact: data["contact"],
+			  Suffix: data["suffix"],
+			  ORNumber: data["ORNumber"],
+			  AmountPaid: data["amountPaid"],
+			  Gender: data["gender"],
+			  IssuedBy: data["issuedBy"],
+			})
+		  } catch (error) {
+			console.error(error);
+		  }
 	};
 
 	return (

@@ -10,6 +10,9 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormMedicalFiles from "./FormMedicalFiles";
 import FormCertify from "./FormCertify";
 import AdmissionTeachingInfo from "./AdmissionTeachingInfo";
+import { collection, addDoc } from "firebase/firestore";
+import { auth, db, storage } from '../../../../config/firebase.ts';
+import { ref, uploadBytes } from 'firebase/storage';
 
 type FormData = z.infer<typeof schema>;
 
@@ -43,7 +46,7 @@ const schema = z.object({
     message: "File is required",
   }),
   claimRequestCount: z.number().min(1, "Claim Request Count is required"),
-  certify: z.enum([" "], {
+  certify: z.enum(["Yes"], {
     errorMap: () => ({ message: "Certification is required" }),
   }),
 });
@@ -55,8 +58,38 @@ const AdmissionForm = () => {
     formState: { errors },
   } = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-  const onSubmit = (data: FieldValues) => {
-    console.log(data); // Ensure this logs the data correctly
+  const formsCollectionRef = collection(db, "FormRequests");
+  const onSubmit = async (data: FieldValues) => {
+    try {
+      const email = auth?.currentUser?.email;
+
+			let imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name);
+			await uploadBytes(imageRef, data.applicantSignature[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.docRequest[0].name);
+			await uploadBytes(imageRef, data.docRequest[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name);
+			await uploadBytes(imageRef, data.employeeID[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.hospitalInvoice[0].name);
+			await uploadBytes(imageRef, data.hospitalInvoice[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.labInvoice[0].name);
+			await uploadBytes(imageRef, data.labInvoice[0]);
+	  
+			await addDoc(formsCollectionRef, {
+			  Age: data["age"],
+			  FirstName: data["firstname"],
+			  LastName: data["lastname"],
+			  MiddleName: data["middlename"],
+			  ClaimRequestCount: data["claimRequestCount"],
+			  College: data["college"],
+			  Contact: data["contact"],
+			  Suffix: data["suffix"],
+			  Gender: data["gender"],
+        Status: data["status"],
+        Load: data["load"],
+			})
+		  } catch (error) {
+			console.error(error);
+		  }
   };
 
   return (

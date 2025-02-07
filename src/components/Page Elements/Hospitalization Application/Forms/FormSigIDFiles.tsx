@@ -21,6 +21,7 @@ const FormSigIDFiles: React.FC<FormSigIDFiles> = ({ register, errors }) => {
             accept=".pdf, .png, .jpg, .jpeg"
             className={`form-control ${errors.employeeID ? "is-invalid" : ""}`}
             {...register("employeeID")}
+            name="employeeID"
           />
           {errors.employeeID && (
             <p className="invalid-feedback">
@@ -45,6 +46,7 @@ const FormSigIDFiles: React.FC<FormSigIDFiles> = ({ register, errors }) => {
               errors.applicantSignature ? "is-invalid" : ""
             }`}
             {...register("applicantSignature")}
+            name="applicantSignature"
           />
           {errors.applicantSignature && (
             <p className="invalid-feedback">

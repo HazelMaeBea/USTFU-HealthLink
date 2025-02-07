@@ -1,5 +1,5 @@
 .form-body {
-  padding: 50px 80px !important;  
+  padding: 50px 80px;  
 }
 
 fieldset {
@@ -123,4 +123,31 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .claimCount * {
   margin-top: 10px;
+}
+
+@media screen and (max-width: 768px) {
+  .form-body {
+    padding: 0.5rem;
+  }
+
+  .buttonDiv {
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+  }
+
+  .btn-submit, .btn-clear {
+    height: 40px;
+    width: 100%;
+  }
+
+
+
+
+  
+}
+
+.fieldset-no-line {
+  border: none !important;
 }

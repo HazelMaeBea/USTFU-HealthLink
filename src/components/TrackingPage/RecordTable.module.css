@@ -3,13 +3,13 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    font-family: "Inter", serif;
 }
 
 .table-component-container h3 {
     align-self: center;
     text-transform: uppercase;
 }
-
 
 .table-footer {
     display: flex;
@@ -25,35 +25,41 @@
 }
 
 .record-box {
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 8px;
     color: #000000;
     display: flex;
     flex-direction: column;
+    justify-items: center;
+    box-shadow: #d2d2d2 1px 1px 1px 1px;
+
 }
 
 .record-box.approved {
-    background-color: #d4edda; /* Green for approved */
+    background-color: rgb(214, 255, 214);
 }
 
 .record-box.rejected {
-    background-color: #f8d7da; /* Red for rejected */
+    background-color: rgb(255, 167, 167);
+}
+
+.record-box.pending {
+    background-color: #fff9c4; /* Faint yellow for pending requests */
 }
 
 .record-content {
     display: flex;
-    flex-direction: row; /* Display content horizontally */
     gap: 1rem;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .record-content.mobile {
-    /* width: 80px; */
     flex-direction: column; /* Display content vertically on mobile */
 }
 
 .record-dateTime {
     width: 25%;
+    margin-left: 0.5rem;
 }
 
 .record-transactionID {
@@ -61,7 +67,7 @@
 }
 
 .record-typeOfForm {
-    width: 25%;
+    width: 30%;
 }
 
 .record-status {
@@ -70,12 +76,17 @@
 
 .details-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
+    flex-grow: 1;
+    width: 90%;
 }
 
 .button-container {
-    width: 20%;
+    width: 10%;
+    display: flex;
+    align-content: center;
+    justify-content: center;
 }
 
 .table-component {
@@ -91,16 +102,18 @@
 }
 
 .details-button {
+    padding: 5px 10px;
     background-color: #000000;
-    color: #ffffff;
+    color: white;
     border: none;
-    padding: 4px 20px;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 400;
-    text-transform: uppercase;
-    margin-top: 0.5rem;
+    width: 100px;
+    font-size: small;
+}
+
+.details-button:hover {
+    box-shadow: inset 0 0 0 2px #6e6e6e;
 }
 
 /* FOR RESPONSIVENESS */
@@ -112,28 +125,27 @@
     }
 
     .record-content {
+        flex-direction: row;
+    }
+
+    .details-container {
+        margin-left: 0.5rem;
         flex-direction: column;
+        width: 65%;
+        gap: 0.1rem;
+        font-size: small;
     }
 
-    .record-dateTime {
-        width: 100%;
+    .button-container {
+        width: 30%;
+        align-self: center;
+        margin-right: 0.5rem;
     }
 
-    .record-transactionID {
-        width: 100%;
-    }
-
-    .record-typeOfForm {
-        width: 100%;
-    }
-
+    .record-dateTime,
+    .record-transactionID,
+    .record-typeOfForm,
     .record-status {
         width: 100%;
-    }
-    
-    .details-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
     }
 }
