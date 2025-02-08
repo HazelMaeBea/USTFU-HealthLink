@@ -38,7 +38,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Header />
       </div>
       {isMobile ? (
-        <StickySidebar />
+        <StickySidebar onLogout={handleLogout} />
       ) : (
         <Container className="SidebarContainer">
           <Sidebar onLogout={handleLogout} />
