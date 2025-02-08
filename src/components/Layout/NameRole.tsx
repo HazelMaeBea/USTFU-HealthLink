@@ -19,11 +19,11 @@ const NameRole = () => {
                 if (userDocSnap.exists()) {
                     const userData = userDocSnap.data();
                     setName(userData.displayName || 'Unknown User');
-                    const userRoles = userData.role || []; // Use the correct key from Firebase ("role" instead of "roles")
+                    const userRoles = userData.role || []; 
                     setRoles(userRoles);
 
                     if (userRoles.length > 0) {
-                        setSelectedRole(userRoles[0]); // Automatically select the first role
+                        setSelectedRole(userRoles[0]);
                     }
                 } else {
                     console.log('No such document!');
