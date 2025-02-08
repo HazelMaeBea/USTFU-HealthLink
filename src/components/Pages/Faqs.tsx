@@ -1,10 +1,12 @@
 import "../Page Elements/TrackingPage/TrackingPage.css";
-import "./HistoryPage.css";
+import FAQsComponent from "../Page Elements/FAQs/FAQsComponent";
+
+
 
 const FAQs = () => {
   return (
     <div>
-      <h1>FAQs</h1>
+      <FAQsComponent />
     </div>
   );
 };
