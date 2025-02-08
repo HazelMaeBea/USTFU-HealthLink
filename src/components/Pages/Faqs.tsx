@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import "../TrackingPage/TrackingPage.css";
+import { useState } from "react";
+import "../Page Elements/TrackingPage/TrackingPage.css";
 import "./HistoryPage.css";
 
 const FAQs = () => {
