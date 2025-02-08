@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styles from "./Popout.module.css";
+import ReactDOM from "react-dom";
 
 interface PopoutProps {
 	title: string;
@@ -41,7 +42,7 @@ const Popout: React.FC<PopoutProps> = ({
 
 	if (!isOpen) return null;
 
-	return (
+	return ReactDOM.createPortal(
 		<div className={styles.popoutContainer}>
 			<div className={styles.popoutContent} ref={popoutRef}>
 				<h2 className={styles.popoutHeader}>{title}</h2>
@@ -61,7 +62,8 @@ const Popout: React.FC<PopoutProps> = ({
 					</button>
 				</div>
 			</div>
-		</div>
+		</div>,
+		document.body
 	);
 };
 

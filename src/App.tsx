@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-	BrowserRouter as Router,
-	Routes,
-	Route,
-	Navigate,
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -14,82 +14,38 @@ import HospitalizationTracking from "./components/Pages/HospitalizationTracking"
 import HospitalizationHistory from "./components/Pages/HospitalizationHistory";
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/Settings";
-import Logout from "./components/Pages/Logout";
-import Popout from "./components/Page Elements/Popout/Popout";
 import PendingRequests from "./components/Pages/PendingRequests";
 import AdminSettings from "./components/Pages/AdminSettings";
 
 import { auth } from "./config/firebase";
-import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "./config/firebase";
-
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({
-	hd: "ust.edu.ph",
-});
+import { onAuthStateChanged } from "firebase/auth";
+import { login } from "./services/auth";
 
 const App: React.FC = () => {
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
+  // Use null as the initial state to indicate "unknown".
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-	const handleLogin = async () => {
-		try {
-			const result = await signInWithPopup(auth, provider);
-			const user = result.user;
-			// Check if user email ends with ust.edu.ph
-			if (
-				user.email &&
-				user.email.toLowerCase().endsWith("@ust.edu.ph")
-			) {
-				const userDocRef = doc(db, "users", user.uid);
-				const userDocSnap = await getDoc(userDocRef);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user);
+      setIsAuthenticated(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
 
-				if (!userDocSnap.exists()) {
-					// Create new user document with verified set to false if it doesn't exist (registration)
-					await setDoc(userDocRef, {
-						email: user.email,
-						displayName: user.displayName,
-						verified: false,
-						createdAt: new Date(),
-					});
-					alert(
-						"Your account has been created and is pending admin approval."
-					);
-				} else {
-					const userData = userDocSnap.data();
-					// If the user exists but is not verified, don't allow access to the home page.
-					if (userData?.verified) {
-						setIsAuthenticated(true);
-					} else {
-						alert("Your account is not yet approved by the admin.");
-					}
-				}
-			} else {
-				alert("Please sign in using your ust.edu.ph email.");
-			}
-		} catch (error) {
-			console.error("Login error:", error);
-		}
-	};
+  const handleLogin = useCallback(async () => {
+    try {
+      const user = await login();
+      console.log("Login result:", user);
+    } catch (error) {
+      console.error("Login error:", error);
+    }
+  }, []);
 
-	const handleLogout = async () => {
-		try {
-			await signOut(auth);
-			setIsPopoutOpen(true);
-		} catch (error) {
-			console.error("Logout error:", error);
-		}
-	};
-
-	const handleConfirmLogout = () => {
-		setIsPopoutOpen(false);
-		setIsAuthenticated(false);
-	};
-
-	const handleCancelLogout = () => {
-		setIsPopoutOpen(false);
-	};
+  // While auth state is unknown, don't render anything (or render a loading indicator)
+  if (isAuthenticated === null) {
+    return null; // or return <div>Loading...</div>
+  }
 
 	return (
 		<>

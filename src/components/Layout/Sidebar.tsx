@@ -1,6 +1,6 @@
 import Profile from "./Profile";
 import "./Sidebar.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MdOutlineMenu } from "react-icons/md";
 import { TbHomeEdit, TbLogout } from "react-icons/tb";
 import { MdHistory } from "react-icons/md";
@@ -11,12 +11,36 @@ import { AiOutlineFileProtect } from "react-icons/ai";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 
 import { useState } from "react";
+import Popout from "../Page Elements/Popout/Popout";
 
-const Sidebar = () => {
+interface SidebarProps {
+    onLogout: () => Promise<void>;
+  }
+
+  const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
+    const [isPopoutOpen, setIsPopoutOpen] = useState(false);
+    const navigate = useNavigate();
 
     const toggleSidebar = () => setIsCollapsed(!isCollapsed);
+
+    const handleLogoutClick = () => {
+        setIsPopoutOpen(true);
+    };
+
+    const handleConfirm = async () => {
+        try {
+            await onLogout();
+            navigate("/login"); 
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+    };
+    
+    const handleCancel = () => {
+        setIsPopoutOpen(false);
+    };
 
     const menuItems = [
         { name: "HOSPITALIZATION APPLICATION", icon: <TbHomeEdit size={20} />, path: "/home" },
@@ -26,27 +50,50 @@ const Sidebar = () => {
         { name: "HOSPITALIZATION HISTORY", icon: <FaRegFolderOpen size={20} />, path: "/history" }, // Correct path
         { name: "PENDING REQUESTS", icon: <AiOutlineFileProtect size={20} />, path: "/pendingrequests" },
         { name: "ADMIN SETTINGS", icon: <MdOutlineAdminPanelSettings size={20} />, path: "/adminsettings" },
-        { name: "LOGOUT", icon: <TbLogout size={20} />, path: "/logout" },
+        { name: "LOGOUT", icon: <TbLogout size={20} />, action: handleLogoutClick },
     ];
 
+    console.log(menuItems);
+
     return (
-        <div className={`sidebar-wrapper ${isCollapsed ? 'collapsed' : ''}`}>
-            <button onClick={toggleSidebar} className="toggle-btn">
-                <MdOutlineMenu size={20} />
-            </button>
-            <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-                <Profile isCollapsed={isCollapsed} />
-                <nav className="SidebarMenu">
-                    {menuItems.map((item) => (
-                        <div key={item.name} className={`menu-item ${activeItem === item.name ? "active" : ""}`}>
-                            <Link to={item.path} onClick={() => setActiveItem(item.name)}>
-                                {item.icon} <span className="menu-text">{item.name}</span>
-                            </Link>
-                        </div>
-                    ))}
-                </nav>
-            </aside>
-        </div>
+        <>
+            <div className={`sidebar-wrapper ${isCollapsed ? 'collapsed' : ''}`}>
+                <button onClick={toggleSidebar} className="toggle-btn">
+                    <MdOutlineMenu size={20} />
+                </button>
+                <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+                    <Profile isCollapsed={isCollapsed} />
+                    <nav className="SidebarMenu">
+                        {menuItems.map((item) => (
+                            <div 
+                            key={item.name} 
+                            className={`menu-item ${activeItem === item.name ? "active" : ""}`}
+                            onClick={item.action ? item.action : undefined}
+                            >
+                                {item.path ? (
+                                    <Link to={item.path} onClick={() => setActiveItem(item.name)}>
+                                        {item.icon} <span className="menu-text">{item.name}</span>
+                                    </Link>
+                                ) : (
+                                    <Link to="#" className="logout-item" onClick={handleLogoutClick}>
+                                        {item.icon} <span className="menu-text">{item.name}</span>
+                                    </Link>
+                                )}
+                            </div>
+                        ))}
+                    </nav>
+                </aside>
+            </div>
+            {isPopoutOpen && (
+                <Popout
+                title="Confirm Logout"
+                message="Are you sure you want to logout?"
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                isOpen={isPopoutOpen}
+                />
+            )}
+        </>
     );
 };
 

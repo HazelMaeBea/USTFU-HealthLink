@@ -11,7 +11,8 @@ import FormMedicalFiles from "./FormMedicalFiles";
 import FormCertify from "./FormCertify";
 import AdmissionTeachingInfo from "./AdmissionTeachingInfo";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from '../../../../config/firebase.ts'
+import { auth, db, storage } from '../../../../config/firebase.ts';
+import { ref, uploadBytes } from 'firebase/storage';
 
 type FormData = z.infer<typeof schema>;
 
@@ -60,16 +61,18 @@ const AdmissionForm = () => {
   const formsCollectionRef = collection(db, "FormRequests");
   const onSubmit = async (data: FieldValues) => {
     try {
-			// let imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.applicantSignature[0].name);
-			// await uploadBytes(imageRef, data.applicantSignature[0]);
-			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.docRequest[0].name);
-			// await uploadBytes(imageRef, data.docRequest[0]);
-			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.employeeID[0].name);
-			// await uploadBytes(imageRef, data.employeeID[0]);
-			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.hospitalInvoice[0].name);
-			// await uploadBytes(imageRef, data.hospitalInvoice[0]);
-			// imageRef = ref(storage, 'FormRequests/Username/FormRequest O-0000000001/'+data.labInvoice[0].name);
-			// await uploadBytes(imageRef, data.labInvoice[0]);
+      const email = auth?.currentUser?.email;
+
+			let imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name);
+			await uploadBytes(imageRef, data.applicantSignature[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.docRequest[0].name);
+			await uploadBytes(imageRef, data.docRequest[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name);
+			await uploadBytes(imageRef, data.employeeID[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.hospitalInvoice[0].name);
+			await uploadBytes(imageRef, data.hospitalInvoice[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.labInvoice[0].name);
+			await uploadBytes(imageRef, data.labInvoice[0]);
 	  
 			await addDoc(formsCollectionRef, {
 			  Age: data["age"],

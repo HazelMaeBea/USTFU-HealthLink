@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,9 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormMedicalFiles from "./FormMedicalFiles";
 import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
+import { collection, addDoc } from "firebase/firestore";
+import { auth, db, storage } from '../../../../config/firebase.ts';
+import { ref, uploadBytes } from "firebase/storage";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -74,12 +77,59 @@ const FormBody = () => {
 		formState: { errors, isValid },
 	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
-	const onSubmit = (data: FieldValues) => {
-		console.log({
-			...data,
-			dateHired,
-			dateRetired,
-		});
+	const formsCollectionRef = collection(db, "FormRequests");
+	const onSubmit = async (data: FieldValues) => {
+		// console.log({
+		// 	...data,
+		// 	dateHired,
+		// 	dateRetired,
+		// });
+		try {
+			const email = auth?.currentUser?.email;
+
+			let imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name);
+			await uploadBytes(imageRef, data.applicantSignature[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.docRequest[0].name);
+			await uploadBytes(imageRef, data.docRequest[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name);
+			await uploadBytes(imageRef, data.employeeID[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.hospitalInvoice[0].name);
+			await uploadBytes(imageRef, data.hospitalInvoice[0]);
+			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.labInvoice[0].name);
+			await uploadBytes(imageRef, data.labInvoice[0]);
+
+			await addDoc(formsCollectionRef, {
+				Age: data["age"],
+				ApplicantSignature: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name,
+				Benefits: data["benefits"],
+				ClaimRequestCount: data["claimRequestCount"],
+				College: data["college"],
+				Contact: data["contact"],
+				FirstName: data["firstname"],
+				Gender: data["gender"],
+				HMO: data["hmo"],
+				Hospital: data["hospital"],
+				HospitalInvoice: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.hospitalInvoice[0].name,
+				HospitalStatus: data["hospitalStatus"],
+				Illness: data["illness"],
+				LabInvoice: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.labInvoice[0].name,
+				LastName: data["lastname"],
+				Load: data["load"],
+				MiddleName: data["middlename"],
+				Physician: data["physician"],
+				Procedures: data["procedures"],
+				Status: data["status"],
+				Suffix: data["suffix"],
+				Term: data["term"],
+				Year: data["year"],
+				DocRequest: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.docRequest[0].name,
+				EmployeeID: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name,
+				DateHired: dateHired,
+				DateRetired: dateRetired,
+			});
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	return (

@@ -1,0 +1,108 @@
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    text-align: center; 
+}
+
+.left-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.title-header {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.header {
+    margin: 0; 
+    flex-grow: 1;
+    text-align: center
+}
+
+.btn {
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.25s;
+}
+
+.btn-filter {
+    background-color: #d0d0d0 !important; 
+    color: #fff;
+    padding: 0.4em 0.8em; 
+    font-size: 0.8em !important; 
+}
+
+.btn-export {
+    background-color: #000 !important; 
+    color: #fff !important;
+    padding: 0.4em 0.8em; 
+    font-size: 0.8em !important; 
+}
+
+.btn-history {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+    background-color: #FFF;
+    margin: 0 5px;
+    padding: 0.4em 0.8em;
+    font-size: 0.8em !important;
+    cursor: pointer;
+}
+
+.btn-active {
+    background-color: #000 !important;
+    color: #FFF !important;
+}
+
+.btn:hover {
+    border-color: #646cff;
+}
+
+.btn:focus,
+.btn:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.history-table th,
+.history-table td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+}
+
+.history-table th {
+    background-color: #f7e5aa;
+    color: black;
+    text-align: center; 
+    font-size: 0.9em;
+}
+
+.filter-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
