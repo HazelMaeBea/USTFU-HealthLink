@@ -30,7 +30,7 @@ provider.setCustomParameters({
 });
 
 const App: React.FC = () => {
-	const [isAuthenticated, setIsAuthenticated] = useState(true);
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
 
 	const handleLogin = async () => {
