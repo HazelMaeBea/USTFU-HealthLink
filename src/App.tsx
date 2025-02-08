@@ -81,10 +81,6 @@ const App: React.FC = () => {
 									element={<Settings />}
 								/>
 								<Route
-									path="/logout"
-									element={<Logout onLogout={handleLogout} />}
-								/>
-								<Route
 									path="/adminsettings"
 									element={<AdminSettings />}
 								/>
@@ -108,13 +104,6 @@ const App: React.FC = () => {
 					)}
 				</div>
 			</Router>
-			<Popout
-				title="Confirm Logout"
-				message="Are you sure you want to logout?"
-				onConfirm={handleConfirmLogout}
-				onCancel={handleCancelLogout}
-				isOpen={isPopoutOpen}
-			/>
 		</>
 	);
 };
