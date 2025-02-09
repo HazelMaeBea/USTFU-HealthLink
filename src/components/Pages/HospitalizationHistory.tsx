@@ -3,14 +3,18 @@ import "../Page Elements/TrackingPage/TrackingPage.css";
 import "./HistoryPage.css";
 
 const HospitalizationHistory = () => {
-  const [activeTab, setActiveTab] = useState("All");
+  const [selectedType, setSelectedType] = useState("All");
+  const [filters, setFilters] = useState<string[]>([]);
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const tableData = [
     //sample data
+    //i added a few more data because when there's only 1 row. adding a filter creates a vertical scroll that adjusts the page
     {
       dateApproved: "2023-01-01",
-      name: "John Doe",
-      age: 20,
+      name: "Zander Zara",
+      age: 19,
       college: "Engineering",
       term: "1",
       ay: "2022-2023",
@@ -21,7 +25,53 @@ const HospitalizationHistory = () => {
       procedures: "Checkup",
       remainingBenefits: "$1000",
     },
+    {
+      dateApproved: "2023-02-15",
+      name: "Laufey Lin",
+      age: 22,
+      college: "Science",
+      term: "2",
+      ay: "2022-2023",
+      load: "Part-time",
+      status: "Pending",
+      natureOfIllness: "Cold",
+      physician: "Dr. Johnson",
+      procedures: "Consultation",
+      remainingBenefits: "$800",
+    },
+    {
+      dateApproved: "2023-03-10",
+      name: "Luke Chiang",
+      age: 21,
+      college: "Arts",
+      term: "1",
+      ay: "2022-2023",
+      load: "Full",
+      status: "Approved",
+      natureOfIllness: "Allergy",
+      physician: "Dr. Brown",
+      procedures: "Allergy Test",
+      remainingBenefits: "$950",
+    },
+    {
+      dateApproved: "2023-04-05",
+      name: "Grent Perez",
+      age: 23,
+      college: "Business",
+      term: "2",
+      ay: "2022-2023",
+      load: "Full",
+      status: "Denied",
+      natureOfIllness: "Injury",
+      physician: "Dr. White",
+      procedures: "X-ray",
+      remainingBenefits: "$700",
+    },
   ];
+
+  const filteredData = tableData.filter((row) =>
+    row.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderContent = () => {
     return (
@@ -43,7 +93,7 @@ const HospitalizationHistory = () => {
           </tr>
         </thead>
         <tbody>
-          {tableData.map((row, index) => (
+          {filteredData.map((row, index) => (
             <tr key={index}>
               <td>{row.dateApproved}</td>
               <td>{row.name}</td>
@@ -82,7 +132,7 @@ const HospitalizationHistory = () => {
     ];
     csvRows.push(headers.join(","));
 
-    for (const row of tableData) {
+    for (const row of filteredData) {
       const values = [
         row.dateApproved,
         row.name,
@@ -112,6 +162,21 @@ const HospitalizationHistory = () => {
     document.body.removeChild(a);
   };
 
+  const handleAddFilter = (filter: string) => {
+    setFilters([...filters, filter]);
+    setShowFilterOptions(false);
+  };
+
+  const availableFilters = [
+    "Date",
+    "College",
+    "Term",
+    "AY",
+    "Load",
+    "Status",
+    "Procedures",
+  ].filter((filter) => !filters.includes(filter));
+
   return (
     <div>
       <div title="history" className="Tabby">
@@ -121,53 +186,70 @@ const HospitalizationHistory = () => {
           </div>
           <div className="history-header">
             <div className="left-buttons">
-              <button
-                className="btn btn-filter"
+              <input
+                type="text"
+                className="search-bar"
+                placeholder="Search Patient Name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <select
+                className="btn btn-filter document-type"
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-filter"
-                  viewBox="0 0 16 16"
+                <option value="All">All Forms</option>
+                <option value="Inpatient">Inpatient</option>
+                <option value="Outpatient">Outpatient</option>
+                <option value="Eyeglasses">Eyeglasses</option>
+              </select>
+              {filters.map((filter, index) => (
+                <select
+                  key={index}
+                  className="btn btn-filter"
+                  value={filter}
+                  onChange={(e) => {
+                    const newFilters = [...filters];
+                    newFilters[index] = e.target.value;
+                    setFilters(newFilters);
+                  }}
                 >
-                  <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5" />
-                </svg>
-                {" Filter "}
-              </button>
-              <button
-                className={`btn-history btn ${
-                  activeTab === "All" ? "btn-active" : ""
-                }`}
-                onClick={() => setActiveTab("All")}
-              >
-                All
-              </button>
-              <button
-                className={`btn-history btn ${
-                  activeTab === "Eyeglasses" ? "btn-active" : ""
-                }`}
-                onClick={() => setActiveTab("Eyeglasses")}
-              >
-                Eyeglasses
-              </button>
-              <button
-                className={`btn-history btn ${
-                  activeTab === "Inpatient" ? "btn-active" : ""
-                }`}
-                onClick={() => setActiveTab("Inpatient")}
-              >
-                Inpatient
-              </button>
-              <button
-                className={`btn-history btn ${
-                  activeTab === "Outpatient" ? "btn-active" : ""
-                }`}
-                onClick={() => setActiveTab("Outpatient")}
-              >
-                Outpatient
-              </button>
+                  <option value="">{filter}</option>
+                  {filter === "Term" && (
+                    <>
+                      <option value="1st">1st</option>
+                      <option value="2nd">2nd</option>
+                    </>
+                  )}
+                  {/* Add options based on the selected filter */}
+                </select>
+              ))}
+              <div className="filter-container">
+                {availableFilters.length > 0 && (
+                  <button
+                    className="btn btn-filter add-filter"
+                    onClick={() => setShowFilterOptions(!showFilterOptions)}
+                  >
+                    <strong>+</strong> Add Filter
+                  </button>
+                )}
+                {showFilterOptions && (
+                  <div
+                    className="filter-options"
+                    style={{ position: "absolute" }}
+                  >
+                    {availableFilters.map((filter) => (
+                      <button
+                        key={filter}
+                        className="btn btn-filter-option"
+                        onClick={() => handleAddFilter(filter)}
+                      >
+                        {filter}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             <button className="btn btn-export" onClick={exportToCSV}>
               Export CSV
