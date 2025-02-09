@@ -20,7 +20,7 @@ const Popout: React.FC<PopoutProps> = ({
 	const popoutRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
+		const handleClickOutside = (event: MouseEvent | TouchEvent) => {
 			if (
 				popoutRef.current &&
 				!popoutRef.current.contains(event.target as Node)
@@ -31,12 +31,15 @@ const Popout: React.FC<PopoutProps> = ({
 
 		if (isOpen) {
 			document.addEventListener("mousedown", handleClickOutside);
+			document.addEventListener("touchstart", handleClickOutside);
 		} else {
 			document.removeEventListener("mousedown", handleClickOutside);
+			document.removeEventListener("touchstart", handleClickOutside);
 		}
 
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside);
+			document.removeEventListener("touchstart", handleClickOutside);
 		};
 	}, [isOpen, onCancel]);
 
