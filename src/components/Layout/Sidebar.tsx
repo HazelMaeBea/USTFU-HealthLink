@@ -7,7 +7,7 @@ import { MdHistory } from "react-icons/md";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { RiSettings5Line } from "react-icons/ri";
 import { FaRegFolderOpen } from "react-icons/fa";
-import { AiOutlineFileProtect } from "react-icons/ai";
+import { AiOutlineFileDone } from "react-icons/ai";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 
 import { useState } from "react";
@@ -70,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		}, // Correct path
 		{
 			name: "PENDING REQUESTS",
-			icon: <AiOutlineFileProtect size={20} />,
+			icon: <AiOutlineFileDone size={20} />,
 			path: "/pendingrequests",
 		},
 		{
