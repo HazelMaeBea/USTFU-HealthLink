@@ -73,7 +73,7 @@ const FormBody = () => {
 	const {
 		register,
 		handleSubmit,
-		formState: { errors, isValid },
+		formState: { errors },
 	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
 	const formsCollectionRef = collection(db, "FormRequests");
