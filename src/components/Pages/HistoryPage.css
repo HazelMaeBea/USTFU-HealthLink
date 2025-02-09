@@ -10,8 +10,8 @@
 .left-buttons {
     display: flex;
     align-items: center;
-    position: relative; /* Add relative positioning */
-    gap: 10px; /* Add gap between buttons */
+    position: relative;
+    gap: 10px;
 }
 
 .title-header {
@@ -90,7 +90,36 @@
     text-align: left;
     color: black; 
     word-wrap: break-word; 
-    font-size: 0.90em; /* size of the content, made it smaller because frequently nag nenext line */
+    font-size: 0.85em; /* size of the content, made it smaller because frequently nag nenext line */
+}
+
+.history-table th:first-child {
+    width: 8%; 
+}
+
+.history-table th:nth-child(2) {
+    width: 12%; 
+}
+.history-table th:nth-child(3) {
+    width: 4%;
+}
+.history-table th:nth-child(4) {
+    width: 18%;
+}
+.history-table th:nth-child(5) {
+    width: 5%;
+}
+.history-table th:nth-child(6) {
+    width: 6%;
+}
+.history-table th:nth-child(7) {
+    width: 6%;
+}
+.history-table th:nth-child(8) {
+    width: 7%;
+}
+.history-table th:last-child {
+    width: 7%;
 }
 
 .add-filter {

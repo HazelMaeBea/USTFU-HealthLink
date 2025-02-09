@@ -11,11 +11,12 @@ const HospitalizationHistory = () => {
   const tableData = [
     //sample data
     //i added a few more data because when there's only 1 row. adding a filter creates a vertical scroll that adjusts the page
+    //to fix: not allowed to switch options after choosing a filter.
     {
       dateApproved: "2023-01-01",
       name: "Zander Zara",
       age: 19,
-      college: "Engineering",
+      college: "College of Engineering",
       term: "1",
       ay: "2022-2023",
       load: "Full",
@@ -29,7 +30,7 @@ const HospitalizationHistory = () => {
       dateApproved: "2023-02-15",
       name: "Laufey Lin",
       age: 22,
-      college: "Science",
+      college: "College of Music",
       term: "2",
       ay: "2022-2023",
       load: "Part-time",
@@ -43,7 +44,7 @@ const HospitalizationHistory = () => {
       dateApproved: "2023-03-10",
       name: "Luke Chiang",
       age: 21,
-      college: "Arts",
+      college: "College of Engineering",
       term: "1",
       ay: "2022-2023",
       load: "Full",
@@ -57,7 +58,7 @@ const HospitalizationHistory = () => {
       dateApproved: "2023-04-05",
       name: "Grent Perez",
       age: 23,
-      college: "Business",
+      college: "College of Music",
       term: "2",
       ay: "2022-2023",
       load: "Full",
@@ -68,6 +69,12 @@ const HospitalizationHistory = () => {
       remainingBenefits: "$700",
     },
   ];
+
+  const termOptions = ["1st", "2nd"];
+  const collegeOptions = ["College of Engineering", "College of Music"];
+  const ayOptions = ["2022-2023", "2023-2024"];
+  const loadOptions = ["Full", "Part-time"];
+  const statusOptions = ["Approved", "Pending", "Denied"];
 
   const filteredData = tableData.filter((row) =>
     row.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -174,7 +181,7 @@ const HospitalizationHistory = () => {
     "AY",
     "Load",
     "Status",
-    "Procedures",
+    // "Procedures",
   ].filter((filter) => !filters.includes(filter));
 
   return (
@@ -215,12 +222,36 @@ const HospitalizationHistory = () => {
                   }}
                 >
                   <option value="">{filter}</option>
-                  {filter === "Term" && (
-                    <>
-                      <option value="1st">1st</option>
-                      <option value="2nd">2nd</option>
-                    </>
-                  )}
+                  {filter === "Term" &&
+                    termOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  {filter === "College" &&
+                    collegeOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  {filter === "AY" &&
+                    ayOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  {filter === "Load" &&
+                    loadOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  {filter === "Status" &&
+                    statusOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
                   {/* Add options based on the selected filter */}
                 </select>
               ))}
