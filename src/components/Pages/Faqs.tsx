@@ -1,12 +1,12 @@
 import "../Page Elements/TrackingPage/TrackingPage.css";
-import FAQsComponent from "../Page Elements/FAQs/FAQsComponent";
+import FAQPage from "../Page Elements/FAQs/faq-page";
 
 
 
 const FAQs = () => {
   return (
     <div>
-      <FAQsComponent />
+      <FAQPage/>
     </div>
   );
 };
