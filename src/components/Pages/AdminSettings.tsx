@@ -14,7 +14,7 @@ interface User {
 	email: string;
 	college: string;
 	role: string;
-	status: "ACTIVE" | "INACTIVE";
+	status: string;
 }
 
 const AdminSettings = () => {
@@ -138,7 +138,7 @@ const AdminSettings = () => {
 							<td>{user.college}</td>
 							<td>
 								<select
-									defaultValue={
+									value={
 										typeof user.role === "string"
 											? user.role.toLowerCase()
 											: ""
@@ -155,9 +155,15 @@ const AdminSettings = () => {
 							</td>
 							<td>
 								<select
-									defaultValue={user.status}
+									value={user.status}
 									className="item-select"
 									aria-label="Select Status"
+									style={{
+										backgroundColor:
+											"ACTIVE" === user.status
+												? "hsl(134, 61%, 85%)"
+												: "hsl(354, 70%, 85%)",
+									}}
 								>
 									<option value="ACTIVE">ACTIVE</option>
 									<option value="INACTIVE">INACTIVE</option>

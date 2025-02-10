@@ -68,9 +68,6 @@ input[type="search"]:focus,
 	border-radius: 0.75rem;
 	outline: none;
 	cursor: pointer;
-	background-position: right 0.5rem center;
-	background-repeat: no-repeat;
-	background-size: 1.5em 1.5em;
 	padding-right: 0;
 	text-align: left;
 }
