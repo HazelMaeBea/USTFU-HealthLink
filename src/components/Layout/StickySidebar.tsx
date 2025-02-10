@@ -1,3 +1,4 @@
+import { useRole } from './RoleContext';
 import { useState } from "react";
 import { Collapse } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -22,6 +23,8 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
+	const { selectedRole } = useRole();
+	
 	const navigate = useNavigate();
 
 	const toggleSidebar = () => {
@@ -45,48 +48,24 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		setIsPopoutOpen(false);
 	};
 
-	const menuItems = [
-		{
-			name: "HOSPITALIZATION APPLICATION",
-			icon: <TbHomeEdit size={20} />,
-			path: "/hospitalization-application",
-		},
-		{
-			name: "HOSPITALIZATION TRACKING",
-			icon: <MdHistory size={20} />,
-			path: "/tracking",
-		},
-		{
-			name: "FAQ",
-			icon: <AiOutlineQuestionCircle size={20} />,
-			path: "/faq",
-		},
-		{
-			name: "SETTINGS",
-			icon: <RiSettings5Line size={20} />,
-			path: "/settings",
-		},
-		{
-			name: "HOSPITALIZATION HISTORY",
-			icon: <FaRegFolderOpen size={20} />,
-			path: "/history",
-		},
-		{
-			name: "PENDING REQUESTS",
-			icon: <AiOutlineFileDone size={20} />,
-			path: "/pendingrequests",
-		},
-		{
-			name: "ADMIN SETTINGS",
-			icon: <MdOutlineAdminPanelSettings size={20} />,
-			path: "/adminsettings",
-		},
-		{
-			name: "LOGOUT",
-			icon: <TbLogout size={20} />,
-			action: handleLogoutClick,
-		},
+	let menuItems = [
+		{ name: "FAQ", icon: <AiOutlineQuestionCircle size={20} />, path: "/faqs" },
+        { name: "SETTINGS", icon: <RiSettings5Line size={20} />, path: "/settings" },
+        { name: "LOGOUT", icon: <TbLogout size={20} />, action: handleLogoutClick },
 	];
+
+	if (selectedRole === "member") {
+		menuItems.unshift(
+			{ name: "HOSPITALIZATION APPLICATION", icon: <TbHomeEdit size={20} />, path: "/home" },
+			{ name: "HOSPITALIZATION TRACKING", icon: <MdHistory size={20} />, path: "/tracking" }
+		);
+	} else if (selectedRole === "operations handler") {
+		menuItems.unshift(
+			{ name: "HOSPITALIZATION HISTORY", icon: <FaRegFolderOpen size={20} />, path: "/history" },
+            { name: "PENDING REQUESTS", icon: <AiOutlineFileDone size={20} />, path: "/pendingrequests" },
+            { name: "ADMIN SETTINGS", icon: <MdOutlineAdminPanelSettings size={20} />, path: "/adminsettings" }
+		);
+	}
 
 	return (
 		<>

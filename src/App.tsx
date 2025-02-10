@@ -1,3 +1,4 @@
+import { RoleProvider } from './components/Layout/RoleContext';
 import React, { useState, useEffect, useCallback } from "react";
 import {
   BrowserRouter as Router,
@@ -48,10 +49,8 @@ const App: React.FC = () => {
   }
 
 	return (
-		<>
+		<RoleProvider>
 			<Router>
-				{" "}
-				{/* BrowserRouter is wrapping everything */}
 				<div className="App">
 					{isAuthenticated ? (
 						<Layout>
@@ -104,7 +103,7 @@ const App: React.FC = () => {
 					)}
 				</div>
 			</Router>
-		</>
+		</RoleProvider>
 	);
 };
 
