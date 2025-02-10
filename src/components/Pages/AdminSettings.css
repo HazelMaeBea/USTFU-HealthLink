@@ -144,7 +144,7 @@ input[type="search"]:focus,
 
 .user-mngmnt-table th:nth-child(6),
 .user-mngmnt-table td:nth-child(6) {
-	width: 7%; /* Adjust width for save column */
+	width: 10%; /* Adjust width for save column */
 }
 
 .user-mngmnt-table tbody tr:last-child td {
@@ -217,11 +217,6 @@ input[type="search"]:focus,
 	color: hsl(0, 0%, 0%) !important;
 }
 
-.save-icon:hover {
-	color: hsl(45, 100%, 51%);
-	cursor: pointer;
-}
-
 /* Pagination Styles */
 .pagination {
 	display: flex;
@@ -229,7 +224,7 @@ input[type="search"]:focus,
 	margin-top: 1rem;
 }
 
-.page-item {
+.as-page-item {
 	margin: 0 0.25rem;
 	padding: 0.5rem 0.75rem;
 	border: 1px solid hsl(210, 14%, 83%);
@@ -240,14 +235,35 @@ input[type="search"]:focus,
 	transition: background-color 0.2s, color 0.2s;
 }
 
-.page-item:hover {
+.as-page-item:hover {
 	background-color: hsl(0, 0%, 0%);
 	color: hsl(45, 100%, 51%);
 	border-color: hsl(45, 100%, 51%);
 }
 
-.page-item.active {
+.as-page-item.active {
 	background-color: hsl(0, 0%, 0%);
 	color: hsl(45, 100%, 51%);
 	border-color: hsl(0, 0%, 0%);
+}
+
+/* Save Button Styles */
+.save-btn {
+	background-color: white;
+	color: black;
+	border: none;
+	padding: 0.5rem 0.5rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+	transition: background-color 0.2s, color 0.2s;
+	border-radius: 10px;
+	outline: 2px solid black;
+}
+
+.save-btn:hover {
+	background-color: hsl(45, 100%, 68%);
+	color: white;
+	outline: 2px solid hsl(45, 100%, 68%);
 }
