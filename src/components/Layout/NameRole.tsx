@@ -1,3 +1,4 @@
+import { useRole } from './RoleContext';
 import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../config/firebase'; // Adjust the path to your Firebase config
@@ -7,7 +8,7 @@ import Role from './Role'; // Import the Role component
 const NameRole = () => {
     const [name, setName] = useState('');
     const [roles, setRoles] = useState<string[]>([]);
-    const [selectedRole, setSelectedRole] = useState('');
+    const { selectedRole, setSelectedRole } = useRole();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -22,7 +23,7 @@ const NameRole = () => {
                     const userRoles = userData.role || []; 
                     setRoles(userRoles);
 
-                    if (userRoles.length > 0) {
+                    if (userRoles.length > 0 && !selectedRole) {
                         setSelectedRole(userRoles[0]);
                     }
                 } else {
@@ -44,7 +45,7 @@ const NameRole = () => {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [selectedRole, setSelectedRole]);
 
     if (loading) {
         return <div>Loading...</div>;
