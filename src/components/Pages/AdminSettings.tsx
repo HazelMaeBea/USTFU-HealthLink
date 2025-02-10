@@ -2,12 +2,10 @@ import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
-import "./AdminSettings.css";
+import "./AdminSettingsYza.css";
 
-import { BsSaveFill } from "react-icons/bs";
-import { TbSearch } from "react-icons/tb";
-import { RxHamburgerMenu } from "react-icons/rx";
-import Popout from "../Page Elements/Popout/Popout";
+import Tabsies from "../Page Elements/Tabsies"; // Import Tabsies
+import UserManagement from "../Page Elements/UserManagement"; // Import UserManagement
 
 interface User {
 	displayName: string;
@@ -20,7 +18,6 @@ interface User {
 const AdminSettings = () => {
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [activeTab, setActiveTab] = useState("userManagement");
 	const [showPopout, setShowPopout] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const usersPerPage = 5; /* Set how many users are displayed */
@@ -81,131 +78,25 @@ const AdminSettings = () => {
 
 	return (
 		<div className="admin-settings-container">
-			{/* Tabs & Search */}
-			<div className="row align-items-center">
-				<div className="col-md-6">
-					<button
-						className={`ustfu-as-btn tab-btn ${
-							activeTab === "userManagement" ? "active-tab" : ""
-						}`}
-						onClick={() => setActiveTab("userManagement")}
-					>
-						USER MANAGEMENT
-					</button>
-					<button
-						className={`ustfu-as-btn tab-btn ${
-							activeTab === "registrationVerification"
-								? "active-tab"
-								: ""
-						}`}
-						onClick={() => setActiveTab("registrationVerification")}
-					>
-						REGISTRATION VERIFICATION
-					</button>
+			<Tabsies>
+				<div className="Tabitha" title="USER MANAGEMENT">
+					<UserManagement
+						users={users}
+						currentUsers={currentUsers}
+						showPopout={showPopout}
+						handleEditClick={handleEditClick}
+						handleSaveConfirm={handleSaveConfirm}
+						handleCancel={handleCancel}
+						currentPage={currentPage}
+						usersPerPage={usersPerPage}
+						paginate={paginate}
+					/>
 				</div>
-				<div className="col-md-6">
-					<div className="search-container">
-						<RxHamburgerMenu className="burger-icon" />
-						<input
-							type="search"
-							placeholder="Search"
-							className="ustfu-form-control search-input"
-						/>
-						<TbSearch className="search-icon" />
-					</div>
+				<div className="Tabitha" title="REGISTRATION VERIFICATION">
+					{/* Registration Verification Content */}
+					<p>Registration Verification Content goes here.</p>
 				</div>
-			</div>
-
-			<hr className="ustfu-hr" />
-
-			{/* Table */}
-			<table className="user-mngmnt-table">
-				<thead className="user-mngmnt-table-header">
-					<tr>
-						<th>NAME</th>
-						<th>EMAIL ADDRESS</th>
-						<th>COLLEGE</th>
-						<th>ROLE</th>
-						<th>STATUS</th>
-						<th>SAVE</th>
-					</tr>
-				</thead>
-				<tbody>
-					{currentUsers.map((user, i) => (
-						<tr key={i}>
-							<td>{user.displayName}</td>
-							<td>{user.email}</td>
-							<td>{user.college}</td>
-							<td>
-								<select
-									value={
-										typeof user.role === "string"
-											? user.role.toLowerCase()
-											: ""
-									}
-									className="item-select"
-									aria-label="Select Role"
-								>
-									<option value="member">MEMBER</option>
-									<option value="operations handler">
-										OPERATIONS HANDLER
-									</option>
-									<option value="retiree">RETIREE</option>
-								</select>
-							</td>
-							<td>
-								<select
-									value={user.status}
-									className="item-select"
-									aria-label="Select Status"
-									style={{
-										backgroundColor:
-											"ACTIVE" === user.status
-												? "hsl(134, 61%, 85%)"
-												: "hsl(354, 70%, 85%)",
-									}}
-								>
-									<option value="ACTIVE">ACTIVE</option>
-									<option value="INACTIVE">INACTIVE</option>
-								</select>
-							</td>
-							<td>
-								<BsSaveFill
-									className="save-icon"
-									size={25}
-									onClick={handleEditClick}
-								/>
-							</td>
-						</tr>
-					))}
-				</tbody>
-			</table>
-			{showPopout && (
-				<Popout
-					title="Save Changes?"
-					message="Do you want to save changes to the user?"
-					onConfirm={handleSaveConfirm}
-					onCancel={handleCancel}
-					isOpen={showPopout}
-				/>
-			)}
-			{/* Pagination */}
-			<div className="pagination">
-				{Array.from(
-					{ length: Math.ceil(users.length / usersPerPage) },
-					(_, i) => (
-						<button
-							key={i + 1}
-							onClick={() => paginate(i + 1)}
-							className={`page-item ${
-								currentPage === i + 1 ? "active" : ""
-							}`}
-						>
-							{i + 1}
-						</button>
-					)
-				)}
-			</div>
+			</Tabsies>
 		</div>
 	);
 };

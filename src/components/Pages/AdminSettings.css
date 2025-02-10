@@ -1,6 +1,7 @@
 /* Global */
 body {
 	background-color: hsl(0, 0%, 100%);
+	color: hsl(0, 0%, 0%); /* Default text color set to black */
 }
 
 /* Container & Layout */
@@ -98,11 +99,18 @@ input[type="search"]:focus,
 	overflow-y: auto;
 }
 
-.user-mngmnt-table thead,
+.user-mngmnt-table thead {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+	background-color: hsl(210, 10%, 23%);
+	color: hsl(0, 0%, 100%);
+}
 .user-mngmnt-table tbody tr {
 	display: table;
 	width: 100%;
 	table-layout: fixed;
+	color: black;
 }
 
 .user-mngmnt-table-header {
