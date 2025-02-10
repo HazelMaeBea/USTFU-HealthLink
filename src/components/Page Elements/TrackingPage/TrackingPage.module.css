@@ -1,0 +1,94 @@
+.TrackingPage {
+	display: -webkit-flex;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-block-size: 100%;
+	width: 100%;
+	height: 100%;
+	color: #000000;
+	font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 500;
+	column-gap: 0;
+	-webkit-box-shadow: 0 4px 6px hsla(0, 0%, 0%, 0.1);
+	box-shadow: 0 4px 6px hsla(0, 0%, 0%, 0.1);
+}
+
+.TrackingTabs {
+	/* background: pink; */
+	color: #f4bb00;
+	width: 100%;
+	height: auto;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.tab-titles {
+	display: flex;
+	flex-direction: row;
+	justify-content: right;
+	width: 100%;
+}
+
+.tab-title {
+	cursor: pointer;
+	padding: 10px;
+	color: #808080; /* Gray text */
+	border-bottom: 2px solid transparent;
+	background-color: #ffffff; /* White background */
+	margin: 0 5px;
+	border-radius: 5px 5px 0 0;
+	font-size: 0.8rem;
+}
+
+.tab-title.active {
+	background-color: #f4bb00; /* Yellow background for active tab */
+	color: #000000; /* Black text for active tab */
+}
+
+.tab-title.active:hover {
+	color: #000000;
+	text-decoration: underline;
+	text-underline-offset: 6px;
+}
+
+.tab-title:hover {
+	color: #f4bb00;
+	text-decoration: underline;
+	text-underline-offset: 6px;
+}
+
+.tab-content {
+	background-color: #ffffff;
+	color: #8f1919;
+	width: 100%;
+	padding: 1rem;
+	border-top: 8px solid #f4bb00;
+	border-radius: 5px;
+	margin-top: 0; /* Remove margin to eliminate gap */
+}
+
+.Tabby {
+	width: 100%;
+	align-self: center;
+}
+
+.TrackingPage h3 {
+	font-size: 1.5rem;
+	font-weight: 500;
+	margin-bottom: 1rem;
+	padding: 0;
+	justify-self: center;
+}
+
+.Tabs .Tabby .TrackingTabs .tab-titles .search-container {
+	display: none;
+}
+
+.search-container {
+	display: none;
+}

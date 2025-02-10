@@ -84,3 +84,7 @@
 	padding: 0;
 	justify-self: center;
 }
+
+.TrackingTabs .tab-titles .search-container {
+	display: none;
+}

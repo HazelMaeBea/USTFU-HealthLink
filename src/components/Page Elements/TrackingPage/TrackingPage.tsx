@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./TrackingPage.css";
+import styles from "./TrackingPage.module.css";
 import Tabs from "./Tabs";
 import RecordTable from "./RecordTable";
 // import PendingRequestsPage from "./PendingRequestsPage";
@@ -58,16 +58,16 @@ const TrackingPage = () => {
 	);
 
 	return (
-		<section className="TrackingPage">
+		<section className={styles.TrackingPage}>
 			<Tabs>
-				<div title="PENDING REQUESTS" className="Tabby">
-					<section className="tab-content">
+				<div title="PENDING REQUESTS" className={styles.Tabby}>
+					<section className={styles["tab-content"]}>
 						<h3>PENDING REQUESTS</h3>
 						<RecordTable records={pendingRecords} />
 					</section>
 				</div>
-				<div title="PREVIOUS RECORDS" className="Tabby">
-					<section className="tab-content">
+				<div title="PREVIOUS RECORDS" className={styles.Tabby}>
+					<section className={styles["tab-content"]}>
 						<h3>PREVIOUS RECORDS</h3>
 						<RecordTable records={previousRecords} />
 					</section>

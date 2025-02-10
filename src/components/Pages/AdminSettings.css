@@ -5,19 +5,19 @@ body {
 
 /* Container & Layout */
 .admin-settings-container {
-	max-width: 1200px;
+	width: 100%;
 	margin: 0 auto;
 	padding: 1.5rem;
-	background-color: hsl(0, 0%, 100%);
+	/* background-color: hsl(0, 54%, 27%); */
 }
 
-/* HR */
+/* HR
 .ustfu-hr {
 	border: none;
 	height: 2px;
-	background-color: hsl(45, 100%, 51%);
+	background-color: hsl(128, 77%, 10%);
 	margin: 1rem 0;
-}
+} */
 
 /* Buttons */
 .ustfu-as-btn {
@@ -176,3 +176,78 @@ input[type="search"]:focus,
 	color: hsl(45, 100%, 51%);
 	cursor: pointer;
 }
+
+/* Tabs */
+
+.Tab {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+
+.tab-titles {
+	display: flex;
+	flex-direction: row;
+	justify-content: right;
+	width: 100%;
+	border: 1px solid #f4bb00;
+}
+
+.tab-title {
+	cursor: pointer;
+	padding: 10px;
+	color: #4f4f4f; /* Gray text */
+	border-bottom: 2px solid transparent;
+	margin-bottom: 1rem;
+	background-color: #dcdcdc; /* White background */
+	/* margin: 0 5px; */
+	border-radius: 5px;
+	font-size: 0.8rem;
+}
+
+.tab-title.active {
+	background-color: #f4bb00; /* Yellow background for active tab */
+	color: #000000; /* Black text for active tab */
+}
+
+.tab-title.active:hover {
+	color: #000000;
+	text-decoration: underline;
+	text-underline-offset: 6px;
+}
+
+.tab-title:hover {
+	color: #f4bb00;
+	text-decoration: underline;
+	text-underline-offset: 6px;
+}
+
+.tab-content {
+	background-color: #ffffff;
+	color: #8f1919;
+	width: 100%;
+	padding: 1rem;
+	border-top: 8px solid #f4bb00;
+	border-radius: 5px;
+}
+
+.Tabby {
+	width: 100%;
+	align-self: center;
+	
+}
+
+.TrackingTabs {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 100%;
+	background-color: aqua;
+}
+
+.TrackingTabs .tab-titles .search-container {
+	display: block;
+	width: 600px;
+}
+
