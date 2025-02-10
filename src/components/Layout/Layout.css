@@ -1,97 +1,96 @@
 .layout {
-  min-height: 100vh;
-  min-width: auto;
-  min-block-size: auto;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr auto;
-  gap: 0px 0px;
-  grid-template-areas:
-      "Header Header"
-      "Sidebar Main"
-      "Footer Footer";    
+	min-height: 100vh;
+	min-width: auto;
+	min-block-size: auto;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: auto 1fr auto;
+	gap: 0px 0px;
+	grid-template-areas:
+		"Header Header"
+		"Sidebar Main"
+		"Footer Footer";
 }
 
-
-.HeaderContainer { 
-  grid-area: Header; 
+.HeaderContainer {
+	grid-area: Header;
 }
 
 .StickySidebar {
-  display: none;
+	display: none;
 }
 
-.SidebarContainer { 
-  grid-area: Sidebar; 
-  position: sticky;
-  top:0;
-  background-color: #1C1C1E;
+.SidebarContainer {
+	grid-area: Sidebar;
+	position: sticky;
+	top: 0;
+	background-color: #1c1c1e;
 }
 
-.MainContainer { 
-  grid-area: Main;
-  width: 100%;
-  overflow: hidden; /* Prevent horizontal scroll */
-  background-color: #EDEDED;
+.MainContainer {
+	grid-area: Main;
+	width: 100%;
+	overflow: hidden; /* Prevent horizontal scroll */
+	background-color: #ededed;
 }
 
 .MainContainer .MainContent {
-  overflow-y: auto;
+	overflow-y: auto;
 }
 
-.FooterContainer { 
-  grid-area: Footer;
-  position: relative;
-  bottom: 0;
-  width: 100%;
+.FooterContainer {
+	grid-area: Footer;
+	position: relative;
+	bottom: 0;
+	width: 100%;
 }
 
 .row {
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .col-md-12 {
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* Responsive for screens smaller than 768px */
 @media (max-width: 768px) {
-  .layout {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr auto;
-      grid-template-areas:
-          "Header"
-          "Main"
-          "Footer";
-  }
+	.layout {
+		grid-template-columns: 1fr;
+		grid-template-rows: auto 1fr auto;
+		grid-template-areas:
+			"Header"
+			"Main"
+			"Footer";
+	}
 
-  .HeaderContainer {
-      grid-area: Header;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-  }
+	.HeaderContainer {
+		grid-area: Header;
+		position: sticky;
+		top: 0;
+		z-index: 1000;
+	}
 
-  .StickySidebar {
-      display: block;
-  }
+	.StickySidebar {
+		display: block;
+	}
 
-  .SidebarContainer {
-      display: none;
-  }
+	.SidebarContainer {
+		display: none;
+	}
 
-  .MainContainer {
-      grid-area: Main;
-  }
+	.MainContainer {
+		grid-area: Main;
+	}
 
-  .FooterContainer {
-      grid-area: Footer;
-      position: relative;
-      bottom:0;
-      width: 100%;
-  }
+	.FooterContainer {
+		grid-area: Footer;
+		position: relative;
+		bottom: 0;
+		width: 100%;
+	}
 }

@@ -2,154 +2,156 @@
 
 /* Full-screen container */
 .login-container {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: url(../../assets/LoginBg.png) no-repeat center center/cover;
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: url(../../assets/LoginBg.png) no-repeat center center/cover;
 }
 
 /* Background overlay */
 .background-overlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-  background: rgba(27, 43, 77, 0.59);
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	background: rgba(27, 43, 77, 0.59);
 }
 
 /* Content wrapper */
 .content {
-  position: relative;
-  width: 80%;
-  max-width: 1141px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: left;
-  gap: 20px; /* Adds spacing between logo and login box */
+	position: relative;
+	width: 80%;
+	max-width: 1141px;
+	display: -webkit-flex; /* added for Safari/iOS Android */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: left;
+	gap: 20px; /* Adds spacing between logo and login box */
 }
 
 /* Page Logo */
 .page-logo {
-  width: auto;
-  max-height: 100px; /* Adjust height */
+	width: auto;
+	max-height: 100px; /* Adjust height */
 }
 
 /* White box for login */
 .white-box {
-  background: #faf9f6;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-  width: 90%;
-  max-width: 500px;
-  border-top: 10px solid #F4BB00;
+	background: #faf9f6;
+	padding: 40px;
+	border-radius: 10px;
+	-webkit-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+	width: 90%;
+	max-width: 500px;
+	border-top: 10px solid #f4bb00;
 }
 
 /* Sign-in title */
 .sign-in-title {
-  font-family: 'Raleway', sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #000000;
-  margin-bottom: 20px;
+	font-family: "Raleway", sans-serif;
+	font-size: 2rem;
+	font-weight: 700;
+	color: #000000;
+	margin-bottom: 20px;
 }
 
 /* Sign-in description */
 .sign-in-description,
 .requirement {
-  font-family: 'Roboto', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 400;
-  color: #000000;
-  margin-bottom: 15px;
+	font-family: "Roboto", sans-serif;
+	font-size: 1.2rem;
+	font-weight: 400;
+	color: #000000;
+	margin-bottom: 15px;
 }
 
 /* Google sign-in button */
 .google-signin {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  max-width: 300px;
-  height: 50px;
-  background: #FFFFFF;
-  border: 1px solid #000000;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: 'Roboto', sans-serif;
-  font-size: 1rem;
-  font-weight: 400;
-  color: #000000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: auto;
+	max-width: 300px;
+	height: 50px;
+	background: #ffffff;
+	border: 1px solid #000000;
+	border-radius: 8px;
+	cursor: pointer;
+	font-family: "Roboto", sans-serif;
+	font-size: 1rem;
+	font-weight: 400;
+	color: #000000;
 }
 
 .google-signin:hover {
-  background: #f0f0f0;
+	background: #f0f0f0;
 }
 
 /* Google logo inside button */
 .google-logo {
-  width: 24px;
-  height: 24px;
-  margin-right: 10px;
+	width: 24px;
+	height: 24px;
+	margin-right: 10px;
 }
 
 img {
-  max-width: 100%;
-  height: auto;
+	max-width: 100%;
+	height: auto;
 }
 
 /* Responsive styles */
 @media (max-width: 768px) {
-  .content {
-    flex-direction: column; /* Stack elements vertically */
-    text-align: center;
-  }
+	.content {
+		flex-direction: column; /* Stack elements vertically */
+		text-align: center;
+	}
 
-  .page-logo {
-    margin-bottom: 10px;
-  }
+	.page-logo {
+		margin-bottom: 10px;
+	}
 
-  .white-box {
-    width: 95%;
-    max-width: 400px;
-    padding: 20px;
-    text-align: center;
-  }
+	.white-box {
+		width: 95%;
+		max-width: 400px;
+		padding: 20px;
+		text-align: center;
+	}
 
-  .sign-in-title {
-    font-size: 1.5rem;
-  }
+	.sign-in-title {
+		font-size: 1.5rem;
+	}
 
-  .sign-in-description {
-    font-size: 1rem;
-  }
+	.sign-in-description {
+		font-size: 1rem;
+	}
 
-  .google-signin {
-    width: 100%;
-    font-size: 0.9rem;
-  }
+	.google-signin {
+		width: 100%;
+		font-size: 0.9rem;
+	}
 }
 
 @media (max-width: 480px) {
-  .white-box {
-    padding: 15px;
-  }
+	.white-box {
+		padding: 15px;
+	}
 
-  .sign-in-title {
-    font-size: 1.2rem;
-  }
+	.sign-in-title {
+		font-size: 1.2rem;
+	}
 
-  .sign-in-description {
-    font-size: 0.9rem;
-  }
+	.sign-in-description {
+		font-size: 0.9rem;
+	}
 
-  .google-signin {
-    height: 45px;
-    font-size: 0.8rem;
-  }
+	.google-signin {
+		height: 45px;
+		font-size: 0.8rem;
+	}
 }

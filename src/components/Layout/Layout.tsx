@@ -9,49 +9,49 @@ import "./Layout.css";
 import { logout } from "../../services/auth";
 
 interface LayoutProps {
-  children: ReactNode;
+	children: ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+	const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+	useEffect(() => {
+		const handleResize = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, []);
 
-  const handleLogout = useCallback(async () => {
-      try {
-        await logout();
-      } catch (error) {
-        console.error("Logout error:", error);
-      }
-    }, []);
-    
-  return (
-    <div className="layout">
-      <div className="HeaderContainer">
-        <Header />
-      </div>
-      {isMobile ? (
-        <StickySidebar onLogout={handleLogout} />
-      ) : (
-        <Container className="SidebarContainer">
-          <Sidebar onLogout={handleLogout} />
-        </Container>
-      )}
-      <div className="MainContainer">
-        <div className="MainContent">{children}</div>
-      </div>
-      <div className="FooterContainer">
-        <Footer />
-      </div>
-    </div>
-  );
+	const handleLogout = useCallback(async () => {
+		try {
+			await logout();
+		} catch (error) {
+			console.error("Logout error:", error);
+		}
+	}, []);
+
+	return (
+		<div className="layout">
+			<div className="HeaderContainer">
+				<Header />
+			</div>
+			{isMobile ? (
+				<StickySidebar onLogout={handleLogout} />
+			) : (
+				<Container className="SidebarContainer">
+					<Sidebar onLogout={handleLogout} />
+				</Container>
+			)}
+			<div className="MainContainer">
+				<div className="MainContent">{children}</div>
+			</div>
+			<div className="FooterContainer">
+				<Footer />
+			</div>
+		</div>
+	);
 };
 
 export default Layout;

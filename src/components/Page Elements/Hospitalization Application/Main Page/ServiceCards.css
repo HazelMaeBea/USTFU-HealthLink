@@ -2,13 +2,14 @@
 
 .HospiAppli {
 	max-width: auto;
-	min-height: auto;
+	/* min-height: auto; */
 	display: flex;
 	flex-direction: column;
 	/* background-color: rgb(32, 90, 141); */
 }
 
 .WelcomeSection {
+	min-height: 60vh; /* fallback for older browsers */
 	min-height: 60dvh;
 	background-size: cover;
 	background-position: center;
@@ -73,6 +74,7 @@
 	}
 
 	.WelcomeSection {
+		min-height: 40vh; /* fallback for older browsers */
 		min-height: 40dvh;
 		background-size: cover;
 		background-position: center;
