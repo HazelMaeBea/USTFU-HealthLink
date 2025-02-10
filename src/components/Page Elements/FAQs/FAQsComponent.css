@@ -1,52 +1,52 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Julius+Sans+One&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Julius+Sans+One&display=swap");
 
 .faqs-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+	height: auto;
 }
 
 .header-section {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    background-color:pink;
-    padding: 20px 0;
-    height: 200px;
-    width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+	background-color: pink;
+	padding: 20px 0;
+	height: 200px;
+	width: 100%;
 }
 
 .content-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    padding: 2rem;
-    width: 100%;
-    background-color: bisque;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	padding: 2rem;
+	width: 100%;
+	background-color: bisque;
 }
 
 .media {
-    width: 100%;
-    max-width: 1080px;
-    height: auto;
-    margin: 20px 0;
-    border: none;
+	width: 100%;
+	max-width: 1080px;
+	height: auto;
+	margin: 20px 0;
+	border: none;
 }
 
 .content-section h2 {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #333;
+	font-family: "Inter", sans-serif;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #333;
 }
 
 .content-section p {
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    font-weight: 400;
-    color: #333;
+	font-family: "Inter", sans-serif;
+	font-size: 1rem;
+	font-weight: 400;
+	color: #333;
 }
