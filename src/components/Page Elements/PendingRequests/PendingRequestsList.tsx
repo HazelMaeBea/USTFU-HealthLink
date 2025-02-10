@@ -262,7 +262,7 @@ const PendingRequestList = () => {
 											aria-label="amount left"
 											type="text"
 											value="82000.00"
-											readOnly
+											disabled
 											className="amount-input"
 										/>
 										</div>
