@@ -1,12 +1,15 @@
+import "../Page Elements/AdminSettings/AdminSettings.css";
+
 import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
-import "./AdminSettings.css";
 import { FaRegBookmark } from "react-icons/fa6";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
+
 import Popout from "../Page Elements/Popout/Popout";
+import VerificationPage from "../Page Elements/AdminSettings/VerificationPage";
 
 interface User {
 	displayName: string;
@@ -243,7 +246,7 @@ const AdminSettings = () => {
 			{activeTab === "registrationVerification" && (
 				// Registration Verification content placeholder
 				<div className="registration-verification-container">
-					<h2>Registration Verification Page</h2>
+					<VerificationPage />
 				</div>
 			)}
 
