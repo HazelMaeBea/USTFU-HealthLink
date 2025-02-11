@@ -18,11 +18,17 @@
 }
 
 .header-content {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: 1.5fr 1.3fr 1fr auto; /* Default: Single column for mobile */
 	align-items: center;
 	padding: 1rem 2rem;
+	width: 100%;
+	gap: 0.5rem; /* Adds spacing between elements */
+	text-align: left;
+}
+
+.arrow {
+	justify-self: end;
 }
 
 .request-content {
@@ -331,9 +337,13 @@
 
 @media screen and (max-width: 768px) {
 	.header-content {
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: center;
+		grid-template-columns: 1fr;
+		text-align: center; /* Center the text */
+		justify-items: center; /* Center grid items */
+	}
+
+	.arrow {
+		justify-self: center; /* Centers the arrow */
 	}
 
 	.attachment-filename {
