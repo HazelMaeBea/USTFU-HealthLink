@@ -301,7 +301,7 @@ const PendingRequestList = () => {
 							)
 						}
 					>
-						<div className="header-content d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
+						<div className="header-content">
 							<div>TRANSACTION ID: {request.transactionId}</div>
 							<div>REQUESTER: {request.requester}</div>
 							<div>DATE: {request.dateSubmitted}</div>
