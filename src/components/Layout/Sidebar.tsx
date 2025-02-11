@@ -1,4 +1,4 @@
-import { useRole } from './RoleContext';
+import { useRole } from "./RoleContext";
 import Profile from "./Profile";
 import "./Sidebar.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -46,21 +46,53 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	};
 
 	let menuItems = [
-		{ name: "FAQ", icon: <AiOutlineQuestionCircle size={20} />, path: "/faqs" },
-        { name: "SETTINGS", icon: <RiSettings5Line size={20} />, path: "/settings" },
-        { name: "LOGOUT", icon: <TbLogout size={20} />, action: handleLogoutClick },
+		{
+			name: "FAQ",
+			icon: <AiOutlineQuestionCircle size={20} />,
+			path: "/faqs",
+		},
+		{
+			name: "SETTINGS",
+			icon: <RiSettings5Line size={20} />,
+			path: "/settings",
+		},
+		{
+			name: "LOGOUT",
+			icon: <TbLogout size={20} />,
+			action: handleLogoutClick,
+		},
 	];
 
 	if (selectedRole === "member") {
 		menuItems.unshift(
-			{ name: "HOSPITALIZATION APPLICATION", icon: <TbHomeEdit size={20} />, path: "/home" },
-			{ name: "HOSPITALIZATION TRACKING", icon: <MdHistory size={20} />, path: "/tracking" }
+			{
+				name: "HOSPITALIZATION APPLICATION",
+				icon: <TbHomeEdit size={20} />,
+				path: "/home",
+			},
+			{
+				name: "HOSPITALIZATION TRACKING",
+				icon: <MdHistory size={20} />,
+				path: "/tracking",
+			}
 		);
 	} else if (selectedRole === "operations handler") {
 		menuItems.unshift(
-			{ name: "HOSPITALIZATION HISTORY", icon: <FaRegFolderOpen size={20} />, path: "/history" },
-            { name: "PENDING REQUESTS", icon: <AiOutlineFileDone size={20} />, path: "/pendingrequests" },
-            { name: "ADMIN SETTINGS", icon: <MdOutlineAdminPanelSettings size={20} />, path: "/adminsettings" }
+			{
+				name: "HOSPITALIZATION HISTORY",
+				icon: <FaRegFolderOpen size={20} />,
+				path: "/history",
+			},
+			{
+				name: "PENDING REQUESTS",
+				icon: <AiOutlineFileDone size={20} />,
+				path: "/pendingrequests",
+			},
+			{
+				name: "ADMIN SETTINGS",
+				icon: <MdOutlineAdminPanelSettings size={20} />,
+				path: "/adminsettings",
+			}
 		);
 	}
 
@@ -70,6 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		<>
 			<div
 				className={`sidebar-wrapper ${isCollapsed ? "collapsed" : ""}`}
+				style={{ position: "relative", zIndex: 10 }} // set lower z-index than footer
 			>
 				<button
 					onClick={toggleSidebar}
