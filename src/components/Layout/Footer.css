@@ -1,4 +1,6 @@
 .Footer {
+	position: relative; /* add stacking context */
+	z-index: 100; /* ensures footer appears above navbar */
 	background: #212529;
 	color: white;
 	padding: 2rem;
