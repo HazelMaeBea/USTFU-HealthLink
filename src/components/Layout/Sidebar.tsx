@@ -102,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		<>
 			<div
 				className={`sidebar-wrapper ${isCollapsed ? "collapsed" : ""}`}
-				style={{ position: "relative", zIndex: 10 }} // set lower z-index than footer
+				style={{ position: "relative", zIndex: isCollapsed ? 0 : 10 }} // update z-index based on collapse state
 			>
 				<button
 					onClick={toggleSidebar}
