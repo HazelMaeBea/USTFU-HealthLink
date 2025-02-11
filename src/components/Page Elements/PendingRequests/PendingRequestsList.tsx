@@ -17,88 +17,45 @@ const PendingRequestList = () => {
 		const { formData } = request;
 
 		const baseFields = (
-			<div className="form-grid">
-				<div className="form-group">
-					<label>Last Name</label>
-					<input
-						className="field-value"
-						type="text"
-						value={formData.lastname}
-						readOnly
-						aria-label="last name"
-					/>
+			<>
+				<hr className="yellow"></hr>
+				<div className="form-grid">
+					<div className="form-group">
+						<label>Last Name</label>
+						<p className="field-value">{formData.lastname}</p>
+					</div>
+					<div className="form-group">
+						<label>First Name</label>
+						<p className="field-value">{formData.firstname}</p>
+					</div>
+					<div className="form-group">
+						<label>Middle Name</label>
+						<p className="field-value">{formData.middlename}</p>
+					</div>
+					<div className="form-group">
+						<label>Suffix</label>
+						<p className="field-value">
+							{formData.suffix ? formData.suffix : "-"}
+						</p>
+					</div>
+					<div className="form-group">
+						<label>Age</label>
+						<p className="field-value">{formData.age}</p>
+					</div>
+					<div className="form-group">
+						<label>Gender</label>
+						<p className="field-value">{formData.gender}</p>
+					</div>
+					<div className="form-group">
+						<label>College Affiliation</label>
+						<p className="field-value">{formData.college}</p>
+					</div>
+					<div className="form-group">
+						<label>Contact No.</label>
+						<p className="field-value">{formData.contact}</p>
+					</div>
 				</div>
-				<div className="form-group">
-					<label>First Name</label>
-					<input
-						className="field-value"
-						type="text"
-						value={formData.firstname}
-						readOnly
-						aria-label="first name"
-					/>
-				</div>
-				<div className="form-group">
-					<label>Middle Name</label>
-					<input
-						className="field-value"
-						type="text"
-						value={formData.middlename}
-						readOnly
-						aria-label="middle name"
-					/>
-				</div>
-				<div className="form-group">
-					<label>Suffix</label>
-					<select
-						className="field-value"
-						disabled
-						aria-label="suffix"
-					>
-						<option>None</option>
-					</select>
-				</div>
-				<div className="form-group">
-					<label>Age</label>
-					<input
-						className="field-value"
-						type="text"
-						value={formData.age}
-						readOnly
-						aria-label="age"
-					/>
-				</div>
-				<div className="form-group">
-					<label>Gender</label>
-					<input
-						className="field-value"
-						type="text"
-						value={formData.gender}
-						readOnly
-						aria-label="gender"
-					/>
-				</div>
-				<div className="form-group">
-					<label>College Affiliation</label>
-					<input
-						className="field-value"
-						type="text"
-						value={formData.college}
-						readOnly
-						aria-label="college"
-					/>
-				</div>
-				<div className="form-group">
-					<label>Contact No.</label>
-					<input
-						className="field-value"
-						type="text"
-						value={formData.contact}
-						readOnly
-						aria-label="contact"
-					/>
-				</div>
-			</div>
+			</>
 		);
 
 		switch (formData.formType) {
@@ -106,36 +63,64 @@ const PendingRequestList = () => {
 				return (
 					<>
 						{baseFields}
+						<hr></hr>
 						<div className="form-grid">
 							<div className="form-group">
 								<label>Hospital</label>
-								<input
-									className="field-value"
-									type="text"
-									value={formData.hospital}
-									readOnly
-									aria-label="hospital"
-								/>
+								<p className="field-value">{formData.hospital}</p>
 							</div>
 							<div className="form-group">
 								<label>Nature of Illness</label>
-								<input
-									className="field-value"
-									type="text"
-									value={formData.illness}
-									readOnly
-									aria-label="illness"
-								/>
+								<p className="field-value">{formData.illness}</p>
 							</div>
 							<div className="form-group">
 								<label>Physician</label>
-								<input
-									className="field-value"
-									type="text"
-									value={formData.physician}
-									readOnly
-									aria-label="physician"
-								/>
+								<p className="field-value">{formData.physician}</p>
+							</div>
+							<div className="form-group">
+								<label>Procedure</label>
+								<p className="field-value">{formData.procedures}</p>
+							</div>
+						</div>
+						<hr></hr>
+						<div className="form-grid">
+							<div className="form-group">
+								<label>Academic Term</label>
+								<p className="field-value">{formData.term}</p>
+							</div>
+							<div className="form-group">
+								<label>Academic Year</label>
+								<p className="field-value">{formData.year}</p>
+							</div>
+							<div className="form-group">
+								<label>Teaching Load</label>
+								<p className="field-value">{formData.load}</p>
+							</div>
+							<div className="form-group">
+								<label>Status</label>
+								<p className="field-value">{formData.status || "-"}</p>
+							</div>
+							<div className="form-group">
+								<label>Date Hired:</label>
+								<p className="field-value">
+									{formData.dateHired ? new Date(formData.dateHired).toLocaleDateString() : "-"}
+								</p>
+							</div>
+							<div className="form-group">
+							<label>Date Retired:</label>
+								<p className="field-value">
+									{formData.dateRetired ? new Date(formData.dateRetired).toLocaleDateString() : '-'}
+								</p>
+							</div>
+							<div className="form-group">
+								<label>Health Benefits</label>
+								<p className="field-value">{formData.benefits}</p>
+							</div>
+							<div className="form-group">
+								<label>If HMO, please specify:</label>
+								<p className="field-value">
+									{formData.hmo ? formData.hmo : '-'}
+								</p>
 							</div>
 						</div>
 					</>
@@ -201,70 +186,6 @@ const PendingRequestList = () => {
 		}
 	};
 
-	const renderHospitalCertification = (request: PendingRequest) => {
-		if (request.formData.formType !== "hospital") return null;
-
-		return (
-			<div className="hospital-certification">
-				<div className="certification-header">To UST HOSPITAL:</div>
-				<div className="certification-content">
-					<p>
-						This certifies that the above named faculty is entitled
-						to the following benefit on his/her total charges
-						(procedure, supplies, drugs and reader's fee) but not to
-						exceed his/her remaining benefit subject to final
-						verification:
-					</p>
-					<div className="benefit-options">
-						<label className="radio-option">
-							<input type="radio" name="benefit" value="50" />
-							<span>50% of net hospital bill</span>
-						</label>
-						<label className="radio-option">
-							<input
-								type="radio"
-								name="benefit"
-								value="100"
-								checked
-								readOnly
-							/>
-							<span>100% of net hospital bill</span>
-						</label>
-					</div>
-					<div className="benefit-amount">
-						<span>but not to exceed:</span>
-						<div className="amount-input">
-							<span>₱</span>
-							<input
-								aria-label="amount left"
-								type="text"
-								value="82000.00"
-								readOnly
-							/>
-						</div>
-						<span className="amount-label">
-							(Remaining benefit)
-						</span>
-					</div>
-					<button className="check-history-btn">CHECK HISTORY</button>
-				</div>
-				<div className="signature-section">
-					<div className="upload-box">
-						<p>Please attach signature here.</p>
-						<button className="upload-btn">UPLOAD</button>
-					</div>
-					<div className="signature-details">
-						<p className="signature-name">Sylus Xavier</p>
-						<p className="signature-title">USTFPU PRESIDENT</p>
-						<p className="signature-subtitle">
-							OR AUTHORIZED REPRESENTATIVE
-						</p>
-					</div>
-				</div>
-			</div>
-		);
-	};
-
 	const renderAttachments = (request: PendingRequest) => {
 		const { formData } = request;
 		const attachments = [
@@ -278,17 +199,98 @@ const PendingRequestList = () => {
 		];
 
 		return (
-			<div className="attachments-section">
-				<h4>UPLOADED ATTACHMENTS</h4>
-				<div className="attachment-list">
-					{attachments.map((attachment, index) => (
-						<div key={index} className="attachment-item">
-							<span>{attachment.filename}</span>
-							<button className="view-btn">View</button>
-						</div>
-					))}
+			<>
+				<hr></hr>
+				<div className="attachments-section">
+					<h4>UPLOADED ATTACHMENTS</h4>
+					<div className="attachment-list">
+						{attachments.map((attachment, index) => (
+							<div key={index} className="attachment-item">
+								<span>{attachment.filename}</span>
+								<button className="view-btn">View</button>
+							</div>
+						))}
+					</div>
 				</div>
-			</div>
+			</>
+		);
+	};
+
+	const renderHospitalCertification = (request: PendingRequest) => {
+		if (request.formData.formType !== "hospital") return null;
+
+		return (
+			<>
+				<hr></hr>
+				<div className="hospital-certification row">
+					<div className="col-md-8">
+						<div className="certification-header">To UST HOSPITAL:</div>
+						<div className="certification-content">
+							<p>
+								This certifies that the above named faculty is entitled
+								to the following benefit on his/her total charges
+								(procedure, supplies, drugs and reader's fee) but not to
+								exceed his/her remaining benefit subject to final
+								verification:
+							</p>
+							<div className="row justify-content-center align-content-center">
+								<div className="col-md-4">
+									<div className="benefit-options">
+										<label className="radio-option">
+											<input type="radio" name="benefit" value="50" />
+											<span>50% of net hospital bill</span>
+										</label>
+										<label className="radio-option">
+											<input
+												type="radio"
+												name="benefit"
+												value="100"
+												checked
+												readOnly
+											/>
+											<span>100% of net hospital bill</span>
+										</label>
+									</div>
+								</div>
+								<div className="col-md-8 d-flex flex-column align-items-center text-center">
+									<span className="mb-2">but not to exceed:</span>
+
+									<div className="amount-container p-3 rounded shadow">
+										<div className="amount-input-wrapper d-flex align-items-center">
+										<span className="currency">₱</span>
+										<input
+											aria-label="amount left"
+											type="text"
+											value="82000.00"
+											disabled
+											className="amount-input"
+										/>
+										</div>
+										<span className="amount-label">(Remaining benefit)</span>
+									</div>
+
+									<button className="check-history-btn mt-3">CHECK HISTORY</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div className="col-md-4 justify-content-center align-content-center">
+						<div className="signature-section row">
+							<div className="upload-box">
+								<p>Please attach signature here.</p>
+								<button className="upload-btn">UPLOAD</button>
+							</div>
+							<div className="signature-details col">
+								<p className="signature-name">Sylus Xavier</p>
+								<p className="signature-title">USTFPU PRESIDENT</p>
+								<p className="signature-subtitle">
+									OR AUTHORIZED REPRESENTATIVE
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</>
 		);
 	};
 
@@ -332,6 +334,7 @@ const PendingRequestList = () => {
 									: request.formData.formType.toUpperCase()}{" "}
 								SUBMITTED FORM DETAILS
 							</h3>
+
 							{renderFormFields(request)}
 							{renderAttachments(request)}
 							{renderHospitalCertification(request)}
