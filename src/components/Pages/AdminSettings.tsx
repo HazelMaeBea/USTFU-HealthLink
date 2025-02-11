@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
-import { FaRegBookmark } from "react-icons/fa6";
+import { IoCloudUploadOutline } from "react-icons/io5";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
 
@@ -208,7 +208,7 @@ const AdminSettings = () => {
 											className="save-btn"
 											onClick={handleEditClick}
 										>
-											<FaRegBookmark
+											<IoCloudUploadOutline
 												className="save-icon"
 												size={15}
 											/>{" "}
