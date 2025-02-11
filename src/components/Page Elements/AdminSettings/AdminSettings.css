@@ -170,7 +170,7 @@ input[type="search"]:focus,
 	text-transform: uppercase;
 }
 
-/* Search Field Styles */
+/* Updated Search Field Styles */
 .search-container {
 	position: relative;
 	display: inline-block;
@@ -178,8 +178,7 @@ input[type="search"]:focus,
 }
 .search-input {
 	width: 100%;
-	padding-left: 2.5rem;
-	padding-right: 2.5rem;
+	padding: 0.5rem 2.5rem;
 	border-radius: 50px;
 	box-sizing: border-box;
 }
@@ -190,20 +189,25 @@ input[type="search"]:focus,
 .burger-icon {
 	position: absolute;
 	left: 0.75rem;
-	top: 50%;
+	top: 30%;
 	transform: translateY(-50%);
 	pointer-events: none;
 	color: hsl(218, 11%, 65%);
 	font-size: 1.25rem;
+	z-index: 3;
+	margin: 0;
 }
-.search-icon {
+
+.admin-search-icon {
 	position: absolute;
 	right: 0.75rem;
-	top: 50%;
+	top: 30%;
 	transform: translateY(-50%);
 	pointer-events: none;
 	color: hsl(218, 11%, 65%);
 	font-size: 1.25rem;
+	z-index: 3;
+	margin: 0;
 }
 
 /* New Tab Button Styles */

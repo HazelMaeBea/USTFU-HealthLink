@@ -94,10 +94,10 @@ const VerificationPage = () => {
 	return (
 		<div>
 			<div>
-				<table className="verification-table w-full">
+				<table className="verification-table">
 					<thead className="verification-page-header">
-						<tr>
-							<th>
+						<tr className="verification-tr">
+							<th className="verification-header">
 								{"  "}
 								<input
 									type="checkbox"
@@ -107,16 +107,18 @@ const VerificationPage = () => {
 									aria-label="select all"
 								/>
 							</th>
-							<th>NAME</th>
-							<th>EMAIL ADDRESS</th>
-							<th>ROLE</th>
-							<th>ACTION</th>
+							<th className="verification-header">NAME</th>
+							<th className="verification-header">
+								EMAIL ADDRESS
+							</th>
+							<th className="verification-header">ROLE</th>
+							<th className="verification-header">ACTION</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody className="verfication-tbody">
 						{currentRequests.map((request, index) => (
-							<tr key={index}>
-								<td>
+							<tr className="verification-tr" key={index}>
+								<td className="verfication-td">
 									<input
 										type="checkbox"
 										checked={request.selected}
@@ -125,10 +127,16 @@ const VerificationPage = () => {
 										aria-label="select this user"
 									/>
 								</td>
-								<td>{request.name}</td>
-								<td>{request.email}</td>
-								<td>{request.role}</td>
-								<td>
+								<td className="verfication-td">
+									{request.name}
+								</td>
+								<td className="verfication-td">
+									{request.email}
+								</td>
+								<td className="verfication-td">
+									{request.role}
+								</td>
+								<td className="verfication-td">
 									<div className="d-flex justify-content-center gap-3">
 										<button
 											className="verification-btn approve-btn"

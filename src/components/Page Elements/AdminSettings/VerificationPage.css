@@ -7,38 +7,30 @@
 	border: 1px solid hsl(220, 13%, 91%);
 	border-radius: 0.5rem;
 	overflow: hidden;
-	height: 510px; /* Match the height from admin settings */
+	height: 510px; /* Fixed height to match AdminSettings */
 	table-layout: fixed;
 }
 
-.verification-table tbody {
-	height: calc(100% - 50px);
-	display: block;
-	overflow-y: auto;
-}
-
-.verification-page-header {
+/* Use native thead/tbody rather than custom class names */
+.verification-table thead {
+	display: table-header-group;
 	background-color: hsl(210, 10%, 23%);
 	color: hsl(0, 0%, 100%);
 }
+.verification-table tbody {
+	display: block;
+	height: calc(100% - 50px);
+	overflow-y: auto;
+}
 
-.verification-table thead,
-.verification-table tbody tr {
+/* Common row style */
+.verification-table tr {
 	display: table;
 	width: 100%;
 	table-layout: fixed;
 }
 
-.verification-table tbody tr td {
-	padding: 1rem;
-	text-align: center;
-	vertical-align: middle;
-	border-bottom: 1px solid hsl(220, 13%, 91%);
-	font-size: 0.875rem;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
+/* Cell Styles */
 .verification-table th,
 .verification-table td {
 	padding: 0.75rem 1rem;
@@ -46,29 +38,26 @@
 	font-size: 0.875rem;
 	vertical-align: middle;
 	text-align: center;
-	overflow: hidden; /* Prevent overflow */
-	text-overflow: ellipsis; /* Add ellipsis for overflow text */
-	/* white-space: nowrap; // Prevent text wrapping */
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
+/* Column Widths */
 .verification-table th:nth-child(1),
 .verification-table td:nth-child(1) {
-	width: 5%; /* Adjust width for checkbox column */
+	width: 5%;
 }
-
 .verification-table th:nth-child(2),
 .verification-table td:nth-child(2) {
-	width: 25%; /* Adjust width for name column */
+	width: 25%;
 }
-
 .verification-table th:nth-child(3),
 .verification-table td:nth-child(3) {
-	width: 30%; /* Adjust width for email column */
+	width: 30%;
 }
-
 .verification-table th:nth-child(4),
 .verification-table td:nth-child(4) {
-	width: 10%; /* Adjust width for email column */
+	width: 10%;
 }
 
 /* Verification Button Styles */
@@ -91,7 +80,6 @@
 .approve-btn {
 	outline: 2px solid hsl(134, 61%, 85%);
 }
-
 .approve-btn:hover {
 	background-color: hsl(134, 100%, 79%);
 	color: black;
@@ -101,7 +89,6 @@
 .deny-btn {
 	outline: 2px solid hsl(354, 100%, 84%);
 }
-
 .deny-btn:hover {
 	background-color: hsl(354, 70%, 85%);
 	color: black;
@@ -124,18 +111,16 @@
 .bulk-approve {
 	outline: 2px solid hsl(134, 61%, 85%);
 }
-
 .bulk-approve:hover {
-	background-color: hsl(134, 80%, 70%); /* darker hover for approve */
+	background-color: hsl(134, 80%, 70%);
 	color: black;
 }
 
 .bulk-deny {
 	outline: 2px solid hsl(354, 100%, 84%);
 }
-
 .bulk-deny:hover {
-	background-color: hsl(354, 80%, 70%); /* darker hover for deny */
+	background-color: hsl(354, 80%, 70%);
 	color: black;
 }
 
@@ -146,11 +131,10 @@
 	cursor: pointer;
 }
 
-/* Zebra striping */
+/* Zebra Striping */
 .verification-table tbody tr:nth-child(even) {
 	background-color: hsl(0, 0%, 98%);
 }
-
 .verification-table tbody tr:hover {
 	background-color: hsl(0, 0%, 95%);
 }
@@ -161,7 +145,6 @@
 	justify-content: left;
 	margin-top: 1rem;
 }
-
 .as-page-item {
 	margin: 0 0.25rem;
 	padding: 0.5rem 0.75rem;
@@ -172,13 +155,11 @@
 	color: hsl(0, 0%, 100%);
 	transition: background-color 0.2s, color 0.2s;
 }
-
 .as-page-item:hover {
 	background-color: hsl(0, 0%, 0%);
 	color: hsl(45, 100%, 51%);
 	border-color: hsl(45, 100%, 51%);
 }
-
 .as-page-item.active {
 	background-color: hsl(0, 0%, 0%);
 	color: hsl(45, 100%, 51%);

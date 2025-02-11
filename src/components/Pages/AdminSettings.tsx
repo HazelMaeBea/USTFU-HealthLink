@@ -135,7 +135,7 @@ const AdminSettings = () => {
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
-						<TbSearch className="search-icon" />
+						<TbSearch className="admin-search-icon" />
 					</div>
 				</div>
 			</div>
