@@ -92,6 +92,10 @@
 	margin: 1rem 0;
 }
 
+.amount {
+	min-width: min-content;
+}
+
 .amount-container {
 	background: white;
 	border-radius: 10px;
@@ -149,6 +153,11 @@
 	padding: 0.5rem 1rem;
 	border-radius: 4px;
 	cursor: pointer;
+}
+
+.signature {
+	min-width: min-content;
+	max-width: fit-content;
 }
 
 .signature-section {
@@ -304,3 +313,6 @@
 	opacity: 1;
 }
 
+@media (max-width: 768px) {
+
+}
