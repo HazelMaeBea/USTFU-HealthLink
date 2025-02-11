@@ -1,6 +1,11 @@
 import "./AdminSettings.css";
 import "./VerificationPage.css";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import {
+	MdOutlineKeyboardArrowLeft,
+	MdOutlineKeyboardArrowRight,
+	MdOutlineIndeterminateCheckBox,
+} from "react-icons/md";
 import Popout from "../Popout/Popout"; // added import for Popout
 
 interface VerificationRequest {
@@ -34,6 +39,11 @@ const VerificationPage = () => {
 	const [popoutMessage, setPopoutMessage] = useState("");
 	const [pendingAction, setPendingAction] = useState<() => void>(() => {});
 
+	// Remove headerCheckboxRef; compute indeterminate directly:
+	const isIndeterminate =
+		requests.some((req) => req.selected) &&
+		!requests.every((req) => req.selected);
+
 	const handleSelectAll = () => {
 		setSelectAll(!selectAll);
 		setRequests(requests.map((req) => ({ ...req, selected: !selectAll })));
@@ -45,6 +55,14 @@ const VerificationPage = () => {
 		newRequests[actualIndex].selected = !newRequests[actualIndex].selected;
 		setRequests(newRequests);
 		setSelectAll(newRequests.every((req) => req.selected));
+	};
+
+	// New handler for role change via dropdown
+	const handleRoleChange = (index: number, newRole: string) => {
+		const newRequests = [...requests];
+		const actualIndex = (currentPage - 1) * requestsPerPage + index;
+		newRequests[actualIndex].role = newRole;
+		setRequests(newRequests);
 	};
 
 	// Bulk Actions
@@ -89,7 +107,17 @@ const VerificationPage = () => {
 	);
 	const totalPages = Math.ceil(requests.length / requestsPerPage);
 
-	const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+	// Pagination handlers
+	const handlePrevPage = () => {
+		if (currentPage > 1) setCurrentPage(currentPage - 1);
+	};
+	const handleNextPage = () => {
+		if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+	};
+	const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const val = Number(e.target.value);
+		if (val >= 1 && val <= totalPages) setCurrentPage(val);
+	};
 
 	return (
 		<div>
@@ -97,15 +125,30 @@ const VerificationPage = () => {
 				<table className="verification-table">
 					<thead className="verification-page-header">
 						<tr className="verification-tr">
-							<th className="verification-header">
-								{"  "}
-								<input
-									type="checkbox"
-									checked={selectAll}
-									onChange={handleSelectAll}
-									className="rounded border-gray-300"
-									aria-label="select all"
-								/>
+							<th className="first-column">
+								<button
+									onClick={handleSelectAll}
+									className="custom-header-checkbox"
+									style={{
+										background: "none",
+										border: "none",
+										padding: 0,
+										cursor: "pointer",
+									}}
+								>
+									{isIndeterminate ? (
+										<MdOutlineIndeterminateCheckBox
+											size={24}
+										/>
+									) : (
+										<input
+											type="checkbox"
+											checked={selectAll}
+											readOnly
+											style={{ pointerEvents: "none" }}
+										/>
+									)}
+								</button>
 							</th>
 							<th className="verification-header">NAME</th>
 							<th className="verification-header">
@@ -118,7 +161,7 @@ const VerificationPage = () => {
 					<tbody className="verfication-tbody">
 						{currentRequests.map((request, index) => (
 							<tr className="verification-tr" key={index}>
-								<td className="verfication-td">
+								<td className="first-column">
 									<input
 										type="checkbox"
 										checked={request.selected}
@@ -134,7 +177,20 @@ const VerificationPage = () => {
 									{request.email}
 								</td>
 								<td className="verfication-td">
-									{request.role}
+									<select
+										className="item-select"
+										value={request.role}
+										onChange={(e) =>
+											handleRoleChange(
+												index,
+												e.target.value
+											)
+										}
+									>
+										<option value="MEMBER">MEMBER</option>
+										<option value="ADMIN">ADMIN</option>
+										{/* Add more options as needed */}
+									</select>
 								</td>
 								<td className="verfication-td">
 									<div className="d-flex justify-content-center gap-3">
@@ -189,18 +245,25 @@ const VerificationPage = () => {
 
 			{/* Updated Pagination and Bulk Action Buttons */}
 			<div className="d-flex justify-content-between align-items-center mt-4">
-				<div className="pagination">
-					{Array.from({ length: totalPages }, (_, i) => (
-						<button
-							key={i + 1}
-							onClick={() => paginate(i + 1)}
-							className={`as-page-item ${
-								currentPage === i + 1 ? "active" : ""
-							}`}
-						>
-							{i + 1}
-						</button>
-					))}
+				<div className="d-flex align-items-center gap-2">
+					<button onClick={handlePrevPage} className="as-page-item">
+						<MdOutlineKeyboardArrowLeft size={24} />
+					</button>
+					<input
+						type="number"
+						min={1}
+						max={totalPages}
+						value={currentPage}
+						onChange={handlePageInputChange}
+						style={{
+							width: "2rem",
+							textAlign: "center",
+							padding: "0.25rem",
+						}}
+					/>
+					<button onClick={handleNextPage} className="as-page-item">
+						<MdOutlineKeyboardArrowRight size={24} />
+					</button>
 				</div>
 
 				<div className="d-flex gap-2">

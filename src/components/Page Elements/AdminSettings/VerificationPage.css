@@ -7,7 +7,7 @@
 	border: 1px solid hsl(220, 13%, 91%);
 	border-radius: 0.5rem;
 	overflow: hidden;
-	height: 510px; /* Fixed height to match AdminSettings */
+	height: 470px; /* Fixed height to match AdminSettings */
 	table-layout: fixed;
 }
 
@@ -31,13 +31,27 @@
 }
 
 /* Cell Styles */
-.verification-table th,
-.verification-table td {
-	padding: 0.75rem 1rem;
+.verification-table .verification-header,
+.verification-table .verfication-td {
+	padding: 0.5rem 1rem;
 	border-bottom: 1px solid hsl(220, 13%, 91%);
 	font-size: 0.875rem;
 	vertical-align: middle;
 	text-align: center;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.verification-table .verfication-td {
+	text-align: left;
+}
+
+.first-column {
+	padding: 0.5rem 1rem;
+	border-bottom: 1px solid hsl(220, 13%, 91%);
+	font-size: 0.875rem;
+	vertical-align: middle;
+	text-align: left;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }

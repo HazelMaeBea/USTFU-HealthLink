@@ -4,9 +4,13 @@ import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
-import { IoCloudUploadOutline } from "react-icons/io5";
+import { BsCheckAll } from "react-icons/bs";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
+import {
+	MdOutlineKeyboardArrowLeft,
+	MdOutlineKeyboardArrowRight,
+} from "react-icons/md";
 
 import Popout from "../Page Elements/Popout/Popout";
 import VerificationPage from "../Page Elements/AdminSettings/VerificationPage";
@@ -91,6 +95,7 @@ const AdminSettings = () => {
 	const indexOfLastUser = currentPage * usersPerPage;
 	const indexOfFirstUser = indexOfLastUser - usersPerPage;
 	const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+	const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 	const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
 	if (loading) return <div>Loading...</div>;
@@ -208,9 +213,9 @@ const AdminSettings = () => {
 											className="save-btn"
 											onClick={handleEditClick}
 										>
-											<IoCloudUploadOutline
+											<BsCheckAll
 												className="save-icon"
-												size={15}
+												size={20}
 											/>{" "}
 											SAVE
 										</button>
@@ -219,26 +224,44 @@ const AdminSettings = () => {
 							))}
 						</tbody>
 					</table>
-					{/* Pagination */}
+					{/* Updated Pagination for User Management */}
 					<div className="pagination">
-						{Array.from(
-							{
-								length: Math.ceil(
-									filteredUsers.length / usersPerPage
-								),
-							},
-							(_, i) => (
-								<button
-									key={i + 1}
-									onClick={() => paginate(i + 1)}
-									className={`as-page-item ${
-										currentPage === i + 1 ? "active" : ""
-									}`}
-								>
-									{i + 1}
-								</button>
-							)
-						)}
+						<div className="d-flex align-items-center gap-2">
+							<button
+								onClick={() =>
+									currentPage > 1 &&
+									setCurrentPage(currentPage - 1)
+								}
+								className="as-page-item"
+							>
+								<MdOutlineKeyboardArrowLeft size={24} />
+							</button>
+							<input
+								type="number"
+								min={1}
+								max={totalPages}
+								value={currentPage}
+								onChange={(e) => {
+									const val = Number(e.target.value);
+									if (val >= 1 && val <= totalPages)
+										setCurrentPage(val);
+								}}
+								style={{
+									width: "2rem",
+									textAlign: "center",
+									padding: "0.25rem",
+								}}
+							/>
+							<button
+								onClick={() =>
+									currentPage < totalPages &&
+									setCurrentPage(currentPage + 1)
+								}
+								className="as-page-item"
+							>
+								<MdOutlineKeyboardArrowRight size={24} />
+							</button>
+						</div>
 					</div>
 				</>
 			)}
