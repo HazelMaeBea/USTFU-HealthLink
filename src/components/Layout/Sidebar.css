@@ -53,6 +53,12 @@
 	padding: 5px;
 	height: 2rem;
 	width: 3.5rem;
+	will-change: transform; /* ensure stable stacking context */
+}
+
+.toggle-btn:active {
+	-webkit-transform: none !important;
+	transform: none !important;
 }
 
 .sidebar.collapsed .toggle-btn {
