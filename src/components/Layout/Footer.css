@@ -1,4 +1,5 @@
 .Footer {
+	isolation: isolate; /* force isolated stacking context in Safari */
 	position: relative; /* add stacking context */
 	z-index: 100; /* ensures footer appears above navbar */
 	background: #212529;
