@@ -16,6 +16,7 @@
 	flex-direction: column;
 	transition: width 0.3s ease;
 	font-size: 12px;
+	transform: translateZ(0); /* force hardware acceleration */
 }
 
 .sidebar.collapsed {
@@ -74,6 +75,12 @@
 	padding: 10px 0px 10px 0px;
 	white-space: nowrap;
 	overflow: hidden;
+}
+
+/* SAFARI TESTING STUFF */
+.menu-item:active {
+	-webkit-transform: none !important;
+	transform: none !important;
 }
 
 .logout-item {
