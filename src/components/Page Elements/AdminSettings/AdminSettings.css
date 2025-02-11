@@ -29,8 +29,16 @@ body {
 	cursor: pointer;
 	text-align: center;
 	transition: all 0.2s;
-	background-color: hsl(0, 0%, 0%);
-	color: hsl(0, 0%, 100%);
+	background-color: white;
+	color: black;
+	outline: 1px solid black;
+}
+
+.ustfu-as-btn:not(.active-tab):hover {
+	text-decoration: underline;
+	text-underline-offset: 6px;
+	color: hsl(45, 100%, 51%);
+	outline: 1.5px solid hsl(45, 100%, 51%);
 }
 
 .ustfu-btn-sm {
@@ -219,6 +227,7 @@ input[type="search"]:focus,
 .active-tab {
 	background-color: hsl(45, 100%, 51%) !important;
 	color: hsl(0, 0%, 0%) !important;
+	outline: 1px solid hsl(45, 100%, 50%);
 }
 
 /* Pagination Styles */
@@ -263,7 +272,7 @@ input[type="search"]:focus,
 	cursor: pointer;
 	transition: background-color 0.2s, color 0.2s;
 	border-radius: 10px;
-	outline: 2px solid black;
+	outline: 1px solid hsl(0, 0%, 51%);
 }
 
 .save-btn:hover {

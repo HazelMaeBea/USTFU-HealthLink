@@ -27,7 +27,7 @@ const AdminSettings = () => {
 	// Added state for search query
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
-	const usersPerPage = 5; /* Set how many users are displayed */
+	const usersPerPage = 7; /* Set how many users are displayed */
 
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
