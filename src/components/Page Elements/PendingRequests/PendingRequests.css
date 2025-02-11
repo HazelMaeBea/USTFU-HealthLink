@@ -19,6 +19,7 @@
 
 .header-content {
 	display: flex;
+	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
 	padding: 1rem 2rem;
@@ -135,9 +136,9 @@
 	width: 100%;
 	text-align: right;
 	background: transparent;
-	color:#000;
+	color: #000;
 	font-style: italic;
-  }
+}
 
 .amount-label {
 	font-style: italic;
@@ -220,8 +221,19 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	width: 100%;
+	max-width: none;
 	padding: 0.75rem 1rem;
 	border-bottom: 1px solid #ddd;
+}
+
+.attachment-filename {
+	flex-grow: 1;
+	flex-shrink: 1; /* Prevents shrinking */
+	min-width: 0; /* Ensures it expands fully */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .attachment-item:last-child {
@@ -229,6 +241,8 @@
 }
 
 .view-btn {
+	flex-shrink: 0;
+	width: auto;
 	background: #343a40;
 	color: white;
 	border: none;
@@ -247,8 +261,9 @@
 
 .approval-actions {
 	display: flex;
+	flex-direction: column;
 	justify-content: space-between;
-	align-items: flex-start;
+	align-items: center;
 	margin-top: 1rem;
 }
 
@@ -268,6 +283,7 @@
 	border-radius: 4px;
 	cursor: pointer;
 	font-weight: 500;
+	min-width: 9.5rem;
 }
 
 .approve-btn {
@@ -309,10 +325,27 @@
 	border: none;
 	height: 5px;
 	color: #ffc107 !important;
-	background-color:#ffc107;
+	background-color: #ffc107;
 	opacity: 1;
 }
 
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
+	.header-content {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
 
+	.attachment-filename {
+		max-width: 100%; /* Smaller width for mobile */
+	}
+
+	.approval-actions {
+		flex-direction: row; /* Inline buttons on larger screens */
+		justify-content: flex-start;
+	}
+
+	.send-section {
+		align-items: flex-end; /* Push SEND button to the bottom-right */
+	}
 }
