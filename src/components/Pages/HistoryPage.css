@@ -98,25 +98,25 @@
 }
 
 .history-table th:nth-child(2) {
-    width: 12%; 
+    width: 8%; 
 }
 .history-table th:nth-child(3) {
-    width: 4%;
+    width: 12%;
 }
 .history-table th:nth-child(4) {
-    width: 18%;
+    width: 4%;
 }
 .history-table th:nth-child(5) {
-    width: 5%;
+    width: 15%;
 }
 .history-table th:nth-child(6) {
-    width: 6%;
+    width: 5%;
 }
 .history-table th:nth-child(7) {
     width: 6%;
 }
 .history-table th:nth-child(8) {
-    width: 7%;
+    width: 6%;
 }
 .history-table th:last-child {
     width: 7%;
@@ -135,6 +135,10 @@
 }
 
 .date-filter-header {
+    font-size: 1.4em;
+}
+
+.filter-header {
     font-size: 1.4em;
 }
 
@@ -214,17 +218,29 @@
 	padding: 8px;
 	margin-top: 5px;
 	margin-bottom: 15px;
-	border: 1px solid #ccc;
+	border: 1px solid black;
 	border-radius: 4px;
+	background-color: white;
+	color: black;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	position: relative;
+}
+
+.date-range-popup-content input::-webkit-calendar-picker-indicator {
+	filter: invert(1); 
+    /* because the calendar icon is white */
 }
 
 .popup-buttons {
 	display: flex;
 	justify-content: space-between;
+    gap: 20px; 
 }
 
 .popup-buttons button {
-	padding: 10px 20px;
+	padding: 10px 20px !;
 	border: none;
 	border-radius: 4px;
 	cursor: pointer;
@@ -331,11 +347,13 @@
 .btn-remove-filter {
   background: none !important;
   color: black !important;
+  font-weight: 500;
   border: none;
   padding: 0;
-  font-size: 1em !important;
+  font-size: 1.5em !important;
   cursor: pointer;
   margin-left: 5px;
+  line-height: 0.5;
 }
 
 .btn-remove-filter:hover {
