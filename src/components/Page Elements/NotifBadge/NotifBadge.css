@@ -5,10 +5,10 @@
 
 .notif-badge-dot {
 	position: absolute;
-	top: 0;
+	bottom: 0;
 	right: 0;
-	width: 10px;
-	height: 10px;
+	width: 11px;
+	height: 11px;
 	border-radius: 50%;
 	background-color: red;
 	border: 2px solid white;

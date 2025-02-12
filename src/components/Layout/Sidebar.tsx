@@ -10,9 +10,9 @@ import { RiSettings5Line } from "react-icons/ri";
 import { FaRegFolderOpen } from "react-icons/fa";
 import { AiOutlineFileDone } from "react-icons/ai";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
-
 import { useState } from "react";
 import Popout from "../Page Elements/Popout/Popout";
+import NotifBadge from "../Page Elements/NotifBadge/NotifBadge";
 
 interface SidebarProps {
 	onLogout: () => Promise<void>;
@@ -23,14 +23,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
 	const { selectedRole } = useRole();
-
+	// Simulation: pending request badge state
+	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(true);
 	const navigate = useNavigate();
 
 	const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
-	const handleLogoutClick = () => {
-		setIsPopoutOpen(true);
-	};
+	const handleLogoutClick = () => setIsPopoutOpen(true);
 
 	const handleConfirm = async () => {
 		try {
@@ -41,8 +40,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		}
 	};
 
-	const handleCancel = () => {
-		setIsPopoutOpen(false);
+	const handleCancel = () => setIsPopoutOpen(false);
+
+	const handleMenuClick = (name: string, action?: () => void) => {
+		setActiveItem(name);
+		if (name === "PENDING REQUESTS") setHasNewPendingRequest(false);
+		if (action) action();
 	};
 
 	const menuItems = [
@@ -96,13 +99,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		);
 	}
 
-	console.log(menuItems);
-
 	return (
 		<>
 			<div
 				className={`sidebar-wrapper ${isCollapsed ? "collapsed" : ""}`}
-				style={{ position: "relative", zIndex: isCollapsed ? 0 : 10 }} // update z-index based on collapse state
+				style={{ position: "relative", zIndex: isCollapsed ? 0 : 10 }}
 			>
 				<button
 					onClick={toggleSidebar}
@@ -120,14 +121,23 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 								className={`menu-item ${
 									activeItem === item.name ? "active" : ""
 								}`}
-								onClick={item.action ? item.action : undefined}
 							>
 								{item.path ? (
 									<Link
 										to={item.path}
-										onClick={() => setActiveItem(item.name)}
+										onClick={() =>
+											handleMenuClick(item.name)
+										}
 									>
-										{item.icon}{" "}
+										{item.name === "PENDING REQUESTS" ? (
+											<NotifBadge
+												show={hasNewPendingRequest}
+											>
+												{item.icon}
+											</NotifBadge>
+										) : (
+											item.icon
+										)}
 										<span className="menu-text">
 											{item.name}
 										</span>
@@ -136,7 +146,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 									<Link
 										to="#"
 										className="logout-item"
-										onClick={handleLogoutClick}
+										onClick={() =>
+											handleMenuClick(
+												item.name,
+												item.action
+											)
+										}
 									>
 										{item.icon}{" "}
 										<span className="menu-text">

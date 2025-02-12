@@ -1,5 +1,5 @@
 import { useRole } from "./RoleContext";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Collapse } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./StickySidebar.css";
@@ -14,6 +14,7 @@ import { FaRegFolderOpen } from "react-icons/fa";
 import { AiOutlineFileDone } from "react-icons/ai";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import Popout from "../Page Elements/Popout/Popout.tsx";
+import NotifBadge from "../Page Elements/NotifBadge/NotifBadge"; // add import
 
 interface StickySidebarProps {
 	onLogout: () => Promise<void>;
@@ -24,8 +25,10 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 	const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
 	const { selectedRole } = useRole();
-
+	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(true);
 	const navigate = useNavigate();
+
+	const sidebarRef = useRef<HTMLDivElement>(null);
 
 	const toggleSidebar = () => {
 		setIsOpen(!isOpen);
@@ -47,6 +50,23 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 	const handleCancel = () => {
 		setIsPopoutOpen(false);
 	};
+
+	// Close sidebar on click outside (for mobile)
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				isOpen &&
+				sidebarRef.current &&
+				!sidebarRef.current.contains(event.target as Node)
+			) {
+				setIsOpen(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutside);
+		return () =>
+			document.removeEventListener("mousedown", handleClickOutside);
+	}, [isOpen]);
 
 	const menuItems = [
 		{
@@ -101,7 +121,7 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 
 	return (
 		<>
-			<div className="sticky-sidebar">
+			<div className="sticky-sidebar" ref={sidebarRef}>
 				<button
 					className="btn primary-btn toggle-button"
 					onClick={toggleSidebar}
@@ -120,17 +140,46 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 										activeItem === item.name ? "active" : ""
 									}`}
 									onClick={
-										item.action ? item.action : undefined
+										item.action
+											? () => {
+													item.action();
+													if (
+														item.name ===
+														"PENDING REQUESTS"
+													) {
+														setHasNewPendingRequest(
+															false
+														);
+													}
+											  }
+											: undefined
 									}
 								>
 									{item.path ? (
 										<Link
 											to={item.path}
-											onClick={() =>
-												setActiveItem(item.name)
-											}
+											onClick={() => {
+												setActiveItem(item.name);
+												if (
+													item.name ===
+													"PENDING REQUESTS"
+												) {
+													setHasNewPendingRequest(
+														false
+													);
+												}
+											}}
 										>
-											{item.icon}{" "}
+											{item.name ===
+											"PENDING REQUESTS" ? (
+												<NotifBadge
+													show={hasNewPendingRequest}
+												>
+													{item.icon}
+												</NotifBadge>
+											) : (
+												item.icon
+											)}{" "}
 											<span className="menu-text">
 												{item.name}
 											</span>
