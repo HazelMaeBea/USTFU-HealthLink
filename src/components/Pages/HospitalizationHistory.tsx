@@ -11,12 +11,13 @@ const HospitalizationHistory = () => {
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [showFilterPopup, setShowFilterPopup] = useState<string | null>(null);
 
+  // connect to the database
+  //dapat pagkasubmit ng forms, kung anong tab nila ginawa isasave na yon as form type
+  //para malagyan niyo ng form type dito
   const tableData = [
-    //sample data
-    //i added a few more data because when there's only 1 row. adding a filter creates a vertical scroll that adjusts the page
-    //to fix: not allowed to switch options after choosing a filter.
     {
       dateApproved: "2023-01-01",
+      formType: "Inpatient",
       name: "Zander Zara",
       age: 19,
       college: "College of Engineering",
@@ -31,6 +32,7 @@ const HospitalizationHistory = () => {
     },
     {
       dateApproved: "2023-02-15",
+      formType: "Outpatient",
       name: "Laufey Lin",
       age: 22,
       college: "College of Music",
@@ -45,6 +47,7 @@ const HospitalizationHistory = () => {
     },
     {
       dateApproved: "2023-03-10",
+      formType: "Eyeglasses",
       name: "Luke Chiang",
       age: 21,
       college: "College of Engineering",
@@ -59,6 +62,7 @@ const HospitalizationHistory = () => {
     },
     {
       dateApproved: "2023-04-05",
+      formType: "Inpatient",
       name: "Grent Perez",
       age: 23,
       college: "College of Music",
@@ -85,24 +89,29 @@ const HospitalizationHistory = () => {
 
   const applyFilters = (data: typeof tableData) => {
     return data.filter((row) => {
-      return filters.every((filter) => {
-        const [filterType, filterValue] = filter.split(": ");
-        if (filterType === "Date") {
-          const [startDate, endDate] = filterValue.split(" - ");
-          return row.dateApproved >= startDate && row.dateApproved <= endDate;
-        } else if (filterType === "College") {
-          return filterValue.split(", ").includes(row.college);
-        } else if (filterType === "Term") {
-          return filterValue.split(", ").includes(row.term);
-        } else if (filterType === "Academic Year") {
-          return filterValue.split(", ").includes(row.academicYear);
-        } else if (filterType === "Load") {
-          return filterValue.split(", ").includes(row.load);
-        } else if (filterType === "Status") {
-          return filterValue.split(", ").includes(row.status);
-        }
-        return true;
-      });
+      const matchesType =
+        selectedType === "All" || row.formType === selectedType;
+      return (
+        matchesType &&
+        filters.every((filter) => {
+          const [filterType, filterValue] = filter.split(": ");
+          if (filterType === "Date") {
+            const [startDate, endDate] = filterValue.split(" / ");
+            return row.dateApproved >= startDate && row.dateApproved <= endDate;
+          } else if (filterType === "College") {
+            return filterValue.split(", ").includes(row.college);
+          } else if (filterType === "Term") {
+            return filterValue.split(", ").includes(row.term);
+          } else if (filterType === "Academic Year") {
+            return filterValue.split(", ").includes(row.academicYear);
+          } else if (filterType === "Load") {
+            return filterValue.split(", ").includes(row.load);
+          } else if (filterType === "Status") {
+            return filterValue.split(", ").includes(row.status);
+          }
+          return true;
+        })
+      );
     });
   };
 
@@ -122,6 +131,7 @@ const HospitalizationHistory = () => {
       <table className="history-table">
         <thead className="history-table-header">
           <tr>
+            <th>Form Type</th>
             <th>Date Approved</th>
             <th>Name</th>
             <th>Age</th>
@@ -139,6 +149,7 @@ const HospitalizationHistory = () => {
         <tbody>
           {filteredData.map((row, index) => (
             <tr key={index}>
+              <td>{row.formType}</td>
               <td>{row.dateApproved}</td>
               <td>{row.name}</td>
               <td>{row.age}</td>
@@ -162,6 +173,7 @@ const HospitalizationHistory = () => {
     const csvRows = [];
     const headers = [
       "Date Approved",
+      "Form Type",
       "Name",
       "Age",
       "College",
@@ -179,6 +191,7 @@ const HospitalizationHistory = () => {
     for (const row of filteredData) {
       const values = [
         row.dateApproved,
+        row.formType,
         row.name,
         row.age,
         row.college,
@@ -222,7 +235,13 @@ const HospitalizationHistory = () => {
         const dateFilterIndex = newFilters.findIndex((filter) =>
           filter.startsWith("Date:")
         );
-        const dateFilterValue = `Date: ${dateRange.start} - ${dateRange.end}`;
+        const formatDate = (date: string) => {
+          const [year, month, day] = date.split("-");
+          return `${month}/${day}/${year}`;
+        };
+        const dateFilterValue = `Date: ${formatDate(
+          dateRange.start
+        )} - ${formatDate(dateRange.end)}`;
         if (dateFilterIndex !== -1) {
           newFilters[dateFilterIndex] = dateFilterValue;
         } else {
@@ -373,14 +392,14 @@ const HospitalizationHistory = () => {
               />
             </label>
             <div className="popup-buttons">
+              <button onClick={() => setShowDateRangePopup(false)}>
+                Cancel
+              </button>
               <button
                 onClick={handleDateRangeSubmit}
                 disabled={!isDateRangeValid}
               >
                 Submit
-              </button>
-              <button onClick={() => setShowDateRangePopup(false)}>
-                Cancel
               </button>
             </div>
           </div>
@@ -389,45 +408,96 @@ const HospitalizationHistory = () => {
       {showFilterPopup && (
         <div className="filter-popup">
           <div className="filter-popup-content">
-            <h3 className="filter-header">{showFilterPopup} Options</h3>
+            <h3 className="filter-header">Filter {showFilterPopup}</h3>
             <div className="filter-options-list">
               {showFilterPopup === "Term" &&
                 termOptions.map((option) => (
-                  <label key={option}>
-                    <input type="checkbox" value={option} />
-                    {option}
-                  </label>
+                  <div key={option} className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      value={option}
+                      id={`term-${option}`}
+                    />
+                    <label
+                      className="form-check-label"
+                      htmlFor={`term-${option}`}
+                    >
+                      {option}
+                    </label>
+                  </div>
                 ))}
               {showFilterPopup === "College" &&
                 collegeOptions.map((option) => (
-                  <label key={option}>
-                    <input type="checkbox" value={option} />
-                    {option}
-                  </label>
+                  <div key={option} className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      value={option}
+                      id={`college-${option}`}
+                    />
+                    <label
+                      className="form-check-label"
+                      htmlFor={`college-${option}`}
+                    >
+                      {option}
+                    </label>
+                  </div>
                 ))}
               {showFilterPopup === "Academic Year" &&
                 academicYearOptions.map((option) => (
-                  <label key={option}>
-                    <input type="checkbox" value={option} />
-                    {option}
-                  </label>
+                  <div key={option} className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      value={option}
+                      id={`academicYear-${option}`}
+                    />
+                    <label
+                      className="form-check-label"
+                      htmlFor={`academicYear-${option}`}
+                    >
+                      {option}
+                    </label>
+                  </div>
                 ))}
               {showFilterPopup === "Load" &&
                 loadOptions.map((option) => (
-                  <label key={option}>
-                    <input type="checkbox" value={option} />
-                    {option}
-                  </label>
+                  <div key={option} className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      value={option}
+                      id={`load-${option}`}
+                    />
+                    <label
+                      className="form-check-label"
+                      htmlFor={`load-${option}`}
+                    >
+                      {option}
+                    </label>
+                  </div>
                 ))}
               {showFilterPopup === "Status" &&
                 statusOptions.map((option) => (
-                  <label key={option}>
-                    <input type="checkbox" value={option} />
-                    {option}
-                  </label>
+                  <div key={option} className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      value={option}
+                      id={`status-${option}`}
+                    />
+                    <label
+                      className="form-check-label"
+                      htmlFor={`status-${option}`}
+                    >
+                      {option}
+                    </label>
+                  </div>
                 ))}
             </div>
             <div className="popup-buttons">
+              <button onClick={() => setShowFilterPopup(null)}>Cancel</button>
               <button
                 onClick={() =>
                   handleFilterSubmit(
@@ -442,7 +512,6 @@ const HospitalizationHistory = () => {
               >
                 Submit
               </button>
-              <button onClick={() => setShowFilterPopup(null)}>Cancel</button>
             </div>
           </div>
         </div>
