@@ -1,6 +1,6 @@
 import "./AdminSettings.css";
 import "./VerificationPage.css";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import {
 	MdOutlineKeyboardArrowLeft,
 	MdOutlineKeyboardArrowRight,
@@ -186,9 +186,12 @@ const VerificationPage = () => {
 												e.target.value
 											)
 										}
+										aria-label="Select Role"
 									>
 										<option value="MEMBER">MEMBER</option>
-										<option value="ADMIN">ADMIN</option>
+										<option value="OPERATIONS HANDLER">
+											OPEARATIONS HANDLER
+										</option>
 										{/* Add more options as needed */}
 									</select>
 								</td>
@@ -246,7 +249,11 @@ const VerificationPage = () => {
 			{/* Updated Pagination and Bulk Action Buttons */}
 			<div className="d-flex justify-content-between align-items-center mt-4">
 				<div className="d-flex align-items-center gap-2">
-					<button onClick={handlePrevPage} className="as-page-item">
+					<button
+						onClick={handlePrevPage}
+						className="as-page-item"
+						aria-label="Previous Page"
+					>
 						<MdOutlineKeyboardArrowLeft size={24} />
 					</button>
 					<input
@@ -260,8 +267,13 @@ const VerificationPage = () => {
 							textAlign: "center",
 							padding: "0.25rem",
 						}}
+						aria-label="Current Page"
 					/>
-					<button onClick={handleNextPage} className="as-page-item">
+					<button
+						onClick={handleNextPage}
+						className="as-page-item"
+						aria-label="Next Page"
+					>
 						<MdOutlineKeyboardArrowRight size={24} />
 					</button>
 				</div>

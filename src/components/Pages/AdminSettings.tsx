@@ -96,8 +96,6 @@ const AdminSettings = () => {
 	const indexOfFirstUser = indexOfLastUser - usersPerPage;
 	const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 	const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-	const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
 	if (loading) return <div>Loading...</div>;
 
 	return (
@@ -233,6 +231,7 @@ const AdminSettings = () => {
 									setCurrentPage(currentPage - 1)
 								}
 								className="as-page-item"
+								aria-label="Previous Page"
 							>
 								<MdOutlineKeyboardArrowLeft size={24} />
 							</button>
@@ -251,6 +250,7 @@ const AdminSettings = () => {
 									textAlign: "center",
 									padding: "0.25rem",
 								}}
+								aria-label="Current Page"
 							/>
 							<button
 								onClick={() =>
@@ -258,6 +258,7 @@ const AdminSettings = () => {
 									setCurrentPage(currentPage + 1)
 								}
 								className="as-page-item"
+								aria-label="Next Page"
 							>
 								<MdOutlineKeyboardArrowRight size={24} />
 							</button>

@@ -45,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		setIsPopoutOpen(false);
 	};
 
-	let menuItems = [
+	const menuItems = [
 		{
 			name: "FAQ",
 			icon: <AiOutlineQuestionCircle size={20} />,
