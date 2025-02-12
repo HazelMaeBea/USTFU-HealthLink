@@ -1,0 +1,15 @@
+.notif-badge-wrapper {
+	position: relative;
+	display: inline-block;
+}
+
+.notif-badge-dot {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background-color: red;
+	border: 2px solid white;
+}
