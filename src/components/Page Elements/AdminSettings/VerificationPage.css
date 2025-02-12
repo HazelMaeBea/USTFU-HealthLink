@@ -67,11 +67,17 @@
 }
 .verification-table th:nth-child(3),
 .verification-table td:nth-child(3) {
-	width: 30%;
+	width: 25%;
 }
 .verification-table th:nth-child(4),
 .verification-table td:nth-child(4) {
-	width: 10%;
+	width: 20%;
+}
+
+/* Verfication Role Styles */
+.verfication-role {
+	padding: 0.2rem;
+	width: 12rem;
 }
 
 /* Verification Button Styles */
@@ -88,7 +94,7 @@
 	transition: all 0.2s;
 	border-radius: 10px;
 	font-size: 0.875rem;
-	min-width: 90px;
+	min-width: 100px;
 }
 
 .approve-btn {

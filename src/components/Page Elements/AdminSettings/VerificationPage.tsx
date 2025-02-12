@@ -178,7 +178,7 @@ const VerificationPage = () => {
 								</td>
 								<td className="verfication-td">
 									<select
-										className="item-select"
+										className="item-select verfication-role"
 										value={request.role}
 										onChange={(e) =>
 											handleRoleChange(

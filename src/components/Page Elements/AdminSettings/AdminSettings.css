@@ -218,7 +218,7 @@ option {
 .burger-icon {
 	position: absolute;
 	left: 0.75rem;
-	top: 30%;
+	top: 50%;
 	transform: translateY(-50%);
 	pointer-events: none;
 	color: hsl(218, 11%, 65%);
@@ -230,7 +230,7 @@ option {
 .admin-search-icon {
 	position: absolute;
 	right: 0.75rem;
-	top: 30%;
+	top: 50%;
 	transform: translateY(-50%);
 	pointer-events: none;
 	color: hsl(218, 11%, 65%);
