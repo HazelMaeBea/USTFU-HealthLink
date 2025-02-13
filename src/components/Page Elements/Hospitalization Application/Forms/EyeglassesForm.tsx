@@ -76,6 +76,7 @@ const EyeglassesForm = () => {
 			  IssuedBy: data["issuedBy"],
 			  ApplicantSignature: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name,
 			  EmployeeED: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name,
+			  SubmittedAt: new Date(),
 			})
 		  } catch (error) {
 			console.error(error);
@@ -84,7 +85,7 @@ const EyeglassesForm = () => {
 
 	return (
 		<div className="form-body">
-			<FormHeader formType="Test Form" />
+			<FormHeader formType="Eyeglasses Form" />
 
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<p className="note">Please fill out the following boxes</p>

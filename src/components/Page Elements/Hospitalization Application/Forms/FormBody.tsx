@@ -175,6 +175,7 @@ const FormBody = () => {
 					data.employeeID[0].name,
 				DateHired: dateHired,
 				DateRetired: dateRetired,
+				SubmittedAt: new Date(),
 			});
 		} catch (error) {
 			console.error(error);
