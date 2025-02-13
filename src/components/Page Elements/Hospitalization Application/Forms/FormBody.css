@@ -43,6 +43,12 @@ fieldset.medicalFiles .form-control[type="file"] {
 	width: fit-content !important;
 }
 
+.claimRequestCount {
+	width: 60px !important;
+	font-size: 12px;
+	margin-right: 5px;
+}
+
 .btn-secondary {
 	padding: 5px 10px;
 	border-radius: 4px;
@@ -145,4 +151,52 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .fieldset-no-line {
 	border: none !important;
+}
+
+table {
+	background-color: transparent !important;
+	width: 100%;
+}
+.upload-note {
+	font-size: 1.1rem;
+	font-weight: bold;
+}
+
+.file-types {
+	color:#424141;
+}
+.claim-request {
+	margin-top: 20px !important;
+	font-weight: bold;
+}
+.claim-example {
+	font-weight: 450 !important;
+}
+.claim-example {
+	font-style: italic;
+}
+.claim-input {
+	margin-top: 5px;;
+	margin-left: 10px;
+	display: flex;
+	align-items: center;
+}
+
+.claim-request-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.claim-request {
+  margin-bottom: 10px;
+}
+
+.claim-input {
+  display: flex;
+  align-items: center;
+}
+
+.hospital-status-label {
+	font-weight: bold;
+	margin-right: 10px;
 }
