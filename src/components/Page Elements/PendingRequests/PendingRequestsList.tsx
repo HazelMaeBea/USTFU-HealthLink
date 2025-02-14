@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { PendingRequest } from "./types";
 import { mockPendingRequests } from "./mock-data";
 import "./PendingRequests.css";
@@ -9,7 +9,31 @@ import { FiCheck } from "react-icons/fi";
 import { HiOutlineX } from "react-icons/hi";
 import { FiEdit2 } from "react-icons/fi";
 
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { db } from "../../../config/firebase"
+
+const formRequestsCollection = collection(db, "FormRequests");
+const formRequestsCollectionQuery = query(formRequestsCollection, orderBy("SubmittedAt"));
+
 const PendingRequestList = () => {
+
+		const getFormsList = async () => {
+			try {
+				const data = await getDocs(formRequestsCollectionQuery);
+				const filteredData = data.docs.map((doc) => ({
+					...doc.data(),
+					id: doc.id,
+					SubmittedAt: new Date(doc.data().SubmittedAt.seconds * 1000 + doc.data().SubmittedAt.nanoseconds/1000000),
+				}));
+				console.log(filteredData);
+				return filteredData;
+			} catch (error) {
+				console.log(error)
+			}
+		}
+
+	getFormsList();
+
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 	const [requests] = useState<PendingRequest[]>(mockPendingRequests);
 

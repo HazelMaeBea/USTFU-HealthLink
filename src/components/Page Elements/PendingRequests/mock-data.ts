@@ -1,15 +1,31 @@
 import type { PendingRequest } from "./types";
+// import { collection, getDocs } from "firebase/firestore";
+// import { db } from "../../../config/firebase"
+
+// const formRequestsCollection = collection(db, "FormRequests");
+
+// export const getFormsList = async () => {
+// 	try {
+// 		const data = await getDocs(formRequestsCollection);
+// 		const filteredData = data.docs.map((doc) => ({
+// 			...doc.data(),
+// 		}));
+// 		console.log(filteredData);
+// 	} catch (error) {
+// 		console.log(error)
+// 	}
+// }
 
 export const mockPendingRequests: PendingRequest[] = [
 	{
 		transactionId: "TRN2084921934",
-		requester: "John Dela Cruz",
+		requester: "Test Dela Test",
 		dateSubmitted: "2024-10-28",
 		status: "pending",
 		formData: {
 			formType: "hospital",
-			lastname: "Dela Cruz",
-			firstname: "John",
+			lastname: "Dela Test",
+			firstname: "Test",
 			middlename: "Gold",
 			age: 27,
 			gender: "Male",
