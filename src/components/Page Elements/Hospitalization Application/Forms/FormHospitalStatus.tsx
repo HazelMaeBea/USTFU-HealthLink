@@ -15,6 +15,7 @@ const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 }) => {
 	return (
 		<>
+			<hr className="section-separator" />
 			<fieldset className="hospitalStatusFieldset">
 				<label className="form-label hospital-status-label">
 					Hospital Status:{" "}

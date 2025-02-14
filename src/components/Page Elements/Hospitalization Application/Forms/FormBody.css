@@ -248,9 +248,15 @@ table {
 /* Claim input container styling */
 .claim-input {
 	margin-top: 5px;
-	margin-left: 10px;
+	margin-left: auto;
 	display: flex;
 	align-items: center;
+	justify-content: flex-end;
+	width: 100%;
+}
+
+.claim-text {
+	margin-left: 6px;
 }
 
 /* Claim request container alignment */
@@ -278,7 +284,7 @@ table {
 	background-color: hsla(45, 100%, 51%, 0.05);
 }
 
-/* Checkbox styling */
+/* Checkbox and Radio button styling */
 .form-check-input {
 	cursor: pointer;
 	border-color: #dee2e6;
@@ -287,6 +293,16 @@ table {
 .form-check-input:checked {
 	background-color: hsl(45, 100%, 51%);
 	border-color: hsl(45, 100%, 51%);
+}
+
+/* Override default radio button color */
+.form-check-input[type="radio"]:checked {
+	background-color: hsl(45, 100%, 51%);
+	border-color: hsl(45, 100%, 51%);
+}
+
+.form-check-input[type="radio"]:focus {
+	box-shadow: 0 0 0 0.25rem hsla(45, 100%, 51%, 0.25);
 }
 
 /* Section separator styling */

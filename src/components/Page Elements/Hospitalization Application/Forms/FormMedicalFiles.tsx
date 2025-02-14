@@ -14,7 +14,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 	return (
 		<div className="document-input-container fieldset-no-line">
 			<table className="table-borderless">
-				<thead className="table-header">
+				<thead className="table-header table-header-padding">
 					<tr>
 						<th>Document</th>
 						<th className="d-flex justify-content-center">
@@ -152,38 +152,39 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 			</table>
 			<div className="claim-request-container">
 				<div className="claim-request">
-					<label htmlFor="claimRequestCount">
+					<div>
+						<label htmlFor="claimRequestCount"> </label>
 						How many claims do you want to request?
 						<br />
 						<span className="claim-example">
 							(e.g. Multiple Therapy Visits for 3 weeks, Scheduled
 							multiple operations)
 						</span>
-					</label>
-					<div className="claim-input">
-						<input
-							{...register("claimRequestCount", {
-								valueAsNumber: true,
-								min: 1,
-								max: 10,
-							})}
-							id="claimRequestCount"
-							type="number"
-							className="form-control claimRequestCount"
-							placeholder="1-10"
-						/>
-						{errors.claimRequestCount && (
-							<p className="text-danger">
-								{errors.claimRequestCount.message}
-							</p>
-						)}
-						<span
-							className="claim-text"
-							style={{ fontWeight: "normal" }}
-						>
-							{" "}
-							claims
-						</span>
+						<div className="claim-input">
+							<input
+								{...register("claimRequestCount", {
+									valueAsNumber: true,
+									min: 1,
+									max: 10,
+								})}
+								id="claimRequestCount"
+								type="number"
+								className="form-control claimRequestCount"
+								placeholder="1-10"
+							/>
+							{errors.claimRequestCount && (
+								<p className="text-danger">
+									{errors.claimRequestCount.message}
+								</p>
+							)}
+							<span
+								className="claim-text"
+								style={{ fontWeight: "normal" }}
+							>
+								{" "}
+								claims
+							</span>
+						</div>
 					</div>
 				</div>
 			</div>
