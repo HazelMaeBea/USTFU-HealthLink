@@ -81,6 +81,7 @@
     border-collapse: collapse;
     margin-top: 20px;
     table-layout: fixed; /* Because it changes size when you use the search bar */
+    background: none; /* Remove the background */
 }
 
 .history-table th,

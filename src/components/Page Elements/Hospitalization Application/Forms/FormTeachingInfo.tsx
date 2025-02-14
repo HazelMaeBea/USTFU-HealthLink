@@ -140,7 +140,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 				<div className="mb-1 col-md-3">
 					<div className="mb-1 col-md-12">
 						<label htmlFor="dateHired" className="form-label">
-							If Tenure-Track, please input DATE HIRED:
+							If Tenure-Track, please input DATE <br />HIRED:
 						</label>
 						<DatePicker
 							selected={dateHired}
@@ -160,7 +160,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 					</div>
 					<div className="mb-1 col-md-12">
 						<label htmlFor="dateRetired" className="form-label">
-							If Retiree, please input DATE RETIRED:
+							If Retiree, please input DATE <br />RETIRED:
 						</label>
 						<DatePicker
 							selected={dateRetired}

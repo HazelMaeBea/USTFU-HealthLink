@@ -86,6 +86,7 @@ const AdmissionForm = () => {
 			  Gender: data["gender"],
         Status: data["status"],
         Load: data["load"],
+        SubmittedAt: new Date(),
 			})
 		  } catch (error) {
 			console.error(error);

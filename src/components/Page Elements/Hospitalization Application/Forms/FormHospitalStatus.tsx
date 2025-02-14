@@ -15,6 +15,7 @@ const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 }) => {
   return (
     <fieldset className="hospitalStatusFieldset">
+      <label className="form-label hospital-status-label">Hospital Status: </label>
       {hospitalStatusOptions.map((option, index) => (
         <div key={index} className="form-check form-check-inline">
           <input
