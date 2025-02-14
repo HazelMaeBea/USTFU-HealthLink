@@ -1,44 +1,65 @@
+/* General form padding */
 .form-body {
 	padding: 50px 80px;
+	background-color: white;
 }
 
+/* Fieldset styling with a top border */
 fieldset {
 	border: none;
-	border-top: 1px solid black !important;
+	border-top: 2px solid hsl(45, 100%, 51%) !important;
 	margin-top: 20px !important;
 	padding-top: 20px !important;
 }
 
+/* Error/Note styling */
 .note {
 	color: red;
 	font-size: 15px;
+	font-style: italic;
 	margin-bottom: 8px;
 }
 
+/* Medical Files: Row alignment */
 fieldset.medicalFiles .row {
 	align-items: center;
 	margin: -15px 0;
 }
 
-fieldset.medicalFiles .form-control[type="file"] {
-	width: auto;
-	height: 35px;
-	padding: 5px 10px;
-	font-size: 14px;
-	border-radius: 4px;
-	border: 1px solid #ccc;
-	transition: border-color 0.3s ease;
+.form-control,
+.form-select {
+	background-color: hsl(0, 0%, 98%) !important;
 }
+
+/* Placeholder styling */
+::placeholder {
+	font-style: italic;
+	color: hsl(0, 0%, 76%) !important;
+}
+
+/* Options Placeholder styling */
+.option-placeholder {
+	font-style: italic !important;
+	color: hsl(0, 0%, 82%) !important;
+}
+
+/* Medical Files: File input styling (consolidated duplicate rules) */
 fieldset.medicalFiles .form-control[type="file"] {
 	width: auto;
 	height: 35px;
 	padding: 5px 10px;
 	font-size: 14px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
 	border-radius: 4px;
 	border: 1px solid #ccc;
+	-webkit-transition: border-color 0.3s ease;
+	-moz-transition: border-color 0.3s ease;
+	-o-transition: border-color 0.3s ease;
 	transition: border-color 0.3s ease;
 }
 
+/* Claim request and count styling */
 .claimRequest {
 	width: fit-content !important;
 }
@@ -49,11 +70,17 @@ fieldset.medicalFiles .form-control[type="file"] {
 	margin-right: 5px;
 }
 
+/* Secondary button styling */
 .btn-secondary {
 	padding: 5px 10px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
 	border-radius: 4px;
 	border: 1px solid #ccc;
 	background-color: #f0f0f0;
+	-webkit-transition: background-color 0.3s ease, border-color 0.3s ease;
+	-moz-transition: background-color 0.3s ease, border-color 0.3s ease;
+	-o-transition: background-color 0.3s ease, border-color 0.3s ease;
 	transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -62,10 +89,12 @@ fieldset.medicalFiles .form-control[type="file"] {
 	border-color: #bbb;
 }
 
+/* Upload disclaimer styling */
 fieldset.uploadDisclaimer {
 	margin-bottom: -20px;
 }
 
+/* Certification checkbox inline styling */
 .certify .form-check-inline {
 	display: flex;
 	align-items: flex-start;
@@ -81,10 +110,14 @@ fieldset.uploadDisclaimer {
 	margin-left: 5px;
 }
 
+/* Enable vertical scroll and set whole page background to white */
 body {
-	overflow-y: scroll; /* why is is not working */
+	overflow-y: scroll;
+	-webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+	background-color: white;
 }
 
+/* Buttons container styling */
 .buttonDiv {
 	margin-top: 50px;
 	display: flex;
@@ -114,22 +147,24 @@ body {
 	border: 1px solid black;
 }
 
-/* removes arrows from number input */
-/* only for Chrome, Safari, Edge, Opera */
+/* Remove number input arrows */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
 	-webkit-appearance: none;
 	margin: 0;
 }
 
+/* Admission teaching alignment */
 .admissionTeaching {
 	align-items: center;
 }
 
+/* Claim count styling */
 .claimCount * {
 	margin-top: 10px;
 }
 
+/* Responsive styling for smaller screens */
 @media screen and (max-width: 768px) {
 	.form-body {
 		padding: 0.5rem;
@@ -149,53 +184,56 @@ input[type="number"]::-webkit-inner-spin-button {
 	}
 }
 
+/* Remove fieldset border */
 .fieldset-no-line {
 	border: none !important;
 }
 
+/* Table styling */
 table {
 	background-color: transparent !important;
 	width: 100%;
 }
+
+/* Upload note styling */
 .upload-note {
 	font-size: 1.1rem;
 	font-weight: bold;
 }
 
+/* File types label styling */
 .file-types {
-	color:#424141;
+	color: #424141;
 }
+
+/* Claim request title styling */
 .claim-request {
 	margin-top: 20px !important;
 	font-weight: bold;
+	margin-bottom: 10px;
 }
+
+/* Claim example styling */
 .claim-example {
 	font-weight: 450 !important;
-}
-.claim-example {
 	font-style: italic;
 }
+
+/* Claim input container styling */
 .claim-input {
-	margin-top: 5px;;
+	margin-top: 5px;
 	margin-left: 10px;
 	display: flex;
 	align-items: center;
 }
 
+/* Claim request container alignment */
 .claim-request-container {
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
-.claim-request {
-  margin-bottom: 10px;
-}
-
-.claim-input {
-  display: flex;
-  align-items: center;
-}
-
+/* Hospital status label styling */
 .hospital-status-label {
 	font-weight: bold;
 	margin-right: 10px;

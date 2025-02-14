@@ -1,47 +1,47 @@
+/* Form header container styling */
 .form-header {
-    background-color: #EDEDED;
-    color:black;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-    width: 100%;
-    box-sizing: border-box;
+	background-color: white;
+	color: black;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	padding: 20px;
+	width: 100%;
+	box-sizing: border-box;
 }
 
+/* Logo image styling */
 .logo {
-    width: 100px;
-    height: 100px;
+	width: 100px;
+	height: 100px;
 }
 
+/* Header text styles for title */
 .header-text h1 {
-    text-align: center;
-    font-family: 'Roboto', sans-serif;
-    font-size: 18px;
-    font-weight: bold;
-    margin: -5px 80px;
-
-
+	text-align: center;
+	font-family: "Roboto", sans-serif;
+	font-size: 18px;
+	font-weight: bold;
+	margin: -5px 80px;
 }
 
+/* Responsive adjustments for header on small screens */
 @media screen and (max-width: 768px) {
-    .form-header {
-        flex-direction: row;
-        align-items: center;
-    }
-
-    .header-text h1 {
-        margin: 0 2px 0 2px;
-    }
-
-    .logo {
-        width: 80px;
-        height: 80px;
-    }
-    
+	.form-header {
+		flex-direction: row;
+		align-items: center;
+	}
+	.header-text h1 {
+		margin: 0 2px;
+	}
+	.logo {
+		width: 80px;
+		height: 80px;
+	}
 }
 
+/* Table header border styling */
 .table-header {
-    border-bottom: 1px solid black;
+	border-bottom: 1px solid black;
 }
