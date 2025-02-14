@@ -191,6 +191,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 					)}
 				</div>
 			</div>
+			<hr className="section-separator" />
 		</fieldset>
 	);
 };
