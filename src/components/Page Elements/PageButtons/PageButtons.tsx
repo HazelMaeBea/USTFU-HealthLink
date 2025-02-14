@@ -43,8 +43,6 @@ const PageButtons: React.FC<PageButtonsProps> = ({
 
 	return (
 		<div className="page-buttons-wrapper">
-			{" "}
-			{/* new wrapper container */}
 			<div className="page-buttons">
 				<button
 					className="prev-button"

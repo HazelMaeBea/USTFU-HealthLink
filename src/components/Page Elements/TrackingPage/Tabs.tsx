@@ -1,32 +1,29 @@
-import React, { ReactElement, useState } from 'react';
-import TabTitle from './TabTitle';
+// This component renders tab navigation with a controlled activeTab state and calls onTabChange when a tab title is clicked.
+import React, { ReactElement } from "react";
+import TabTitle from "./TabTitle";
 
 type Props = {
-    children: ReactElement[];
+	activeTab: number;
+	onTabChange: (index: number) => void;
+	children: ReactElement[];
 };
 
-const Tabs: React.FC<Props> = ({ children }) => {
-    const [activeTab, setActiveTab] = useState(0);
-
-    const handleTabClick = (index: number) => {
-        setActiveTab(index);
-    };
-
-    return (
-        <div className="TrackingTabs">
-            <div className="tab-titles">
-                {children.map((item, index) => (
-                    <TabTitle
-                        key={index}
-                        title={item.props.title}
-                        isActive={activeTab === index}
-                        onClick={() => handleTabClick(index)}
-                    />
-                ))}
-            </div>
-            {children[activeTab]}
-        </div>
-    );
+const Tabs: React.FC<Props> = ({ activeTab, onTabChange, children }) => {
+	return (
+		<div className="TrackingTabs">
+			<div className="tab-titles">
+				{children.map((item, index) => (
+					<TabTitle
+						key={index}
+						title={item.props.title}
+						isActive={activeTab === index}
+						onClick={() => onTabChange(index)}
+					/>
+				))}
+			</div>
+			{children[activeTab]}
+		</div>
+	);
 };
 
 export default Tabs;
