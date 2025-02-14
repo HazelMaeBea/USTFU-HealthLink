@@ -300,3 +300,56 @@ option {
 	color: rgb(255, 255, 255);
 	outline: 2px solid hsl(45, 100%, 68%);
 }
+
+@media (max-width: 480px) {
+	.ustfu-as-btn {
+		padding: 0.5rem 0.75rem;
+		font-size: 0.8rem;
+		min-width: auto;
+	}
+	.tab-btn {
+		width: 100%;
+		margin-bottom: 0.5rem;
+		text-align: center;
+	}
+	.admin-settings-container {
+		padding: 1rem;
+	}
+	.ustfu-as-btn,
+	.tab-btn {
+		width: 100%;
+		margin-bottom: 0.5rem;
+		font-size: 0.8rem;
+	}
+	/* Ensure tables are scrollable if needed */
+	.user-mngmnt-table {
+		overflow-x: auto;
+		display: block;
+	}
+}
+
+@media (min-width: 481px) and (max-width: 1024px) {
+	.admin-settings-container {
+		padding: 1.25rem;
+	}
+	.ustfu-as-btn,
+	.tab-btn {
+		font-size: 0.9rem;
+	}
+	.user-mngmnt-table {
+		overflow-x: auto;
+	}
+}
+
+@media (min-width: 1920px) {
+	.admin-settings-container {
+		max-width: 1600px;
+		margin: 0 auto;
+		padding: 2rem;
+	}
+	.ustfu-as-btn,
+	.tab-btn {
+		font-size: 1.1rem;
+		padding: 0.75rem 1.25rem;
+	}
+}

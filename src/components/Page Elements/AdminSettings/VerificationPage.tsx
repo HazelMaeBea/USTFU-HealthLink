@@ -114,10 +114,6 @@ const VerificationPage = () => {
 	const handleNextPage = () => {
 		if (currentPage < totalPages) setCurrentPage(currentPage + 1);
 	};
-	const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const val = Number(e.target.value);
-		if (val >= 1 && val <= totalPages) setCurrentPage(val);
-	};
 
 	return (
 		<div>
@@ -246,38 +242,55 @@ const VerificationPage = () => {
 				</table>
 			</div>
 
-			{/* Updated Pagination and Bulk Action Buttons */}
-			<div className="d-flex justify-content-between align-items-center mt-4">
-				<div className="d-flex align-items-center gap-2">
-					<button
-						onClick={handlePrevPage}
-						className="as-page-item"
-						aria-label="Previous Page"
-					>
-						<MdOutlineKeyboardArrowLeft size={24} />
-					</button>
-					<input
-						type="number"
-						min={1}
-						max={totalPages}
-						value={currentPage}
-						onChange={handlePageInputChange}
-						style={{
-							width: "2rem",
-							textAlign: "center",
-							padding: "0.25rem",
-						}}
-						aria-label="Current Page"
-					/>
-					<button
-						onClick={handleNextPage}
-						className="as-page-item"
-						aria-label="Next Page"
-					>
-						<MdOutlineKeyboardArrowRight size={24} />
-					</button>
+			{/* Updated container: aligned far left */}
+			<div className="d-flex justify-content-start align-items-center mt-4 gap-4">
+				<div className="page-buttons-wrapper">
+					<div className="page-buttons">
+						<button
+							className="prev-button"
+							onClick={handlePrevPage}
+							disabled={currentPage <= 1}
+							aria-label="Previous Page"
+						>
+							<MdOutlineKeyboardArrowLeft
+								color="black"
+								size={20}
+							/>
+						</button>
+						<div className="page-input-container">
+							<input
+								className="current-page-input"
+								type="text"
+								value={currentPage.toString()}
+								onChange={(e) => {
+									const val = Number(e.target.value);
+									if (val >= 1 && val <= totalPages)
+										setCurrentPage(val);
+								}}
+								onBlur={(e) => {
+									if (e.target.value === "") {
+										setCurrentPage(1);
+									}
+								}}
+								placeholder={currentPage.toString()}
+							/>
+							<span className="page-input-suffix">
+								of {totalPages}
+							</span>
+						</div>
+						<button
+							className="next-button"
+							onClick={handleNextPage}
+							disabled={currentPage >= totalPages}
+							aria-label="Next Page"
+						>
+							<MdOutlineKeyboardArrowRight
+								color="white"
+								size={20}
+							/>
+						</button>
+					</div>
 				</div>
-
 				<div className="d-flex gap-2">
 					<button
 						className="bulk-btn bulk-approve"

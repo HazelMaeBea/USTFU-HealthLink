@@ -125,7 +125,7 @@
 	transition: all 0.2s;
 	background-color: black;
 	color: white;
-	min-width: 90px;
+	min-width: 200px;
 }
 
 .bulk-approve {
@@ -184,4 +184,74 @@
 	background-color: hsl(0, 0%, 0%);
 	color: hsl(45, 100%, 51%);
 	border-color: hsl(0, 0%, 0%);
+}
+
+.verification-page .page-buttons-wrapper {
+	text-align: left;
+}
+
+.verification-page .page-buttons {
+	justify-content: flex-start;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+	.verification-table {
+		overflow-x: auto;
+		font-size: 0.75rem;
+	}
+	.verfication-role {
+		width: 100%;
+	}
+	.verification-btn {
+		min-width: auto;
+		padding: 0.4rem 0.5rem;
+		font-size: 0.75rem;
+	}
+	.bulk-btn {
+		min-width: auto;
+		padding: 0.5rem 1rem;
+		font-size: 0.75rem;
+	}
+	/* Stack pagination and bulk buttons vertically */
+	.d-flex.justify-content-start {
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+}
+
+@media (min-width: 481px) and (max-width: 1024px) {
+	.verification-table {
+		overflow-x: auto;
+		font-size: 0.85rem;
+	}
+	.verfication-role {
+		width: auto;
+	}
+	.verification-btn {
+		padding: 0.45rem 0.75rem;
+		font-size: 0.8rem;
+	}
+	.bulk-btn {
+		padding: 0.5rem 1rem;
+		font-size: 0.8rem;
+	}
+	/* Keep controls side-by-side on tablets */
+	.d-flex.justify-content-start {
+		flex-direction: row;
+	}
+}
+
+@media (min-width: 1920px) {
+	.verification-table {
+		font-size: 1rem;
+	}
+	.verification-btn {
+		padding: 0.5rem 1rem;
+		font-size: 0.9rem;
+	}
+	.bulk-btn {
+		padding: 0.5rem 3rem;
+		font-size: 0.9rem;
+	}
 }
