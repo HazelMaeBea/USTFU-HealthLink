@@ -7,13 +7,10 @@ import { db, auth } from "../../config/firebase";
 import { BsCheckAll } from "react-icons/bs";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
-import {
-	MdOutlineKeyboardArrowLeft,
-	MdOutlineKeyboardArrowRight,
-} from "react-icons/md";
 
 import Popout from "../Page Elements/Popout/Popout";
 import VerificationPage from "../Page Elements/AdminSettings/VerificationPage";
+import PageButtons from "../Page Elements/PageButtons/PageButtons";
 
 interface User {
 	displayName: string;
@@ -222,48 +219,12 @@ const AdminSettings = () => {
 							))}
 						</tbody>
 					</table>
-					{/* Updated Pagination for User Management */}
-					<div className="pagination">
-						<div className="d-flex align-items-center gap-2">
-							<button
-								onClick={() =>
-									currentPage > 1 &&
-									setCurrentPage(currentPage - 1)
-								}
-								className="as-page-item"
-								aria-label="Previous Page"
-							>
-								<MdOutlineKeyboardArrowLeft size={24} />
-							</button>
-							<input
-								type="number"
-								min={1}
-								max={totalPages}
-								value={currentPage}
-								onChange={(e) => {
-									const val = Number(e.target.value);
-									if (val >= 1 && val <= totalPages)
-										setCurrentPage(val);
-								}}
-								style={{
-									width: "2rem",
-									textAlign: "center",
-									padding: "0.25rem",
-								}}
-								aria-label="Current Page"
-							/>
-							<button
-								onClick={() =>
-									currentPage < totalPages &&
-									setCurrentPage(currentPage + 1)
-								}
-								className="as-page-item"
-								aria-label="Next Page"
-							>
-								<MdOutlineKeyboardArrowRight size={24} />
-							</button>
-						</div>
-					</div>
+					{/* Replace inline pagination with global PageButtons */}
+					<PageButtons
+						currentPage={currentPage}
+						totalPages={totalPages}
+						onPageChange={(page) => setCurrentPage(page)}
+					/>
 				</>
 			)}
 

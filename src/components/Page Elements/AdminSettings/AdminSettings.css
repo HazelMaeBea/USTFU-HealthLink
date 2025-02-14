@@ -96,7 +96,6 @@ input[type="search"]:focus,
 .item-select:focus {
 	outline: none;
 	border-color: hsl(45, 100%, 51%);
-	box-shadow: 0 0 5px hsl(45, 100%, 51%);
 }
 
 option {
