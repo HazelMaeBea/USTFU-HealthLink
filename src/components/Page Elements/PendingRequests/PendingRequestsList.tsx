@@ -8,11 +8,42 @@ import { RiArrowRightSFill } from "react-icons/ri";
 import { FiCheck } from "react-icons/fi";
 import { HiOutlineX } from "react-icons/hi";
 import { FiEdit2 } from "react-icons/fi";
+import Popout from "../Popout/Popout";
 
 const PendingRequestList = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [requests] = useState<PendingRequest[]>(mockPendingRequests);
-  const [showCommentBox, setShowCommentBox] = useState<"reject" | "revise" | null>(null);
+  const [showCommentBox, setShowCommentBox] = useState<string | null>(null);
+  const [activeDecision, setActiveDecision] = useState<string | null>(null);
+  const [showPopout, setShowPopout] = useState<boolean>(false);
+
+  const handleAction = (action: "approval" | "rejection" | "for revision") => {
+    setActiveDecision(action); // Store the decision type
+
+    if (action === "rejection") {
+      setShowCommentBox("Reason for rejection...");
+    } else if (action === "for revision") {
+      setShowCommentBox("Reason for revision...");
+    } else {
+      setShowCommentBox(null); // Hide comment box when approving
+      setShowPopout(true);
+    }
+  };
+
+  const handleSendClick = () => {
+    if (!activeDecision) return; // Prevent sending if no action is selected
+    setShowPopout(true); // Open confirmation popout
+  };
+
+  const handleConfirm = () => {
+    console.log(`Confirmed: ${activeDecision}`);
+    setShowPopout(false); // Close the popout after confirmation
+    setShowCommentBox(null);
+  };
+
+  const handleCancel = () => {
+    setShowPopout(false); // Close popout without confirming
+  };
 
   const renderFormFields = (request: PendingRequest) => {
     const { formData } = request;
@@ -349,20 +380,23 @@ const PendingRequestList = () => {
                 {/* Action Buttons - Centered on small screens, inline on larger screens */}
                 <div className="approval-actions-container">
                   <div className="approval-actions">
-                    <button className="approve-btn d-flex align-items-center justify-content-center">
+                    <button
+                      className="approve-btn d-flex align-items-center justify-content-center"
+                      onClick={() => handleAction("approval")}
+                    >
                       <FiCheck size={20} />
                       <span className="ms-2">Approve</span>
                     </button>
                     <button
                       className="reject-btn d-flex align-items-center justify-content-center"
-                      onClick={() => setShowCommentBox("reject")}
+                      onClick={() => handleAction("rejection")}
                     >
                       <HiOutlineX size={20} />
                       <span className="ms-2">Reject</span>
                     </button>
                     <button
                       className="revise-btn d-flex align-items-center justify-content-center"
-                      onClick={() => setShowCommentBox("revise")}
+                      onClick={() => handleAction("for revision")}
                     >
                       <FiEdit2 size={20} />
                       <span className="ms-2">To Revise</span>
@@ -372,11 +406,9 @@ const PendingRequestList = () => {
                   {/* Comment Box Appears Only If Reject or Revise is Clicked */}
                   {showCommentBox && (
                     <textarea
-                      className="comment-box"
-                      placeholder={`Enter reason for ${
-                        showCommentBox === "reject" ? "rejection" : "revision"
-                      }...`}
-                    ></textarea>
+                    className="comment-box"
+                    placeholder={showCommentBox}
+                  />
                   )}
                 </div>
 
@@ -386,13 +418,24 @@ const PendingRequestList = () => {
                     ** Clicking the send button will finalize the decision and
                     notify the requester. This action is irreversible.
                   </p>
-                  <button className="send-btn">SEND</button>
+                  <button className="send-btn" onClick={handleSendClick}>
+                    SEND
+                  </button>
                 </div>
               </div>
             </div>
           )}
         </div>
       ))}
+      {showPopout && (
+        <Popout
+          title="Confirm Decision"
+          message={`Send out ${activeDecision} notice?`}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+          isOpen={showPopout}
+        />
+      )}
     </div>
   );
 };
