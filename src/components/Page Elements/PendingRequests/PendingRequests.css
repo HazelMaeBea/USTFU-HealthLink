@@ -1,361 +1,464 @@
 .pending-requests {
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .pending-request {
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	background: #fff;
-	margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  margin-bottom: 1rem;
 }
 
 .request-header {
-	background: #f8f9fa;
-	cursor: pointer;
-	border-bottom: 1px solid #ddd;
+  background: #f8f9fa;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
 }
 
 .header-content {
-	display: grid;
-	grid-template-columns: 1.5fr 1.3fr 1fr auto; /* Default: Single column for mobile */
-	align-items: center;
-	padding: 1rem 2rem;
-	width: 100%;
-	gap: 0.5rem; /* Adds spacing between elements */
-	text-align: left;
+  display: grid;
+  grid-template-columns: 1.5fr 1.3fr 1fr auto; /* Default: Single column for mobile */
+  align-items: center;
+  padding: 1rem 2rem;
+  width: 100%;
+  gap: 0.5rem; /* Adds spacing between elements */
+  text-align: left;
 }
 
 .arrow {
-	justify-self: end;
+  justify-self: end;
 }
 
 .request-content {
-	padding: 2rem;
+  padding: 2rem;
 }
 
 .form-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 1.5rem;
-	margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .form-group {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .form-group label {
-	font-size: 0.875rem;
-	color: #666;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.form-group input {
+  background-color: #fff;
+  color: #000;
+  border: 0.5px solid #888888;
 }
 
 .field-value {
-	color: black;
-	padding: 0.5rem;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	background: #f8f9fa;
-	width: 100%;
+  color: black;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f8f9fa;
+  width: 100%;
 }
 
 .hospital-certification {
-	background: #f8f9fa;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	margin: 2rem 0;
-	padding: 1.5rem;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 2rem 0;
+  padding: 1.5rem;
 }
 
 .certification-header {
-	font-weight: bold;
-	margin-bottom: 1rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
 }
 
 .certification-content {
-	margin-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .benefit-options {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
 }
 
 .radio-option {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .benefit-amount {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
 }
 
 .amount {
-	min-width: min-content;
+  min-width: min-content;
 }
 
 .amount-container {
-	background: white;
-	border-radius: 10px;
-	padding: 0px;
-	width: 90%; /* Adjusts width based on screen size */
-	max-width: 13rem; /* Prevents it from becoming too large */
-	border: 1px solid #ccc;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	height: auto;
+  background: white;
+  border-radius: 10px;
+  padding: 0px;
+  width: 90%; /* Adjusts width based on screen size */
+  max-width: 13rem; /* Prevents it from becoming too large */
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: auto;
 }
 
 .amount-input-wrapper {
-	display: flex;
-	align-items: center;
-	background: white;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	padding: 8px 12px;
-	width: 100%;
-	max-width: 250px;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 250px;
 }
 
 .currency {
-	font-size: 1.1rem;
-	font-style: italic;
-	margin-right: 8px;
-	white-space: nowrap;
+  font-size: 1.1rem;
+  font-style: italic;
+  margin-right: 8px;
+  white-space: nowrap;
 }
 
 .amount-input {
-	border: none;
-	outline: none;
-	font-size: 1rem;
-	font-style: italic;
-	width: 100%;
-	text-align: right;
-	background: transparent;
-	color: #000;
-	font-style: italic;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  font-style: italic;
+  width: 100%;
+  text-align: right;
+  background: transparent;
+  color: #000;
+  font-style: italic;
 }
 
 .amount-label {
-	font-style: italic;
-	color: gray;
-	font-size: 0.9rem;
-	margin-top: 5px;
+  font-style: italic;
+  color: gray;
+  font-size: 0.9rem;
+  margin-top: 5px;
 }
 
 .check-history-btn {
-	background: #343a40;
-	color: white;
-	border: none;
-	padding: 0.5rem 1rem;
-	border-radius: 4px;
-	cursor: pointer;
+  background: #343a40;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .signature {
-	min-width: min-content;
-	max-width: fit-content;
+  min-width: min-content;
+  max-width: fit-content;
+}
+
+.signature-name-input {
+  color: #000;
+  border: none;
+  border-bottom: 2px solid black; /* Mimic a signature line */
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  background: transparent;
+  outline: none;
+  width: 100%;
+}
+
+.signature-name-input:focus {
+  border-bottom: 2px solid black; /* Highlight on focus */
 }
 
 .signature-section {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	margin-top: 2rem;
-	padding-top: 2rem;
-	border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #ddd;
 }
 
 .upload-box {
-	border: 1px dashed #666;
-	padding: 2rem;
-	text-align: center;
-	border-radius: 4px;
+  border: 1px dashed #666;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 4px;
 }
 
 .upload-btn {
-	background: #343a40;
-	color: white;
-	border: none;
-	padding: 0.5rem 2rem;
-	border-radius: 4px;
-	margin-top: 1rem;
-	cursor: pointer;
+  background: #343a40;
+  color: white;
+  border: none;
+  padding: 0.5rem 2rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+  cursor: pointer;
 }
 
 .signature-details {
-	text-align: center;
-	justify-content: center;
-	align-items: center;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .signature-name {
-	font-weight: bold;
-	margin-bottom: 0.25rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
 }
 
 .signature-title {
-	margin-bottom: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .signature-subtitle {
-	font-size: 0.875rem;
-	color: #666;
+  font-size: 0.875rem;
+  color: #666;
 }
 
 .attachments-section {
-	margin: 2rem 0;
+  margin: 2rem 0;
 }
 
 .attachment-list {
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .attachment-item {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	width: 100%;
-	max-width: none;
-	padding: 0.75rem 1rem;
-	border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: none;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #ddd;
 }
 
 .attachment-filename {
-	flex-grow: 1;
-	flex-shrink: 1; /* Prevents shrinking */
-	min-width: 0; /* Ensures it expands fully */
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+  flex-grow: 1;
+  flex-shrink: 1; /* Prevents shrinking */
+  min-width: 0; /* Ensures it expands fully */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .attachment-item:last-child {
-	border-bottom: none;
+  border-bottom: none;
 }
 
 .view-btn {
-	flex-shrink: 0;
-	width: auto;
-	background: #343a40;
-	color: white;
-	border: none;
-	padding: 0.25rem 1rem;
-	border-radius: 4px;
-	cursor: pointer;
+  flex-shrink: 0;
+  width: auto;
+  background: #343a40;
+  color: white;
+  border: none;
+  padding: 0.25rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .approval-section {
-	background: #f8f9fa;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	padding: 1.5rem;
-	margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  width: 100%;
 }
 
+.approval-section h4 {
+  text-align: center;
+  margin-bottom: 0.625rem;
+}
+
+.approval-actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 1.25rem;
+}
+
+/* Action Buttons */
 .approval-actions {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
 }
 
 .action-buttons {
-	display: flex;
-	gap: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .approve-btn,
 .reject-btn,
 .revise-btn {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.75rem 1.5rem;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-	font-weight: 500;
-	min-width: 9.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  min-width: 10rem;
 }
 
 .approve-btn {
-	background: #28a745;
-	color: white;
+  background: #28a745;
+  color: white;
+}
+
+.approve-btn:hover {
+  background-color: hsl(134, 100%, 79%);
+  color: black;
+  outline: 2px solid hsl(134, 61%, 85%);
 }
 
 .reject-btn {
-	background: #dc3545;
-	color: white;
+  background: #dc3545; /* Red */
+  color: white;
+}
+
+.reject-btn:hover {
+  background-color: hsl(354, 100%, 79%); /* Lighter Red */
+  color: black;
+  outline: 2px solid hsl(354, 61%, 85%); /* Soft border */
 }
 
 .revise-btn {
-	background: #ffc107;
-	color: #000;
+  background: #ffc107; /* Yellow */
+  color: #000;
 }
 
+.revise-btn:hover {
+  background-color: hsl(45, 100%, 79%); /* Lighter Yellow */
+  color: black;
+  outline: 2px solid hsl(45, 61%, 85%); /* Soft border */
+}
+
+.comment-box {
+	height: 100%; /* Allows it to match parent height */
+	min-height: 8.5rem; /* Adjust based on button size */
+	width: 100%;
+	padding: 0.75rem;
+	border-radius: 0.5rem;
+	border: 0.063rem solid #ccc;
+	font-size: 1rem;
+	resize: none;
+	display: flex;
+	align-items: center;
+	background-color: white;
+	color:#000;
+  }
+  
+  /* Ensure parent container matches button height */
+  .comment-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 8.5rem; /* Adjust based on button height */
+  }
+
 .send-section {
-	text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.25rem;
 }
 
 .send-note {
-	font-size: 0.875rem;
-	color: #666;
-	margin-bottom: 1rem;
-	font-style: italic;
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-style: italic;
 }
 
 .send-btn {
-	background: #343a40;
-	color: white;
-	border: none;
-	padding: 0.75rem 2rem;
-	border-radius: 4px;
-	cursor: pointer;
+  background: #343a40;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .yellow {
-	border: none;
-	height: 5px;
-	color: #ffc107 !important;
-	background-color: #ffc107;
-	opacity: 1;
+  border: none;
+  height: 5px;
+  color: #ffc107 !important;
+  background-color: #ffc107;
+  opacity: 1;
 }
 
 @media screen and (max-width: 768px) {
-	.header-content {
-		grid-template-columns: 1fr;
-		text-align: center; /* Center the text */
-		justify-items: center; /* Center grid items */
-	}
+  .header-details {
+    display: none; /* Hides the header details */
+  }
 
-	.arrow {
-		justify-self: center; /* Centers the arrow */
-	}
+  .arrow {
+    justify-self: center; /* Centers the arrow */
+  }
 
-	.attachment-filename {
-		max-width: 100%; /* Smaller width for mobile */
-	}
+  .attachment-filename {
+    max-width: 100%; /* Smaller width for mobile */
+  }
 
-	.approval-actions {
-		flex-direction: row; /* Inline buttons on larger screens */
-		justify-content: flex-start;
-	}
+  .approval-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-	.send-section {
-		align-items: flex-end; /* Push SEND button to the bottom-right */
-	}
+  .approval-actions-container {
+    flex-direction: column; /* Stack buttons and comment box */
+    align-items: center;
+    width: 100%;
+  }
+
+  .approval-actions {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .comment-box {
+    width: 80%; /* Adjust width for better UI */
+    max-width: 25rem;
+    align-self: center;
+    margin-top: 0.5rem; /* Add spacing */
+  }
+
+  .send-section {
+    align-items: center; /* Center send button */
+    text-align: center;
+  }
 }
