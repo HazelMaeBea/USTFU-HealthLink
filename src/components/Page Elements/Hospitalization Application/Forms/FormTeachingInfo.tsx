@@ -68,11 +68,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
                 <label htmlFor="term" className="form-label">
                   Academic Term
                 </label>
-                <select
-                  {...register("term")}
-                  id="term"
-                  className="form-select"
-                >
+                <select {...register("term")} id="term" className="form-select">
                   <option value="" disabled selected hidden></option>
                   {termOptions.map((option, index) => (
                     <option key={index} value={option}>
@@ -88,11 +84,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
                 <label htmlFor="year" className="form-label">
                   Academic Year
                 </label>
-                <select
-                  {...register("year")}
-                  id="year"
-                  className="form-select"
-                >
+                <select {...register("year")} id="year" className="form-select">
                   <option value="" disabled selected hidden></option>
                   {yearOptions.map((option, index) => (
                     <option key={index} value={option}>
@@ -109,11 +101,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
               <label htmlFor="load" className="form-label">
                 Teaching Load
               </label>
-              <select
-                {...register("load")}
-                id="load"
-                className="form-select"
-              >
+              <select {...register("load")} id="load" className="form-select">
                 <option value="" disabled selected hidden></option>
                 {loadOptions.map((option, index) => (
                   <option key={index} value={option}>
@@ -138,10 +126,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
                   className="form-check-input"
                   onChange={handleStatusChange}
                 />
-                <label
-                  htmlFor={`status-${index}`}
-                  className="form-check-label"
-                >
+                <label htmlFor={`status-${index}`} className="form-check-label">
                   {option}
                 </label>
               </div>
@@ -163,9 +148,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
                 selected={dateHired}
                 onChange={(date) => setDateHired(date || new Date())}
                 id="dateHired"
-                className={`form-control ${
-                  isTenuredTrack ? "required" : ""
-                }`}
+                className={`form-control ${isTenuredTrack ? "required" : ""}`}
                 name="dateHired"
                 dateFormat={"dd-MM-yyyy"}
               />
