@@ -18,6 +18,7 @@ interface User {
 	college: string;
 	role: string;
 	status: string;
+	id: string;
 }
 
 const AdminSettings = () => {
@@ -29,6 +30,9 @@ const AdminSettings = () => {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const usersPerPage = 7; /* Set how many users are displayed */
+	// useStates to determine which document to edit
+	const [editUserID, setEditUserID] = useState("");
+	const [editUserEmail, setEditUserEmail] = useState("");
 
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -45,6 +49,7 @@ const AdminSettings = () => {
 									status: data.status || "INACTIVE",
 									college: data.college || "UNAFFILIATED",
 									role: data.role || "member",
+									id: doc.id,
 								};
 							})
 							.sort((a, b) =>
@@ -63,16 +68,21 @@ const AdminSettings = () => {
 		return () => unsubscribeAuth();
 	}, []);
 
-	const handleEditClick = () => {
+	const handleEditClick = (id: string, email:string) => {
 		setShowPopout(true);
+		// console.log(id + " " + email);
+		setEditUserEmail(email);
+		setEditUserID(id);
 	};
 
 	const handleSaveConfirm = () => {
-		console.log("Saving changes...");
+		console.log("Saving changes to " + editUserEmail);
 		setShowPopout(false);
 	};
 
 	const handleCancel = () => {
+		setEditUserEmail("");
+		setEditUserID("");
 		setShowPopout(false);
 	};
 
@@ -84,7 +94,8 @@ const AdminSettings = () => {
 			user.email.toLowerCase().includes(query) ||
 			user.college.toLowerCase().includes(query) ||
 			user.role.toLowerCase().includes(query) ||
-			user.status.toLowerCase().includes(query)
+			user.status.toLowerCase().includes(query) ||
+			user.id.includes(query)
 		);
 	});
 
@@ -206,7 +217,7 @@ const AdminSettings = () => {
 									<td>
 										<button
 											className="save-btn"
-											onClick={handleEditClick}
+											onClick={() => {handleEditClick(user.id, user.email)}}
 										>
 											<BsCheckAll
 												className="save-icon"
