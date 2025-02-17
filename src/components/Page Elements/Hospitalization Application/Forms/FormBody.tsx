@@ -181,7 +181,7 @@ const FormBody = () => {
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
 	const formsCollectionRef = collection(db, "FormRequests");
@@ -293,7 +293,9 @@ const FormBody = () => {
 	return (
 		<div className="form-body">
 			<form onSubmit={handleSubmit(onSubmit)}>
-				<p className="note">Please fill out the following boxes</p>
+				{isSubmitted && Object.keys(errors).length > 0 && (
+					<p className="note">Please fill out the following boxes</p>
+				)}
 
 				<FormPersonalInfo register={register} errors={errors} />
 				<FormMedicalInfo register={register} errors={errors} />
