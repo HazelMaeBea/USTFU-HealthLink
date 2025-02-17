@@ -60,12 +60,9 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 									id="term"
 									className="form-select"
 								>
-									<option
-										value=""
-										disabled
-										selected
-										hidden
-									></option>
+									<option value="" disabled selected hidden>
+										Select term
+									</option>
 									{termOptions.map((option, index) => (
 										<option key={index} value={option}>
 											{option}
@@ -87,12 +84,9 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 									id="year"
 									className="form-select"
 								>
-									<option
-										value=""
-										disabled
-										selected
-										hidden
-									></option>
+									<option value="" disabled selected hidden>
+										Select year
+									</option>
 									{yearOptions.map((option, index) => (
 										<option key={index} value={option}>
 											{option}
@@ -115,12 +109,9 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 								id="load"
 								className="form-select"
 							>
-								<option
-									value=""
-									disabled
-									selected
-									hidden
-								></option>
+								<option value="" disabled selected hidden>
+									Select teaching load
+								</option>
 								{loadOptions.map((option, index) => (
 									<option key={index} value={option}>
 										{option}

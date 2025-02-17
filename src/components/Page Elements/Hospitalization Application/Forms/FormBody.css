@@ -479,3 +479,28 @@ table {
 	font-style: italic;
 	margin-left: 0.5rem;
 }
+
+/* Placeholder styling for select elements */
+.form-select {
+	color: hsl(0, 0%, 82%) !important;
+	font-style: italic;
+}
+
+/* Style for selected option */
+.form-select:has(option:checked:not([value=""])) {
+	color: black !important;
+	font-style: normal;
+}
+
+/* Style for options in dropdown */
+.form-select option:not([value=""]) {
+	color: black;
+	font-style: normal;
+}
+
+/* Style for placeholder option */
+.form-select option[value=""],
+.form-select option[disabled] {
+	color: hsl(0, 0%, 82%);
+	font-style: italic;
+}

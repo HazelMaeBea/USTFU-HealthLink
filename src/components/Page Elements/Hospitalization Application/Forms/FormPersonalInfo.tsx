@@ -103,7 +103,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 							selected
 							hidden
 						>
-							None...
+							Select suffix
 						</option>
 						{suffixOptions.map((option, index) => (
 							<option key={index} value={option}>
@@ -123,7 +123,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						id="age"
 						type="number"
 						className="form-control"
-						placeholder="e.g. 35..."
+						placeholder="35..."
 					/>
 					{errors.age && (
 						<p className="text-danger">{errors.age.message}</p>
@@ -144,7 +144,9 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 							disabled
 							selected
 							hidden
-						></option>
+						>
+							Select gender
+						</option>
 						{genderOptions.map((option, index) => (
 							<option key={index} value={option}>
 								{option}
@@ -164,7 +166,9 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						id="college"
 						className="form-select"
 					>
-						<option value="" disabled selected hidden></option>
+						<option value="" disabled selected hidden>
+							Select college affiliation
+						</option>
 						{collegeOptions.map((option, index) => (
 							<option key={index} value={option}>
 								{option}
