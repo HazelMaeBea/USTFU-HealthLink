@@ -363,75 +363,7 @@ table {
 	margin-top: 1rem;
 }
 
-.date-hired-picker {
-  display: none;
-}
-
+.date-hired-picker,
 .date-retired-picker {
 	display: none;
-}
-
-.date-hired-picker.invisible,
-.date-retired-picker.invisible {
-  display: none;
-}
-
-.date-hired-picker.visible,
-.date-retired-picker.visible {
-  display: block;
-}
-
-.specify-hmo {
-	display: none;
-}
-
-.specify-hmo.invisible {
-  display: none;
-}
-
-.specify-hmo.visible {
-  display: block;
-}
-
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.popup-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.popup-content h3 {
-  margin-bottom: 1rem;
-}
-
-.popup-content a {
-  display: block;
-  margin-bottom: 1rem;
-  color: hsl(45, 100%, 51%);
-  text-decoration: none;
-}
-
-.popup-content button {
-  padding: 0.5rem 1rem;
-  border: none;
-  background: hsl(45, 100%, 51%);
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.popup-content button:hover {
-  background: hsl(45, 100%, 45%);
 }

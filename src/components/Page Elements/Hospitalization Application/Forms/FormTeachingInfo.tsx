@@ -32,29 +32,15 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
   dateRetired,
   setDateRetired,
 }) => {
-  const [isTenuredTrack, setIsTenuredTrack] = useState(false);
-  const [isRetiree, setIsRetiree] = useState(false);
-  const [isHMO, setIsHMO] = useState(false);
+  const [status, setStatus] = useState("");
+  const [benefit, setBenefit] = useState("");
 
   const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.value === "Tenured-Track") {
-      setIsTenuredTrack(true);
-      setIsRetiree(false);
-    } else if (event.target.value === "Retiree") {
-      setIsRetiree(true);
-      setIsTenuredTrack(false);
-    } else {
-      setIsTenuredTrack(false);
-      setIsRetiree(false);
-    }
+    setStatus(event.target.value);
   };
 
-  const handleBenefitsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.value === "HMO") {
-      setIsHMO(true);
-    } else {
-      setIsHMO(false);
-    }
+  const handleBenefitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setBenefit(event.target.value);
   };
 
   return (
@@ -137,9 +123,8 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
           </div>
           <div className="mb-1 col-md-3">
             <div
-              className={`mb-1 col-md-12 date-hired-picker ${
-                isTenuredTrack ? "visible" : "invisible"
-              }`}
+              className="mb-1 col-md-12 date-hired-picker"
+              style={{ display: status === "Tenured-Track" ? "block" : "none" }}
             >
               <label htmlFor="dateHired" className="form-label">
                 If Tenure-Track, please input DATE HIRED:
@@ -148,7 +133,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
                 selected={dateHired}
                 onChange={(date) => setDateHired(date || new Date())}
                 id="dateHired"
-                className={`form-control ${isTenuredTrack ? "required" : ""}`}
+                className="form-control"
                 name="dateHired"
                 dateFormat={"dd-MM-yyyy"}
               />
@@ -157,9 +142,8 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
               )}
             </div>
             <div
-              className={`mb-1 col-md-12 date-retired-picker ${
-                isRetiree ? "visible" : "invisible"
-              }`}
+              className="mb-1 col-md-12 date-retired-picker"
+              style={{ display: status === "Retiree" ? "block" : "none" }}
             >
               <label htmlFor="dateRetired" className="form-label">
                 If Retiree, please input DATE RETIRED:
@@ -168,7 +152,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
                 selected={dateRetired}
                 onChange={(date) => setDateRetired(date || new Date())}
                 id="dateRetired"
-                className={`form-control ${isRetiree ? "required" : ""}`}
+                className="form-control"
                 name="dateRetired"
                 dateFormat={"dd-MM-yyyy"}
               />
@@ -187,7 +171,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
                   type="radio"
                   value={option}
                   className="form-check-input"
-                  onChange={handleBenefitsChange}
+                  onChange={handleBenefitChange}
                 />
                 <label
                   htmlFor={`benefits-${index}`}
@@ -203,15 +187,14 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
             <p></p>
             {/* empty space */}
             <div
-              className={`mb-1 col-md-12 specify-hmo ${
-                isHMO ? "visible" : "invisible"
-              }`}
+              className="mb-1 col-md-12 hmo-input"
+              style={{ display: benefit === "HMO" ? "block" : "none" }}
             >
               <label htmlFor="hmo" className="form-label">
                 If HMO, please specify:
               </label>
               <input
-                {...register("hmo", { required: isHMO })}
+                {...register("hmo")}
                 id="hmo"
                 type="text"
                 className="form-control"
