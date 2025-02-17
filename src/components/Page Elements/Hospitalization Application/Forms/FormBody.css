@@ -368,6 +368,12 @@ table {
 	display: none;
 }
 
+.date-hired-picker input[type="date"]::-webkit-calendar-picker-indicator,
+.date-retired-picker input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); 
+    /* because the calendar icon is white */
+}
+
 /* Popup notification styling */
 .popup {
 	position: fixed;

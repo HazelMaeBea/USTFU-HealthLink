@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import DatePicker from "react-datepicker";
 import { FormData } from "./FormBody";
 
 interface FormTeachingInfoProps {
@@ -129,13 +128,16 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
               <label htmlFor="dateHired" className="form-label">
                 If Tenure-Track, please input DATE HIRED:
               </label>
-              <DatePicker
-                selected={dateHired}
-                onChange={(date) => setDateHired(date || new Date())}
+              <input
+                type="date"
+                value={dateHired ? dateHired.toISOString().split("T")[0] : ""}
+                onChange={(e) =>
+                  setDateHired(e.target.value ? new Date(e.target.value) : null)
+                }
                 id="dateHired"
                 className="form-control"
                 name="dateHired"
-                dateFormat={"dd-MM-yyyy"}
+                style={{ color: "black" }}
               />
               {errors.dateHired && (
                 <p className="text-danger">{errors.dateHired.message}</p>
@@ -148,13 +150,20 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
               <label htmlFor="dateRetired" className="form-label">
                 If Retiree, please input DATE RETIRED:
               </label>
-              <DatePicker
-                selected={dateRetired}
-                onChange={(date) => setDateRetired(date || new Date())}
+              <input
+                type="date"
+                value={
+                  dateRetired ? dateRetired.toISOString().split("T")[0] : ""
+                }
+                onChange={(e) =>
+                  setDateRetired(
+                    e.target.value ? new Date(e.target.value) : null
+                  )
+                }
                 id="dateRetired"
                 className="form-control"
                 name="dateRetired"
-                dateFormat={"dd-MM-yyyy"}
+                style={{ color: "black" }}
               />
               {errors.dateRetired && (
                 <p className="text-danger">{errors.dateRetired.message}</p>
