@@ -166,31 +166,50 @@ const AdmissionForm = () => {
 
 	return (
 		<div className="form-body">
-			<FormHeader formType="Hospital Admission Form" />
+			<div className="container">
+				<FormHeader formType="Hospital Admission Form" />
+				<div className="form-body">
+					<div className="form-container">
+						<form onSubmit={handleSubmit(onSubmit)}>
+							{isSubmitted && Object.keys(errors).length > 0 && (
+								<p className="note">
+									Please fill out the following boxes
+								</p>
+							)}
 
-			<form onSubmit={handleSubmit(onSubmit)}>
-				{isSubmitted && Object.keys(errors).length > 0 && (
-					<p className="note">Please fill out the following boxes</p>
-				)}
+							<FormPersonalInfo
+								register={register}
+								errors={errors}
+							/>
+							<AdmissionTeachingInfo
+								register={register}
+								errors={errors}
+							/>
+							<FormUploadDisclaimer />
+							<FormMedicalFiles
+								register={register}
+								errors={errors}
+							/>
+							<FormCertify register={register} errors={errors} />
 
-				<FormPersonalInfo register={register} errors={errors} />
-				<AdmissionTeachingInfo register={register} errors={errors} />
-				<FormUploadDisclaimer />
-				<FormMedicalFiles register={register} errors={errors} />
-				<FormCertify register={register} errors={errors} />
-
-				<div className="buttonDiv">
-					<button
-						type="submit"
-						className="btn btn-submit form-submit"
-					>
-						Submit
-					</button>
-					<button type="reset" className="btn btn-clear form-submit">
-						Clear
-					</button>
+							<div className="buttonDiv">
+								<button
+									type="submit"
+									className="btn btn-submit form-submit"
+								>
+									Submit
+								</button>
+								<button
+									type="reset"
+									className="btn btn-clear form-submit"
+								>
+									Clear
+								</button>
+							</div>
+						</form>
+					</div>
 				</div>
-			</form>
+			</div>
 		</div>
 	);
 };
