@@ -16,18 +16,52 @@ import { ref, uploadBytes } from "firebase/storage";
 type FormData = z.infer<typeof schema>;
 
 const schema = z.object({
-	lastname: z.string().nonempty("Last name is required"),
-	firstname: z.string().nonempty("First name is required"),
-	middlename: z.string().nonempty("Middle name is required"),
-	suffix: z.string().optional(),
-	age: z.number().min(18, "Age must be at least 18"),
+	lastname: z
+		.string({
+			required_error: "Please enter your last name",
+			invalid_type_error: "Last name must be text",
+		})
+		.min(1, "Please enter your last name"),
+	firstname: z
+		.string({
+			required_error: "Please enter your first name",
+			invalid_type_error: "First name must be text",
+		})
+		.min(1, "Please enter your first name"),
+	middlename: z
+		.string({
+			required_error: "Please enter your middle name",
+			invalid_type_error: "Middle name must be text",
+		})
+		.min(1, "Please enter your middle name"),
+	suffix: z
+		.string({
+			invalid_type_error: "Suffix must be text",
+		})
+		.nullish(),
+	age: z.coerce
+		.number({
+			invalid_type_error: "Please enter a valid age",
+			required_error: "Age is required",
+		})
+		.min(18, "You must be at least 18 years old to apply"),
 	gender: z.enum(["Male", "Female"], {
-		errorMap: () => ({ message: "Gender is required" }),
+		errorMap: () => ({ message: "Please select your gender" }),
 	}),
-	contact: z.number().min(21, "Contact number is required"),
-	college: z.string().nonempty("College is required"),
-	load: z.string().nonempty("Load is required"),
-	status: z.string().nonempty("Status is required"),
+	contact: z.coerce
+		.number({
+			invalid_type_error: "Please enter a valid contact number",
+			required_error: "Contact number is required",
+		})
+		.min(21, "Please provide a valid contact number"),
+	college: z
+		.string({
+			required_error: "Please select your college",
+			invalid_type_error: "Please make a valid selection",
+		})
+		.min(1, "Please select your college"),
+	load: z.string().nonempty("Please select your teaching load"),
+	status: z.string().nonempty("Please select your employment status"),
 	docRequest: z.any().refine((files) => files && files.length > 0, {
 		message: "File is required",
 	}),
@@ -43,9 +77,18 @@ const schema = z.object({
 	applicantSignature: z.any().refine((files) => files && files.length > 0, {
 		message: "File is required",
 	}),
-	claimRequestCount: z.number().min(1, "Claim Request Count is required"),
+	claimRequestCount: z.coerce
+		.number({
+			invalid_type_error: "Please enter a valid number",
+			required_error: "Number of claims is required",
+		})
+		.min(1, "Please enter at least 1 claim")
+		.max(10, "Maximum of 10 claims allowed"),
 	certify: z.enum(["Yes"], {
-		errorMap: () => ({ message: "Certification is required" }),
+		errorMap: () => ({
+			message:
+				"You must certify that all information provided is true and correct",
+		}),
 	}),
 });
 
@@ -53,7 +96,7 @@ const AdmissionForm = () => {
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
 	const formsCollectionRef = collection(db, "FormRequests");
@@ -126,7 +169,9 @@ const AdmissionForm = () => {
 			<FormHeader formType="Hospital Admission Form" />
 
 			<form onSubmit={handleSubmit(onSubmit)}>
-				<p className="note">Please fill out the following boxes</p>
+				{isSubmitted && Object.keys(errors).length > 0 && (
+					<p className="note">Please fill out the following boxes</p>
+				)}
 
 				<FormPersonalInfo register={register} errors={errors} />
 				<AdmissionTeachingInfo register={register} errors={errors} />

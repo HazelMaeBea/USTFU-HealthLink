@@ -10,17 +10,41 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormSigIDFiles from "./FormSigIDFiles";
 import FormCertify from "./FormCertify";
 import { collection, addDoc } from "firebase/firestore";
-import { auth, db, storage } from '../../../../config/firebase.ts';
+import { auth, db, storage } from "../../../../config/firebase.ts";
 import { ref, uploadBytes } from "firebase/storage";
 
 export type FormData = z.infer<typeof schema>;
 
 const schema = z.object({
-	lastname: z.string().nonempty("Last name is required"),
-	firstname: z.string().nonempty("First name is required"),
-	middlename: z.string().nonempty("Middle name is required"),
-	suffix: z.string().optional(),
-	age: z.number().min(18, "Age must be at least 18"),
+	lastname: z
+		.string({
+			required_error: "Please enter your last name",
+			invalid_type_error: "Last name must be text",
+		})
+		.min(1, "Please enter your last name"),
+	firstname: z
+		.string({
+			required_error: "Please enter your first name",
+			invalid_type_error: "First name must be text",
+		})
+		.min(1, "Please enter your first name"),
+	middlename: z
+		.string({
+			required_error: "Please enter your middle name",
+			invalid_type_error: "Middle name must be text",
+		})
+		.min(1, "Please enter your middle name"),
+	suffix: z
+		.string({
+			invalid_type_error: "Suffix must be text",
+		})
+		.nullish(),
+	age: z.coerce
+		.number({
+			invalid_type_error: "Please enter a valid age",
+			required_error: "Age is required",
+		})
+		.min(18, "You must be at least 18 years old to apply"),
 	gender: z.enum(["Male", "Female"], {
 		errorMap: () => ({ message: "Gender is required" }),
 	}),
@@ -47,7 +71,7 @@ const EyeglassesForm = () => {
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
 	const formsCollectionRef = collection(db, "FormRequests");
@@ -56,31 +80,51 @@ const EyeglassesForm = () => {
 		try {
 			const email = auth?.currentUser?.email;
 
-			let imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name);
+			let imageRef = ref(
+				storage,
+				"FormRequests/" +
+					email +
+					"/FormRequest O-0000000001/" +
+					data.applicantSignature[0].name
+			);
 			await uploadBytes(imageRef, data.applicantSignature[0]);
-			imageRef = ref(storage, 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name);
+			imageRef = ref(
+				storage,
+				"FormRequests/" +
+					email +
+					"/FormRequest O-0000000001/" +
+					data.employeeID[0].name
+			);
 			await uploadBytes(imageRef, data.employeeID[0]);
-	  
+
 			await addDoc(formsCollectionRef, {
-			  Age: data["age"],
-			  FirstName: data["firstname"],
-			  LastName: data["lastname"],
-			  MiddleName: data["middlename"],
-			  ClaimRequestCount: data["claimRequestCount"],
-			  College: data["college"],
-			  Contact: data["contact"],
-			  Suffix: data["suffix"],
-			  ORNumber: data["ORNumber"],
-			  AmountPaid: data["amountPaid"],
-			  Gender: data["gender"],
-			  IssuedBy: data["issuedBy"],
-			  ApplicantSignature: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.applicantSignature[0].name,
-			  EmployeeED: 'FormRequests/'+ email +'/FormRequest O-0000000001/'+data.employeeID[0].name,
-			  SubmittedAt: new Date(),
-			})
-		  } catch (error) {
+				Age: data["age"],
+				FirstName: data["firstname"],
+				LastName: data["lastname"],
+				MiddleName: data["middlename"],
+				ClaimRequestCount: data["claimRequestCount"],
+				College: data["college"],
+				Contact: data["contact"],
+				Suffix: data["suffix"],
+				ORNumber: data["ORNumber"],
+				AmountPaid: data["amountPaid"],
+				Gender: data["gender"],
+				IssuedBy: data["issuedBy"],
+				ApplicantSignature:
+					"FormRequests/" +
+					email +
+					"/FormRequest O-0000000001/" +
+					data.applicantSignature[0].name,
+				EmployeeED:
+					"FormRequests/" +
+					email +
+					"/FormRequest O-0000000001/" +
+					data.employeeID[0].name,
+				SubmittedAt: new Date(),
+			});
+		} catch (error) {
 			console.error(error);
-		  }
+		}
 	};
 
 	return (
@@ -88,7 +132,9 @@ const EyeglassesForm = () => {
 			<FormHeader formType="Eyeglasses Form" />
 
 			<form onSubmit={handleSubmit(onSubmit)}>
-				<p className="note">Please fill out the following boxes</p>
+				{isSubmitted && Object.keys(errors).length > 0 && (
+					<p className="note">Please fill out the following boxes</p>
+				)}
 
 				<FormPersonalInfo register={register} errors={errors} />
 				<FormInvoice register={register} errors={errors} />

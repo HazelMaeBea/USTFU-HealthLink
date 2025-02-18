@@ -10,8 +10,8 @@ const FormHeader = ({ formType }: FormHeaderProps) => {
 	return (
 		<div className="form-header">
 			<img
-				id="USTFU-logo"
-				src={USTFULogo}
+				id="UST-logo"
+				src={USTLogo}
 				alt="USTFU Logo"
 				className="logo"
 			/>
@@ -22,7 +22,7 @@ const FormHeader = ({ formType }: FormHeaderProps) => {
 			</div>
 			<img
 				id="USTFU-logo"
-				src={USTLogo}
+				src={USTFULogo}
 				alt="UST Logo"
 				className="logo"
 			/>
