@@ -113,3 +113,12 @@
 	text-decoration-color: #ffffff;
 	text-underline-offset: 8px;
 }
+
+/* Add a Safari-only override to disable the transform */
+@media not all and (min-resolution: 0.001dpcm) {
+	@supports (-webkit-appearance: none) {
+		.sidebar {
+			transform: none; /* disable stacking context trick for Safari */
+		}
+	}
+}

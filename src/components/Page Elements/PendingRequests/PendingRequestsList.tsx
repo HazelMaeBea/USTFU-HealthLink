@@ -367,6 +367,7 @@ const PendingRequestList = () => {
 										type="text"
 										className="signature-name-input"
 										defaultValue="Emerito C. Gonzales"
+										aria-label="USTFU President"
 									/>
 									<p className="signature-title">
 										USTFU PRESIDENT
