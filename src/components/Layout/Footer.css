@@ -1,11 +1,12 @@
 .Footer {
-	isolation: isolate; /* force isolated stacking context in Safari */
-	position: relative; /* add stacking context */
-	z-index: 100; /* ensures footer appears above navbar */
+	isolation: isolate; /* maintain isolated stacking context */
+	position: relative; /* footer in normal flow */
+	z-index: 1000; /* ensures footer appears above sidebar when scrolled into view */
+	transform: translateZ(0); /* force compositing layer */
+	will-change: transform; /* pre-composite for smoother rendering */
 	background: #212529;
 	color: white;
 	padding: 2rem;
-	width: 100%;
 	justify-items: center;
 }
 
