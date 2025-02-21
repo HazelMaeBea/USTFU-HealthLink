@@ -6,6 +6,7 @@
 	left: 0;
 	height: 100vh;
 	transition: width 0.3s ease;
+	z-index: 0; /* ensure footer (with a higher z-index) appears above */
 }
 
 .sidebar {
