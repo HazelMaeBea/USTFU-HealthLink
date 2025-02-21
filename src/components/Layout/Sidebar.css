@@ -17,7 +17,6 @@
 	flex-direction: column;
 	transition: width 0.3s ease;
 	font-size: 12px;
-	transform: translateZ(0); /* force hardware acceleration */
 }
 
 .sidebar.collapsed {
@@ -54,7 +53,6 @@
 	padding: 5px;
 	height: 2rem;
 	width: 3.5rem;
-	will-change: transform; /* ensure stable stacking context */
 }
 
 .toggle-btn:active {
