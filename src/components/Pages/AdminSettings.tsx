@@ -33,6 +33,7 @@ const AdminSettings = () => {
 	// useStates to determine which document to edit
 	const [editUserID, setEditUserID] = useState("");
 	const [editUserEmail, setEditUserEmail] = useState("");
+	const [emptyPopout, setEmptyPopout] = useState(false)
 
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -74,6 +75,13 @@ const AdminSettings = () => {
 		setEditUserEmail(email);
 		setEditUserID(id);
 	};
+
+	const handleStatusChange = (status: string) => {
+		if (status == "ACTIVE")
+			return "INACTIVE"
+		else
+			return "ACTIVE"
+	}
 
 	const handleSaveConfirm = () => {
 		console.log("Saving changes to " + editUserEmail);
@@ -205,6 +213,7 @@ const AdminSettings = () => {
 														? "hsl(134, 61%, 85%)"
 														: "hsl(354, 70%, 85%)",
 											}}
+											onChange={() => {user.status = handleStatusChange(user.status); setEmptyPopout(!emptyPopout)}}
 										>
 											<option value="ACTIVE">
 												ACTIVE
@@ -253,6 +262,16 @@ const AdminSettings = () => {
 					onConfirm={handleSaveConfirm}
 					onCancel={handleCancel}
 					isOpen={showPopout}
+				/>
+			)}
+
+			{emptyPopout && (
+				<Popout
+					title=""
+					message=""
+					onConfirm={()=>{}}
+					onCancel={()=>{}}
+					isOpen={false}
 				/>
 			)}
 		</div>
