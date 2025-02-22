@@ -3,21 +3,160 @@ body {
 	max-width: 100%;
 	box-sizing: border-box;
 	overflow-x: hidden !important; /* Prevent horizontal scroll */
+	background-color: #eef5f9;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Container for settings page */
+/* Container styling */
 .settings-container {
-	flex-direction: column;
+	padding: 40px;
+	min-height: calc(100vh - 60px); /* Adjust for your header height */
+	background: #f5f7f9;
+	max-width: 1400px;
+	margin: 0 auto;
+}
+
+/* Settings layout */
+.settings-content {
+	flex: 1;
+	padding: 40px;
+	margin-left: 280px;
+}
+
+/* Section styling */
+.settings-section {
+	background: #fff;
+	border-radius: 12px;
+	padding: 30px;
+	margin-bottom: 24px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Updated grid layout */
+.fields-grid {
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	gap: 20px;
+	margin: 0;
+	padding: 0;
+}
+
+/* Field item base styling */
+.field-item {
+	position: relative;
+	margin-bottom: 5px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+.field-item.name {
+	grid-column: span 4; /* Equal width for name fields */
+}
+
+.field-item.small {
+	grid-column: span 3; /* For suffix, age, term, load */
+}
+
+.field-item.medium {
+	grid-column: span 6; /* For status, ID, dates */
+}
+
+.field-item.large {
+	grid-column: span 12; /* Full width for address */
+}
+
+/* Add field grouping */
+.field-item:nth-child(-n + 3) {
+	/* First 3 items (names) */
+	margin-bottom: 8px;
+}
+
+.field-item:focus-within {
+	border-color: hsl(45, 100%, 51%);
+	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.2);
+}
+
+/* Floating label refinements */
+.field-item label {
+	display: block;
+	position: static;
+	transform: none;
+	font-size: 0.85rem;
+	color: #666;
+	margin-bottom: 6px;
+	font-weight: 500;
+}
+
+/* Editable fields styling */
+.field-row {
+	display: flex;
 	align-items: center;
-	justify-content: center;
-	padding: 50px 80px;
+	margin: 10px 0;
+}
+.field-row label {
+	width: 150px;
+	font-weight: 600;
+	color: #555;
+}
+/* Modern input styling */
+.editable {
+	width: 100%;
+	padding: 8px 12px;
+	background: #f8f9fa;
+	border: 1px solid #e5e9ed;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	color: #333;
+	transition: all 0.2s;
+	min-height: 38px;
+}
+
+/* Label animation when field has content or is focused */
+.editable:not(:empty) + label,
+.editable:focus + label {
+	top: 0;
+	transform: translateY(-50%) scale(0.8);
+	background: #fff;
+	color: hsl(45, 100%, 51%);
+	font-weight: 500;
+	font-size: 0.75rem;
+}
+
+/* Focus styles */
+.editable:focus {
+	background: #fff;
+	border-color: hsl(45, 100%, 51%);
+	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.1);
+	outline: none;
+}
+
+/* Toggle row and group styling */
+.toggle-group {
+	border: none;
+	padding: 0;
+	margin: 0 0 20px 0;
+}
+.toggle-row {
+	display: flex;
+	align-items: center;
+	padding: 12px 16px;
+	background: #f8f9fa;
+	border-radius: 8px;
+	margin-bottom: 10px;
+}
+.toggle-row p {
+	margin: 0;
+	font-size: 0.9rem;
+	color: #444;
+	flex: 1;
 }
 
 /* Styling for form check elements */
 .form-check {
 	position: relative;
 	display: block;
-	margin-bottom: 0.75rem;
 }
 
 /* Toggle switch styling */
@@ -59,10 +198,10 @@ body {
 	position: absolute;
 	left: 0;
 	display: inline-block;
-	height: 30px;
-	width: 50px;
-	background: #ccc; /* made it gray */
-	border: solid 1px #ccc;
+	height: 24px;
+	width: 44px;
+	background: #e0e0e0;
+	border: 1px solid #e0e0e0;
 	transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
 	border-radius: 15px;
 }
@@ -76,10 +215,10 @@ hr {
 
 /* Styles for the toggle knob in its "off" state */
 .form-check-toggle input + span:after {
-	width: 28px;
-	height: 28px;
-	margin-top: 1px;
-	margin-left: 1px;
+	width: 20px;
+	height: 20px;
+	margin-top: 2px;
+	margin-left: 2px;
 	border-radius: 50%;
 	position: absolute;
 	left: 0;
@@ -96,14 +235,14 @@ hr {
 /* Styles for the toggle knob in its "on" state */
 .form-check-toggle input:checked + span:after {
 	content: "";
-	margin-left: 21px;
+	margin-left: 22px;
 	box-shadow: none;
 }
 
 /* Styles for the toggle background in its "on" state */
 .form-check-toggle input:checked + span:before {
-	background-color: hsl(90, 46%, 53%);
-	border-color: hsl(90, 46%, 53%);
+	background-color: hsl(45, 100%, 51%);
+	border-color: hsl(45, 100%, 51%);
 	transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
@@ -114,20 +253,106 @@ hr {
 
 /* Button container styling */
 .buttonDiv {
+	margin-top: 30px;
 	display: flex;
-	justify-content: center;
-	margin-top: 50px;
+	justify-content: flex-end;
 }
 
 /* Submit button styling */
-.buttonDiv .btn-submit {
-	margin-left: 10px;
-	background-color: black;
-	color: white;
+.btn-submit {
+	background: #000;
+	color: #fff;
+	padding: 12px 30px;
+	border-radius: 8px;
+	font-size: 0.95rem;
+	font-weight: 500;
 	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
-.buttonDiv .btn-submit:hover {
-	background-color: rgb(22, 22, 22);
-	color: white;
+.btn-submit:hover {
+	background-color: hsl(45, 100%, 51%) !important;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 1200px) {
+	.settings-container {
+		padding: 30px;
+	}
+	.fields-grid {
+		grid-template-columns: repeat(8, 1fr);
+		gap: 16px;
+	}
+
+	.field-item.name {
+		grid-column: span 4;
+	}
+
+	.field-item.small {
+		grid-column: span 4;
+	}
+
+	.field-item.medium {
+		grid-column: span 4;
+	}
+
+	.field-item.large {
+		grid-column: span 8;
+	}
+}
+
+@media (max-width: 1024px) {
+	.settings-content {
+		margin-left: 220px;
+	}
+	.fields-grid {
+		grid-template-columns: repeat(6, 1fr);
+	}
+	.field-item.name,
+	.field-item.medium {
+		grid-column: span 3;
+	}
+	.field-item.small {
+		grid-column: span 2;
+	}
+	.field-item.large {
+		grid-column: span 6;
+	}
+}
+
+@media (max-width: 768px) {
+	.settings-container {
+		padding: 20px;
+	}
+	.fields-grid {
+		grid-template-columns: repeat(4, 1fr);
+		gap: 12px;
+	}
+
+	.field-item.name {
+		grid-column: span 4;
+	}
+
+	.field-item.small {
+		grid-column: span 2;
+	}
+
+	.field-item.medium,
+	.field-item.large {
+		grid-column: span 4;
+	}
+
+	.toggle-row {
+		gap: 12px;
+	}
+
+	.settings-content {
+		margin-left: 0;
+		padding: 20px;
+	}
+
+	.settings-section {
+		padding: 20px;
+	}
 }
