@@ -81,13 +81,6 @@ const AdminSettings = () => {
 		setEditUserRole(role);
 	};
 
-	const handleStatusChange = (status: string) => {
-		if (status == "ACTIVE")
-			return "INACTIVE"
-		else
-			return "ACTIVE"
-	}
-
 	const handleSaveConfirm = () => {
 		console.log("Saving changes to " + editUserEmail + " " + editUserID + " " + editUserStatus + " " + editUserRole);
 		setShowPopout(false);
@@ -197,14 +190,15 @@ const AdminSettings = () => {
 											}
 											className="item-select"
 											aria-label="Select Role"
+											onChange={(e) => {[user.role] = [e.target.value]}}
 										>
-											<option value="member" onChange={() => console.log("test")}>
+											<option value={["member"]}>
 												MEMBER
 											</option>
-											<option value="operations handler" onClick={() => {}}>
+											<option value={["member", "operations handler"]}>
 												OPERATIONS HANDLER
 											</option>
-											<option value="retiree" onClick={() => {}}>
+											<option value={["member", "operations handler", "retiree"]}>
 												RETIREE
 											</option>
 										</select>
@@ -220,7 +214,7 @@ const AdminSettings = () => {
 														? "hsl(134, 61%, 85%)"
 														: "hsl(354, 70%, 85%)",
 											}}
-											onChange={() => {user.status = handleStatusChange(user.status); setEmptyPopout(!emptyPopout)}}
+											onChange={(e) => {user.status = e.target.value; setEmptyPopout(!emptyPopout)}}
 										>
 											<option value="ACTIVE">
 												ACTIVE
