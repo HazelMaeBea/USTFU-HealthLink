@@ -5,10 +5,11 @@ body {
 
 /* Container & Layout */
 .admin-settings-container {
-	max-width: 1200px;
+	/* max-width: 1200px; */
 	margin: 0 auto;
 	padding: 1.5rem;
 	background-color: hsl(0, 0%, 100%);
+	height: auto;
 }
 
 /* HR */
@@ -112,7 +113,6 @@ option {
 	border: 1px solid hsl(220, 13%, 91%);
 	border-radius: 0.5rem;
 	overflow: hidden;
-	height: 470px; /* Set a fixed height for the table */
 	table-layout: fixed; /* Ensure fixed layout */
 }
 
@@ -150,29 +150,39 @@ option {
 	text-align: center;
 }
 
+.user-mngmnt-table th:first-child,
+.user-mngmnt-table td:first-child {
+	width: 8%; /* Adjust width for id num column */
+}
+
 .user-mngmnt-table th:nth-child(2),
 .user-mngmnt-table td:nth-child(2) {
-	width: 23%; /* Adjust width for email column */
+	width: 15%; /* Adjust width for name column */
 }
 
 .user-mngmnt-table th:nth-child(3),
 .user-mngmnt-table td:nth-child(3) {
-	width: 15%; /* Adjust width for college column */
+	width: 20%; /* Adjust width for email column */
 }
 
 .user-mngmnt-table th:nth-child(4),
 .user-mngmnt-table td:nth-child(4) {
-	width: 21%; /* Adjust width for role column */
+	width: 15%; /* Adjust width for college column */
 }
 
 .user-mngmnt-table th:nth-child(5),
 .user-mngmnt-table td:nth-child(5) {
-	width: 13%; /* Adjust width for status column */
+	width: 8%; /* Adjust width for birthdate column */
 }
 
 .user-mngmnt-table th:nth-child(6),
 .user-mngmnt-table td:nth-child(6) {
-	width: 10%; /* Adjust width for save column */
+	width: 10%; /* Adjust width for phone num column */
+}
+
+.user-mngmnt-table th:nth-child(7),
+.user-mngmnt-table td:nth-child(7) {
+	width: 10%; /* Adjust width for phone num column */
 }
 
 .user-mngmnt-table tbody tr:last-child td {
@@ -196,6 +206,11 @@ option {
 	font-weight: 700;
 	border-radius: 0.25rem;
 	text-transform: uppercase;
+}
+
+.badge {
+	font-size: 1rem; /* Increase font size */
+	padding: 0.5em 0.75em; /* Increase padding */
 }
 
 /* Updated Search Field Styles */
@@ -300,6 +315,10 @@ option {
 	color: rgb(255, 255, 255);
 	outline: 2px solid hsl(45, 100%, 68%);
 }
+
+/* .column-borders th, .column-borders td {
+	border: 0.5px solid #ddd;
+} */
 
 @media (max-width: 480px) {
 	.ustfu-as-btn {
