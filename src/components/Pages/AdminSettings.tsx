@@ -175,7 +175,7 @@ const AdminSettings = () => {
 									<td>{user.college}</td>
 									<td>
 										<select
-											value={
+											defaultValue={
 												typeof user.role === "string"
 													? user.role.toLowerCase()
 													: ""
@@ -196,7 +196,7 @@ const AdminSettings = () => {
 									</td>
 									<td>
 										<select
-											value={user.status}
+											defaultValue={user.status}
 											className="item-select"
 											aria-label="Select Status"
 											style={{
