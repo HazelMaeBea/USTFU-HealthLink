@@ -33,6 +33,9 @@ const AdminSettings = () => {
 	// useStates to determine which document to edit
 	const [editUserID, setEditUserID] = useState("");
 	const [editUserEmail, setEditUserEmail] = useState("");
+	const [editUserStatus, setEditUserStatus] = useState("");
+	let initialRoles:string[] = [];
+	const [editUserRole, setEditUserRole] = useState(initialRoles);
 	const [emptyPopout, setEmptyPopout] = useState(false)
 
 	useEffect(() => {
@@ -69,11 +72,13 @@ const AdminSettings = () => {
 		return () => unsubscribeAuth();
 	}, []);
 
-	const handleEditClick = (id: string, email:string) => {
+	const handleEditClick = (id: string, email:string, status:string, role:string[]) => {
 		setShowPopout(true);
-		// console.log(id + " " + email);
+		console.log(id + " " + email + " " + status + " " + role);
 		setEditUserEmail(email);
 		setEditUserID(id);
+		setEditUserStatus(status);
+		setEditUserRole(role);
 	};
 
 	const handleStatusChange = (status: string) => {
@@ -84,13 +89,15 @@ const AdminSettings = () => {
 	}
 
 	const handleSaveConfirm = () => {
-		console.log("Saving changes to " + editUserEmail);
+		console.log("Saving changes to " + editUserEmail + " " + editUserID + " " + editUserStatus + " " + editUserRole);
 		setShowPopout(false);
 	};
 
 	const handleCancel = () => {
 		setEditUserEmail("");
 		setEditUserID("");
+		setEditUserStatus("");
+		setEditUserRole([]);
 		setShowPopout(false);
 	};
 
@@ -191,13 +198,13 @@ const AdminSettings = () => {
 											className="item-select"
 											aria-label="Select Role"
 										>
-											<option value="member">
+											<option value="member" onChange={() => console.log("test")}>
 												MEMBER
 											</option>
-											<option value="operations handler">
+											<option value="operations handler" onClick={() => {}}>
 												OPERATIONS HANDLER
 											</option>
-											<option value="retiree">
+											<option value="retiree" onClick={() => {}}>
 												RETIREE
 											</option>
 										</select>
@@ -226,7 +233,7 @@ const AdminSettings = () => {
 									<td>
 										<button
 											className="save-btn"
-											onClick={() => {handleEditClick(user.id, user.email)}}
+											onClick={() => {handleEditClick(user.id, user.email, user.status, [user.role])}}
 										>
 											<BsCheckAll
 												className="save-icon"
