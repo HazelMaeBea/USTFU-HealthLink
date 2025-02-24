@@ -1,4 +1,3 @@
-// This component displays a list of record items in a table-like format.
 import React from "react";
 import styles from "./RecordTable.module.css";
 
@@ -11,9 +10,13 @@ interface Record {
 
 interface RecordTableProps {
 	records: Record[];
+	onDetailsClick: (transactionID: string) => void; // Prop to notify parent
 }
 
-const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
+const RecordTable: React.FC<RecordTableProps> = ({
+	records,
+	onDetailsClick,
+}) => {
 	return (
 		<div className={styles["table-component-container"]}>
 			<div className={styles["records-container"]}>
@@ -22,9 +25,7 @@ const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
 						key={index}
 						className={`${styles["record-box"]} ${
 							record.status === "Pending" ? styles.pending : ""
-						} ${
-							record.status === "Approved" ? styles.approved : ""
-						} ${
+						} ${record.status === "Approved" ? styles.approved : ""} ${
 							record.status === "Rejected" ? styles.rejected : ""
 						}`}
 					>
@@ -39,12 +40,13 @@ const RecordTable: React.FC<RecordTableProps> = ({ records }) => {
 								<div className={styles["record-typeOfForm"]}>
 									{record.typeOfForm}
 								</div>
-								<div className={styles["record-status"]}>
-									{record.status}
-								</div>
+								<div className={styles["record-status"]}>{record.status}</div>
 							</div>
 							<div className={styles["button-container"]}>
-								<button className={styles["details-button"]}>
+								<button
+									className={styles["details-button"]}
+									onClick={() => onDetailsClick(record.transactionID)}
+								>
 									DETAILS
 								</button>
 							</div>
