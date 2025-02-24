@@ -18,37 +18,40 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 	];
 
 	return (
-		<div className="status-tracking-container">
-			<div className="transaction-id">
-				TRANSACTION ID: <span>{transactionID}</span>
-			</div>
-
-			<div className="status-updates">
-				<h3 className="status-title">STATUS UPDATES</h3>
-				{statusUpdates.map((update, index) => (
-					<div key={index} className="status-item">
-						✔{" "}
-						<span>
-							{update.status} - {update.dateTime}
-						</span>
+		<>
+			<div className="status-tracking-container">
+				<div className="transaction-header">
+					<div className="transaction-id">
+						TRANSACTION ID: <strong>{transactionID}</strong>
 					</div>
-				))}
+					<button className="back-button" onClick={onBack}>
+						BACK
+					</button>
+				</div>
+				<div className="status-updates">
+					<h3 className="status-title">STATUS UPDATES</h3>
+					{statusUpdates.map((update, index) => (
+						<div key={index} className="status-item">
+							✔{" "}
+							<span>
+								{update.status} - {update.dateTime}
+							</span>
+						</div>
+					))}
+					<div className="action-buttons">
+						<button className="print-button" onClick={() => window.print()}>
+							🖨 PRINT
+						</button>
+					</div>
+				</div>
 			</div>
-
-			<div className="submit-info">
-				<h3>SUBMITTED INFORMATION</h3>
-				<p>[Your submitted information content here]</p>
+			<div className="submission-info-container">
+				<div className="submission-header">
+					<div className="submission-title">SUBMITTED INFORMATION</div>
+				</div>
+				<div className="submission-contents"></div>
 			</div>
-
-			<div className="action-buttons">
-				<button className="print-button" onClick={() => window.print()}>
-					PRINT
-				</button>
-				<button className="back-button" onClick={onBack}>
-					BACK
-				</button>
-			</div>
-		</div>
+		</>
 	);
 };
 
