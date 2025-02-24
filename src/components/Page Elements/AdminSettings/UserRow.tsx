@@ -20,6 +20,7 @@ interface User {
   leaveReason?: string
   leaveStartDate?: string
   leaveEndDate?: string
+  document: string
 }
 
 interface UserRowProps {
@@ -135,10 +136,10 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
               <Col md={4}>
                 <FormGroup>
                   <Label for="role">Role</Label>
-                  <Input type="select" name="role" id="role" value={editedUser.role} onChange={handleChange}>
-                    <option>Member</option>
-                    <option>Operations Handler</option>
-                    <option>Retiree</option>
+                  <Input type="select" name="role" id="role" defaultValue={editedUser.role[0]} onChange={handleChange}>
+                    <option value="member">Member</option>
+                    <option value="operations handler">Operations Handler</option>
+                    <option value="retiree">Retiree</option>
                   </Input>
                 </FormGroup>
               </Col>
@@ -153,7 +154,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
               </Col>
             </Row>
 
-            {editedUser.role === "Retiree" && (
+            {editedUser.role === "retiree" && (
               <Row>
                 <Col md={6}>
                   <FormGroup>

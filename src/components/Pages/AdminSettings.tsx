@@ -1,7 +1,7 @@
 import "../Page Elements/AdminSettings/AdminSettings.css";
 
 import { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
 // import { BsCheckAll } from "react-icons/bs";
@@ -14,14 +14,20 @@ import PageButtons from "../Page Elements/PageButtons/PageButtons";
 import UserRow from "../Page Elements/AdminSettings/UserRow";
 
 interface User {
-	id: number;
-	name: string;
-	email: string;
-	college: string;
-	birthdate: string;
-	phoneNumber: string;
-	role: string;
-	status: string;
+	id: number
+	name: string
+	email: string
+	college: string
+	birthdate: string
+	phoneNumber: string
+	role: string
+	status: string
+	deactivationDate?: string
+	inactiveReason?: "indefinite" | "on-leave"
+	leaveReason?: string
+	leaveStartDate?: string
+	leaveEndDate?: string
+	document: string
 }
 
 const AdminSettings = () => {
@@ -33,6 +39,18 @@ const AdminSettings = () => {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const usersPerPage = 7; /* Set how many users are displayed */
+	// Empty values for proper null value assignment
+	const emptyRoles: any[] = [];
+	// useStates for saving values to be edited in the user document
+	const [editCollege, setEditCollege] = useState("");
+	const [editRole, setEditRole] = useState(emptyRoles);
+	const [editStatus, setEditStatus] = useState("");
+	const [editDeactivationDate, setEditDeactivationDate] = useState("");
+	const [editInactiveReason, setEditInactiveReason] = useState("");
+	const [editLeaveReason, setEditLeaveReason] = useState("");
+	const [editLeaveStartDate, setEditLeaveStartDate] = useState("");
+	const [editLeaveEndDate, setEditLeaveEndDate] = useState("");
+	const [editDocument, setEditDocument] = useState("");
 
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -52,6 +70,7 @@ const AdminSettings = () => {
 									phoneNumber: data.phoneNumber || "Unknown",
 									role: data.role || "Member",
 									status: data.status || "INACTIVE",
+									document: doc.id,
 								};
 							})
 							.sort((a, b) =>
@@ -70,17 +89,78 @@ const AdminSettings = () => {
 		return () => unsubscribeAuth();
 	}, []);
 
-	const handleSaveConfirm = () => {
-		console.log("Saving changes...");
-		setShowPopout(false);
+	const emptyUseStates = () => {
+		setEditDeactivationDate("");
+		setEditInactiveReason("");
+		setEditLeaveReason("");
+		setEditLeaveStartDate("");
+		setEditLeaveEndDate("");
+		setEditCollege("");
+		setEditRole(emptyRoles);
+		setEditStatus("");
+		setEditDocument("");
+		// console.log("emptyUseStates function called");
+	}
+
+	const handleSaveConfirm = async () => {
+		try {
+			// await setDoc(doc(db, 'users', editDocument), {
+			// 	college: editCollege,
+			// 	role: editRole,
+			// 	status: editStatus.toUpperCase(),
+			// 	deactivationDate: editDeactivationDate,
+			// 	inactiveReason: editInactiveReason,
+			// 	leaveReason: editLeaveReason,
+			// 	leaveStartDate: editLeaveStartDate,
+			// 	leaveEndDate: editLeaveEndDate,
+			// }), {merge: true}
+			console.log([editRole]);
+			console.log("Saving changes...");
+			// console.log(editUser);
+			// setEditUser();
+			setShowPopout(false);
+		}
+		catch(e) {
+			return console.error(e);
+		}
+		console.log(editCollege + [editRole] + editStatus + editDocument + editDeactivationDate + editInactiveReason + editLeaveReason + editLeaveStartDate + editLeaveEndDate);
+		emptyUseStates();
 	};
 
 	const handleCancel = () => {
 		setShowPopout(false);
+		emptyUseStates();
 	};
 
 	const handleSave = (updatedUser: User) => {
-		setUsers(users.map((user) => (user.email === updatedUser.email ? updatedUser : user)));
+		emptyUseStates();
+		if (updatedUser.deactivationDate !== undefined) {
+			const deactDate = updatedUser.deactivationDate;
+			setEditDeactivationDate(deactDate);
+		}
+		if (updatedUser.inactiveReason !== undefined) {
+			const inactiveReason = updatedUser.inactiveReason;
+			setEditInactiveReason(inactiveReason);
+		}
+		if (updatedUser.leaveReason !== undefined) {
+			const leaveReason = updatedUser.leaveReason;
+			setEditLeaveReason(leaveReason);
+		}
+		if (updatedUser.leaveStartDate !== undefined) {
+			const leaveStartDate = updatedUser.leaveStartDate;
+			setEditLeaveStartDate(leaveStartDate);
+		}
+		if (updatedUser.leaveEndDate !== undefined) {
+			const leaveEndDate = updatedUser.leaveEndDate;
+			setEditLeaveEndDate(leaveEndDate);
+		}
+		
+		setShowPopout(true);
+		setEditCollege(updatedUser.college);
+		setEditRole([updatedUser.role]);
+		setEditStatus(updatedUser.status);
+		setEditDocument(updatedUser.document);
+		console.log(updatedUser);
 	};
 
 	// Filter users based on search query (for userManagement)
