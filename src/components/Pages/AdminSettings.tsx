@@ -15,15 +15,22 @@ import UserAuditLogs from "../Page Elements/AdminSettings/UserAuditLogs";
 import AuditLogsPopout from "../Page Elements/AdminSettings/AuditLogsPopout";
 
 interface User {
-	id: number;
-	name: string;
-	email: string;
-	college: string;
-	birthdate: string;
-	phoneNumber: string;
-	role: string;
-	status: string;
-}
+	id: number
+	name: string
+	email: string
+	college: string
+	birthdate: string
+	phoneNumber: string
+	role: string
+	status: string
+	retirementDate?: string
+	deactivationDate?: string
+	inactiveReason?: "indefinite" | "on-leave"
+	leaveReason?: string
+	leaveStartDate?: string
+	leaveEndDate?: string
+	document: string
+  }
 
 const AdminSettings = () => {
 	const [users, setUsers] = useState<User[]>([]);
@@ -53,6 +60,7 @@ const AdminSettings = () => {
 									phoneNumber: data.phoneNumber || "Unknown",
 									role: data.role || "Member",
 									status: data.status || "INACTIVE",
+									document: doc.id,
 								};
 							})
 							.sort((a, b) =>
@@ -81,7 +89,8 @@ const AdminSettings = () => {
 	};
 
 	const handleSave = (updatedUser: User) => {
-		setUsers(users.map((user) => (user.email === updatedUser.email ? updatedUser : user)));
+		// setUsers(users.map((user) => (user.email === updatedUser.email ? updatedUser : user)));
+		console.log("User updated:", updatedUser);
 	};
 
 	const handleAuditLogsClick = () => {
@@ -176,24 +185,22 @@ const AdminSettings = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{currentUsers.map((user, i) => (
-								<UserRow key={i} user={user} onSave={handleSave} />
+							{currentUsers.map((user) => (
+								<UserRow key={user.document} user={user} onSave={handleSave} />
 							))}
 						</tbody>
 					</table>
-					<div className="pagination-container">
-						<PageButtons
-							currentPage={currentPage}
-							totalPages={totalPages}
-							onPageChange={(page) => setCurrentPage(page)}
-						/>
-						<input
-							type="button"
-							className="btn primary-btn save-btn"
-							value="VIEW USER AUDIT LOGS"
-							onClick={handleAuditLogsClick}
-						/>
-					</div>
+					<PageButtons
+						currentPage={currentPage}
+						totalPages={totalPages}
+						onPageChange={(page) => setCurrentPage(page)}
+					/>
+					<input
+						type="button"
+						className="btn primary-btn save-btn"
+						value="VIEW USER AUDIT LOGS"
+						onClick={handleAuditLogsClick}
+					/>
 				</>
 			)}
 

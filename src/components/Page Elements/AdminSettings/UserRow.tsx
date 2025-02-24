@@ -22,6 +22,7 @@ interface User {
   leaveReason?: string
   leaveStartDate?: string
   leaveEndDate?: string
+  document: string
 }
 
 interface UserRowProps {
