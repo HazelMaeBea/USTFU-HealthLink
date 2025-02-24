@@ -141,9 +141,9 @@ option {
 	font-size: 0.875rem;
 	vertical-align: middle;
 	text-align: left;
-	overflow: hidden; /* Prevent overflow */
-	text-overflow: ellipsis; /* Add ellipsis for overflow text */
-	/* white-space: nowrap; // Prevent text wrapping */
+	overflow-wrap: break-word;
+	white-space: normal;
+	word-break: break-word;
 }
 
 .user-mngmnt-table th {
@@ -183,6 +183,13 @@ option {
 .user-mngmnt-table th:nth-child(7),
 .user-mngmnt-table td:nth-child(7) {
 	width: 10%; /* Adjust width for phone num column */
+}
+
+.user-mngmnt-table th:nth-child(9),
+.user-mngmnt-table td:nth-child(9),
+.user-mngmnt-table th:nth-child(8),
+.user-mngmnt-table td:nth-child(8) {
+	white-space: nowrap; /* Prevent word break */
 }
 
 .user-mngmnt-table tbody tr:last-child td {
