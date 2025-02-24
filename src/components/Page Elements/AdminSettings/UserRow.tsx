@@ -104,7 +104,8 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setEditedUser({ ...editedUser, [e.target.name]: e.target.value })
+    const { name, value } = e.target;
+    setEditedUser({ ...editedUser, [name]: name === "role" ? value.toLowerCase() : value });
   }
 
   const handleDateChange = (date: Date | null, field: string) => {
@@ -177,7 +178,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
               </Col>
             </Row>
 
-            {editedUser.role === "Retiree" && (
+            {editedUser.role === "retiree" && (
               <Row className="mt-3">
                 <Col md={6}>
                   <FormGroup>
@@ -320,4 +321,3 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
 }
 
 export default UserRow
-
