@@ -302,6 +302,13 @@ option {
 	border-color: hsl(0, 0%, 0%);
 }
 
+.pagination-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 1rem;
+}
+
 /* Save Button Styles */
 .save-btn {
 	background-color: white;
@@ -322,6 +329,15 @@ option {
 	color: rgb(255, 255, 255);
 	outline: 2px solid hsl(45, 100%, 68%);
 }
+
+p {
+    color: grey;
+    font-style: italic;
+}
+
+/* .FormLabel {
+	font-weight: bold;
+} */
 
 /* .column-borders th, .column-borders td {
 	border: 0.5px solid #ddd;
@@ -352,6 +368,7 @@ option {
 		overflow-x: auto;
 		display: block;
 	}
+
 }
 
 @media (min-width: 481px) and (max-width: 1024px) {
@@ -378,4 +395,75 @@ option {
 		font-size: 1.1rem;
 		padding: 0.75rem 1.25rem;
 	}
+}
+
+/* Audit Logs Table */
+.audit-logs-container {
+	padding: 1.5rem;
+	background-color: hsl(0, 0%, 100%);
+}
+
+.audit-logs-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	margin-top: 1rem;
+	border: 1px solid hsl(220, 13%, 91%);
+	border-radius: 0.5rem;
+	overflow: hidden;
+	table-layout: fixed; /* Ensure fixed layout */
+}
+
+.audit-logs-table tbody {
+	height: calc(100% - 50px); /* Adjust height to account for the header */
+	display: block;
+	overflow-y: auto;
+}
+
+.audit-logs-table thead,
+.audit-logs-table tbody tr {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.audit-logs-table th,
+.audit-logs-table td {
+	padding: 0.5rem 1rem;
+	border-bottom: 1px solid hsl(220, 13%, 91%);
+	font-size: 0.875rem;
+	vertical-align: middle;
+	text-align: left;
+	overflow-wrap: break-word;
+	white-space: normal;
+	word-break: break-word;
+}
+
+.audit-logs-table th {
+	text-align: center;
+	background-color: hsl(210, 10%, 23%);
+	color: hsl(0, 0%, 100%);
+}
+
+.audit-logs-table th:first-child,
+.audit-logs-table td:first-child {
+	width: 20%; /* Adjust width for timestamp column */
+}
+
+.audit-logs-table th:nth-child(2),
+.audit-logs-table td:nth-child(2) {
+	width: 80%; /* Adjust width for changes column */
+}
+
+.audit-logs-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+/* Zebra stripes for readability */
+.audit-logs-table tbody tr:nth-child(even) {
+	background-color: hsl(0, 0%, 98%);
+}
+
+.audit-logs-table tbody tr:hover {
+	background-color: hsl(0, 0%, 91%);
 }

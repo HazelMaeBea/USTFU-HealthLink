@@ -29,6 +29,7 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 	const navigate = useNavigate();
 
 	const sidebarRef = useRef<HTMLDivElement>(null);
+	const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	const toggleSidebar = () => {
 		setIsOpen(!isOpen);
@@ -51,6 +52,18 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		setIsPopoutOpen(false);
 	};
 
+	const handleMouseEnter = () => {
+		if (hoverTimeoutRef.current) {
+			clearTimeout(hoverTimeoutRef.current);
+		}
+	};
+
+	const handleMouseLeave = () => {
+		hoverTimeoutRef.current = setTimeout(() => {
+			setIsOpen(false);
+		}, 3000);
+	};
+
 	// Close sidebar on click outside (for mobile)
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -67,6 +80,19 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		return () =>
 			document.removeEventListener("mousedown", handleClickOutside);
 	}, [isOpen]);
+
+	useEffect(() => {
+		if (sidebarRef.current) {
+			sidebarRef.current.addEventListener("mouseenter", handleMouseEnter);
+			sidebarRef.current.addEventListener("mouseleave", handleMouseLeave);
+		}
+		return () => {
+			if (sidebarRef.current) {
+				sidebarRef.current.removeEventListener("mouseenter", handleMouseEnter);
+				sidebarRef.current.removeEventListener("mouseleave", handleMouseLeave);
+			}
+		};
+	}, []);
 
 	const menuItems = [
 		{

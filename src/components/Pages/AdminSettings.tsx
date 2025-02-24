@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
-// import { BsCheckAll } from "react-icons/bs";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
 
@@ -12,6 +11,8 @@ import Popout from "../Page Elements/Popout/Popout";
 import VerificationPage from "../Page Elements/AdminSettings/VerificationPage";
 import PageButtons from "../Page Elements/PageButtons/PageButtons";
 import UserRow from "../Page Elements/AdminSettings/UserRow";
+import UserAuditLogs from "../Page Elements/AdminSettings/UserAuditLogs";
+import AuditLogsPopout from "../Page Elements/AdminSettings/AuditLogsPopout";
 
 interface User {
 	id: number;
@@ -29,7 +30,7 @@ const AdminSettings = () => {
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("userManagement");
 	const [showPopout, setShowPopout] = useState(false);
-	// Added state for search query
+	const [showAuditLogsPopout, setShowAuditLogsPopout] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const usersPerPage = 7; /* Set how many users are displayed */
@@ -81,6 +82,14 @@ const AdminSettings = () => {
 
 	const handleSave = (updatedUser: User) => {
 		setUsers(users.map((user) => (user.email === updatedUser.email ? updatedUser : user)));
+	};
+
+	const handleAuditLogsClick = () => {
+		setShowAuditLogsPopout(true);
+	};
+
+	const handleAuditLogsClose = () => {
+		setShowAuditLogsPopout(false);
 	};
 
 	// Filter users based on search query (for userManagement)
@@ -155,12 +164,12 @@ const AdminSettings = () => {
 					<table className="user-mngmnt-table">
 						<thead className="user-mngmnt-table-header">
 							<tr>
-								<th>ID Number</th>
+								<th>ID</th>
 								<th>Name</th>
 								<th>Email Address</th>
 								<th>College</th>
 								<th>Birthdate</th>
-								<th>Phone Number</th>
+								<th>Contact #</th>
 								<th>Role</th>
 								<th>Status</th>
 								<th></th>
@@ -172,12 +181,19 @@ const AdminSettings = () => {
 							))}
 						</tbody>
 					</table>
-					{/* Replace inline pagination with global PageButtons */}
-					<PageButtons
-						currentPage={currentPage}
-						totalPages={totalPages}
-						onPageChange={(page) => setCurrentPage(page)}
-					/>
+					<div className="pagination-container">
+						<PageButtons
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={(page) => setCurrentPage(page)}
+						/>
+						<input
+							type="button"
+							className="btn primary-btn save-btn"
+							value="VIEW USER AUDIT LOGS"
+							onClick={handleAuditLogsClick}
+						/>
+					</div>
 				</>
 			)}
 
@@ -196,6 +212,16 @@ const AdminSettings = () => {
 					onCancel={handleCancel}
 					isOpen={showPopout}
 				/>
+			)}
+
+			{showAuditLogsPopout && (
+				<AuditLogsPopout
+					title="User Audit Logs"
+					onClose={handleAuditLogsClose}
+					isOpen={showAuditLogsPopout}
+				>
+					<UserAuditLogs />
+				</AuditLogsPopout>
 			)}
 		</div>
 	);

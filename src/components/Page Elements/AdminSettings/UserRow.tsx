@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Button, Input, FormGroup, Label, Row, Col } from "reactstrap"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
+import { differenceInDays, differenceInWeeks } from "date-fns"
 
 interface User {
   id: number
@@ -15,6 +16,7 @@ interface User {
   phoneNumber: string
   role: string
   status: string
+  retirementDate?: string
   deactivationDate?: string
   inactiveReason?: "indefinite" | "on-leave"
   leaveReason?: string
@@ -60,6 +62,16 @@ const getStatusBadge = (status: string, inactiveReason?: string) => {
   return <span className="badge bg-secondary">Inactive</span>;
 };
 
+
+const calculateDuration = (start: string | undefined, end: string | undefined) => {
+  if (!start || !end) return ""
+  const startDate = new Date(start)
+  const endDate = new Date(end)
+  const diffDays = differenceInDays(endDate, startDate)
+  const diffWeeks = differenceInWeeks(endDate, startDate)
+  return `${diffWeeks} week(s) and ${diffDays % 7} day(s)`
+}
+
 const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editedUser, setEditedUser] = useState(user)
@@ -76,6 +88,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
     if (user.college !== editedUser.college) changes.push(`College from '${user.college}' to '${editedUser.college}'`)
     if (user.role !== editedUser.role) changes.push(`Role from '${user.role}' to '${editedUser.role}'`)
     if (user.status !== editedUser.status) changes.push(`Status from ${user.status} to ${editedUser.status}`)
+    if (user.retirementDate !== editedUser.retirementDate) changes.push(`Retirement Date was set from ${user.retirementDate} to ${editedUser.retirementDate}`)
     if (user.deactivationDate !== editedUser.deactivationDate) changes.push(`Deactivation Date was set from ${user.deactivationDate} to ${editedUser.deactivationDate}`)
     if (user.inactiveReason !== editedUser.inactiveReason) changes.push(`Inactive Reason from '${user.inactiveReason}' to '${editedUser.inactiveReason}'`)
     if (user.leaveReason !== editedUser.leaveReason) changes.push(`Leave Reason from '${user.leaveReason}' to '${editedUser.leaveReason}'`)
@@ -95,6 +108,14 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
 
   const handleDateChange = (date: Date | null, field: string) => {
     if (date) {
+      if (field === "leaveStartDate" && editedUser.leaveEndDate && date > new Date(editedUser.leaveEndDate)) {
+        alert("Start date cannot be later than end date.")
+        return
+      }
+      if (field === "leaveEndDate" && editedUser.leaveStartDate && date < new Date(editedUser.leaveStartDate)) {
+        alert("End date cannot be earlier than start date.")
+        return
+      }
       setEditedUser({ ...editedUser, [field]: date.toISOString().split("T")[0] })
     }
   }
@@ -104,7 +125,9 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
       <tr>
         <td>{user.id}</td>
         <td>{user.name}</td>
-        <td>{user.email}</td>
+        <td>
+          <a href={`mailto:${user.email}`}>{user.email}</a>
+        </td>
         <td>{user.college}</td>
         <td>{user.birthdate}</td>
         <td>{user.phoneNumber}</td>
@@ -154,16 +177,31 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
             </Row>
 
             {editedUser.role === "Retiree" && (
-              <Row>
+              <Row className="mt-3">
                 <Col md={6}>
                   <FormGroup>
-                    <Label for="deactivationDate">Account Deactivation Date</Label>
+                    <Label for="retirementDate">Retirement Date</Label>
+                    <br/>
+                    <DatePicker
+                      selected={editedUser.retirementDate ? new Date(editedUser.retirementDate) : null}
+                      onChange={(date) => handleDateChange(date, "retirementDate")}
+                      className="form-control"
+                      required
+                    />
+                    <p>* The date when the employee officially retires.</p>
+                  </FormGroup>
+                </Col>
+                <Col md={6}>
+                  <FormGroup>
+                    <Label for="deactivationDate">Deactivation Date</Label>
+                    <br/>
                     <DatePicker
                       selected={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : null}
                       onChange={(date) => handleDateChange(date, "deactivationDate")}
                       className="form-control"
                       required
                     />
+                    <p>* The account remains accessible until this date.  After this, login will be disabled.</p>
                   </FormGroup>
                 </Col>
               </Row>
@@ -204,43 +242,64 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
                 </Row>
 
                 {editedUser.inactiveReason === "on-leave" && (
+                  <>
                   <Row>
-                    <Col md={6}>
-                      <FormGroup>
-                        <Label for="leaveReason">Reason for Leave</Label>
-                        <Input
-                          type="textarea"
-                          name="leaveReason"
-                          id="leaveReason"
-                          value={editedUser.leaveReason || ""}
-                          onChange={handleChange}
-                          required
-                        />
-                      </FormGroup>
+                    <Col>
+                      <Row>
+                        <Col md={8} className="d-flex flex-row justify-content-end gap-3">
+                          <FormGroup>
+                            <Label for="leaveStartDate">Start Date</Label>
+                            <br/>
+                            <DatePicker
+                              selected={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
+                              onChange={(date) => handleDateChange(date, "leaveStartDate")}
+                              className="form-control"
+                              required
+                              selectsStart
+                              startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
+                              endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
+                              maxDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : undefined}
+                            />
+                          </FormGroup>
+                          <FormGroup>
+                            <Label for="leaveEndDate">End Date</Label>
+                            <br/>
+                            <DatePicker
+                              selected={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
+                              onChange={(date) => handleDateChange(date, "leaveEndDate")}
+                              className="form-control"
+                              required
+                              selectsEnd
+                              startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
+                              endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
+                              minDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : undefined}
+                            />
+                          </FormGroup>
+                        </Col>
+                      </Row> 
+                      <Row>
+                        <Col md={8}>
+                          <p>Duration: {calculateDuration(editedUser.leaveStartDate, editedUser.leaveEndDate)}</p>
+                        </Col>
+                      </Row>
                     </Col>
-                    <Col md={3}>
-                      <FormGroup>
-                        <Label for="leaveStartDate">Leave Start Date: \n</Label>
-                        <DatePicker
-                          selected={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-                          onChange={(date) => handleDateChange(date, "leaveStartDate")}
-                          className="form-control"
-                          required
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col md={3}>
-                      <FormGroup>
-                        <Label for="leaveEndDate">Leave End Date: \n</Label>
-                        <DatePicker
-                          selected={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-                          onChange={(date) => handleDateChange(date, "leaveEndDate")}
-                          className="form-control"
-                          required
-                        />
-                      </FormGroup>
+                    <Col>
+                      <Col md={8}>
+                          <FormGroup>
+                            <Label for="leaveReason">Reason for Leave</Label>
+                            <Input
+                              type="textarea"
+                              name="leaveReason"
+                              id="leaveReason"
+                              value={editedUser.leaveReason || ""}
+                              onChange={handleChange}
+                              required
+                            />
+                          </FormGroup>
+                        </Col>
                     </Col>
                   </Row>
+                  </>
                 )}
               </>
             )}

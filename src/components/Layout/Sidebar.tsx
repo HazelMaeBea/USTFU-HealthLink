@@ -10,7 +10,7 @@ import { RiSettings5Line } from "react-icons/ri";
 import { FaRegFolderOpen } from "react-icons/fa";
 import { AiOutlineFileDone } from "react-icons/ai";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Popout from "../Page Elements/Popout/Popout";
 import NotifBadge from "../Page Elements/NotifBadge/NotifBadge";
 
@@ -26,6 +26,34 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	// Simulation: pending request badge state
 	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(true);
 	const navigate = useNavigate();
+
+	const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	const handleMouseEnter = () => {
+		if (hoverTimeoutRef.current) {
+			clearTimeout(hoverTimeoutRef.current);
+		}
+	};
+
+	const handleMouseLeave = () => {
+		hoverTimeoutRef.current = setTimeout(() => {
+			setIsCollapsed(true);
+		}, 3000);
+	};
+
+	useEffect(() => {
+		const sidebarElement = document.querySelector(".sidebar-wrapper");
+		if (sidebarElement) {
+			sidebarElement.addEventListener("mouseenter", handleMouseEnter);
+			sidebarElement.addEventListener("mouseleave", handleMouseLeave);
+		}
+		return () => {
+			if (sidebarElement) {
+				sidebarElement.removeEventListener("mouseenter", handleMouseEnter);
+				sidebarElement.removeEventListener("mouseleave", handleMouseLeave);
+			}
+		};
+	}, []);
 
 	const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
