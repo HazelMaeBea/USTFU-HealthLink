@@ -4,6 +4,7 @@ import "./TrackingPage.css";
 import Tabs from "./Tabs";
 import RecordTable from "./RecordTable";
 import PageButtons from "../PageButtons/PageButtons";
+import StatusTracking from "./StatusTracking";
 
 const TrackingPage = () => {
 	// Tab state: 0 = Pending Requests, 1 = Previous Records
@@ -12,6 +13,9 @@ const TrackingPage = () => {
 	// Separate pagination states for each tab
 	const [pendingCurrentPage, setPendingCurrentPage] = useState(1);
 	const [previousCurrentPage, setPreviousCurrentPage] = useState(1);
+
+	// Checks if user is viewing status or not
+	const [selectedRecord, setSelectedRecord] = useState<string | null>(null);
 
 	const recordsPerPage = 7;
 
@@ -40,9 +44,7 @@ const TrackingPage = () => {
 
 	// Calculate total pages for each tab
 	const pendingTotalPages = Math.ceil(pendingRecords.length / recordsPerPage);
-	const previousTotalPages = Math.ceil(
-		previousRecords.length / recordsPerPage
-	);
+	const previousTotalPages = Math.ceil(previousRecords.length / recordsPerPage);
 
 	// Slice records based on current page states
 	const pendingCurrentRecords = pendingRecords.slice(
@@ -60,23 +62,41 @@ const TrackingPage = () => {
 				<div title="PENDING REQUESTS" className="Tabby">
 					<section className="tab-content">
 						<h3>PENDING REQUESTS</h3>
-						<RecordTable records={pendingCurrentRecords} />
-						<PageButtons
-							currentPage={pendingCurrentPage}
-							totalPages={pendingTotalPages}
-							onPageChange={setPendingCurrentPage}
-						/>
+						{selectedRecord ? (
+							<StatusTracking onBack={() => setSelectedRecord(null)} />
+						) : (
+							<>
+								<RecordTable
+									records={pendingCurrentRecords}
+									onDetailsClick={setSelectedRecord}
+								/>
+								<PageButtons
+									currentPage={pendingCurrentPage}
+									totalPages={pendingTotalPages}
+									onPageChange={setPendingCurrentPage}
+								/>
+							</>
+						)}
 					</section>
 				</div>
 				<div title="PREVIOUS RECORDS" className="Tabby">
 					<section className="tab-content">
 						<h3>PREVIOUS RECORDS</h3>
-						<RecordTable records={previousCurrentRecords} />
-						<PageButtons
-							currentPage={previousCurrentPage}
-							totalPages={previousTotalPages}
-							onPageChange={setPreviousCurrentPage}
-						/>
+						{selectedRecord ? (
+							<StatusTracking onBack={() => setSelectedRecord(null)} />
+						) : (
+							<>
+								<RecordTable
+									records={previousCurrentRecords}
+									onDetailsClick={setSelectedRecord}
+								/>
+								<PageButtons
+									currentPage={previousCurrentPage}
+									totalPages={previousTotalPages}
+									onPageChange={setPreviousCurrentPage}
+								/>
+							</>
+						)}
 					</section>
 				</div>
 			</Tabs>
