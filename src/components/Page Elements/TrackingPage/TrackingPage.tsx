@@ -1,4 +1,3 @@
-// This component displays a tabbed page with separate pagination logic for Pending Requests and Previous Records.
 import { useState } from "react";
 import "./TrackingPage.css";
 import Tabs from "./Tabs";
@@ -14,7 +13,7 @@ const TrackingPage = () => {
 	const [pendingCurrentPage, setPendingCurrentPage] = useState(1);
 	const [previousCurrentPage, setPreviousCurrentPage] = useState(1);
 
-	// Checks if user is viewing status or not
+	// Store the selected record's transaction ID
 	const [selectedRecord, setSelectedRecord] = useState<string | null>(null);
 
 	const recordsPerPage = 7;
@@ -34,7 +33,7 @@ const TrackingPage = () => {
 	}));
 	const allRecords = [...pendingDummyRecords, ...previousDummyRecords];
 
-	// Separate logic for filtering records
+	// Filter pending and previous records
 	const pendingRecords = allRecords.filter(
 		(record) => record.status === "Pending"
 	);
@@ -42,11 +41,11 @@ const TrackingPage = () => {
 		(record) => record.status === "Approved" || record.status === "Rejected"
 	);
 
-	// Calculate total pages for each tab
+	// Calculate total pages
 	const pendingTotalPages = Math.ceil(pendingRecords.length / recordsPerPage);
 	const previousTotalPages = Math.ceil(previousRecords.length / recordsPerPage);
 
-	// Slice records based on current page states
+	// Slice records based on pagination
 	const pendingCurrentRecords = pendingRecords.slice(
 		(pendingCurrentPage - 1) * recordsPerPage,
 		pendingCurrentPage * recordsPerPage
@@ -63,12 +62,17 @@ const TrackingPage = () => {
 					<section className="tab-content">
 						<h3>PENDING REQUESTS</h3>
 						{selectedRecord ? (
-							<StatusTracking onBack={() => setSelectedRecord(null)} />
+							<StatusTracking
+								onBack={() => setSelectedRecord(null)}
+								transactionID={selectedRecord} // Pass correct transaction ID
+							/>
 						) : (
 							<>
 								<RecordTable
 									records={pendingCurrentRecords}
-									onDetailsClick={setSelectedRecord}
+									onDetailsClick={(transactionID) =>
+										setSelectedRecord(transactionID)
+									} // Store clicked transaction ID
 								/>
 								<PageButtons
 									currentPage={pendingCurrentPage}
@@ -83,12 +87,17 @@ const TrackingPage = () => {
 					<section className="tab-content">
 						<h3>PREVIOUS RECORDS</h3>
 						{selectedRecord ? (
-							<StatusTracking onBack={() => setSelectedRecord(null)} />
+							<StatusTracking
+								onBack={() => setSelectedRecord(null)}
+								transactionID={selectedRecord} // Pass correct transaction ID
+							/>
 						) : (
 							<>
 								<RecordTable
 									records={previousCurrentRecords}
-									onDetailsClick={setSelectedRecord}
+									onDetailsClick={(transactionID) =>
+										setSelectedRecord(transactionID)
+									} // Store clicked transaction ID
 								/>
 								<PageButtons
 									currentPage={previousCurrentPage}
