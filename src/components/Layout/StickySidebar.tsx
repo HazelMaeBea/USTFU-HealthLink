@@ -24,7 +24,7 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
-	const { selectedRole } = useRole();
+	const { selectedRole, switchRole } = useRole();
 	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(true);
 	const navigate = useNavigate();
 
@@ -62,6 +62,14 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		hoverTimeoutRef.current = setTimeout(() => {
 			setIsOpen(false);
 		}, 3000);
+	};
+
+	const handleRoleSwitch = () => {
+		if (selectedRole === "operations handler") {
+			switchRole("member");
+		} else if (selectedRole === "member") {
+			switchRole("operations handler");
+		}
 	};
 
 	// Close sidebar on click outside (for mobile)
@@ -112,7 +120,7 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		},
 	];
 
-	if (selectedRole === "member") {
+	if (selectedRole === "member" || selectedRole === "operations handler" || selectedRole === "admin") {
 		menuItems.unshift(
 			{
 				name: "HOSPITALIZATION APPLICATION",
@@ -125,7 +133,9 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 				path: "/tracking",
 			}
 		);
-	} else if (selectedRole === "operations handler") {
+	}
+
+	if (selectedRole === "operations handler" || selectedRole === "admin") {
 		menuItems.unshift(
 			{
 				name: "HOSPITALIZATION HISTORY",
@@ -143,6 +153,14 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 				path: "/adminsettings",
 			}
 		);
+	}
+
+	if (selectedRole === "operations handler" || selectedRole === "admin") {
+		menuItems.push({
+			name: "SWITCH ROLE",
+			icon: <MdOutlineAdminPanelSettings size={20} />,
+			action: handleRoleSwitch,
+		});
 	}
 
 	return (

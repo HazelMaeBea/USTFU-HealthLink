@@ -76,7 +76,7 @@ const UserAuditLogs: React.FC = () => {
 				</thead>
 				<tbody>
 					{currentLogs.map((log, index) => (
-						<tr key={`${log.timestamp}-${index}`}>
+						<tr key={index}>
 							<td>{log.timestamp}</td>
 							<td>{log.changes}</td>
 						</tr>

@@ -182,7 +182,8 @@ option {
 
 .user-mngmnt-table th:nth-child(7),
 .user-mngmnt-table td:nth-child(7) {
-	width: 10%; /* Adjust width for phone num column */
+	width: 10%; /* Adjust width for role column */
+    text-transform: capitalize;
 }
 
 .user-mngmnt-table th:nth-child(9),
@@ -300,13 +301,6 @@ option {
 	background-color: hsl(0, 0%, 0%);
 	color: hsl(45, 100%, 51%);
 	border-color: hsl(0, 0%, 0%);
-}
-
-.pagination-container {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: 1rem;
 }
 
 /* Save Button Styles */
