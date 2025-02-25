@@ -1,16 +1,16 @@
 .back-button {
-  display: flex;
-  align-items: center;
-  justify-content: first baseline;
-  background-color: black;
-  color: white;
-  border-radius: 15px;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 10px;
-  width: 80px;
-  margin-bottom: 10px;
-  font-weight: normal; 
+  display: flex !important;
+  align-items: center !important;
+  justify-content: first baseline !important;
+  background-color: black !important;
+  color: white !important;
+  border-radius: 15px !important;
+  padding: 5px 10px !important;
+  cursor: pointer !important;
+  font-size: 10px !important;
+  width: 80px!important;
+  margin-bottom: 10px!important;
+  font-weight: normal!important; 
 }
 
 .back-button svg {
