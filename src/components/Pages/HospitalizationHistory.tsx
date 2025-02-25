@@ -296,6 +296,8 @@ const HospitalizationHistory = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+
+              {/* not compatible with safari for some reason. need to be made from scratch */}
               <select
                 className="btn btn-filter document-type"
                 aria-label="Document Type"

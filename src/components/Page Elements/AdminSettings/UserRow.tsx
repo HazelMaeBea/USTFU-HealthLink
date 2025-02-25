@@ -105,17 +105,30 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setEditedUser({ ...editedUser, [name]: name === "role" ? value.toLowerCase() : value });
+    setEditedUser({ ...editedUser, [name]: value });
   }
 
   const handleDateChange = (date: Date | null, field: string) => {
     if (date) {
+      const today = new Date();
       if (field === "leaveStartDate" && editedUser.leaveEndDate && date > new Date(editedUser.leaveEndDate)) {
         alert("Start date cannot be later than end date.")
         return
       }
       if (field === "leaveEndDate" && editedUser.leaveStartDate && date < new Date(editedUser.leaveStartDate)) {
         alert("End date cannot be earlier than start date.")
+        return
+      }
+      if (field === "retirementDate" && editedUser.deactivationDate && date > new Date(editedUser.deactivationDate)) {
+        alert("Retirement date cannot be later than deactivation date.")
+        return
+      }
+      if (field === "deactivationDate" && editedUser.retirementDate && date < new Date(editedUser.retirementDate)) {
+        alert("Deactivation date cannot be earlier than retirement date.")
+        return
+      }
+      if (field === "deactivationDate" && date < today) {
+        alert("Deactivation date cannot be a past date.")
         return
       }
       setEditedUser({ ...editedUser, [field]: date.toISOString().split("T")[0] })
@@ -161,9 +174,9 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
                 <FormGroup>
                   <Label for="role">Role</Label>
                   <Input type="select" name="role" id="role" value={editedUser.role} onChange={handleChange}>
-                    <option>Member</option>
-                    <option>Operations Handler</option>
-                    <option>Retiree</option>
+                    <option value="member">Member</option>
+                    <option value="operations handler">Operations Handler</option>
+                    <option value="retiree">Retiree</option>
                   </Input>
                 </FormGroup>
               </Col>
@@ -189,6 +202,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
                       onChange={(date) => handleDateChange(date, "retirementDate")}
                       className="form-control"
                       required
+                      maxDate={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : undefined}
                     />
                     <p>* The date when the employee officially retires.</p>
                   </FormGroup>
@@ -202,6 +216,8 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
                       onChange={(date) => handleDateChange(date, "deactivationDate")}
                       className="form-control"
                       required
+                      minDate={new Date()}
+                      excludeDates={[new Date()]}
                     />
                     <p>* The account remains accessible until this date.  After this, login will be disabled.</p>
                   </FormGroup>
