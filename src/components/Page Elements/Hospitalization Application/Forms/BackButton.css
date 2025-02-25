@@ -1,0 +1,18 @@
+.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: first baseline;
+  background-color: black;
+  color: white;
+  border-radius: 15px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 10px;
+  width: 80px;
+  margin-bottom: 10px;
+  font-weight: normal; 
+}
+
+.back-button svg {
+  margin-right: 5px;
+}
