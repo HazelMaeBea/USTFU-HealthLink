@@ -6,6 +6,7 @@ import { Button, Input, FormGroup, Label, Row, Col } from "reactstrap"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import { differenceInDays, differenceInWeeks } from "date-fns"
+import { Timestamp } from "firebase/firestore"
 
 interface User {
   id: number
@@ -23,6 +24,7 @@ interface User {
   leaveStartDate?: string
   leaveEndDate?: string
   document: string
+  createdAt: Timestamp
 }
 
 interface UserRowProps {

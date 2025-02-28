@@ -1,8 +1,8 @@
 import "../Page Elements/AdminSettings/AdminSettings.css";
 
 import { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { collection, onSnapshot, doc, setDoc, Timestamp } from "firebase/firestore";
+import { onAuthStateChanged, sendSignInLinkToEmail } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
@@ -30,6 +30,7 @@ interface User {
 	leaveStartDate?: string
 	leaveEndDate?: string
 	document: string
+	createdAt: Timestamp
   }
 
 const AdminSettings = () => {
@@ -41,6 +42,10 @@ const AdminSettings = () => {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const usersPerPage = 7; /* Set how many users are displayed */
+	// HookState for user and user fields
+	const [editUser, setEditUser] = useState<User>();
+	const [editDocument, setEditDocument] = useState("");
+	const [editCreatedAt, setEditCreatedAt] = useState<Date>();
 
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -61,6 +66,7 @@ const AdminSettings = () => {
 									role: data.role || "Member",
 									status: data.status || "INACTIVE",
 									document: doc.id,
+									createdAt: data.createdAt,
 								};
 							})
 							.sort((a, b) =>
@@ -79,9 +85,20 @@ const AdminSettings = () => {
 		return () => unsubscribeAuth();
 	}, []);
 
-	const handleSaveConfirm = () => {
+	const handleSaveConfirm = async () => {
 		console.log("Saving changes...");
+		console.log(editUser);
 		setShowPopout(false);
+		// console.log("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", documentId, birthdate, deactivationDate, email, userId, inactiveReason, leaveEndDate, leaveReason, leaveStartDate, name, phoneNumber, retirementDate, role, status, college)
+		try {
+			// const userDoc = doc(db, 'users', documentId);
+			await setDoc(doc(db, 'users', editDocument), {
+				...editUser,
+				createdAt: editCreatedAt,
+			}, {merge: true})
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	const handleCancel = () => {
@@ -89,8 +106,12 @@ const AdminSettings = () => {
 	};
 
 	const handleSave = (updatedUser: User) => {
-		// setUsers(users.map((user) => (user.email === updatedUser.email ? updatedUser : user)));
+		// setUsers(users.map((user) => (user.email === updatedUser.email ? updatedUser : user)))
 		console.log("User updated:", updatedUser);
+		setEditUser(updatedUser);
+		setEditDocument(updatedUser.document);
+		setEditCreatedAt(new Date(updatedUser.createdAt.toDate().toString()));
+		setShowPopout(true);
 	};
 
 	const handleAuditLogsClick = () => {
