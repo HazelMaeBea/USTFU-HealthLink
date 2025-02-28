@@ -2,7 +2,7 @@ import "../Page Elements/AdminSettings/AdminSettings.css";
 
 import { useState, useEffect } from "react";
 import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, updateCurrentUser } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
 // import { BsCheckAll } from "react-icons/bs";
 import { TbSearch } from "react-icons/tb";
@@ -12,6 +12,7 @@ import Popout from "../Page Elements/Popout/Popout";
 import VerificationPage from "../Page Elements/AdminSettings/VerificationPage";
 import PageButtons from "../Page Elements/PageButtons/PageButtons";
 import UserRow from "../Page Elements/AdminSettings/UserRow";
+import firebase from "firebase/compat/app";
 
 interface User {
 	id: number
@@ -40,10 +41,10 @@ const AdminSettings = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const usersPerPage = 7; /* Set how many users are displayed */
 	// Empty values for proper null value assignment
-	const emptyRoles: any[] = [];
+	// const emptyRoles: any[] = [];
 	// useStates for saving values to be edited in the user document
 	const [editCollege, setEditCollege] = useState("");
-	const [editRole, setEditRole] = useState(emptyRoles);
+	const [editRole, setEditRole] = useState("");
 	const [editStatus, setEditStatus] = useState("");
 	const [editDeactivationDate, setEditDeactivationDate] = useState("");
 	const [editInactiveReason, setEditInactiveReason] = useState("");
@@ -96,7 +97,7 @@ const AdminSettings = () => {
 		setEditLeaveStartDate("");
 		setEditLeaveEndDate("");
 		setEditCollege("");
-		setEditRole(emptyRoles);
+		setEditRole("");
 		setEditStatus("");
 		setEditDocument("");
 		// console.log("emptyUseStates function called");
@@ -106,16 +107,16 @@ const AdminSettings = () => {
 		try {
 			// await setDoc(doc(db, 'users', editDocument), {
 			// 	college: editCollege,
-			// 	role: editRole,
+			// 	// role: [editRole],
 			// 	status: editStatus.toUpperCase(),
-			// 	deactivationDate: editDeactivationDate,
+			// 	deactivationDate: new Date(editDeactivationDate),
 			// 	inactiveReason: editInactiveReason,
 			// 	leaveReason: editLeaveReason,
-			// 	leaveStartDate: editLeaveStartDate,
-			// 	leaveEndDate: editLeaveEndDate,
+			// 	leaveStartDate: new Date(editLeaveStartDate),
+			// 	leaveEndDate: new Date(editLeaveEndDate),
 			// }), {merge: true}
-			console.log([editRole]);
-			console.log("Saving changes...");
+			// console.log([editRole]);
+			// console.log("Saving changes...");
 			// console.log(editUser);
 			// setEditUser();
 			setShowPopout(false);
@@ -123,7 +124,8 @@ const AdminSettings = () => {
 		catch(e) {
 			return console.error(e);
 		}
-		console.log(editCollege + [editRole] + editStatus + editDocument + editDeactivationDate + editInactiveReason + editLeaveReason + editLeaveStartDate + editLeaveEndDate);
+		console.log(editCollege + editRole + editStatus + editDocument + editDeactivationDate + editInactiveReason + editLeaveReason + editLeaveStartDate + editLeaveEndDate);
+		// console.log(editRole);
 		emptyUseStates();
 	};
 
@@ -157,10 +159,11 @@ const AdminSettings = () => {
 		
 		setShowPopout(true);
 		setEditCollege(updatedUser.college);
-		setEditRole([updatedUser.role]);
+		setEditRole(updatedUser.role);
 		setEditStatus(updatedUser.status);
 		setEditDocument(updatedUser.document);
-		console.log(updatedUser);
+		// console.log(updatedUser);
+		// console.log(updatedUser.leaveStartDate)
 	};
 
 	// Filter users based on search query (for userManagement)
@@ -247,8 +250,8 @@ const AdminSettings = () => {
 							</tr>
 						</thead>
 						<tbody>
-							{currentUsers.map((user, i) => (
-								<UserRow key={i} user={user} onSave={handleSave} />
+							{currentUsers.map((user) => (
+								<UserRow key={user.document} user={user} onSave={handleSave} />
 							))}
 						</tbody>
 					</table>

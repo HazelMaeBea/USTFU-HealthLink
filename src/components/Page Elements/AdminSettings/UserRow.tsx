@@ -136,7 +136,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
               <Col md={4}>
                 <FormGroup>
                   <Label for="role">Role</Label>
-                  <Input type="select" name="role" id="role" defaultValue={editedUser.role[0]} onChange={handleChange}>
+                  <Input type="select" name="role" id="role" defaultValue={editedUser.role} onChange={handleChange}>
                     <option value="member">Member</option>
                     <option value="operations handler">Operations Handler</option>
                     <option value="retiree">Retiree</option>
