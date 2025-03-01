@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 import { useState } from "react"
 import { Button, Input, FormGroup, Label, Row, Col } from "reactstrap"
 import DatePicker from "react-datepicker"
@@ -8,6 +8,7 @@ import "react-datepicker/dist/react-datepicker.css"
 import { differenceInDays, differenceInWeeks } from "date-fns"
 import { Timestamp } from "firebase/firestore"
 import { HiOutlineDotsVertical } from "react-icons/hi"
+import { createPortal } from "react-dom"
 
 interface User {
   id: number
@@ -81,6 +82,29 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
   const [lastEdited, setLastEdited] = useState<string | null>(null)
   const [editOption, setEditOption] = useState<"college" | "role" | "status" | null>(null)
   const [showOptions, setShowOptions] = useState(false)
+  const [popupStyle, setPopupStyle] = useState<React.CSSProperties>({})
+  const containerRef = React.useRef<HTMLDivElement>(null)
+
+  const handleMouseEnter = () => {
+    setShowOptions(true)
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect()
+      setPopupStyle({
+        position: "absolute",
+        top: rect.bottom + window.scrollY,
+        left: rect.left + rect.width / 2 + window.scrollX -80, 
+        transform: "translateX(-50%)",
+        zIndex: 1000,
+        backgroundColor: "white",
+        border: "1px solid #ccc",
+        boxShadow: "0 2px 5px rgba(0,0,0,0.15)",
+        whiteSpace: "nowrap",
+        padding: "10px",
+        maxWidth: "180px",
+        pointerEvents: "auto",
+      })
+    }
+  }
 
   const handleEdit = (option: "college" | "role" | "status") => {
     setIsEditing(true);
@@ -89,6 +113,22 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
   };
 
   const handleSave = () => {
+    // Ensure required dates are provided when role is retiree
+    if (editedUser.role === "retiree" && (!editedUser.retirementDate || !editedUser.deactivationDate)) {
+      alert("Please provide both retirement date and deactivation date.");
+      return;
+    }
+    // Cannot change status to inactive when role is retiree
+    if (editedUser.role === "retiree" && editedUser.status === "INACTIVE") {
+      alert("Cannot set status to inactive when role is retiree.");
+      return;
+    }
+    // If inactive reason is 'on-leave', require leave start and end dates
+    if (editedUser.status === "INACTIVE" && editedUser.inactiveReason === "on-leave" &&
+        (!editedUser.leaveStartDate || !editedUser.leaveEndDate)) {
+      alert("Please provide both leave start date and leave end date.");
+      return;
+    }
     setIsEditing(false);
     onSave(editedUser, editOption!);
     const changes = []
@@ -155,27 +195,32 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
         <td>{user.phoneNumber}</td>
         <td>{user.role}</td>
         <td>{getStatusBadge(user.status, user.inactiveReason)}</td>
-        <td>
+        <td style={{ overflow: "visible" }}>
           <div
             className="edit-button-container"
-            onMouseEnter={() => setShowOptions(true)}
+            ref={containerRef}
+            onMouseEnter={handleMouseEnter}
             onMouseLeave={() => setShowOptions(false)}
+            style={{ position: "relative", overflow: "visible" }}
           >
             <HiOutlineDotsVertical className="edit-button" size={24} />
-            {showOptions && (
-              <div className="edit-options-menu">
-                <button onClick={() => handleEdit("college")}>
-                  Edit College
-                </button>
-                <button onClick={() => handleEdit("role")}>
-                  Edit Role
-                </button>
-                <button onClick={() => handleEdit("status")}>
-                  Edit Status
-                </button>
-              </div>
-            )}
           </div>
+          {showOptions &&
+            createPortal(
+              <div
+                className="edit-options-menu"
+                style={popupStyle}
+                onMouseEnter={() => setShowOptions(true)}
+                onMouseLeave={() => setShowOptions(false)}
+              >
+                <button onClick={() => handleEdit("college")}>Edit College</button>
+                <button onClick={() => handleEdit("role")}>Edit Role</button>
+                {editedUser.role !== "retiree" && (
+                  <button onClick={() => handleEdit("status")}>Edit Status</button>
+                )}
+              </div>,
+              document.body
+            )}
         </td>
       </tr>
       {isEditing && (
