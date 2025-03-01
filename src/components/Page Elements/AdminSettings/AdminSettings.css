@@ -5,10 +5,11 @@ body {
 
 /* Container & Layout */
 .admin-settings-container {
-	max-width: 1200px;
+	/* max-width: 1200px; */
 	margin: 0 auto;
 	padding: 1.5rem;
 	background-color: hsl(0, 0%, 100%);
+	height: auto;
 }
 
 /* HR */
@@ -112,7 +113,6 @@ option {
 	border: 1px solid hsl(220, 13%, 91%);
 	border-radius: 0.5rem;
 	overflow: hidden;
-	height: 470px; /* Set a fixed height for the table */
 	table-layout: fixed; /* Ensure fixed layout */
 }
 
@@ -141,38 +141,56 @@ option {
 	font-size: 0.875rem;
 	vertical-align: middle;
 	text-align: left;
-	overflow: hidden; /* Prevent overflow */
-	text-overflow: ellipsis; /* Add ellipsis for overflow text */
-	/* white-space: nowrap; // Prevent text wrapping */
+	overflow-wrap: break-word;
+	white-space: normal;
+	word-break: break-word;
 }
 
 .user-mngmnt-table th {
 	text-align: center;
 }
 
+.user-mngmnt-table th:first-child,
+.user-mngmnt-table td:first-child {
+	width: 8%; /* Adjust width for id num column */
+}
+
 .user-mngmnt-table th:nth-child(2),
 .user-mngmnt-table td:nth-child(2) {
-	width: 23%; /* Adjust width for email column */
+	width: 15%; /* Adjust width for name column */
 }
 
 .user-mngmnt-table th:nth-child(3),
 .user-mngmnt-table td:nth-child(3) {
-	width: 15%; /* Adjust width for college column */
+	width: 20%; /* Adjust width for email column */
 }
 
 .user-mngmnt-table th:nth-child(4),
 .user-mngmnt-table td:nth-child(4) {
-	width: 21%; /* Adjust width for role column */
+	width: 15%; /* Adjust width for college column */
 }
 
 .user-mngmnt-table th:nth-child(5),
 .user-mngmnt-table td:nth-child(5) {
-	width: 13%; /* Adjust width for status column */
+	width: 8%; /* Adjust width for birthdate column */
 }
 
 .user-mngmnt-table th:nth-child(6),
 .user-mngmnt-table td:nth-child(6) {
-	width: 10%; /* Adjust width for save column */
+	width: 10%; /* Adjust width for phone num column */
+}
+
+.user-mngmnt-table th:nth-child(7),
+.user-mngmnt-table td:nth-child(7) {
+	width: 10%; /* Adjust width for role column */
+    text-transform: capitalize;
+}
+
+.user-mngmnt-table th:nth-child(9),
+.user-mngmnt-table td:nth-child(9),
+.user-mngmnt-table th:nth-child(8),
+.user-mngmnt-table td:nth-child(8) {
+	white-space: nowrap; /* Prevent word break */
 }
 
 .user-mngmnt-table tbody tr:last-child td {
@@ -196,6 +214,11 @@ option {
 	font-weight: 700;
 	border-radius: 0.25rem;
 	text-transform: uppercase;
+}
+
+.badge {
+	font-size: 1rem; /* Increase font size */
+	padding: 0.5em 0.75em; /* Increase padding */
 }
 
 /* Updated Search Field Styles */
@@ -301,6 +324,19 @@ option {
 	outline: 2px solid hsl(45, 100%, 68%);
 }
 
+p {
+    color: grey;
+    font-style: italic;
+}
+
+/* .FormLabel {
+	font-weight: bold;
+} */
+
+/* .column-borders th, .column-borders td {
+	border: 0.5px solid #ddd;
+} */
+
 @media (max-width: 480px) {
 	.ustfu-as-btn {
 		padding: 0.5rem 0.75rem;
@@ -326,6 +362,7 @@ option {
 		overflow-x: auto;
 		display: block;
 	}
+
 }
 
 @media (min-width: 481px) and (max-width: 1024px) {
@@ -352,4 +389,75 @@ option {
 		font-size: 1.1rem;
 		padding: 0.75rem 1.25rem;
 	}
+}
+
+/* Audit Logs Table */
+.audit-logs-container {
+	padding: 1.5rem;
+	background-color: hsl(0, 0%, 100%);
+}
+
+.audit-logs-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	margin-top: 1rem;
+	border: 1px solid hsl(220, 13%, 91%);
+	border-radius: 0.5rem;
+	overflow: hidden;
+	table-layout: fixed; /* Ensure fixed layout */
+}
+
+.audit-logs-table tbody {
+	height: calc(100% - 50px); /* Adjust height to account for the header */
+	display: block;
+	overflow-y: auto;
+}
+
+.audit-logs-table thead,
+.audit-logs-table tbody tr {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.audit-logs-table th,
+.audit-logs-table td {
+	padding: 0.5rem 1rem;
+	border-bottom: 1px solid hsl(220, 13%, 91%);
+	font-size: 0.875rem;
+	vertical-align: middle;
+	text-align: left;
+	overflow-wrap: break-word;
+	white-space: normal;
+	word-break: break-word;
+}
+
+.audit-logs-table th {
+	text-align: center;
+	background-color: hsl(210, 10%, 23%);
+	color: hsl(0, 0%, 100%);
+}
+
+.audit-logs-table th:first-child,
+.audit-logs-table td:first-child {
+	width: 20%; /* Adjust width for timestamp column */
+}
+
+.audit-logs-table th:nth-child(2),
+.audit-logs-table td:nth-child(2) {
+	width: 80%; /* Adjust width for changes column */
+}
+
+.audit-logs-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+/* Zebra stripes for readability */
+.audit-logs-table tbody tr:nth-child(even) {
+	background-color: hsl(0, 0%, 98%);
+}
+
+.audit-logs-table tbody tr:hover {
+	background-color: hsl(0, 0%, 91%);
 }

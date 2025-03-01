@@ -24,11 +24,12 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
-	const { selectedRole } = useRole();
+	const { selectedRole, switchRole } = useRole();
 	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(true);
 	const navigate = useNavigate();
 
 	const sidebarRef = useRef<HTMLDivElement>(null);
+	const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	const toggleSidebar = () => {
 		setIsOpen(!isOpen);
@@ -51,6 +52,26 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		setIsPopoutOpen(false);
 	};
 
+	const handleMouseEnter = () => {
+		if (hoverTimeoutRef.current) {
+			clearTimeout(hoverTimeoutRef.current);
+		}
+	};
+
+	const handleMouseLeave = () => {
+		hoverTimeoutRef.current = setTimeout(() => {
+			setIsOpen(false);
+		}, 3000);
+	};
+
+	const handleRoleSwitch = () => {
+		if (selectedRole === "operations handler") {
+			switchRole("member");
+		} else if (selectedRole === "member") {
+			switchRole("operations handler");
+		}
+	};
+
 	// Close sidebar on click outside (for mobile)
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -67,6 +88,19 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		return () =>
 			document.removeEventListener("mousedown", handleClickOutside);
 	}, [isOpen]);
+
+	useEffect(() => {
+		if (sidebarRef.current) {
+			sidebarRef.current.addEventListener("mouseenter", handleMouseEnter);
+			sidebarRef.current.addEventListener("mouseleave", handleMouseLeave);
+		}
+		return () => {
+			if (sidebarRef.current) {
+				sidebarRef.current.removeEventListener("mouseenter", handleMouseEnter);
+				sidebarRef.current.removeEventListener("mouseleave", handleMouseLeave);
+			}
+		};
+	}, []);
 
 	const menuItems = [
 		{
@@ -86,7 +120,7 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		},
 	];
 
-	if (selectedRole === "member") {
+	if (selectedRole === "member" || selectedRole === "operations handler" || selectedRole === "admin") {
 		menuItems.unshift(
 			{
 				name: "HOSPITALIZATION APPLICATION",
@@ -99,7 +133,9 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 				path: "/tracking",
 			}
 		);
-	} else if (selectedRole === "operations handler") {
+	}
+
+	if (selectedRole === "operations handler" || selectedRole === "admin") {
 		menuItems.unshift(
 			{
 				name: "HOSPITALIZATION HISTORY",
@@ -117,6 +153,14 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 				path: "/adminsettings",
 			}
 		);
+	}
+
+	if (selectedRole === "operations handler" || selectedRole === "admin") {
+		menuItems.push({
+			name: "SWITCH ROLE",
+			icon: <MdOutlineAdminPanelSettings size={20} />,
+			action: handleRoleSwitch,
+		});
 	}
 
 	return (

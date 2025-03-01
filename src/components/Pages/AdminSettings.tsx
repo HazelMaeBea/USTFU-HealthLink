@@ -1,34 +1,51 @@
 import "../Page Elements/AdminSettings/AdminSettings.css";
 
 import { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { collection, onSnapshot, doc, setDoc, Timestamp } from "firebase/firestore";
+import { onAuthStateChanged, sendSignInLinkToEmail } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
-import { BsCheckAll } from "react-icons/bs";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
 
 import Popout from "../Page Elements/Popout/Popout";
 import VerificationPage from "../Page Elements/AdminSettings/VerificationPage";
 import PageButtons from "../Page Elements/PageButtons/PageButtons";
+import UserRow from "../Page Elements/AdminSettings/UserRow";
+import UserAuditLogs from "../Page Elements/AdminSettings/UserAuditLogs";
+import AuditLogsPopout from "../Page Elements/AdminSettings/AuditLogsPopout";
 
 interface User {
-	displayName: string;
-	email: string;
-	college: string;
-	role: string;
-	status: string;
-}
+	id: number
+	name: string
+	email: string
+	college: string
+	birthdate: string
+	phoneNumber: string
+	role: string
+	status: string
+	retirementDate?: string
+	deactivationDate?: string
+	inactiveReason?: "indefinite" | "on-leave"
+	leaveReason?: string
+	leaveStartDate?: string
+	leaveEndDate?: string
+	document: string
+	createdAt: Timestamp
+  }
 
 const AdminSettings = () => {
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("userManagement");
 	const [showPopout, setShowPopout] = useState(false);
-	// Added state for search query
+	const [showAuditLogsPopout, setShowAuditLogsPopout] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const usersPerPage = 7; /* Set how many users are displayed */
+	// HookState for user and user fields
+	const [editUser, setEditUser] = useState<User>();
+	const [editDocument, setEditDocument] = useState("");
+	const [editCreatedAt, setEditCreatedAt] = useState<Date>();
 
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -40,15 +57,20 @@ const AdminSettings = () => {
 							.map((doc) => {
 								const data = doc.data();
 								return {
-									displayName: data.displayName || "Unknown",
+									id: data.idNumber || "Unknown",
+									name: data.displayName || "Unknown",
 									email: data.email || "Unknown",
-									status: data.status || "INACTIVE",
 									college: data.college || "UNAFFILIATED",
-									role: data.role || "member",
+									birthdate: data.birthdate || "Unknown",
+									phoneNumber: data.phoneNumber || "Unknown",
+									role: data.role || "Member",
+									status: data.status || "INACTIVE",
+									document: doc.id,
+									createdAt: data.createdAt,
 								};
 							})
 							.sort((a, b) =>
-								a.displayName.localeCompare(b.displayName)
+								a.name.localeCompare(b.name)
 							) as User[];
 						setUsers(sortedUsers);
 						setLoading(false);
@@ -63,24 +85,48 @@ const AdminSettings = () => {
 		return () => unsubscribeAuth();
 	}, []);
 
-	const handleEditClick = () => {
-		setShowPopout(true);
-	};
-
-	const handleSaveConfirm = () => {
+	const handleSaveConfirm = async () => {
 		console.log("Saving changes...");
+		console.log(editUser);
 		setShowPopout(false);
+		// console.log("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", documentId, birthdate, deactivationDate, email, userId, inactiveReason, leaveEndDate, leaveReason, leaveStartDate, name, phoneNumber, retirementDate, role, status, college)
+		try {
+			// const userDoc = doc(db, 'users', documentId);
+			await setDoc(doc(db, 'users', editDocument), {
+				...editUser,
+				createdAt: editCreatedAt,
+			}, {merge: true})
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	const handleCancel = () => {
 		setShowPopout(false);
 	};
 
+	const handleSave = (updatedUser: User) => {
+		// setUsers(users.map((user) => (user.email === updatedUser.email ? updatedUser : user)))
+		console.log("User updated:", updatedUser);
+		setEditUser(updatedUser);
+		setEditDocument(updatedUser.document);
+		setEditCreatedAt(new Date(updatedUser.createdAt.toDate().toString()));
+		setShowPopout(true);
+	};
+
+	const handleAuditLogsClick = () => {
+		setShowAuditLogsPopout(true);
+	};
+
+	const handleAuditLogsClose = () => {
+		setShowAuditLogsPopout(false);
+	};
+
 	// Filter users based on search query (for userManagement)
 	const filteredUsers = users.filter((user) => {
 		const query = searchQuery.toLowerCase();
 		return (
-			user.displayName.toLowerCase().includes(query) ||
+			user.name.toLowerCase().includes(query) ||
 			user.email.toLowerCase().includes(query) ||
 			user.college.toLowerCase().includes(query) ||
 			user.role.toLowerCase().includes(query) ||
@@ -148,82 +194,33 @@ const AdminSettings = () => {
 					<table className="user-mngmnt-table">
 						<thead className="user-mngmnt-table-header">
 							<tr>
-								<th>NAME</th>
-								<th>EMAIL ADDRESS</th>
-								<th>COLLEGE</th>
-								<th>ROLE</th>
-								<th>STATUS</th>
+								<th>ID</th>
+								<th>Name</th>
+								<th>Email Address</th>
+								<th>College</th>
+								<th>Birthdate</th>
+								<th>Contact #</th>
+								<th>Role</th>
+								<th>Status</th>
 								<th></th>
 							</tr>
 						</thead>
 						<tbody>
-							{currentUsers.map((user, i) => (
-								<tr key={i}>
-									<td>{user.displayName}</td>
-									<td>{user.email}</td>
-									<td>{user.college}</td>
-									<td>
-										<select
-											value={
-												typeof user.role === "string"
-													? user.role.toLowerCase()
-													: ""
-											}
-											className="item-select"
-											aria-label="Select Role"
-										>
-											<option value="member">
-												MEMBER
-											</option>
-											<option value="operations handler">
-												OPERATIONS HANDLER
-											</option>
-											<option value="retiree">
-												RETIREE
-											</option>
-										</select>
-									</td>
-									<td>
-										<select
-											value={user.status}
-											className="item-select"
-											aria-label="Select Status"
-											style={{
-												backgroundColor:
-													"ACTIVE" === user.status
-														? "hsl(134, 61%, 85%)"
-														: "hsl(354, 70%, 85%)",
-											}}
-										>
-											<option value="ACTIVE">
-												ACTIVE
-											</option>
-											<option value="INACTIVE">
-												INACTIVE
-											</option>
-										</select>
-									</td>
-									<td>
-										<button
-											className="save-btn"
-											onClick={handleEditClick}
-										>
-											<BsCheckAll
-												className="save-icon"
-												size={20}
-											/>{" "}
-											SAVE
-										</button>
-									</td>
-								</tr>
+							{currentUsers.map((user) => (
+								<UserRow key={user.document} user={user} onSave={handleSave} />
 							))}
 						</tbody>
 					</table>
-					{/* Replace inline pagination with global PageButtons */}
 					<PageButtons
 						currentPage={currentPage}
 						totalPages={totalPages}
 						onPageChange={(page) => setCurrentPage(page)}
+					/>
+					<input
+						type="button"
+						className="btn primary-btn save-btn"
+						value="VIEW USER AUDIT LOGS"
+						onClick={handleAuditLogsClick}
 					/>
 				</>
 			)}
@@ -243,6 +240,16 @@ const AdminSettings = () => {
 					onCancel={handleCancel}
 					isOpen={showPopout}
 				/>
+			)}
+
+			{showAuditLogsPopout && (
+				<AuditLogsPopout
+					title="User Audit Logs"
+					onClose={handleAuditLogsClose}
+					isOpen={showAuditLogsPopout}
+				>
+					<UserAuditLogs />
+				</AuditLogsPopout>
 			)}
 		</div>
 	);

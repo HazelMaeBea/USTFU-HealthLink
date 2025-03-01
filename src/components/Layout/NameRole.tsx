@@ -1,14 +1,13 @@
-import { useRole } from './RoleContext';
 import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../config/firebase'; // Adjust the path to your Firebase config
 import { onAuthStateChanged } from 'firebase/auth';
-import Role from './Role'; // Import the Role component
+import { useRole } from './RoleContext';
+import Role from './Role';
 
 const NameRole = () => {
+    const { setSelectedRole, setAvailableRoles } = useRole();
     const [name, setName] = useState('');
-    const [roles, setRoles] = useState<string[]>([]);
-    const { selectedRole, setSelectedRole } = useRole();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -19,13 +18,10 @@ const NameRole = () => {
 
                 if (userDocSnap.exists()) {
                     const userData = userDocSnap.data();
-                    setName(userData.displayName || 'Unknown User');
-                    const userRoles = userData.role || []; 
-                    setRoles(userRoles);
-
-                    if (userRoles.length > 0 && !selectedRole) {
-                        setSelectedRole(userRoles[0]);
-                    }
+                    setName(userData.displayName);
+                    const roles = userData.role === 'operations handler' ? ['operations handler', 'member'] : [userData.role];
+                    setAvailableRoles(roles);
+                    setSelectedRole(roles[0]); // Set the default role to 'operations handler' if available
                 } else {
                     console.log('No such document!');
                 }
@@ -45,7 +41,7 @@ const NameRole = () => {
         });
 
         return () => unsubscribe();
-    }, [selectedRole, setSelectedRole]);
+    }, [setAvailableRoles, setSelectedRole]);
 
     if (loading) {
         return <div>Loading...</div>;
@@ -54,9 +50,7 @@ const NameRole = () => {
     return (
         <div className="name-role">
             <h1 className="name">{name}</h1>
-            <h1>
-                <Role roles={roles} selectedRole={selectedRole} setSelectedRole={setSelectedRole} />
-            </h1>
+            <Role />
         </div>
     );
 };

@@ -1,40 +1,33 @@
 import React from "react";
+import { useRole } from "./RoleContext";
 
-interface RoleProps {
-	roles: string[];
-	selectedRole: string;
-	setSelectedRole: (role: string) => void;
-}
+const Role: React.FC = () => {
+    const { selectedRole, setSelectedRole, availableRoles } = useRole();
 
-const Role: React.FC<RoleProps> = ({
-	roles,
-	selectedRole,
-	setSelectedRole,
-}) => {
-	const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setSelectedRole(event.target.value);
-	};
+    const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedRole(event.target.value);
+    };
 
-	return (
-		<div className="role-container">
-			{roles.length > 1 ? (
-				<select
-					className="role-dropdown"
-					value={selectedRole}
-					onChange={handleRoleChange}
-					aria-label="Select role"
-				>
-					{roles.map((role, index) => (
-						<option key={index} value={role}>
-							{role}
-						</option>
-					))}
-				</select>
-			) : (
-				<div className="single-role">{selectedRole}</div>
-			)}
-		</div>
-	);
+    return (
+        <div className="role-container">
+            {availableRoles.length > 1 ? (
+                <select
+                    className="role-dropdown"
+                    value={selectedRole}
+                    onChange={handleRoleChange}
+                    aria-label="Select role"
+                >
+                    {availableRoles.map((role, index) => (
+                        <option key={index} value={role}>
+                            {role}
+                        </option>
+                    ))}
+                </select>
+            ) : (
+                <div className="single-role">{selectedRole}</div>
+            )}
+        </div>
+    );
 };
 
 export default Role;
