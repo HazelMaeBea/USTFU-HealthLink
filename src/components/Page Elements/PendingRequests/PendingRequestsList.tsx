@@ -13,8 +13,12 @@ import Popout from "../Popout/Popout";
 const PendingRequestList = () => {
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 	const [requests] = useState<PendingRequest[]>(mockPendingRequests);
-	const [showCommentBox, setShowCommentBox] = useState<string | null>(null);
-	const [activeDecision, setActiveDecision] = useState<string | null>(null);
+	const [showCommentBox, setShowCommentBox] = useState<string | null>(
+		"Additional Comments"
+	);
+	const [activeDecision, setActiveDecision] = useState<string | null>(
+		"approval"
+	);
 	const [showPopout, setShowPopout] = useState<boolean>(false);
 
 	const handleAction = (
@@ -27,8 +31,8 @@ const PendingRequestList = () => {
 		} else if (action === "for revision") {
 			setShowCommentBox("Reason for revision...");
 		} else {
-			setShowCommentBox(null); // Hide comment box when approving
-			setShowPopout(true);
+			setShowCommentBox("Additional Comments..."); // Hide comment box when approving
+			// setShowPopout(true);
 		}
 	};
 
@@ -184,30 +188,30 @@ const PendingRequestList = () => {
 				return (
 					<>
 						{baseFields}
-						<div className="d-flex flex-wrap gap-3 mb-4">
+						<div className="form-grid">
 							<div className="form-group">
 								<label>OR Number</label>
-								<input
-									type="text"
-									value={formData.ORNumber}
-									readOnly
-								/>
+								<p className="field-value">
+									{formData.ORNumber
+										? formData.ORNumber
+										: "-"}
+								</p>
 							</div>
 							<div className="form-group">
 								<label>Issued By</label>
-								<input
-									type="text"
-									value={formData.issuedBy}
-									readOnly
-								/>
+								<p className="field-value">
+									{formData.issuedBy
+										? formData.issuedBy
+										: "-"}
+								</p>
 							</div>
 							<div className="form-group">
 								<label>Amount Paid</label>
-								<input
-									type="text"
-									value={formData.amountPaid}
-									readOnly
-								/>
+								<p className="field-value">
+									{formData.amountPaid
+										? formData.amountPaid
+										: "-"}
+								</p>
 							</div>
 						</div>
 					</>
@@ -217,22 +221,18 @@ const PendingRequestList = () => {
 				return (
 					<>
 						{baseFields}
-						<div className="d-flex flex-wrap gap-3 mb-4">
+						<div className="form-grid">
 							<div className="form-group">
 								<label>Load</label>
-								<input
-									type="text"
-									value={formData.load}
-									readOnly
-								/>
+								<p className="field-value">
+									{formData.load ? formData.load : "-"}
+								</p>
 							</div>
 							<div className="form-group">
 								<label>Status</label>
-								<input
-									type="text"
-									value={formData.status}
-									readOnly
-								/>
+								<p className="field-value">
+									{formData.status ? formData.status : "-"}
+								</p>
 							</div>
 						</div>
 					</>
@@ -484,7 +484,6 @@ const PendingRequestList = () => {
 										</button>
 									</div>
 
-									{/* Comment Box Appears Only If Reject or Revise is Clicked */}
 									{showCommentBox && (
 										<textarea
 											className="comment-box"
@@ -494,8 +493,8 @@ const PendingRequestList = () => {
 								</div>
 
 								{/* Send Button Section - Centered on small screens, bottom-right on large screens */}
-								<div className="send-section d-flex flex-column align-items-center align-items-md-end mt-3 flex-grow-1">
-									<p className="send-note text-center text-md-end mb-2">
+								<div className="send-section">
+									<p className="send-note">
 										** Clicking the send button will
 										finalize the decision and notify the
 										requester. This action is irreversible.
