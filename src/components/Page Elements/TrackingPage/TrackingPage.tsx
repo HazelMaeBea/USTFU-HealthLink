@@ -1,9 +1,9 @@
-// This component displays a tabbed page with separate pagination logic for Pending Requests and Previous Records.
 import { useState } from "react";
 import "./TrackingPage.css";
 import Tabs from "./Tabs";
 import RecordTable from "./RecordTable";
 import PageButtons from "../PageButtons/PageButtons";
+import StatusTracking from "./StatusTracking";
 
 const TrackingPage = () => {
 	// Tab state: 0 = Pending Requests, 1 = Previous Records
@@ -12,6 +12,9 @@ const TrackingPage = () => {
 	// Separate pagination states for each tab
 	const [pendingCurrentPage, setPendingCurrentPage] = useState(1);
 	const [previousCurrentPage, setPreviousCurrentPage] = useState(1);
+
+	// Store the selected record's transaction ID
+	const [selectedRecord, setSelectedRecord] = useState<string | null>(null);
 
 	const recordsPerPage = 7;
 
@@ -30,7 +33,7 @@ const TrackingPage = () => {
 	}));
 	const allRecords = [...pendingDummyRecords, ...previousDummyRecords];
 
-	// Separate logic for filtering records
+	// Filter pending and previous records
 	const pendingRecords = allRecords.filter(
 		(record) => record.status === "Pending"
 	);
@@ -38,13 +41,11 @@ const TrackingPage = () => {
 		(record) => record.status === "Approved" || record.status === "Rejected"
 	);
 
-	// Calculate total pages for each tab
+	// Calculate total pages
 	const pendingTotalPages = Math.ceil(pendingRecords.length / recordsPerPage);
-	const previousTotalPages = Math.ceil(
-		previousRecords.length / recordsPerPage
-	);
+	const previousTotalPages = Math.ceil(previousRecords.length / recordsPerPage);
 
-	// Slice records based on current page states
+	// Slice records based on pagination
 	const pendingCurrentRecords = pendingRecords.slice(
 		(pendingCurrentPage - 1) * recordsPerPage,
 		pendingCurrentPage * recordsPerPage
@@ -60,23 +61,51 @@ const TrackingPage = () => {
 				<div title="PENDING REQUESTS" className="Tabby">
 					<section className="tab-content">
 						<h3>PENDING REQUESTS</h3>
-						<RecordTable records={pendingCurrentRecords} />
-						<PageButtons
-							currentPage={pendingCurrentPage}
-							totalPages={pendingTotalPages}
-							onPageChange={setPendingCurrentPage}
-						/>
+						{selectedRecord ? (
+							<StatusTracking
+								onBack={() => setSelectedRecord(null)}
+								transactionID={selectedRecord} // Pass correct transaction ID
+							/>
+						) : (
+							<>
+								<RecordTable
+									records={pendingCurrentRecords}
+									onDetailsClick={(transactionID) =>
+										setSelectedRecord(transactionID)
+									} // Store clicked transaction ID
+								/>
+								<PageButtons
+									currentPage={pendingCurrentPage}
+									totalPages={pendingTotalPages}
+									onPageChange={setPendingCurrentPage}
+								/>
+							</>
+						)}
 					</section>
 				</div>
 				<div title="PREVIOUS RECORDS" className="Tabby">
 					<section className="tab-content">
 						<h3>PREVIOUS RECORDS</h3>
-						<RecordTable records={previousCurrentRecords} />
-						<PageButtons
-							currentPage={previousCurrentPage}
-							totalPages={previousTotalPages}
-							onPageChange={setPreviousCurrentPage}
-						/>
+						{selectedRecord ? (
+							<StatusTracking
+								onBack={() => setSelectedRecord(null)}
+								transactionID={selectedRecord} // Pass correct transaction ID
+							/>
+						) : (
+							<>
+								<RecordTable
+									records={previousCurrentRecords}
+									onDetailsClick={(transactionID) =>
+										setSelectedRecord(transactionID)
+									} // Store clicked transaction ID
+								/>
+								<PageButtons
+									currentPage={previousCurrentPage}
+									totalPages={previousTotalPages}
+									onPageChange={setPreviousCurrentPage}
+								/>
+							</>
+						)}
 					</section>
 				</div>
 			</Tabs>
