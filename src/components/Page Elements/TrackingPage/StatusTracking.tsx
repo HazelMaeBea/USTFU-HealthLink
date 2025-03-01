@@ -2,22 +2,86 @@ import React from "react";
 import "./StatusTracking.css"; // Import the CSS
 
 interface StatusTrackingProps {
+	onBack: () => void;
 	transactionID: string;
-	onBack: () => void; // Function to return to the record table
-	typeOfForm: string; // Type of form submitted
+	typeOfForm: string;
+	status: string;
 }
 
 const StatusTracking: React.FC<StatusTrackingProps> = ({
-	transactionID,
 	onBack,
+	transactionID,
 	typeOfForm,
+	status,
 }) => {
-	const statusUpdates = [
-		{ status: "FORM REQUEST SUBMITTED", dateTime: "10/18/2024 - 5:17 PM" },
-		{ status: "REQUEST REVIEWED", dateTime: "10/18/2024 - 5:18 PM" },
-		{ status: "PROCESSING REQUEST", dateTime: "10/18/2024 - 7:11 PM" },
-		{ status: "FORM APPROVED!", dateTime: "10/18/2024 - 8:03 PM" },
-	];
+	const getStatusUpdates = (status: string) => {
+		const timestamps: Record<
+			"submitted" | "reviewed" | "processing" | "approved" | "rejected",
+			string
+		> = {
+			submitted: "10:00 AM",
+			reviewed: "10:30 AM",
+			processing: "11:00 AM",
+			approved: "11:30 AM",
+			rejected: "11:30 AM",
+		};
+
+		type StatusKey =
+			| "submitted"
+			| "reviewed"
+			| "processing"
+			| "approved"
+			| "rejected";
+
+		const baseUpdates: { label: string; key: StatusKey }[] = [
+			{ label: "FORM REQUEST SUBMITTED", key: "submitted" },
+			{ label: "REQUEST REVIEWED", key: "reviewed" },
+			{ label: "REQUEST PROCESSING", key: "processing" },
+		];
+
+		if (status === "Approved") {
+			baseUpdates.push({ label: "REQUEST APPROVED", key: "approved" });
+		}
+
+		if (status === "Rejected") {
+			baseUpdates.push({ label: "REQUEST REJECTED", key: "rejected" });
+		}
+
+		return baseUpdates.map((update, index) => {
+			let bgClass = "pending";
+			let textColor = "pending";
+			let icon = "";
+			let time = timestamps[update.key]; // TypeScript now recognizes this as valid
+
+			if (status === "Approved") {
+				bgClass = "approved";
+				textColor = "approved";
+				icon = "✔";
+			} else if (status === "Rejected") {
+				bgClass = "rejected";
+				textColor = "rejected";
+				icon = "✘";
+			} else if (status === "Pending") {
+				if (index === 0) {
+					icon = "✔";
+					bgClass = "approved"; // First step is completed
+					textColor = "approved";
+				} else {
+					icon = "";
+					bgClass = "pending";
+					textColor = "pending";
+				}
+			}
+
+			return {
+				...update,
+				bgClass,
+				textColor,
+				icon,
+				time,
+			};
+		});
+	};
 
 	const defaultFields = () => {
 		return (
@@ -64,48 +128,129 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			case "Out-Patient Form":
 				return (
 					<>
-						<p>
-							<strong>Reason:</strong> Sick Leave
-						</p>
-						<p>
-							<strong>Start Date:</strong> 10/20/2024
-						</p>
-						<p>
-							<strong>End Date:</strong> 10/22/2024
-						</p>
+						<hr></hr>
+						<div className="form-container">
+							<div className="form-contents">
+								<label>Hospital</label>
+								<p className="field-content">Sa Gedli Hospital</p>
+							</div>
+							<div className="form-contents">
+								<label>Nature of Illness</label>
+								<p className="field-content">Xavier Syndrome</p>
+							</div>
+							<div className="form-contents">
+								<label>Physician</label>
+								<p className="field-content">Dr. Manhattan</p>
+							</div>
+							<div className="form-contents">
+								<label>Procedure</label>
+								<p className="field-content">Surgery</p>
+							</div>
+						</div>
+						<hr></hr>
+						<div className="form-container">
+							<div className="form-contents">
+								<label>Academic Term</label>
+								<p className="field-content">2nd</p>
+							</div>
+							<div className="form-contents">
+								<label>Academic Year</label>
+								<p className="field-content">2025</p>
+							</div>
+							<div className="form-contents">
+								<label>Teaching Load</label>
+								<p className="field-content">200</p>
+							</div>
+							<div className="form-contents">
+								<label>Status</label>
+								<p className="field-content">-</p>
+							</div>
+							<div className="form-contents">
+								<label>Date Hired:</label>
+								<p className="field-content">01/01/1612</p>
+							</div>
+							<div className="form-contents">
+								<label>Date Retired:</label>
+								<p className="field-content">-</p>
+							</div>
+							<div className="form-contents">
+								<label>Health Benefits</label>
+								<p className="field-content">idk what this supposed to have</p>
+							</div>
+							<div className="form-contents">
+								<label>If HMO, please specify:</label>
+								<p className="field-content">-</p>
+							</div>
+						</div>
 					</>
 				);
 			case "Admission":
 				return (
 					<>
-						<p>
-							<strong>Amount:</strong> $150
-						</p>
-						<p>
-							<strong>Description:</strong> Travel expenses
-						</p>
-						<p>
-							<strong>Approval Status:</strong> Pending
-						</p>
+						<div className="form-container">
+							<div className="form-contents">
+								<label>Load</label>
+								<p className="field-content">Loadicakes</p>
+							</div>
+							<div className="form-contents">
+								<label>Status</label>
+								<p className="field-content">-</p>
+							</div>
+						</div>
 					</>
 				);
 			case "Eyeglasses":
 				return (
 					<>
-						<p>
-							<strong>Issue:</strong> Laptop not booting
-						</p>
-						<p>
-							<strong>Requested On:</strong> 10/18/2024
-						</p>
-						<p>
-							<strong>Technician Assigned:</strong> John Doe
-						</p>
+						<div className="form-container">
+							<div className="form-contents">
+								<label>OR Number</label>
+								<p className="field-content">-</p>
+							</div>
+							<div className="form-contents">
+								<label>Issued By</label>
+								<p className="field-content">-</p>
+							</div>
+							<div className="form-contents">
+								<label>Amount Paid</label>
+								<p className="field-content">-</p>
+							</div>
+						</div>
 					</>
 				);
 			default:
 				return <p>No additional details available.</p>;
 		}
+	};
+
+	const getAttachments = () => {
+		const attachments = [
+			{ filename: "id.pdf" },
+			{ filename: "chuchu.docx" },
+			{ filename: "whatever-needs-to-be-passed.txt" },
+		];
+
+		return (
+			<>
+				<hr></hr>
+				<div className="attachments-section">
+					<h4>UPLOADED ATTACHMENTS</h4>
+					<div className="attachment-list">
+						{attachments.map((attachment, index) => (
+							<div key={index} className="attachment-item">
+								<span
+									className="attachment-filename"
+									title={attachment.filename}
+								>
+									{attachment.filename}
+								</span>
+								<button className="view-btn">View</button>
+							</div>
+						))}
+					</div>
+				</div>
+			</>
+		);
 	};
 
 	return (
@@ -121,19 +266,26 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 				</div>
 				<div className="status-updates">
 					<h3 className="status-title">STATUS UPDATES</h3>
-					{statusUpdates.map((update, index) => (
-						<div key={index} className="status-item">
-							✔{" "}
-							<span>
-								{update.status} - {update.dateTime}
-							</span>
+					{getStatusUpdates(status).map((update, index) => (
+						<div key={index} className={`status-item ${update.bgClass}`}>
+							{update.icon && <span className="checkmark">{update.icon}</span>}
+							<div className="status-text">
+								<span>{update.label}</span>
+								<span>-</span>
+								<span className="timestamp">
+									{status === "Pending" &&
+									(update.key === "reviewed" || update.key === "processing")
+										? "..."
+										: update.time}
+								</span>
+							</div>
 						</div>
 					))}
-					<div className="action-buttons">
-						<button className="print-button" onClick={() => window.print()}>
-							🖨 PRINT
-						</button>
-					</div>
+				</div>
+				<div className="action-buttons">
+					<button className="print-button" onClick={() => window.print()}>
+						🖨 PRINT
+					</button>
 				</div>
 			</div>
 
@@ -146,6 +298,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 					<>
 						{defaultFields()}
 						{getSubmissionDetails()}
+						{getAttachments()}
 					</>
 				</div>
 			</div>

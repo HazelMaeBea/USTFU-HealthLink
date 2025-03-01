@@ -72,16 +72,36 @@ body {
 .status-item {
 	display: flex;
 	align-items: center;
-	background: #d6f5d6;
 	padding: 12px;
 	border-radius: 5px;
 	font-weight: bold;
-	color: #2d7f2d;
 	font-size: 1.2rem;
 	width: 70%; /* Adjust width to make it smaller */
-	max-width: auto; /* Set a maximum width */
+	max-width: 100%; /* Fix max-width issue */
 	margin-bottom: 15px;
 	margin-top: 10px;
+}
+
+/* Approved Status */
+.status-item.approved {
+	background-color: rgb(214, 255, 214); /* Light Green */
+	color: rgb(34, 139, 34); /* Dark Green */
+}
+
+/* Rejected Status */
+.status-item.rejected {
+	background-color: rgb(255, 167, 167); /* Light Red */
+	color: rgb(139, 0, 0); /* Dark Red */
+}
+
+/* Pending Status */
+.status-item.pending {
+	background-color: #e7e7e2; /* Light Yellow */
+	color: #5a5a54; /* Darker Yellow */
+}
+
+.status-item.pending .checkmark {
+	display: none;
 }
 
 /* Green Checkmark */
@@ -91,17 +111,16 @@ body {
 	margin-right: 10px;
 }
 
+.rejected .checkmark {
+	color: red;
+	content: "✘";
+}
+
 /* Status Text */
 .status-text {
 	display: flex;
-	justify-content: space-between;
-	width: 100%;
-}
-
-/* Date-Time Styling */
-.date-time {
-	color: #555;
-	font-weight: normal;
+	align-items: center; /* Align items vertically */
+	gap: 10px; /* Add space between status and time */
 }
 
 /* Action Buttons */
@@ -191,4 +210,39 @@ body {
 	border-radius: 4px;
 	background: #f8f9fa;
 	width: 100%;
+}
+
+.attachments-section {
+	margin: 2rem 0;
+	color: black;
+}
+
+.attachment-list {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	overflow: hidden;
+	color: black;
+}
+
+.attachment-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	max-width: none;
+	padding: 0.75rem 1rem;
+	border-bottom: 1px solid #ddd;
+}
+
+.attachment-filename {
+	flex-grow: 1;
+	flex-shrink: 1; /* Prevents shrinking */
+	min-width: 0; /* Ensures it expands fully */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.attachment-item:last-child {
+	border-bottom: none;
 }

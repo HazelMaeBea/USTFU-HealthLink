@@ -13,14 +13,19 @@ const TrackingPage = () => {
 	const [pendingCurrentPage, setPendingCurrentPage] = useState(1);
 	const [previousCurrentPage, setPreviousCurrentPage] = useState(1);
 
-	// Store the selected record's transaction ID
+	// Store the selected record's transaction ID, typeOfForm, and status
 	const [selectedRecord, setSelectedRecord] = useState<{
 		transactionID: string;
 		typeOfForm: string;
+		status: string;
 	} | null>(null);
 
-	const handleDetailsClick = (transactionID: string, typeOfForm: string) => {
-		setSelectedRecord({ transactionID, typeOfForm });
+	const handleDetailsClick = (
+		transactionID: string,
+		typeOfForm: string,
+		status: string
+	) => {
+		setSelectedRecord({ transactionID, typeOfForm, status });
 	};
 
 	const recordsPerPage = 7;
@@ -64,22 +69,28 @@ const TrackingPage = () => {
 
 	return (
 		<section className="TrackingPage">
-			<Tabs activeTab={activeTab} onTabChange={setActiveTab}>
+			<Tabs
+				activeTab={activeTab}
+				onTabChange={(tabIndex) => {
+					setActiveTab(tabIndex);
+					setSelectedRecord(null); // Reset selectedRecord when switching tabs
+				}}
+			>
 				<div title="PENDING REQUESTS" className="Tabby">
 					<section className="tab-content">
 						<h3>PENDING REQUESTS</h3>
 						{selectedRecord ? (
 							<StatusTracking
 								onBack={() => setSelectedRecord(null)}
-								transactionID={selectedRecord.transactionID} // Pass correct transaction ID
+								transactionID={selectedRecord.transactionID}
 								typeOfForm={selectedRecord.typeOfForm}
+								status={selectedRecord.status} // Pass status here
 							/>
 						) : (
 							<>
 								<RecordTable
 									records={pendingCurrentRecords}
 									onDetailsClick={handleDetailsClick}
-									// Store clicked transaction ID
 								/>
 								<PageButtons
 									currentPage={pendingCurrentPage}
@@ -96,14 +107,15 @@ const TrackingPage = () => {
 						{selectedRecord ? (
 							<StatusTracking
 								onBack={() => setSelectedRecord(null)}
-								transactionID={selectedRecord.transactionID} // Pass correct transaction ID
+								transactionID={selectedRecord.transactionID}
 								typeOfForm={selectedRecord.typeOfForm}
+								status={selectedRecord.status} // Pass status here
 							/>
 						) : (
 							<>
 								<RecordTable
 									records={previousCurrentRecords}
-									onDetailsClick={handleDetailsClick} // Store clicked transaction ID
+									onDetailsClick={handleDetailsClick}
 								/>
 								<PageButtons
 									currentPage={previousCurrentPage}
