@@ -156,5 +156,39 @@ body {
 }
 
 .submission-contents {
+	max-width: 100%;
 	margin: 20px;
+	align-items: center;
+	justify-content: center;
+}
+
+.form-container {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+	gap: 1.5rem; /* Adjust spacing between items */
+	align-items: center;
+	width: 100%; /* Ensure full width */
+	margin-bottom: 2rem;
+}
+
+.form-contents {
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	width: 100%; /* Make sure it respects grid size */
+	gap: 0.5rem;
+	color: black;
+}
+
+.form-contents label {
+	font-weight: bold;
+	margin-bottom: 4px;
+}
+
+.field-content {
+	padding: 0.5rem;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #f8f9fa;
+	width: 100%;
 }
