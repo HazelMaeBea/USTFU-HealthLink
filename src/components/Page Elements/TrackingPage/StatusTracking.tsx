@@ -19,10 +19,49 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		{ status: "FORM APPROVED!", dateTime: "10/18/2024 - 8:03 PM" },
 	];
 
+	const defaultFields = () => {
+		return (
+			<div className="form-container">
+				<div className="form-contents">
+					<label>Last Name</label>
+					<p className="field-content">Batumbakal</p>
+				</div>
+				<div className="form-contents">
+					<label>First Name</label>
+					<p className="field-content">Yza</p>
+				</div>
+				<div className="form-contents">
+					<label>Middle Name</label>
+					<p className="field-content">Hambatukam</p>
+				</div>
+				<div className="form-contents">
+					<label>Suffix</label>
+					<p className="field-content">-</p>
+				</div>
+				<div className="form-contents">
+					<label>Age</label>
+					<p className="field-content">69</p>
+				</div>
+				<div className="form-contents">
+					<label>Gender</label>
+					<p className="field-content">Non-binary</p>
+				</div>
+				<div className="form-contents">
+					<label>College Affiliation</label>
+					<p className="field-content">College of Rose Buds</p>
+				</div>
+				<div className="form-contents">
+					<label>Contact No.</label>
+					<p className="field-content">09223334444</p>
+				</div>
+			</div>
+		);
+	};
 	// Define different submission details based on typeOfForm
 	const getSubmissionDetails = () => {
 		switch (typeOfForm) {
-			case "Leave Request":
+			case "In-Patient Form":
+			case "Out-Patient Form":
 				return (
 					<>
 						<p>
@@ -36,7 +75,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 						</p>
 					</>
 				);
-			case "Reimbursement":
+			case "Admission":
 				return (
 					<>
 						<p>
@@ -50,7 +89,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 						</p>
 					</>
 				);
-			case "IT Support Request":
+			case "Eyeglasses":
 				return (
 					<>
 						<p>
@@ -100,8 +139,15 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 
 			{/* Submission Details Section */}
 			<div className="submission-info-container">
-				<div className="submission-header">SUBMITTED INFORMATION</div>
-				<div className="submission-contents">{getSubmissionDetails()}</div>
+				<div className="submission-header">
+					<div className="submission-title">SUBMITTED INFORMATION</div>
+				</div>
+				<div className="submission-contents">
+					<>
+						{defaultFields()}
+						{getSubmissionDetails()}
+					</>
+				</div>
 			</div>
 		</>
 	);
