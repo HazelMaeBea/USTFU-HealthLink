@@ -1,18 +1,16 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import type { PendingRequest } from "./types";
-import { mockPendingRequests } from "./mock-data";
+import { usePendingRequests } from "./PendingRequestBackend"; // use the hook instead of mock data
 import "./PendingRequests.css";
-
-import { RiArrowDownSFill } from "react-icons/ri";
-import { RiArrowRightSFill } from "react-icons/ri";
-import { FiCheck } from "react-icons/fi";
+import { RiArrowDownSFill, RiArrowRightSFill } from "react-icons/ri";
+import { FiCheck, FiEdit2 } from "react-icons/fi";
 import { HiOutlineX } from "react-icons/hi";
-import { FiEdit2 } from "react-icons/fi";
 import Popout from "../Popout/Popout";
 
+// Remove the mock state and use the hook
 const PendingRequestList = () => {
+	const pendingRequests = usePendingRequests();
 	const [expandedId, setExpandedId] = useState<string | null>(null);
-	const [requests] = useState<PendingRequest[]>(mockPendingRequests);
 	const [showCommentBox, setShowCommentBox] = useState<string | null>(
 		"Additional Comments"
 	);
@@ -386,7 +384,7 @@ const PendingRequestList = () => {
 
 	return (
 		<div className="pending-requests">
-			{requests.map((request) => (
+			{pendingRequests.map((request) => (
 				<div key={request.transactionId} className="pending-request">
 					<div
 						className={`request-header ${

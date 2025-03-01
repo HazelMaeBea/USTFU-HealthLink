@@ -90,11 +90,20 @@ export const mockPendingRequests: PendingRequest[] = [
 			gender: "Female",
 			contact: 9991113333,
 			college: "CICS",
-			ORNumber: "OR123456",
-			issuedBy: "Metro Optical",
-			amountPaid: 5000,
 			load: "21",
 			status: "Tenured",
+			docRequest: {
+				url: "/docs/request.pdf",
+				filename: "request_bea.pdf",
+			},
+			hospitalInvoice: {
+				url: "/docs/invoice.pdf",
+				filename: "invoice_bea.pdf",
+			},
+			labInvoice: {
+				url: "/docs/lab.pdf",
+				filename: "lab_bea.pdf",
+			},
 			employeeID: {
 				url: "/docs/id.pdf",
 				filename: "ID_Bea.png",
