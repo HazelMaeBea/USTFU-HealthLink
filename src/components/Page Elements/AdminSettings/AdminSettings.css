@@ -362,7 +362,32 @@ p {
 		overflow-x: auto;
 		display: block;
 	}
+    .user-mngmnt-table {
+		width: 1200px;
+        display: block;
+        overflow-x: auto;
+    }
+  
 
+@media (max-width: 768px) {
+  /* The inline styles in the component provide overflow-x and min-width.
+     These extra rules enable smooth scrolling on mobile devices. */
+  .user-mngmnt-table {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Optional: If you prefer class-based styling, you could use:
+  .table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table-wrapper table {
+    min-width: 600px;
+    border-collapse: collapse;
+  }
+  */
 }
 
 @media (min-width: 481px) and (max-width: 1024px) {
@@ -500,4 +525,5 @@ p {
 
 .edit-options-menu button:hover {
 	background-color: rgba(0, 0, 0, 0.1);
+}
 }

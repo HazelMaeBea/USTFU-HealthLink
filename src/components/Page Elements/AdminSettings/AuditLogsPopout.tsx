@@ -26,11 +26,11 @@ const AuditLogsPopout: React.FC<AuditLogsPopoutProps> = ({ title, onClose, isOpe
 			<div className="audit-logs-popout">
 				<div className="audit-logs-popout-header">
 					<h2>{title}</h2>
-					<button className="close-btn" onClick={onClose}>
-						&times;
-					</button>
+					<button className="close-btn" onClick={onClose}>&times;</button>
 				</div>
-				<div className="audit-logs-popout-body">{currentLogs}</div>
+				<div className="audit-logs-popout-body">
+					{currentLogs}
+				</div>
 				{totalPages > 1 && (
 					<PageButtons
 						currentPage={currentPage}
