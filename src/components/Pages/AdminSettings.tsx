@@ -2,7 +2,7 @@ import "../Page Elements/AdminSettings/AdminSettings.css";
 
 import { useState, useEffect } from "react";
 import { collection, onSnapshot, doc, setDoc, Timestamp } from "firebase/firestore";
-import { onAuthStateChanged, sendSignInLinkToEmail } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
@@ -31,7 +31,7 @@ interface User {
 	leaveEndDate?: string
 	document: string
 	createdAt: Timestamp
-  }
+}
 
 const AdminSettings = () => {
 	const [users, setUsers] = useState<User[]>([]);
@@ -46,6 +46,7 @@ const AdminSettings = () => {
 	const [editUser, setEditUser] = useState<User>();
 	const [editDocument, setEditDocument] = useState("");
 	const [editCreatedAt, setEditCreatedAt] = useState<Date>();
+	const [editOption, setEditOption] = useState<"college" | "role" | "status" | null>(null);
 
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -89,28 +90,29 @@ const AdminSettings = () => {
 		console.log("Saving changes...");
 		console.log(editUser);
 		setShowPopout(false);
-		// console.log("%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", documentId, birthdate, deactivationDate, email, userId, inactiveReason, leaveEndDate, leaveReason, leaveStartDate, name, phoneNumber, retirementDate, role, status, college)
 		try {
-			// const userDoc = doc(db, 'users', documentId);
 			await setDoc(doc(db, 'users', editDocument), {
 				...editUser,
 				createdAt: editCreatedAt,
-			}, {merge: true})
+			}, {merge: true});
+			alert("Changes saved successfully!");
 		} catch (error) {
 			console.log(error);
+			alert("Failed to save changes.");
 		}
 	};
 
 	const handleCancel = () => {
 		setShowPopout(false);
+		setEditOption(null);
 	};
 
-	const handleSave = (updatedUser: User) => {
-		// setUsers(users.map((user) => (user.email === updatedUser.email ? updatedUser : user)))
+	const handleSave = (updatedUser: User, option: "college" | "role" | "status") => {
 		console.log("User updated:", updatedUser);
 		setEditUser(updatedUser);
 		setEditDocument(updatedUser.document);
 		setEditCreatedAt(new Date(updatedUser.createdAt.toDate().toString()));
+		setEditOption(option);
 		setShowPopout(true);
 	};
 
@@ -235,7 +237,7 @@ const AdminSettings = () => {
 			{showPopout && (
 				<Popout
 					title="Save Changes?"
-					message="Do you want to save changes to the user?"
+					message={`Do you want to save changes to the user's ${editOption}?`}
 					onConfirm={handleSaveConfirm}
 					onCancel={handleCancel}
 					isOpen={showPopout}

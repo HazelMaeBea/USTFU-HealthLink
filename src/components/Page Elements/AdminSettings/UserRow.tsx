@@ -7,6 +7,7 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import { differenceInDays, differenceInWeeks } from "date-fns"
 import { Timestamp } from "firebase/firestore"
+import { HiOutlineDotsVertical } from "react-icons/hi"
 
 interface User {
   id: number
@@ -29,7 +30,7 @@ interface User {
 
 interface UserRowProps {
   user: User
-  onSave: (updatedUser: User) => void
+  onSave: (updatedUser: User, option: "college" | "role" | "status") => void
 }
 
 const collegeOptions = [
@@ -65,7 +66,6 @@ const getStatusBadge = (status: string, inactiveReason?: string) => {
   return <span className="badge bg-secondary">Inactive</span>;
 };
 
-
 const calculateDuration = (start: string | undefined, end: string | undefined) => {
   if (!start || !end) return ""
   const startDate = new Date(start)
@@ -79,14 +79,18 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editedUser, setEditedUser] = useState(user)
   const [lastEdited, setLastEdited] = useState<string | null>(null)
+  const [editOption, setEditOption] = useState<"college" | "role" | "status" | null>(null)
+  const [showOptions, setShowOptions] = useState(false)
 
-  const handleEdit = () => {
-    setIsEditing(true)
-  }
+  const handleEdit = (option: "college" | "role" | "status") => {
+    setIsEditing(true);
+    setEditOption(option);
+    setEditedUser(user); // Reset editedUser to the original user data
+  };
 
   const handleSave = () => {
-    setIsEditing(false)
-    onSave(editedUser)
+    setIsEditing(false);
+    onSave(editedUser, editOption!);
     const changes = []
     if (user.college !== editedUser.college) changes.push(`College from '${user.college}' to '${editedUser.college}'`)
     if (user.role !== editedUser.role) changes.push(`Role from '${user.role}' to '${editedUser.role}'`)
@@ -98,12 +102,13 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
     if (user.leaveStartDate !== editedUser.leaveStartDate) changes.push(`Leave Start Date from '${user.leaveStartDate}' to '${editedUser.leaveStartDate}'`)
     if (user.leaveEndDate !== editedUser.leaveEndDate) changes.push(`Leave End Date from '${user.leaveEndDate}' to '${editedUser.leaveEndDate}'`)
     setLastEdited(`Last edited on ${new Date().toLocaleString()}: ${changes.join(", ")}`)
-  }
+  };
 
   const handleCancel = () => {
-    setIsEditing(false)
-    setEditedUser(user)
-  }
+    setIsEditing(false);
+    setEditedUser(user);
+    setEditOption(null);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -151,48 +156,80 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
         <td>{user.role}</td>
         <td>{getStatusBadge(user.status, user.inactiveReason)}</td>
         <td>
-          <Button color="warning" onClick={handleEdit}>
-            Edit
-          </Button>
+          <div
+            className="edit-button-container"
+            onMouseEnter={() => setShowOptions(true)}
+            onMouseLeave={() => setShowOptions(false)}
+          >
+            <HiOutlineDotsVertical className="edit-button" size={24} />
+            {showOptions && (
+              <div className="edit-options-menu">
+                <button onClick={() => handleEdit("college")}>
+                  Edit College
+                </button>
+                <button onClick={() => handleEdit("role")}>
+                  Edit Role
+                </button>
+                <button onClick={() => handleEdit("status")}>
+                  Edit Status
+                </button>
+              </div>
+            )}
+          </div>
         </td>
       </tr>
       {isEditing && (
         <tr>
           <td colSpan={10}>
-            <Row>
-              <Col md={4}>
-                <FormGroup>
-                  <Label for="college">College</Label>
-                  <Input type="select" name="college" id="college" value={editedUser.college} onChange={handleChange}>
-                    {collegeOptions.map((option, index) => (
-                      <option key={index} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </Input>
-                </FormGroup>
-              </Col>
-              <Col md={4}>
-                <FormGroup>
-                  <Label for="role">Role</Label>
-                  <Input type="select" name="role" id="role" value={editedUser.role} onChange={handleChange}>
-                    <option value="member">Member</option>
-                    <option value="operations handler">Operations Handler</option>
-                    <option value="retiree">Retiree</option>
-                  </Input>
-                </FormGroup>
-              </Col>
-              <Col md={4}>
-                <FormGroup>
-                  <Label for="status">Status</Label>
-                  <Input type="select" name="status" id="status" value={editedUser.status} onChange={handleChange}>
-                    <option>ACTIVE</option>
-                    <option>INACTIVE</option>
-                  </Input>
-                </FormGroup>
-              </Col>
-            </Row>
-
+            {editOption === "college" && (
+              <FormGroup>
+                <Label for="college">College</Label>
+                <Input
+                  type="select"
+                  name="college"
+                  id="college"
+                  value={editedUser.college}
+                  onChange={handleChange}
+                >
+                  {collegeOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Input>
+              </FormGroup>
+            )}
+            {editOption === "role" && (
+              <FormGroup>
+                <Label for="role">Role</Label>
+                <Input
+                  type="select"
+                  name="role"
+                  id="role"
+                  value={editedUser.role}
+                  onChange={handleChange}
+                >
+                  <option value="member">Member</option>
+                  <option value="operations handler">Operations Handler</option>
+                  <option value="retiree">Retiree</option>
+                </Input>
+              </FormGroup>
+            )}
+            {editOption === "status" && (
+              <FormGroup>
+                <Label for="status">Status</Label>
+                <Input
+                  type="select"
+                  name="status"
+                  id="status"
+                  value={editedUser.status}
+                  onChange={handleChange}
+                >
+                  <option>ACTIVE</option>
+                  <option>INACTIVE</option>
+                </Input>
+              </FormGroup>
+            )}
             {editedUser.role === "retiree" && (
               <Row className="mt-3">
                 <Col md={6}>
