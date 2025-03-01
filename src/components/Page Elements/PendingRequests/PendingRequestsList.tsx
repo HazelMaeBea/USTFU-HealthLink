@@ -248,7 +248,7 @@ const PendingRequestList = () => {
 				? [formData.hospitalInvoice]
 				: []),
 			...("labInvoice" in formData ? [formData.labInvoice] : []),
-		];
+		].filter((attachment) => attachment && attachment.filename);
 
 		return (
 			<>
@@ -328,9 +328,7 @@ const PendingRequestList = () => {
 										</span>
 										<div className="amount-container p-3 rounded shadow">
 											<div className="amount-input-wrapper d-flex align-items-center">
-												<span className="currency">
-													₱
-												</span>
+												<span className="currency"></span>
 												<input
 													aria-label="amount left"
 													type="text"

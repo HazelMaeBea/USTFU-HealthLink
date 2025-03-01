@@ -35,6 +35,13 @@
 	padding: 2rem;
 }
 
+.pending-request .request-content {
+	position: relative; /* Avoid fixed/absolute positioning unless needed */
+	z-index: 1;
+	background: inherit; /* Remove any unintended white backgrounds */
+	width: auto;
+}
+
 .form-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
