@@ -283,7 +283,11 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 					))}
 				</div>
 				<div className="action-buttons">
-					<button className="print-button" onClick={() => window.print()}>
+					<button
+						className="print-button"
+						onClick={() => window.print()}
+						disabled={status === "Pending"}
+					>
 						🖨 PRINT
 					</button>
 				</div>

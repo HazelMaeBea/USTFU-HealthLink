@@ -150,6 +150,11 @@ body {
 	background: #333;
 }
 
+button:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
 .submission-info-container {
 	background: white;
 	border-radius: 10px;
