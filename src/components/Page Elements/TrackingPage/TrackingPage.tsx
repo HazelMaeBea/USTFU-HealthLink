@@ -14,7 +14,14 @@ const TrackingPage = () => {
 	const [previousCurrentPage, setPreviousCurrentPage] = useState(1);
 
 	// Store the selected record's transaction ID
-	const [selectedRecord, setSelectedRecord] = useState<string | null>(null);
+	const [selectedRecord, setSelectedRecord] = useState<{
+		transactionID: string;
+		typeOfForm: string;
+	} | null>(null);
+
+	const handleDetailsClick = (transactionID: string, typeOfForm: string) => {
+		setSelectedRecord({ transactionID, typeOfForm });
+	};
 
 	const recordsPerPage = 7;
 
@@ -64,15 +71,15 @@ const TrackingPage = () => {
 						{selectedRecord ? (
 							<StatusTracking
 								onBack={() => setSelectedRecord(null)}
-								transactionID={selectedRecord} // Pass correct transaction ID
+								transactionID={selectedRecord.transactionID} // Pass correct transaction ID
+								typeOfForm={selectedRecord.typeOfForm}
 							/>
 						) : (
 							<>
 								<RecordTable
 									records={pendingCurrentRecords}
-									onDetailsClick={(transactionID) =>
-										setSelectedRecord(transactionID)
-									} // Store clicked transaction ID
+									onDetailsClick={handleDetailsClick}
+									// Store clicked transaction ID
 								/>
 								<PageButtons
 									currentPage={pendingCurrentPage}
@@ -89,15 +96,14 @@ const TrackingPage = () => {
 						{selectedRecord ? (
 							<StatusTracking
 								onBack={() => setSelectedRecord(null)}
-								transactionID={selectedRecord} // Pass correct transaction ID
+								transactionID={selectedRecord.transactionID} // Pass correct transaction ID
+								typeOfForm={selectedRecord.typeOfForm}
 							/>
 						) : (
 							<>
 								<RecordTable
 									records={previousCurrentRecords}
-									onDetailsClick={(transactionID) =>
-										setSelectedRecord(transactionID)
-									} // Store clicked transaction ID
+									onDetailsClick={handleDetailsClick} // Store clicked transaction ID
 								/>
 								<PageButtons
 									currentPage={previousCurrentPage}
