@@ -10,7 +10,7 @@ interface Record {
 
 interface RecordTableProps {
 	records: Record[];
-	onDetailsClick: (transactionID: string) => void; // Prop to notify parent
+	onDetailsClick: (transactionID: string, typeOfForm: string) => void; // Prop to notify parent
 }
 
 const RecordTable: React.FC<RecordTableProps> = ({
@@ -45,7 +45,9 @@ const RecordTable: React.FC<RecordTableProps> = ({
 							<div className={styles["button-container"]}>
 								<button
 									className={styles["details-button"]}
-									onClick={() => onDetailsClick(record.transactionID)}
+									onClick={() =>
+										onDetailsClick(record.transactionID, record.typeOfForm)
+									}
 								>
 									DETAILS
 								</button>
