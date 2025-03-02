@@ -461,6 +461,52 @@
 	opacity: 1;
 }
 
+.file-thumbnail {
+	width: 100%;
+	height: auto;
+	max-height: 100px;
+	object-fit: cover;
+	border-radius: 4px;
+}
+
+.attachment-preview-container {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1rem;
+}
+
+/* Styling for each attachment preview */
+.attachment-preview {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
+	padding: 0.5rem;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background: #fff;
+	transition: transform 0.2s;
+}
+
+.attachment-preview:hover {
+	transform: scale(1.02);
+}
+
+.file-thumbnail {
+	width: 100%;
+	height: auto;
+	max-height: 100px; /* set maximum height if needed */
+	object-fit: cover;
+	border-radius: 4px;
+}
+
+.file-name {
+	margin-top: 0.5rem;
+	font-size: 0.875rem;
+	text-align: center;
+	color: #333;
+}
+
 @media screen and (max-width: 768px) {
 	.header-details {
 		display: none; /* Hides the header details */

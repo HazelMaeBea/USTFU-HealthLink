@@ -1,0 +1,125 @@
+.view-file-popout {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 90%;
+	max-width: 800px;
+	background-color: #fff;
+	padding: 1.5rem;
+	border-radius: 10px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+	z-index: 1000;
+}
+
+.view-file-close-button {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	background-color: #dc3545;
+	color: #fff;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.full-file-preview {
+	width: 100%;
+	max-height: 80vh;
+	object-fit: contain;
+	border-radius: 4px;
+}
+
+.file-details {
+	text-align: center;
+	padding: 2rem;
+	background-color: #f9f9f9;
+	border-radius: 8px;
+}
+
+/* Overlay background for full-screen modal */
+.view-file-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.6);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 2000;
+	animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animate fade in */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Main container */
+.view-file-container {
+	background: #fff;
+	width: 90%;
+	max-width: 800px;
+	border-radius: 10px;
+	overflow: hidden;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+	animation: slideDown 0.3s ease;
+}
+
+/* Slide-down animation */
+@keyframes slideDown {
+	from {
+		transform: translateY(-20px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+/* Header with title and close button */
+.view-file-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #343a40;
+	color: #fff;
+	padding: 0.75rem 1rem;
+}
+
+.view-file-title {
+	margin: 0;
+	font-size: 1.25rem;
+}
+
+.close-button {
+	background: transparent;
+	border: none;
+	font-size: 1.5rem;
+	color: #fff;
+	cursor: pointer;
+	padding: 0.5rem;
+}
+
+/* Content area */
+.view-file-content {
+	padding: 1rem;
+	text-align: center;
+}
+
+/* Fallback container */
+.file-fallback {
+	padding: 2rem;
+	color: #333;
+	background-color: #f9f9f9;
+	border-radius: 4px;
+}

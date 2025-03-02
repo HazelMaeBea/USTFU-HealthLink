@@ -6,6 +6,7 @@ import { RiArrowDownSFill, RiArrowRightSFill } from "react-icons/ri";
 import { FiCheck, FiEdit2 } from "react-icons/fi";
 import { HiOutlineX } from "react-icons/hi";
 import Popout from "../Popout/Popout";
+import ViewFiles from "./ViewFiles";
 
 // Remove the mock state and use the hook
 const PendingRequestList = () => {
@@ -18,6 +19,7 @@ const PendingRequestList = () => {
 		"approval"
 	);
 	const [showPopout, setShowPopout] = useState<boolean>(false);
+	const [previewFile, setPreviewFile] = useState<any>(null);
 
 	const handleAction = (
 		action: "approval" | "rejection" | "for revision"
@@ -47,6 +49,10 @@ const PendingRequestList = () => {
 
 	const handleCancel = () => {
 		setShowPopout(false); // Close popout without confirming
+	};
+
+	const handleClosePreview = () => {
+		setPreviewFile(null);
 	};
 
 	const renderFormFields = (request: PendingRequest) => {
@@ -252,21 +258,40 @@ const PendingRequestList = () => {
 			...("labInvoice" in formData ? [formData.labInvoice] : []),
 		].filter((attachment) => attachment && attachment.filename);
 
+		const supportedExtensions = /\.(pdf|png|jpe?g|docx)$/i;
+
 		return (
 			<>
-				<hr></hr>
+				<hr />
 				<div className="attachments-section">
 					<h4>UPLOADED ATTACHMENTS</h4>
-					<div className="attachment-list">
+					<div className="attachment-preview-container">
 						{attachments.map((attachment, index) => (
-							<div key={index} className="attachment-item">
-								<span
-									className="attachment-filename"
-									title={attachment.filename}
-								>
-									{attachment.filename}
-								</span>
-								<button className="view-btn">View</button>
+							<div
+								key={index}
+								className="attachment-preview"
+								onClick={() => setPreviewFile(attachment)}
+								title={attachment.filename}
+							>
+								{attachment.url &&
+								supportedExtensions.test(
+									attachment.filename
+								) ? (
+									<>
+										<img
+											src={attachment.url}
+											alt={attachment.filename}
+											className="file-thumbnail"
+										/>
+										<p className="file-name">
+											{attachment.filename}
+										</p>
+									</>
+								) : (
+									<div className="file-fallback">
+										<p>{attachment.filename}</p>
+									</div>
+								)}
 							</div>
 						))}
 					</div>
@@ -517,6 +542,9 @@ const PendingRequestList = () => {
 					onCancel={handleCancel}
 					isOpen={showPopout}
 				/>
+			)}
+			{previewFile && (
+				<ViewFiles file={previewFile} onClose={handleClosePreview} />
 			)}
 		</div>
 	);
