@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Settings.css";
+import Popout from "../Page Elements/Popout/Popout"; // <-- new import
 
 const Settings = () => {
 	const [settings, setSettings] = useState({
@@ -22,11 +23,20 @@ const Settings = () => {
 		autofill: true,
 	});
 
+	// New state for confirm popout
+	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
 	const handleFieldBlur = (
 		field: string,
 		e: React.FocusEvent<HTMLDivElement>
 	) => {
 		setSettings({ ...settings, [field]: e.currentTarget.innerText });
+	};
+
+	// New handler for confirming save
+	const handleConfirmSave = () => {
+		console.log("Save settings", settings);
+		setIsConfirmOpen(false);
 	};
 
 	return (
@@ -227,13 +237,23 @@ const Settings = () => {
 				</div>
 				<div className="buttonDiv">
 					<button
-						onClick={() => console.log("Save settings", settings)}
-						className="btn btn-submit"
+						onClick={() => setIsConfirmOpen(true)} // open confirm popout
+						className="settings-btn-submit"
 					>
 						Save Changes
 					</button>
 				</div>
 			</div>
+			{/* Confirm popout */}
+			{isConfirmOpen && (
+				<Popout
+					title="Confirm Save"
+					message="Are you sure you want to save changes?"
+					onConfirm={handleConfirmSave}
+					onCancel={() => setIsConfirmOpen(false)}
+					isOpen={isConfirmOpen}
+				/>
+			)}
 		</div>
 	);
 };
