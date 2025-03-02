@@ -26,9 +26,7 @@ const VerificationPage = () => {
 		}));
 	};
 
-	const [requests, setRequests] = useState<VerificationRequest[]>(
-		generateSampleData()
-	);
+	const [requests, setRequests] = useState<VerificationRequest[]>(generateSampleData());
 	const [selectAll, setSelectAll] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const requestsPerPage = 6;
@@ -41,8 +39,7 @@ const VerificationPage = () => {
 
 	// Remove headerCheckboxRef; compute indeterminate directly:
 	const isIndeterminate =
-		requests.some((req) => req.selected) &&
-		!requests.every((req) => req.selected);
+		requests.some((req) => req.selected) && !requests.every((req) => req.selected);
 
 	const handleSelectAll = () => {
 		setSelectAll(!selectAll);
@@ -68,8 +65,7 @@ const VerificationPage = () => {
 	// Bulk Actions
 	const handleBulkApprove = () => {
 		const selectedRequests = requests.filter((req) => req.selected);
-		const target =
-			selectedRequests.length > 0 ? selectedRequests : requests;
+		const target = selectedRequests.length > 0 ? selectedRequests : requests;
 		setPopoutTitle("Confirm Bulk Approval");
 		setPopoutMessage(
 			selectedRequests.length > 0
@@ -84,8 +80,7 @@ const VerificationPage = () => {
 
 	const handleBulkDeny = () => {
 		const selectedRequests = requests.filter((req) => req.selected);
-		const target =
-			selectedRequests.length > 0 ? selectedRequests : requests;
+		const target = selectedRequests.length > 0 ? selectedRequests : requests;
 		setPopoutTitle("Confirm Bulk Denial");
 		setPopoutMessage(
 			selectedRequests.length > 0
@@ -101,10 +96,7 @@ const VerificationPage = () => {
 	// Pagination logic
 	const indexOfLastRequest = currentPage * requestsPerPage;
 	const indexOfFirstRequest = indexOfLastRequest - requestsPerPage;
-	const currentRequests = requests.slice(
-		indexOfFirstRequest,
-		indexOfLastRequest
-	);
+	const currentRequests = requests.slice(indexOfFirstRequest, indexOfLastRequest);
 	const totalPages = Math.ceil(requests.length / requestsPerPage);
 
 	// Pagination handlers
@@ -117,8 +109,9 @@ const VerificationPage = () => {
 
 	return (
 		<div>
-			<div>
-				<table className="verification-table">
+			{/* Wrap the table in a responsive container */}
+			<div style={{ overflowX: "auto", width: "100%" }}>
+				<table style={{ minWidth: "600px", borderCollapse: "collapse" }} className="verification-table">
 					<thead className="verification-page-header">
 						<tr className="verification-tr">
 							<th className="first-column">
@@ -133,23 +126,14 @@ const VerificationPage = () => {
 									}}
 								>
 									{isIndeterminate ? (
-										<MdOutlineIndeterminateCheckBox
-											size={24}
-										/>
+										<MdOutlineIndeterminateCheckBox size={24} />
 									) : (
-										<input
-											type="checkbox"
-											checked={selectAll}
-											readOnly
-											style={{ pointerEvents: "none" }}
-										/>
+										<input type="checkbox" checked={selectAll} readOnly style={{ pointerEvents: "none" }} />
 									)}
 								</button>
 							</th>
 							<th className="verification-header">NAME</th>
-							<th className="verification-header">
-								EMAIL ADDRESS
-							</th>
+							<th className="verification-header">EMAIL ADDRESS</th>
 							<th className="verification-header">ROLE</th>
 							<th className="verification-header">ACTION</th>
 						</tr>
@@ -166,28 +150,17 @@ const VerificationPage = () => {
 										aria-label="select this user"
 									/>
 								</td>
-								<td className="verfication-td">
-									{request.name}
-								</td>
-								<td className="verfication-td">
-									{request.email}
-								</td>
+								<td className="verfication-td">{request.name}</td>
+								<td className="verfication-td">{request.email}</td>
 								<td className="verfication-td">
 									<select
 										className="item-select verfication-role"
 										value={request.role}
-										onChange={(e) =>
-											handleRoleChange(
-												index,
-												e.target.value
-											)
-										}
+										onChange={(e) => handleRoleChange(index, e.target.value)}
 										aria-label="Select Role"
 									>
 										<option value="MEMBER">MEMBER</option>
-										<option value="OPERATIONS HANDLER">
-											OPEARATIONS HANDLER
-										</option>
+										<option value="OPERATIONS HANDLER">OPEARATIONS HANDLER</option>
 										{/* Add more options as needed */}
 									</select>
 								</td>
@@ -196,17 +169,10 @@ const VerificationPage = () => {
 										<button
 											className="verification-btn approve-btn"
 											onClick={() => {
-												setPopoutTitle(
-													"Confirm Approval"
-												);
-												setPopoutMessage(
-													`Are you sure you want to approve ${request.name}?`
-												);
+												setPopoutTitle("Confirm Approval");
+												setPopoutMessage(`Are you sure you want to approve ${request.name}?`);
 												setPendingAction(() => () => {
-													console.log(
-														"Approve:",
-														request.name
-													);
+													console.log("Approve:", request.name);
 												});
 												setPopoutOpen(true);
 											}}
@@ -217,17 +183,10 @@ const VerificationPage = () => {
 										<button
 											className="verification-btn deny-btn"
 											onClick={() => {
-												setPopoutTitle(
-													"Confirm Denial"
-												);
-												setPopoutMessage(
-													`Are you sure you want to deny ${request.name}?`
-												);
+												setPopoutTitle("Confirm Denial");
+												setPopoutMessage(`Are you sure you want to deny ${request.name}?`);
 												setPendingAction(() => () => {
-													console.log(
-														"Deny:",
-														request.name
-													);
+													console.log("Deny:", request.name);
 												});
 												setPopoutOpen(true);
 											}}
@@ -252,10 +211,7 @@ const VerificationPage = () => {
 							disabled={currentPage <= 1}
 							aria-label="Previous Page"
 						>
-							<MdOutlineKeyboardArrowLeft
-								color="black"
-								size={20}
-							/>
+							<MdOutlineKeyboardArrowLeft color="black" size={20} />
 						</button>
 						<div className="page-input-container">
 							<input
@@ -264,8 +220,7 @@ const VerificationPage = () => {
 								value={currentPage.toString()}
 								onChange={(e) => {
 									const val = Number(e.target.value);
-									if (val >= 1 && val <= totalPages)
-										setCurrentPage(val);
+									if (val >= 1 && val <= totalPages) setCurrentPage(val);
 								}}
 								onBlur={(e) => {
 									if (e.target.value === "") {
@@ -274,9 +229,7 @@ const VerificationPage = () => {
 								}}
 								placeholder={currentPage.toString()}
 							/>
-							<span className="page-input-suffix">
-								of {totalPages}
-							</span>
+							<span className="page-input-suffix">of {totalPages}</span>
 						</div>
 						<button
 							className="next-button"
@@ -284,10 +237,7 @@ const VerificationPage = () => {
 							disabled={currentPage >= totalPages}
 							aria-label="Next Page"
 						>
-							<MdOutlineKeyboardArrowRight
-								color="white"
-								size={20}
-							/>
+							<MdOutlineKeyboardArrowRight color="white" size={20} />
 						</button>
 					</div>
 				</div>

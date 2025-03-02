@@ -242,6 +242,13 @@
 	}
 }
 
+/* Ensure smooth horizontal scrolling on mobile */
+@media (max-width: 768px) {
+  .verification-table {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 @media (min-width: 1920px) {
 	.verification-table {
 		font-size: 1rem;
