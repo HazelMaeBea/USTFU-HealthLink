@@ -1,4 +1,4 @@
-import { useRole } from "./RoleContext";
+import { useUser } from "../../contexts/userContext";
 import { useState, useRef, useEffect } from "react";
 import { Collapse } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -24,7 +24,7 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
-	const { selectedRole, switchRole } = useRole();
+	const { selectedRole, switchRole } = useUser();
 	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(true);
 	const navigate = useNavigate();
 

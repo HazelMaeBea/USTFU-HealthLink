@@ -1,4 +1,4 @@
-import { useRole } from "./RoleContext";
+import { useUser } from "../../contexts/userContext";
 import Profile from "./Profile";
 import "./Sidebar.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,7 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
     const [isPopoutOpen, setIsPopoutOpen] = useState(false);
-    const { selectedRole } = useRole();
+    const { selectedRole } = useUser();
     // Simulation: pending request badge state
     const [hasNewPendingRequest, setHasNewPendingRequest] = useState(true);
     const navigate = useNavigate();
