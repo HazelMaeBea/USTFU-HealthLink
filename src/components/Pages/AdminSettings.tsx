@@ -1,7 +1,13 @@
 import "../Page Elements/AdminSettings/AdminSettings.css";
 
 import { useState, useEffect } from "react";
-import { collection, onSnapshot, doc, setDoc, Timestamp } from "firebase/firestore";
+import {
+	collection,
+	onSnapshot,
+	doc,
+	setDoc,
+	Timestamp,
+} from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
 import { TbSearch } from "react-icons/tb";
@@ -46,7 +52,9 @@ const AdminSettings = () => {
 	const [editUser, setEditUser] = useState<User>();
 	const [editDocument, setEditDocument] = useState("");
 	const [editCreatedAt, setEditCreatedAt] = useState<Date>();
-	const [editOption, setEditOption] = useState<"college" | "role" | "status" | null>(null);
+	const [editOption, setEditOption] = useState<
+		"college" | "role" | "status" | null
+	>(null);
 
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -70,7 +78,9 @@ const AdminSettings = () => {
 									createdAt: data.createdAt,
 								};
 							})
-							.sort((a, b) => a.name.localeCompare(b.name)) as User[];
+							.sort((a, b) =>
+								a.name.localeCompare(b.name)
+							) as User[];
 						setUsers(sortedUsers);
 						setLoading(false);
 					}
@@ -109,7 +119,10 @@ const AdminSettings = () => {
 		setEditOption(null);
 	};
 
-	const handleSave = (updatedUser: User, option: "college" | "role" | "status") => {
+	const handleSave = (
+		updatedUser: User,
+		option: "college" | "role" | "status"
+	) => {
 		console.log("User updated:", updatedUser);
 		setEditUser(updatedUser);
 		setEditDocument(updatedUser.document);
@@ -151,7 +164,9 @@ const AdminSettings = () => {
 			<div className="row align-items-center">
 				<div className="col-md-6">
 					<button
-						className={`ustfu-as-btn tab-btn ${activeTab === "userManagement" ? "active-tab" : ""}`}
+						className={`ustfu-as-btn tab-btn ${
+							activeTab === "userManagement" ? "active-tab" : ""
+						}`}
 						onClick={() => {
 							setActiveTab("userManagement");
 							setCurrentPage(1);
@@ -160,7 +175,11 @@ const AdminSettings = () => {
 						USER MANAGEMENT
 					</button>
 					<button
-						className={`ustfu-as-btn tab-btn ${activeTab === "registrationVerification" ? "active-tab" : ""}`}
+						className={`ustfu-as-btn tab-btn ${
+							activeTab === "registrationVerification"
+								? "active-tab"
+								: ""
+						}`}
 						onClick={() => {
 							setActiveTab("registrationVerification");
 							setCurrentPage(1);
@@ -188,7 +207,13 @@ const AdminSettings = () => {
 
 			{activeTab === "userManagement" && (
 				<div style={{ overflowX: "auto", width: "100%" }}>
-					<table style={{ minWidth: "600px", borderCollapse: "collapse" }} className="user-mngmnt-table">
+					<table
+						style={{
+							minWidth: "600px",
+							borderCollapse: "collapse",
+						}}
+						className="user-mngmnt-table"
+					>
 						<thead className="user-mngmnt-table-header">
 							<tr>
 								<th>ID</th>
@@ -204,14 +229,27 @@ const AdminSettings = () => {
 						</thead>
 						<tbody>
 							{currentUsers.map((user) => (
-								<UserRow key={user.document} user={user} onSave={handleSave} />
+								<UserRow
+									key={user.document}
+									user={user}
+									onSave={handleSave}
+								/>
 							))}
 						</tbody>
 					</table>
 				</div>
 			)}
-			<PageButtons currentPage={currentPage} totalPages={totalPages} onPageChange={(page) => setCurrentPage(page)} />
-			<input type="button" className="btn primary-btn save-btn" value="VIEW USER AUDIT LOGS" onClick={handleAuditLogsClick} />
+			<PageButtons
+				currentPage={currentPage}
+				totalPages={totalPages}
+				onPageChange={(page) => setCurrentPage(page)}
+			/>
+			<input
+				type="button"
+				className="btn primary-btn save-btn"
+				value="VIEW USER AUDIT LOGS"
+				onClick={handleAuditLogsClick}
+			/>
 
 			{activeTab === "registrationVerification" && (
 				// Registration Verification content placeholder
@@ -231,7 +269,11 @@ const AdminSettings = () => {
 			)}
 
 			{showAuditLogsPopout && (
-				<AuditLogsPopout title="User Audit Logs" onClose={handleAuditLogsClose} isOpen={showAuditLogsPopout}>
+				<AuditLogsPopout
+					title="User Audit Logs"
+					onClose={handleAuditLogsClose}
+					isOpen={showAuditLogsPopout}
+				>
 					<UserAuditLogs />
 				</AuditLogsPopout>
 			)}

@@ -51,7 +51,8 @@ fieldset.medicalFiles .row {
 }
 
 /* Placeholder styling */
-::placeholder {
+input::placeholder,
+textarea::placeholder {
 	font-style: italic;
 	color: hsl(0, 0%, 76%) !important;
 }

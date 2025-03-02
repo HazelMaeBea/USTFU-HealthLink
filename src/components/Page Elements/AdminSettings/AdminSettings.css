@@ -372,12 +372,12 @@ p {
 	background-color: rgba(0, 0, 0, 0.1);
 }
 
-#status,
-#role {
+#edit_status,
+#edit_role {
 	width: 20%;
 }
 
-#college {
+#edit_college {
 	width: 50%;
 }
 
@@ -556,7 +556,7 @@ p {
 	background-color: rgba(0, 0, 0, 0.1);
 }
 
-.admin-settings-container .edit-options-menu {
+.edit-options-menu {
 	position: absolute;
 	background: white;
 	border: 1px solid #ccc;
