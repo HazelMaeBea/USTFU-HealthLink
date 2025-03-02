@@ -25,6 +25,7 @@ dist-ssr
 
 # Practice Folder
 practice/
+temp/
 
 # Firebase txt
 firebase.txt
