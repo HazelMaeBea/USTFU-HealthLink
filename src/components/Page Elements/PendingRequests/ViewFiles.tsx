@@ -11,6 +11,8 @@ const ViewFiles: React.FC<ViewFilesProps> = ({ file, onClose }) => {
 		console.log("Viewing file:", file);
 	}, [file]);
 
+	const isPdf = file.filename.toLowerCase().endsWith(".pdf");
+
 	return (
 		<div className="view-file-overlay">
 			<div className="view-file-container">
@@ -22,14 +24,22 @@ const ViewFiles: React.FC<ViewFilesProps> = ({ file, onClose }) => {
 				</div>
 				<div className="view-file-content">
 					{file.url ? (
-						<img
-							src={file.url}
-							alt={file.filename}
-							className="full-file-preview"
-							onError={(e) => {
-								console.error("Error loading file", e);
-							}}
-						/>
+						isPdf ? (
+							<iframe
+								src={file.url}
+								title={file.filename}
+								className="pdf-preview"
+							/>
+						) : (
+							<img
+								src={file.url}
+								alt={file.filename}
+								className="full-file-preview"
+								onError={(e) => {
+									console.error("Error loading file", e);
+								}}
+							/>
+						)
 					) : (
 						<div className="file-fallback">
 							<p>No preview available.</p>

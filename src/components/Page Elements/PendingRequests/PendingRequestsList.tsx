@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { PendingRequest } from "./types";
 import { usePendingRequests } from "./PendingRequestBackend"; // use the hook instead of mock data
 import "./PendingRequests.css";
@@ -8,7 +8,6 @@ import { HiOutlineX } from "react-icons/hi";
 import Popout from "../Popout/Popout";
 import ViewFiles from "./ViewFiles";
 
-// Remove the mock state and use the hook
 const PendingRequestList = () => {
 	const pendingRequests = usePendingRequests();
 	const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -258,7 +257,35 @@ const PendingRequestList = () => {
 			...("labInvoice" in formData ? [formData.labInvoice] : []),
 		].filter((attachment) => attachment && attachment.filename);
 
-		const supportedExtensions = /\.(pdf|png|jpe?g|docx)$/i;
+		// Helper: check file extension and return appropriate content
+		const renderThumbnail = (attachment: {
+			url?: string;
+			filename: string;
+		}) => {
+			const ext = attachment.filename.split(".").pop()?.toLowerCase();
+			const imageTypes = ["png", "jpg", "jpeg", "gif", "svg"];
+			if (ext && imageTypes.includes(ext) && attachment.url) {
+				return (
+					<img
+						src={attachment.url}
+						alt={attachment.filename}
+						className="file-thumbnail"
+					/>
+				);
+			} else if (ext === "pdf") {
+				return (
+					<div className="default-thumbnail" data-label="PDF"></div>
+				);
+			} else if (ext === "docx") {
+				return (
+					<div className="default-thumbnail" data-label="DOCX"></div>
+				);
+			} else {
+				return (
+					<div className="default-thumbnail" data-label="FILE"></div>
+				);
+			}
+		};
 
 		return (
 			<>
@@ -273,25 +300,10 @@ const PendingRequestList = () => {
 								onClick={() => setPreviewFile(attachment)}
 								title={attachment.filename}
 							>
-								{attachment.url &&
-								supportedExtensions.test(
-									attachment.filename
-								) ? (
-									<>
-										<img
-											src={attachment.url}
-											alt={attachment.filename}
-											className="file-thumbnail"
-										/>
-										<p className="file-name">
-											{attachment.filename}
-										</p>
-									</>
-								) : (
-									<div className="file-fallback">
-										<p>{attachment.filename}</p>
-									</div>
-								)}
+								{renderThumbnail(attachment)}
+								<p className="file-name">
+									{attachment.filename}
+								</p>
 							</div>
 						))}
 					</div>
