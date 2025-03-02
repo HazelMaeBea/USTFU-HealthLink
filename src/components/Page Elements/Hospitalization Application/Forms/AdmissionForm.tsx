@@ -100,10 +100,12 @@ const AdmissionForm = () => {
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
 	const formsCollectionRef = collection(db, "FormRequests");
+
 	const onSubmit = async (data: FieldValues) => {
 		try {
 			const email = auth?.currentUser?.email;
 
+			// Upload the files first and assume the files are at these paths.
 			let imageRef = ref(
 				storage,
 				"FormRequests/" +
@@ -112,6 +114,7 @@ const AdmissionForm = () => {
 					data.applicantSignature[0].name
 			);
 			await uploadBytes(imageRef, data.applicantSignature[0]);
+
 			imageRef = ref(
 				storage,
 				"FormRequests/" +
@@ -120,6 +123,7 @@ const AdmissionForm = () => {
 					data.docRequest[0].name
 			);
 			await uploadBytes(imageRef, data.docRequest[0]);
+
 			imageRef = ref(
 				storage,
 				"FormRequests/" +
@@ -128,6 +132,7 @@ const AdmissionForm = () => {
 					data.employeeID[0].name
 			);
 			await uploadBytes(imageRef, data.employeeID[0]);
+
 			imageRef = ref(
 				storage,
 				"FormRequests/" +
@@ -136,6 +141,7 @@ const AdmissionForm = () => {
 					data.hospitalInvoice[0].name
 			);
 			await uploadBytes(imageRef, data.hospitalInvoice[0]);
+
 			imageRef = ref(
 				storage,
 				"FormRequests/" +
@@ -145,20 +151,54 @@ const AdmissionForm = () => {
 			);
 			await uploadBytes(imageRef, data.labInvoice[0]);
 
-			await addDoc(formsCollectionRef, {
-				Age: data["age"],
-				FirstName: data["firstname"],
-				LastName: data["lastname"],
-				MiddleName: data["middlename"],
-				ClaimRequestCount: data["claimRequestCount"],
-				College: data["college"],
-				Contact: data["contact"],
-				Suffix: data["suffix"],
-				Gender: data["gender"],
-				Status: data["status"],
-				Load: data["load"],
-				SubmittedAt: new Date(),
-			});
+			// Prepare our document using the structure for PendingRequest.
+			const pendingRequestData = {
+				// If you need to generate a transactionId, you could generate here or later assign docRef.id.
+				transactionId: "TRN" + Date.now(),
+				requester: auth?.currentUser?.displayName || email || "Unknown",
+				dateSubmitted: new Date().toISOString(),
+				status: "pending",
+				formData: {
+					formType: "admission", // For example, or data.formType
+					lastname: data["lastname"],
+					firstname: data["firstname"],
+					middlename: data["middlename"],
+					age: data["age"],
+					gender: data["gender"],
+					contact: data["contact"],
+					college: data["college"],
+					load: data["load"],
+					status: data["status"],
+					// Note: For documents, we store both the URL path and filename.
+					docRequest: {
+						url: `FormRequests/${email}/FormRequest O-0000000001/${data.docRequest[0].name}`,
+						filename: data.docRequest[0].name,
+					},
+					hospitalInvoice: {
+						url: `FormRequests/${email}/FormRequest O-0000000001/${data.hospitalInvoice[0].name}`,
+						filename: data.hospitalInvoice[0].name,
+					},
+					labInvoice: {
+						url: `FormRequests/${email}/FormRequest O-0000000001/${data.labInvoice[0].name}`,
+						filename: data.labInvoice[0].name,
+					},
+					employeeID: {
+						url: `FormRequests/${email}/FormRequest O-0000000001/${data.employeeID[0].name}`,
+						filename: data.employeeID[0].name,
+					},
+					applicantSignature: {
+						url: `FormRequests/${email}/FormRequest O-0000000001/${data.applicantSignature[0].name}`,
+						filename: data.applicantSignature[0].name,
+					},
+					claimRequestCount: data["claimRequestCount"],
+				},
+			};
+
+			// Add the pending request document to Firestore.
+			const docRef = await addDoc(formsCollectionRef, pendingRequestData);
+
+			// Optionally update the transactionId based on Firestore generated id.
+			console.log("Document written with ID: ", docRef.id);
 		} catch (error) {
 			console.error(error);
 		}

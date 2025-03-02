@@ -7,7 +7,7 @@ body {
 }
 
 /* Container */
-.status-tracking-container {
+.statusTracking-container {
 	background: white;
 	border-radius: 10px;
 	padding: 20px;
@@ -16,7 +16,7 @@ body {
 	box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.transaction-header {
+.statusTracking-transaction-header {
 	display: flex;
 	justify-content: space-between; /* Pushes items to edges */
 	align-items: center; /* Aligns vertically */
@@ -26,14 +26,14 @@ body {
 }
 
 /* Transaction ID */
-.transaction-id {
+.statusTracking-transaction-id {
 	font-size: 1.8rem;
 	text-align: left;
 	padding-bottom: 10px;
 	color: black;
 }
 
-.back-button {
+.statusTracking-back-button {
 	background: black;
 	color: white;
 	border: none;
@@ -47,12 +47,12 @@ body {
 	gap: 5px;
 }
 
-.back-button:hover {
+.statusTracking-back-button:hover {
 	background-color: #333;
 }
 
 /* Status Title */
-.status-title {
+.statusTracking-status-title {
 	text-align: center;
 	font-size: 16px;
 	font-weight: bold;
@@ -60,7 +60,7 @@ body {
 }
 
 /* Status Updates */
-.status-updates {
+.statusTracking-status-updates {
 	display: flex;
 	flex-direction: column;
 	align-items: center; /* Center items horizontally */
@@ -69,7 +69,7 @@ body {
 }
 
 /* Individual Status Box */
-.status-item {
+.statusTracking-status-item {
 	display: flex;
 	align-items: center;
 	padding: 12px;
@@ -83,55 +83,55 @@ body {
 }
 
 /* Approved Status */
-.status-item.approved {
+.statusTracking-approved {
 	background-color: rgb(214, 255, 214); /* Light Green */
 	color: rgb(34, 139, 34); /* Dark Green */
 }
 
 /* Rejected Status */
-.status-item.rejected {
+.statusTracking-rejected {
 	background-color: rgb(255, 167, 167); /* Light Red */
 	color: rgb(139, 0, 0); /* Dark Red */
 }
 
 /* Pending Status */
-.status-item.pending {
+.statusTracking-pending {
 	background-color: #e7e7e2; /* Light Yellow */
 	color: #5a5a54; /* Darker Yellow */
 }
 
-.status-item.pending .checkmark {
+.statusTracking-pending .statusTracking-checkmark {
 	display: none;
 }
 
 /* Green Checkmark */
-.checkmark {
+.statusTracking-checkmark {
 	font-size: 20px;
 	color: green;
 	margin-right: 10px;
 }
 
-.rejected .checkmark {
+.statusTracking-rejected .statusTracking-checkmark {
 	color: red;
 	content: "✘";
 }
 
 /* Status Text */
-.status-text {
+.statusTracking-status-text {
 	display: flex;
 	align-items: center; /* Align items vertically */
 	gap: 10px; /* Add space between status and time */
 }
 
 /* Action Buttons */
-.action-buttons {
+.statusTracking-action-buttons {
 	display: flex;
 	justify-content: center;
 	margin-top: 20px;
 }
 
 /* Print Button */
-.print-button {
+.statusTracking-print-button {
 	background: black;
 	color: white;
 	border: none;
@@ -146,7 +146,7 @@ body {
 	margin-bottom: 20px;
 }
 
-.print-button:hover {
+.statusTracking-print-button:hover {
 	background: #333;
 }
 
@@ -155,7 +155,7 @@ button:disabled {
 	opacity: 0.5;
 }
 
-.submission-info-container {
+.statusTracking-submission-info-container {
 	background: white;
 	border-radius: 10px;
 	padding: 20px;
@@ -164,7 +164,7 @@ button:disabled {
 	box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.submission-header {
+.statusTracking-submission-header {
 	display: flex !important;
 	justify-content: space-between !important;
 	align-items: center !important;
@@ -173,20 +173,20 @@ button:disabled {
 	border-bottom: 3px solid #f5c100 !important;
 }
 
-.submission-title {
+.statusTracking-submission-title {
 	font-size: 1.8rem !important;
 	text-align: left !important;
 	color: black !important;
 }
 
-.submission-contents {
+.statusTracking-submission-contents {
 	max-width: 100%;
 	margin: 20px;
 	align-items: center;
 	justify-content: center;
 }
 
-.form-container {
+.statusTracking-form-container {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
 	gap: 1.5rem; /* Adjust spacing between items */
@@ -195,7 +195,7 @@ button:disabled {
 	margin-bottom: 2rem;
 }
 
-.form-contents {
+.statusTracking-form-contents {
 	display: flex;
 	flex-direction: column;
 	align-items: start;
@@ -204,12 +204,12 @@ button:disabled {
 	color: black;
 }
 
-.form-contents label {
+.statusTracking-form-contents label {
 	font-weight: bold;
 	margin-bottom: 4px;
 }
 
-.field-content {
+.statusTracking-field-content {
 	padding: 0.5rem;
 	border: 1px solid #ddd;
 	border-radius: 4px;
@@ -217,19 +217,19 @@ button:disabled {
 	width: 100%;
 }
 
-.attachments-section {
+.statusTracking-attachments-section {
 	margin: 2rem 0;
 	color: black;
 }
 
-.attachment-list {
+.statusTracking-attachment-list {
 	border: 1px solid #ddd;
 	border-radius: 4px;
 	overflow: hidden;
 	color: black;
 }
 
-.attachment-item {
+.statusTracking-attachment-item {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -239,7 +239,7 @@ button:disabled {
 	border-bottom: 1px solid #ddd;
 }
 
-.attachment-filename {
+.statusTracking-attachment-filename {
 	flex-grow: 1;
 	flex-shrink: 1; /* Prevents shrinking */
 	min-width: 0; /* Ensures it expands fully */
@@ -248,6 +248,6 @@ button:disabled {
 	text-overflow: ellipsis;
 }
 
-.attachment-item:last-child {
+.statusTracking-attachment-item:last-child {
 	border-bottom: none;
 }

@@ -15,6 +15,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { auth, db, storage } from "../../../../config/firebase.ts";
 import { ref, uploadBytes } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
+import Popout from "../../../Page Elements/Popout/Popout"; // adjust path if needed
 
 export type FormData = z.infer<typeof schema>;
 
@@ -176,11 +177,13 @@ const FormBody = () => {
 	const [dateHired, setDateHired] = useState<Date | null>(null);
 	const [dateRetired, setDateRetired] = useState<Date | null>(null);
 	const [showPopup, setShowPopup] = useState(false);
+	const [showClearConfirmation, setShowClearConfirmation] = useState<boolean>(false);
 	const navigate = useNavigate();
 
 	const {
 		register,
 		handleSubmit,
+		reset,
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -290,6 +293,15 @@ const FormBody = () => {
 		navigate("/tracking");
 	};
 
+	const handleClearConfirm = () => {
+		reset();
+		setShowClearConfirmation(false);
+	};
+
+	const handleClearCancel = () => {
+		setShowClearConfirmation(false);
+	};
+
 	return (
 		<div className="form-body">
 			<form onSubmit={handleSubmit(onSubmit)}>
@@ -319,7 +331,11 @@ const FormBody = () => {
 					>
 						Submit
 					</button>
-					<button type="reset" className="btn btn-clear form-submit">
+					<button
+						type="button"
+						className="btn btn-clear form-submit"
+						onClick={() => setShowClearConfirmation(true)}
+					>
 						Clear
 					</button>
 				</div>
@@ -334,6 +350,15 @@ const FormBody = () => {
 						</a>
 					</div>
 				</>
+			)}
+			{showClearConfirmation && (
+				<Popout
+					title="Confirm Clear Form"
+					message="Are you sure you want to clear the form? All entered data will be lost."
+					onConfirm={handleClearConfirm}
+					onCancel={handleClearCancel}
+					isOpen={showClearConfirmation}
+				/>
 			)}
 		</div>
 	);
