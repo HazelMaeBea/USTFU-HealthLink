@@ -74,19 +74,21 @@ const PendingRequestList = () => {
 							{formData.suffix ? formData.suffix : "-"}
 						</p>
 					</div>
+				</div>
+				<div className="form-second-row-grid">
 					<div className="form-group">
 						<label>Age</label>
 						<p className="field-value">{formData.age}</p>
 					</div>
-					<div className="form-group">
+					<div className="form-group pending-request-gender-field">
 						<label>Gender</label>
 						<p className="field-value">{formData.gender}</p>
 					</div>
-					<div className="form-group">
+					<div className="form-group pending-request-college-field">
 						<label>College Affiliation</label>
 						<p className="field-value">{formData.college}</p>
 					</div>
-					<div className="form-group">
+					<div className="form-group pending-request-contact-field">
 						<label>Contact No.</label>
 						<p className="field-value">{formData.contact}</p>
 					</div>
@@ -186,7 +188,7 @@ const PendingRequestList = () => {
 				return (
 					<>
 						{baseFields}
-						<div className="form-grid">
+						<div className="form-eyeglasses-row-grid">
 							<div className="form-group">
 								<label>OR Number</label>
 								<p className="field-value">
@@ -219,7 +221,7 @@ const PendingRequestList = () => {
 				return (
 					<>
 						{baseFields}
-						<div className="form-grid">
+						<div className="form-admission-row-grid">
 							<div className="form-group">
 								<label>Load</label>
 								<p className="field-value">

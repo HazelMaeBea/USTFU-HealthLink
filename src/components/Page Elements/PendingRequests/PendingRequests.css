@@ -46,7 +46,41 @@
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	gap: 1.5rem;
-	margin-bottom: 2rem;
+	margin-bottom: 1rem;
+}
+
+.form-second-row-grid {
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	gap: 1.5rem;
+	margin-bottom: 1rem;
+}
+
+.form-admission-row-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 1.5rem;
+	margin-bottom: 1rem;
+}
+
+.form-eyeglasses-row-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 1.5rem;
+	margin-bottom: 1rem;
+}
+
+.pending-request-college-field {
+	grid-column: span 4;
+}
+
+.pending-request-contact-field {
+	grid-column: span 2;
+}
+
+.pending-request-age-field,
+.pending-request-gender-field {
+	grid-column: span 1;
 }
 
 .form-group {
