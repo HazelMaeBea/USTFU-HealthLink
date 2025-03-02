@@ -15,6 +15,12 @@
 	font-family: "Book Antiqua", serif !important;
 }
 
+/* New select placeholder styling when no valid option is selected */
+.form-body select:invalid {
+	font-style: italic;
+	color: hsl(0, 0%, 82%) !important;
+}
+
 /* Fieldset styling with a top border */
 fieldset {
 	border: none;
@@ -60,7 +66,7 @@ fieldset.medicalFiles .row {
 /* Placeholder styling */
 input::placeholder,
 textarea::placeholder {
-	font-style: italic;
+	font-style: italic !important;
 	color: hsl(0, 0%, 76%) !important;
 }
 
@@ -369,4 +375,29 @@ table {
 	border-radius: 8px;
 	padding: 1rem;
 	margin-top: 1rem;
+}
+
+/* Placeholder styling for select elements */
+.form-select {
+	color: hsl(0, 0%, 82%) !important;
+	font-style: italic;
+}
+
+/* Style for selected option */
+.form-select:has(option:checked:not([value=""])) {
+	color: black !important;
+	font-style: normal;
+}
+
+/* Style for options in dropdown */
+.form-select option:not([value=""]) {
+	color: black;
+	font-style: normal;
+}
+
+/* Style for placeholder option */
+.form-select option[value=""],
+.form-select option[disabled] {
+	color: hsl(0, 0%, 82%);
+	font-style: italic;
 }
