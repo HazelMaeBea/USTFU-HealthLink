@@ -1,10 +1,9 @@
-import { RoleProvider } from "./components/Layout/RoleContext";
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import {
-	BrowserRouter as Router,
-	Routes,
-	Route,
-	Navigate,
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Navigate,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -18,97 +17,64 @@ import Settings from "./components/Pages/Settings";
 import AdminSettings from "./components/Pages/AdminSettings";
 import PendingRequestList from "./components/Page Elements/PendingRequests/PendingRequestsList";
 import ErrorBoundary from "./components/ErrorBoundary";
-
-import { auth } from "./config/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { login } from "./services/auth";
+import { RoleProvider } from "./components/Layout/RoleContext";
+import { FirebaseProvider } from "./contexts/firebaseContext";
+import ProtectedRoute from "./components/protectedRoutes";
 
 const App: React.FC = () => {
-	// Use null as the initial state to indicate "unknown".
-	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(
-		null
-	);
+    return (
+        <FirebaseProvider>
+            <RoleProvider>
+                <Router>
+                    <div className="App">
+                        <Routes>
+                            {/* Public routes */}
+                            <Route path="/login" element={<LoginPage />} />
 
-	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, (user) => {
-			console.log("Auth state changed:", user);
-			setIsAuthenticated(!!user);
-		});
-		return () => unsubscribe();
-	}, []);
+                            {/* Protected routes */}
+                            <Route element={<ProtectedRoute />}>
+                                <Route element={<Layout />}>
+                                    <Route
+                                        path="/home/*"
+                                        element={<HospitalizationApplication />}
+                                    />
+                                    <Route
+                                        path="/tracking"
+                                        element={<HospitalizationTracking />}
+                                    />
+                                    <Route
+                                        path="/history"
+                                        element={<HospitalizationHistory />}
+                                    />
+                                    <Route
+                                        path="/pendingrequests"
+                                        element={
+                                            <ErrorBoundary>
+                                                <PendingRequestList />
+                                            </ErrorBoundary>
+                                        }
+                                    />
+                                    <Route path="/faqs" element={<FAQs />} />
+                                    <Route
+                                        path="/settings"
+                                        element={<Settings />}
+                                    />
+                                    <Route
+                                        path="/adminsettings"
+                                        element={<AdminSettings />}
+                                    />
+                                </Route>
+                            </Route>
 
-	const handleLogin = useCallback(async () => {
-		try {
-			const user = await login();
-			console.log("Login result:", user);
-		} catch (error) {
-			console.error("Login error:", error);
-		}
-	}, []);
-
-	// While auth state is unknown, don't render anything (or render a loading indicator)
-	if (isAuthenticated === null) {
-		return null; // or return <div>Loading...</div>
-	}
-
-	return (
-		<RoleProvider>
-			<Router>
-				<div className="App">
-					{isAuthenticated ? (
-						<Layout>
-							<Routes>
-								<Route
-									path="/home/*"
-									element={<HospitalizationApplication />}
-								/>
-								<Route
-									path="/tracking"
-									element={<HospitalizationTracking />}
-								/>
-								<Route
-									path="/history"
-									element={<HospitalizationHistory />}
-								/>
-								<Route
-									path="/pendingrequests"
-									element={
-										<ErrorBoundary>
-											<PendingRequestList />
-										</ErrorBoundary>
-									}
-								/>
-								<Route path="/faqs" element={<FAQs />} />
-								<Route
-									path="/settings"
-									element={<Settings />}
-								/>
-								<Route
-									path="/adminsettings"
-									element={<AdminSettings />}
-								/>
-								<Route
-									path="*"
-									element={<Navigate to="/home" replace />}
-								/>
-							</Routes>
-						</Layout>
-					) : (
-						<Routes>
-							<Route
-								path="/login"
-								element={<LoginPage onLogin={handleLogin} />}
-							/>
-							<Route
-								path="*"
-								element={<Navigate to="/login" replace />}
-							/>
-						</Routes>
-					)}
-				</div>
-			</Router>
-		</RoleProvider>
-	);
+                            {/* Default routes */}
+                            <Route path="/" element={<Navigate to="/home" replace />} />
+                            <Route path="*" element={<Navigate to="/login" replace />} />
+                        </Routes>
+                    </div>
+                </Router>
+            </RoleProvider>
+        </FirebaseProvider>
+    );
 };
 
 export default App;
