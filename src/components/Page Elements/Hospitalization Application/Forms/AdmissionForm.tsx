@@ -152,15 +152,21 @@ const AdmissionForm = () => {
 			);
 			await uploadBytes(imageRef, data.labInvoice[0]);
 
-			// Prepare our document using the structure for PendingRequest.
 			const pendingRequestData = {
-				// If you need to generate a transactionId, you could generate here or later assign docRef.id.
 				transactionId: "TRN" + Date.now(),
 				requester: auth?.currentUser?.displayName || email || "Unknown",
-				dateSubmitted: new Date().toISOString(),
+				dateSubmitted: new Date().toLocaleString("en-US", {
+					timeZone: "Asia/Manila",
+					month: "2-digit",
+					day: "2-digit",
+					year: "numeric",
+					hour: "numeric",
+					minute: "numeric",
+					hour12: true,
+				}),
 				status: "pending",
 				formData: {
-					formType: "admission", // For example, or data.formType
+					formType: "admission",
 					lastname: data["lastname"],
 					firstname: data["firstname"],
 					middlename: data["middlename"],

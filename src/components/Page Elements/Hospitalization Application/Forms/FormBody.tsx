@@ -177,7 +177,8 @@ const FormBody = () => {
 	const [dateHired, setDateHired] = useState<Date | null>(null);
 	const [dateRetired, setDateRetired] = useState<Date | null>(null);
 	const [showPopup, setShowPopup] = useState(false);
-	const [showClearConfirmation, setShowClearConfirmation] = useState<boolean>(false);
+	const [showClearConfirmation, setShowClearConfirmation] =
+		useState<boolean>(false);
 	const navigate = useNavigate();
 
 	const {
@@ -191,98 +192,105 @@ const FormBody = () => {
 	const onSubmit = async (data: FieldValues) => {
 		try {
 			const email = auth?.currentUser?.email;
+			// Prepare file URLs
+			const applicantSignatureUrl =
+				"FormRequests/" +
+				email +
+				"/FormRequest O-0000000001/" +
+				data.applicantSignature[0].name;
+			const docRequestUrl =
+				"FormRequests/" +
+				email +
+				"/FormRequest O-0000000001/" +
+				data.docRequest[0].name;
+			const employeeIDUrl =
+				"FormRequests/" +
+				email +
+				"/FormRequest O-0000000001/" +
+				data.employeeID[0].name;
+			const hospitalInvoiceUrl =
+				"FormRequests/" +
+				email +
+				"/FormRequest O-0000000001/" +
+				data.hospitalInvoice[0].name;
+			const labInvoiceUrl =
+				"FormRequests/" +
+				email +
+				"/FormRequest O-0000000001/" +
+				data.labInvoice[0].name;
 
-			let imageRef = ref(
-				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.applicantSignature[0].name
-			);
+			// Upload files
+			let imageRef = ref(storage, applicantSignatureUrl);
 			await uploadBytes(imageRef, data.applicantSignature[0]);
-			imageRef = ref(
-				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.docRequest[0].name
-			);
+			imageRef = ref(storage, docRequestUrl);
 			await uploadBytes(imageRef, data.docRequest[0]);
-			imageRef = ref(
-				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.employeeID[0].name
-			);
+			imageRef = ref(storage, employeeIDUrl);
 			await uploadBytes(imageRef, data.employeeID[0]);
-			imageRef = ref(
-				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.hospitalInvoice[0].name
-			);
+			imageRef = ref(storage, hospitalInvoiceUrl);
 			await uploadBytes(imageRef, data.hospitalInvoice[0]);
-			imageRef = ref(
-				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.labInvoice[0].name
-			);
+			imageRef = ref(storage, labInvoiceUrl);
 			await uploadBytes(imageRef, data.labInvoice[0]);
 
-			await addDoc(formsCollectionRef, {
-				Age: data["age"],
-				ApplicantSignature:
-					"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.applicantSignature[0].name,
-				Benefits: data["benefits"],
-				ClaimRequestCount: data["claimRequestCount"],
-				College: data["college"],
-				Contact: data["contact"],
-				FirstName: data["firstname"],
-				Gender: data["gender"],
-				HMO: data["hmo"],
-				Hospital: data["hospital"],
-				HospitalInvoice:
-					"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.hospitalInvoice[0].name,
-				HospitalStatus: data["hospitalStatus"],
-				Illness: data["illness"],
-				LabInvoice:
-					"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.labInvoice[0].name,
-				LastName: data["lastname"],
-				Load: data["load"],
-				MiddleName: data["middlename"],
-				Physician: data["physician"],
-				Procedures: data["procedures"],
-				Status: data["status"],
-				Suffix: data["suffix"],
-				Term: data["term"],
-				Year: data["year"],
-				DocRequest:
-					"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.docRequest[0].name,
-				EmployeeID:
-					"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.employeeID[0].name,
-				DateHired: dateHired,
-				DateRetired: dateRetired,
-				SubmittedAt: new Date(),
-			});
+			// Build new document structure to match the mock data format
+			const newDoc = {
+				transactionId: "TRN" + Date.now(),
+				requester: auth?.currentUser?.displayName || email || "Unknown",
+				dateSubmitted: new Date().toLocaleString("en-US", {
+					timeZone: "Asia/Manila",
+					month: "2-digit",
+					day: "2-digit",
+					year: "numeric",
+					hour: "numeric",
+					minute: "numeric",
+					hour12: true,
+				}),
+				status: "pending",
+				formData: {
+					formType: "hospital",
+					lastname: data.lastname,
+					firstname: data.firstname,
+					middlename: data.middlename,
+					suffix: data.suffix,
+					age: data.age,
+					gender: data.gender,
+					contact: data.contact,
+					college: data.college,
+					hospital: data.hospital,
+					illness: data.illness,
+					physician: data.physician,
+					procedures: data.procedures,
+					term: data.term,
+					year: data.year,
+					load: data.load,
+					status: data.status,
+					benefits: data.benefits,
+					hmo: data.hmo,
+					docRequest: {
+						url: docRequestUrl,
+						filename: data.docRequest[0].name,
+					},
+					hospitalInvoice: {
+						url: hospitalInvoiceUrl,
+						filename: data.hospitalInvoice[0].name,
+					},
+					labInvoice: {
+						url: labInvoiceUrl,
+						filename: data.labInvoice[0].name,
+					},
+					employeeID: {
+						url: employeeIDUrl,
+						filename: data.employeeID[0].name,
+					},
+					applicantSignature: {
+						url: applicantSignatureUrl,
+						filename: data.applicantSignature[0].name,
+					},
+					hospitalStatus: data.hospitalStatus,
+					claimRequestCount: data.claimRequestCount,
+				},
+			};
+
+			await addDoc(formsCollectionRef, newDoc);
 			setShowPopup(true);
 		} catch (error) {
 			console.error(error);
