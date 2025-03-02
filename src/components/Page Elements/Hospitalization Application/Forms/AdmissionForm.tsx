@@ -12,6 +12,7 @@ import AdmissionTeachingInfo from "./AdmissionTeachingInfo";
 import { collection, addDoc } from "firebase/firestore";
 import { auth, db, storage } from "../../../../config/firebase.ts";
 import { ref, uploadBytes } from "firebase/storage";
+import BackButton from "./BackButton";
 
 type FormData = z.infer<typeof schema>;
 
@@ -206,6 +207,7 @@ const AdmissionForm = () => {
 
 	return (
 		<div className="form-body">
+			<BackButton /> {/* Use BackButton component */}
 			<div className="container">
 				<FormHeader formType="Hospital Admission Form" />
 				<div className="form-body">
