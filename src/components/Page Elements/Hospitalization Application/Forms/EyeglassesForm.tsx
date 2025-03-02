@@ -11,7 +11,7 @@ import FormSigIDFiles from "./FormSigIDFiles";
 import FormCertify from "./FormCertify";
 import { collection, addDoc } from "firebase/firestore";
 import { auth, db, storage } from "../../../../config/firebase.ts";
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import BackButton from "./BackButton"; // Import BackButton
 
 export type FormData = z.infer<typeof schema>;
@@ -79,25 +79,25 @@ const EyeglassesForm = () => {
 	const onSubmit = async (data: FieldValues) => {
 		try {
 			const email = auth?.currentUser?.email;
-			// Prepare file URLs
-			const applicantSignatureUrl =
-				"FormRequests/" +
-				email +
-				"/FormRequest O-0000000001/" +
-				data.applicantSignature[0].name;
-			const employeeIDUrl =
-				"FormRequests/" +
-				email +
-				"/FormRequest O-0000000001/" +
-				data.employeeID[0].name;
-
-			// Upload files
-			let imageRef = ref(storage, applicantSignatureUrl);
+			// Upload and get download URL for applicantSignature
+			let imageRef = ref(
+				storage,
+				`FormRequests/${email}/FormRequest O-0000000001/${data.applicantSignature[0].name}`
+			);
 			await uploadBytes(imageRef, data.applicantSignature[0]);
-			imageRef = ref(storage, employeeIDUrl);
-			await uploadBytes(imageRef, data.employeeID[0]);
+			const applicantSignatureDownloadUrl = await getDownloadURL(
+				imageRef
+			);
 
-			// Build new document structure matching the mock data
+			// Upload and get download URL for employeeID
+			imageRef = ref(
+				storage,
+				`FormRequests/${email}/FormRequest O-0000000001/${data.employeeID[0].name}`
+			);
+			await uploadBytes(imageRef, data.employeeID[0]);
+			const employeeIDDownloadUrl = await getDownloadURL(imageRef);
+
+			// Build new document structure with download URLs
 			const newDoc = {
 				transactionId: "TRN" + Date.now(),
 				requester: auth?.currentUser?.displayName || email || "Unknown",
@@ -124,11 +124,11 @@ const EyeglassesForm = () => {
 					issuedBy: data.issuedBy,
 					amountPaid: data.amountPaid,
 					employeeID: {
-						url: employeeIDUrl,
+						url: employeeIDDownloadUrl,
 						filename: data.employeeID[0].name,
 					},
 					applicantSignature: {
-						url: applicantSignatureUrl,
+						url: applicantSignatureDownloadUrl,
 						filename: data.applicantSignature[0].name,
 					},
 					claimRequestCount: data.claimRequestCount,

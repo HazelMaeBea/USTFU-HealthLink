@@ -11,7 +11,7 @@ import FormCertify from "./FormCertify";
 import AdmissionTeachingInfo from "./AdmissionTeachingInfo";
 import { collection, addDoc } from "firebase/firestore";
 import { auth, db, storage } from "../../../../config/firebase.ts";
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import BackButton from "./BackButton";
 
 type FormData = z.infer<typeof schema>;
@@ -106,51 +106,47 @@ const AdmissionForm = () => {
 		try {
 			const email = auth?.currentUser?.email;
 
-			// Upload the files first and assume the files are at these paths.
+			// Upload and get download URL for applicantSignature
 			let imageRef = ref(
 				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.applicantSignature[0].name
+				`FormRequests/${email}/FormRequest O-0000000001/${data.applicantSignature[0].name}`
 			);
 			await uploadBytes(imageRef, data.applicantSignature[0]);
+			const applicantSignatureDownloadUrl = await getDownloadURL(
+				imageRef
+			);
 
+			// Upload and get download URL for docRequest
 			imageRef = ref(
 				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.docRequest[0].name
+				`FormRequests/${email}/FormRequest O-0000000001/${data.docRequest[0].name}`
 			);
 			await uploadBytes(imageRef, data.docRequest[0]);
+			const docRequestDownloadUrl = await getDownloadURL(imageRef);
 
+			// Upload and get download URL for employeeID
 			imageRef = ref(
 				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.employeeID[0].name
+				`FormRequests/${email}/FormRequest O-0000000001/${data.employeeID[0].name}`
 			);
 			await uploadBytes(imageRef, data.employeeID[0]);
+			const employeeIDDownloadUrl = await getDownloadURL(imageRef);
 
+			// Upload and get download URL for hospitalInvoice
 			imageRef = ref(
 				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.hospitalInvoice[0].name
+				`FormRequests/${email}/FormRequest O-0000000001/${data.hospitalInvoice[0].name}`
 			);
 			await uploadBytes(imageRef, data.hospitalInvoice[0]);
+			const hospitalInvoiceDownloadUrl = await getDownloadURL(imageRef);
 
+			// Upload and get download URL for labInvoice
 			imageRef = ref(
 				storage,
-				"FormRequests/" +
-					email +
-					"/FormRequest O-0000000001/" +
-					data.labInvoice[0].name
+				`FormRequests/${email}/FormRequest O-0000000001/${data.labInvoice[0].name}`
 			);
 			await uploadBytes(imageRef, data.labInvoice[0]);
+			const labInvoiceDownloadUrl = await getDownloadURL(imageRef);
 
 			const pendingRequestData = {
 				transactionId: "TRN" + Date.now(),
@@ -176,25 +172,24 @@ const AdmissionForm = () => {
 					college: data["college"],
 					load: data["load"],
 					status: data["status"],
-					// Note: For documents, we store both the URL path and filename.
 					docRequest: {
-						url: `FormRequests/${email}/FormRequest O-0000000001/${data.docRequest[0].name}`,
+						url: docRequestDownloadUrl,
 						filename: data.docRequest[0].name,
 					},
 					hospitalInvoice: {
-						url: `FormRequests/${email}/FormRequest O-0000000001/${data.hospitalInvoice[0].name}`,
+						url: hospitalInvoiceDownloadUrl,
 						filename: data.hospitalInvoice[0].name,
 					},
 					labInvoice: {
-						url: `FormRequests/${email}/FormRequest O-0000000001/${data.labInvoice[0].name}`,
+						url: labInvoiceDownloadUrl,
 						filename: data.labInvoice[0].name,
 					},
 					employeeID: {
-						url: `FormRequests/${email}/FormRequest O-0000000001/${data.employeeID[0].name}`,
+						url: employeeIDDownloadUrl,
 						filename: data.employeeID[0].name,
 					},
 					applicantSignature: {
-						url: `FormRequests/${email}/FormRequest O-0000000001/${data.applicantSignature[0].name}`,
+						url: applicantSignatureDownloadUrl,
 						filename: data.applicantSignature[0].name,
 					},
 					claimRequestCount: data["claimRequestCount"],

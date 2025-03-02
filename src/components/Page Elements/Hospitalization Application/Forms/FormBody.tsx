@@ -13,7 +13,7 @@ import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
 import { collection, addDoc } from "firebase/firestore";
 import { auth, db, storage } from "../../../../config/firebase.ts";
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout"; // adjust path if needed
 
@@ -192,7 +192,7 @@ const FormBody = () => {
 	const onSubmit = async (data: FieldValues) => {
 		try {
 			const email = auth?.currentUser?.email;
-			// Prepare file URLs
+			// Prepare file storage paths
 			const applicantSignatureUrl =
 				"FormRequests/" +
 				email +
@@ -219,19 +219,31 @@ const FormBody = () => {
 				"/FormRequest O-0000000001/" +
 				data.labInvoice[0].name;
 
-			// Upload files
+			// Upload and get download URL for applicantSignature
 			let imageRef = ref(storage, applicantSignatureUrl);
 			await uploadBytes(imageRef, data.applicantSignature[0]);
+			const applicantSignatureDownloadUrl = await getDownloadURL(
+				imageRef
+			);
+
+			// Repeat for other files: docRequest, employeeID, hospitalInvoice, labInvoice
 			imageRef = ref(storage, docRequestUrl);
 			await uploadBytes(imageRef, data.docRequest[0]);
+			const docRequestDownloadUrl = await getDownloadURL(imageRef);
+
 			imageRef = ref(storage, employeeIDUrl);
 			await uploadBytes(imageRef, data.employeeID[0]);
+			const employeeIDDownloadUrl = await getDownloadURL(imageRef);
+
 			imageRef = ref(storage, hospitalInvoiceUrl);
 			await uploadBytes(imageRef, data.hospitalInvoice[0]);
+			const hospitalInvoiceDownloadUrl = await getDownloadURL(imageRef);
+
 			imageRef = ref(storage, labInvoiceUrl);
 			await uploadBytes(imageRef, data.labInvoice[0]);
+			const labInvoiceDownloadUrl = await getDownloadURL(imageRef);
 
-			// Build new document structure to match the mock data format
+			// Build new document structure using download URLs
 			const newDoc = {
 				transactionId: "TRN" + Date.now(),
 				requester: auth?.currentUser?.displayName || email || "Unknown",
@@ -266,23 +278,23 @@ const FormBody = () => {
 					benefits: data.benefits,
 					hmo: data.hmo,
 					docRequest: {
-						url: docRequestUrl,
+						url: docRequestDownloadUrl,
 						filename: data.docRequest[0].name,
 					},
 					hospitalInvoice: {
-						url: hospitalInvoiceUrl,
+						url: hospitalInvoiceDownloadUrl,
 						filename: data.hospitalInvoice[0].name,
 					},
 					labInvoice: {
-						url: labInvoiceUrl,
+						url: labInvoiceDownloadUrl,
 						filename: data.labInvoice[0].name,
 					},
 					employeeID: {
-						url: employeeIDUrl,
+						url: employeeIDDownloadUrl,
 						filename: data.employeeID[0].name,
 					},
 					applicantSignature: {
-						url: applicantSignatureUrl,
+						url: applicantSignatureDownloadUrl,
 						filename: data.applicantSignature[0].name,
 					},
 					hospitalStatus: data.hospitalStatus,
