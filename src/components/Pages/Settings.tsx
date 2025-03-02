@@ -79,11 +79,12 @@ const Settings = () => {
 
 			<div className="settings-section">
 				<h3>Personal Information</h3>
-				<div className="fields-grid">
-					<div className="field-item name">
-						<label>First Name:</label>
+				{/* Replace the old fields-grid with the PendingRequests form-grid structure */}
+				<div className="form-grid">
+					<div className="form-group">
+						<label>First Name</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("firstname", e)}
@@ -91,10 +92,10 @@ const Settings = () => {
 							{settings.firstname}
 						</div>
 					</div>
-					<div className="field-item name">
-						<label>Last Name:</label>
+					<div className="form-group">
+						<label>Last Name</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("lastname", e)}
@@ -102,10 +103,10 @@ const Settings = () => {
 							{settings.lastname}
 						</div>
 					</div>
-					<div className="field-item name">
-						<label>Middle Name:</label>
+					<div className="form-group">
+						<label>Middle Name</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("middlename", e)}
@@ -113,10 +114,10 @@ const Settings = () => {
 							{settings.middlename}
 						</div>
 					</div>
-					<div className="field-item small">
-						<label>Suffix:</label>
+					<div className="form-group">
+						<label>Suffix</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("suffix", e)}
@@ -124,10 +125,10 @@ const Settings = () => {
 							{settings.suffix}
 						</div>
 					</div>
-					<div className="field-item small">
-						<label>Age:</label>
+					<div className="form-group">
+						<label>Age</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("age", e)}
@@ -135,10 +136,10 @@ const Settings = () => {
 							{settings.age}
 						</div>
 					</div>
-					<div className="field-item small">
-						<label>Term:</label>
+					<div className="form-group">
+						<label>Term</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("term", e)}
@@ -146,10 +147,10 @@ const Settings = () => {
 							{settings.term}
 						</div>
 					</div>
-					<div className="field-item medium">
-						<label>Year:</label>
+					<div className="form-group">
+						<label>Year</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("year", e)}
@@ -157,10 +158,10 @@ const Settings = () => {
 							{settings.year}
 						</div>
 					</div>
-					<div className="field-item small">
-						<label>Load:</label>
+					<div className="form-group">
+						<label>Load</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("load", e)}
@@ -168,10 +169,10 @@ const Settings = () => {
 							{settings.load}
 						</div>
 					</div>
-					<div className="field-item medium">
-						<label>Status:</label>
+					<div className="form-group">
+						<label>Status</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("status", e)}
@@ -179,10 +180,10 @@ const Settings = () => {
 							{settings.status}
 						</div>
 					</div>
-					<div className="field-item medium">
-						<label>ID Number:</label>
+					<div className="form-group">
+						<label>ID Number</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("numberID", e)}
@@ -190,10 +191,10 @@ const Settings = () => {
 							{settings.numberID}
 						</div>
 					</div>
-					<div className="field-item large">
-						<label>Address:</label>
+					<div className="form-group">
+						<label>Address</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("address", e)}
@@ -201,10 +202,10 @@ const Settings = () => {
 							{settings.address}
 						</div>
 					</div>
-					<div className="field-item medium">
-						<label>Date Hired:</label>
+					<div className="form-group">
+						<label>Date Hired</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("dateHired", e)}
@@ -212,10 +213,10 @@ const Settings = () => {
 							{settings.dateHired}
 						</div>
 					</div>
-					<div className="field-item medium">
-						<label>Date Retired:</label>
+					<div className="form-group">
+						<label>Date Retired</label>
 						<div
-							className="editable"
+							className="editable field-value"
 							contentEditable
 							suppressContentEditableWarning
 							onBlur={(e) => handleFieldBlur("dateRetired", e)}

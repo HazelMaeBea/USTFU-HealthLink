@@ -8,6 +8,13 @@
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
+/* Apply Book Antiqua only to input fields, textarea, and select elements within the form */
+.form-body input,
+.form-body textarea,
+.form-body select {
+	font-family: "Book Antiqua", serif !important;
+}
+
 /* Fieldset styling with a top border */
 fieldset {
 	border: none;
