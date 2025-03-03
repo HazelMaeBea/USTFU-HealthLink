@@ -6,7 +6,7 @@ import { useForm, type SubmitHandler } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useFirebase } from "../../../contexts/firebaseContext"
-import "./RegistrationPage.css"
+import styles from "./RegistrationPage.module.css"
 import ConfirmationMessage from "./ConfirmationMessage"
 import USTFULogo from "../../../images/USTFULogo.png" // Adjust the path as necessary
 
@@ -68,23 +68,23 @@ const RegistrationPage: React.FC = () => {
   }
 
   return (
-    <div className="registration-page">
-      <form onSubmit={handleSubmit(onSubmit)} className="form-body">
-        <div className="profile-card">
+    <div className={styles.registrationPage}>
+      <form onSubmit={handleSubmit(onSubmit)} className={styles.formBody}>
+        <div className={styles.profileCard}>
           {photoURL && (
             <>
-              <img src={photoURL || "/placeholder.svg"} alt="User" className="user-image" />
-              <div className="user-info">
-                <p className="user-email">{email}</p> <br />
-                <p className="user-name">Hi, {displayName?.toLowerCase()}, let's get you started!</p> <br />
-                <p className="registration-text">Please set up your account and gain access to USTFU HealthLink.</p>
+              <img src={photoURL || "/placeholder.svg"} alt="User" className={styles.userImage} />
+              <div className={styles.userInfo}>
+                <p className={styles.userEmail}>{email}</p> <br />
+                <p className={styles.userName}>Hi, {displayName?.toLowerCase()}, let's get you started!</p> <br />
+                <p className={styles.registrationText}>Please set up your account and gain access to USTFU HealthLink.</p>
               </div>
             </>
           )}
         </div>
-        <div className="form-content">
-          <div className="logo-container">
-            <img src={USTFULogo || "/placeholder.svg"} alt="USTFU Logo" className="ustfu-logo" />
+        <div className={styles.formContent}>
+          <div className={styles.logoContainer}>
+            <img src={USTFULogo || "/placeholder.svg"} alt="USTFU Logo" className={styles.ustfuLogo} />
             <h3>Registration Page</h3>
           </div>
 
@@ -303,8 +303,8 @@ const RegistrationPage: React.FC = () => {
               {errors.dateRetired && <p className="invalid-feedback">{errors.dateRetired.message}</p>}
             </div>
           </div>
-          <div className="buttonDiv">
-            <button className="btn btn-submit" type="submit">
+          <div className={styles.buttonDiv}>
+            <button className={`btn btn-submit ${styles.btnSubmit}`} type="submit">
               Register Now
             </button>
           </div>
