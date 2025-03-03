@@ -1,0 +1,139 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font-family: Arial, sans-serif;
+}
+
+body {
+	background-color: #f9f9f9;
+	padding: 20px;
+	color: #333;
+}
+
+.form-container {
+	max-width: 800px;
+	margin: 0 auto;
+	background-color: white;
+	padding: 30px;
+	border: 1px solid #ddd;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
+	text-align: center;
+	margin-bottom: 30px;
+	position: relative;
+}
+
+.logo-left {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100px;
+}
+
+.logo-right {
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 100px;
+}
+
+.form-title {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+.form-subtitle {
+	font-size: 16px;
+	margin-bottom: 5px;
+}
+
+.sample-mark {
+	position: absolute;
+	right: 0;
+	top: -20px;
+	color: #c00;
+	font-style: italic;
+	font-weight: bold;
+}
+
+.form-field {
+	margin-bottom: 15px;
+}
+
+.form-field label {
+	display: inline-block;
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+.form-field input[type="text"] {
+	border: none;
+	border-bottom: 1px solid #333;
+	padding: 5px 0;
+	width: 60%;
+}
+
+.checkbox-group {
+	margin: 15px 0;
+}
+
+.checkbox-item {
+	margin-bottom: 10px;
+}
+
+.checkbox-item input[type="checkbox"] {
+	margin-right: 10px;
+}
+
+.divider {
+	border-top: 1px solid #333;
+	margin: 20px 0;
+}
+
+.form-section {
+	margin: 20px 0;
+}
+
+.form-section-title {
+	font-weight: bold;
+	margin-bottom: 15px;
+}
+
+.form-paragraph {
+	margin-bottom: 15px;
+	line-height: 1.5;
+}
+
+.signature-line {
+	border-top: 1px solid #333;
+	width: 250px;
+	margin-top: 40px;
+	margin-bottom: 5px;
+	display: inline-block;
+}
+
+.signature-label {
+	font-size: 12px;
+	display: block;
+}
+
+.signature-container {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 30px;
+}
+
+.signature-block {
+	text-align: center;
+}
+
+.footer-note {
+	margin-top: 30px;
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+}

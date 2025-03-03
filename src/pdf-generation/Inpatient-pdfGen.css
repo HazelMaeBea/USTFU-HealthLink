@@ -1,0 +1,240 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font-family: Arial, sans-serif;
+}
+
+body {
+	background-color: #f9f9f9;
+	padding: 20px;
+	color: #333;
+}
+
+.form-container {
+	max-width: 800px;
+	margin: 0 auto;
+	background-color: white;
+	padding: 30px;
+	border: 1px solid #ddd;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
+	text-align: center;
+	margin-bottom: 30px;
+	position: relative;
+}
+
+.logo-left {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100px;
+}
+
+.logo-right {
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 100px;
+}
+
+.sample-mark {
+	position: absolute;
+	right: 0;
+	top: -20px;
+	color: #c00;
+	font-style: italic;
+	font-weight: bold;
+}
+
+.form-title {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+.form-subtitle {
+	font-size: 16px;
+	font-weight: bold;
+	margin-bottom: 5px;
+	text-decoration: underline;
+}
+
+.form-type-options {
+	border: 1px solid #333;
+	padding: 10px;
+	margin: 15px 0;
+	width: 300px;
+}
+
+.option-item {
+	margin-bottom: 5px;
+}
+
+.form-field {
+	margin-bottom: 15px;
+}
+
+.form-field label {
+	display: inline-block;
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+.form-field input[type="text"] {
+	border: none;
+	border-bottom: 1px solid #333;
+	padding: 5px 0;
+	background-color: transparent;
+}
+
+.checkbox-group {
+	margin: 15px 0;
+}
+
+.checkbox-item {
+	margin-bottom: 10px;
+}
+
+.checkbox-item input[type="checkbox"],
+.checkbox-item input[type="radio"] {
+	margin-right: 10px;
+}
+
+.divider {
+	border-top: 1px solid #333;
+	margin: 20px 0;
+}
+
+.form-section {
+	margin: 20px 0;
+}
+
+.form-section-title {
+	font-weight: bold;
+	margin-bottom: 15px;
+}
+
+.form-paragraph {
+	margin-bottom: 15px;
+	line-height: 1.5;
+}
+
+.signature-line {
+	border-top: 1px solid #333;
+	width: 250px;
+	margin-top: 40px;
+	margin-bottom: 5px;
+	display: inline-block;
+}
+
+.signature-label {
+	font-size: 12px;
+	display: block;
+}
+
+.signature-container {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 30px;
+}
+
+.signature-block {
+	text-align: center;
+}
+
+.footer-note {
+	margin-top: 30px;
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+}
+
+.form-row {
+	display: flex;
+	margin-bottom: 10px;
+}
+
+.form-col {
+	flex: 1;
+}
+
+.hospital-section {
+	border: 1px solid #333;
+	padding: 15px;
+	margin-top: 10px;
+}
+
+.fund-section {
+	border: 1px solid #333;
+	padding: 15px;
+	margin-top: 10px;
+}
+
+.payment-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 10px;
+}
+
+.payment-table td {
+	padding: 5px;
+	border: 1px solid #333;
+}
+
+.payment-option {
+	width: 50%;
+	padding: 10px;
+	vertical-align: top;
+}
+
+.payment-amount {
+	width: 20%;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.doctors-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.doctors-table th,
+.doctors-table td {
+	padding: 5px;
+	border: 1px solid #333;
+	text-align: center;
+}
+
+.form-footer {
+	margin-top: 20px;
+	text-align: right;
+}
+
+.form-version {
+	font-size: 10px;
+	margin-top: 20px;
+}
+
+.radio-circle {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 1px solid #333;
+	border-radius: 50%;
+	margin-right: 5px;
+	position: relative;
+	top: 2px;
+}
+
+.checkbox-square {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 1px solid #333;
+	margin-right: 5px;
+	position: relative;
+	top: 2px;
+}

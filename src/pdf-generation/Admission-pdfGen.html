@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>UST Faculty Union - Letter of Authority</title>
+		<link rel="stylesheet" href="Admission-pdfGen.css" />
+	</head>
+	<body>
+		<div class="form-container">
+			<div class="form-header">
+				<div class="sample-mark">Sample</div>
+				<img src="ust-logo.png" alt="UST Logo" class="logo-left" />
+				<img src="ustfu-logo.png" alt="USTFU Logo" class="logo-right" />
+				<h1 class="form-title">UNIVERSITY OF SANTO TOMAS</h1>
+				<h2 class="form-title">
+					UNIVERSITY OF SANTO TOMAS FACULTY UNION
+				</h2>
+				<h3 class="form-subtitle">Letter of Authority (LOA)</h3>
+				<h4 class="form-subtitle">UST Hospital Admission/Charging</h4>
+				<h4 class="form-subtitle">(For Faculty Members ONLY)</h4>
+			</div>
+
+			<div class="form-field">
+				<label for="name">NAME:</label>
+				<input type="text" id="name" name="name" />
+
+				<label for="id-no" style="margin-left: 20px">ID No.</label>
+				<input
+					type="text"
+					id="id-no"
+					name="id-no"
+					style="width: 150px"
+				/>
+			</div>
+
+			<div class="form-field">
+				<label for="address">ADDRESS:</label>
+				<input
+					type="text"
+					id="address"
+					name="address"
+					style="width: 80%"
+				/>
+			</div>
+
+			<div class="form-field">
+				<label for="college">COLLEGE/DEPARTMENT:</label>
+				<input
+					type="text"
+					id="college"
+					name="college"
+					style="width: 70%"
+				/>
+			</div>
+
+			<div class="form-field">
+				<label for="teaching-load">Present Teaching Load:</label>
+				<input
+					type="text"
+					id="teaching-load"
+					name="teaching-load"
+					style="width: 100px"
+				/>
+				<span>units</span>
+			</div>
+
+			<div class="form-field">
+				<label>Status:</label>
+				<div class="checkbox-group">
+					<div class="checkbox-item">
+						<input
+							type="checkbox"
+							id="tenured"
+							name="status"
+							value="tenured"
+						/>
+						<label for="tenured">Tenured</label>
+
+						<input
+							type="checkbox"
+							id="lecturer"
+							name="status"
+							value="lecturer"
+							style="margin-left: 100px"
+						/>
+						<label for="lecturer">Lecturer before 2001</label>
+
+						<input
+							type="checkbox"
+							id="extendee"
+							name="status"
+							value="extendee"
+							style="margin-left: 100px"
+						/>
+						<label for="extendee">Extendee</label>
+					</div>
+
+					<div class="checkbox-item">
+						<input
+							type="checkbox"
+							id="probationary"
+							name="status"
+							value="probationary"
+						/>
+						<label for="probationary"
+							>Probationary (Date Hired:</label
+						>
+						<input
+							type="text"
+							style="width: 100px; margin-right: 5px"
+						/>)
+
+						<input
+							type="checkbox"
+							id="retiree"
+							name="status"
+							value="retiree"
+							style="margin-left: 20px"
+						/>
+						<label for="retiree">Retiree (Date Retired:</label>
+						<input
+							type="text"
+							style="width: 100px; margin-right: 5px"
+						/>)
+
+						<input
+							type="checkbox"
+							id="others"
+							name="status"
+							value="others"
+							style="margin-left: 20px"
+						/>
+						<label for="others">Others:</label>
+						<input type="text" style="width: 100px" />
+					</div>
+				</div>
+			</div>
+
+			<div class="divider"></div>
+
+			<div class="form-section">
+				<h3 class="form-section-title">
+					TO: UNIVERSITY OF SANTO TOMAS HOSPITAL
+				</h3>
+
+				<p class="form-paragraph">
+					This is certify that
+					<input type="text" style="width: 300px" /> is University of
+					Santo Tomas academic personnel and is allowed to charge
+					his/her hospital bill up to the limit indicated below by the
+					Accounting Department subject to the rules and conditions of
+					the University of Santo Tomas Hospital and the Joint
+					UST-USTFU Hospitalization and Medical Benefits Committee.
+				</p>
+			</div>
+
+			<div class="form-section">
+				<p class="form-section-title">
+					To be filled up by official USTFU staff:
+				</p>
+
+				<div class="checkbox-group">
+					<div class="checkbox-item">
+						<input
+							type="checkbox"
+							id="fifty-percent"
+							name="hospital-bill"
+							value="50"
+						/>
+						<label for="fifty-percent"
+							>50% of net hospital bill</label
+						>
+
+						<input
+							type="checkbox"
+							id="hundred-percent"
+							name="hospital-bill"
+							value="100"
+							style="margin-left: 50px"
+						/>
+						<label for="hundred-percent"
+							>100% of net hospital bill</label
+						>
+
+						<span style="margin-left: 20px"
+							>but not to exceed (₱</span
+						>
+						<input
+							type="text"
+							style="width: 150px; margin-right: 5px"
+						/>)
+					</div>
+				</div>
+			</div>
+
+			<div class="signature-container">
+				<div class="signature-block">
+					<div class="signature-line"></div>
+					<span class="signature-label"
+						>(Signature over Printed Name/USTFU Officer/Staff)</span
+					>
+				</div>
+
+				<div class="signature-block">
+					<div class="signature-line"></div>
+					<span class="signature-label">Date</span>
+				</div>
+			</div>
+
+			<div class="signature-container">
+				<div class="signature-block">
+					<div class="signature-line"></div>
+					<span class="signature-label"
+						>(Signature over Printed Name/OVRAA)</span
+					>
+				</div>
+
+				<div class="signature-block">
+					<div class="signature-line"></div>
+					<span class="signature-label">Date</span>
+				</div>
+			</div>
+
+			<div class="footer-note">
+				FOR ADMISSION PURPOSES ONLY; GET IN-PATIENT FORM PRIOR TO
+				DISCHARGE
+			</div>
+
+			<div style="font-size: 10px; margin-top: 20px">
+				USTFU Med-3 Form<br />
+				Revised: 03/16/2020<br />
+				ONLINE FORM
+			</div>
+		</div>
+	</body>
+</html>

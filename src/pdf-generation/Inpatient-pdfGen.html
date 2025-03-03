@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>UST Faculty Union - In-Patient Form</title>
+		<link rel="stylesheet" href="Inpatient-pdfGen.css" />
+	</head>
+	<body>
+		<div class="form-container">
+			<div class="form-header">
+				<div class="sample-mark">Sample</div>
+				<img src="ust-logo.png" alt="UST Logo" class="logo-left" />
+				<img src="ustfu-logo.png" alt="USTFU Logo" class="logo-right" />
+				<h1 class="form-title">UNIVERSITY OF SANTO TOMAS</h1>
+				<h2 class="form-title">
+					UNIVERSITY OF SANTO TOMAS FACULTY UNION
+				</h2>
+				<h3 class="form-title">
+					HOSPITALIZATION AND MEDICAL BENEFITS FUND
+				</h3>
+				<h4 class="form-subtitle">Application Form: In-Patient</h4>
+			</div>
+
+			<div class="form-type-options">
+				<div class="option-item">
+					<div class="radio-circle"></div>
+					<label for="confinement">For Confinement</label>
+				</div>
+
+				<div class="option-item">
+					<div class="radio-circle"></div>
+					<label for="out-patient">Done as Out-Patient</label>
+				</div>
+
+				<div class="option-item">
+					<div class="radio-circle"></div>
+					<label for="er-consultation">ER Consultation</label>
+				</div>
+			</div>
+
+			<div class="form-field">
+				<label for="name">Name:</label>
+				<input type="text" id="name" name="name" style="width: 300px" />
+
+				<div style="float: right">
+					<label for="term">Term AY 20</label>
+					<input
+						type="text"
+						id="term"
+						name="term"
+						style="width: 50px"
+					/>
+					<span>-20</span>
+					<input type="text" style="width: 50px" />
+				</div>
+			</div>
+
+			<div class="form-field">
+				<label for="age">Age:</label>
+				<input type="text" id="age" name="age" style="width: 80px" />
+
+				<label for="gender" style="margin-left: 20px">Gender:</label>
+				<input
+					type="text"
+					id="gender"
+					name="gender"
+					style="width: 150px"
+				/>
+
+				<div style="float: right">
+					<label for="teaching-load">Present Teaching Load:</label>
+					<input
+						type="text"
+						id="teaching-load"
+						name="teaching-load"
+						style="width: 50px"
+					/>
+					<span>units</span>
+				</div>
+			</div>
+
+			<div class="form-field">
+				<label for="college">College Affiliation:</label>
+				<input
+					type="text"
+					id="college"
+					name="college"
+					style="width: 250px"
+				/>
+
+				<div style="float: right">
+					<label for="status">Status:</label>
+					<div class="radio-circle"></div>
+					Tenured
+				</div>
+			</div>
+
+			<div class="form-field">
+				<label for="contact">Contact No.:</label>
+				<input
+					type="text"
+					id="contact"
+					name="contact"
+					style="width: 250px"
+				/>
+
+				<div style="float: right">
+					<div style="margin-left: 60px">
+						<div class="radio-circle"></div>
+						Tenure-Track (Date Hired:
+						<input type="text" style="width: 100px" />)
+					</div>
+				</div>
+			</div>
+
+			<div class="form-field">
+				<label for="confinement-period">Confinement Period:</label>
+				<label for="from">from</label>
+				<input type="text" id="from" name="from" style="width: 100px" />
+				<label for="to">to</label>
+				<input type="text" id="to" name="to" style="width: 100px" />
+
+				<div style="float: right">
+					<div style="margin-left: 60px">
+						<div class="radio-circle"></div>
+						Lecturer before 2001
+					</div>
+				</div>
+			</div>
+
+			<div class="form-field">
+				<label for="hospital">Hospital:</label>
+				<input
+					type="text"
+					id="hospital"
+					name="hospital"
+					style="width: 250px"
+				/>
+
+				<div style="float: right">
+					<div style="margin-left: 60px">
+						<div class="radio-circle"></div>
+						Extendee
+					</div>
+				</div>
+			</div>
+
+			<div class="form-field">
+				<label for="illness">Nature of Illness:</label>
+				<input
+					type="text"
+					id="illness"
+					name="illness"
+					style="width: 250px"
+				/>
+
+				<div style="float: right">
+					<div style="margin-left: 60px">
+						<div class="radio-circle"></div>
+						Retiree (Date Retired:
+						<input type="text" style="width: 100px" />)
+					</div>
+				</div>
+			</div>
+
+			<div class="form-field">
+				<label for="physician">Physician:</label>
+				<input
+					type="text"
+					id="physician"
+					name="physician"
+					style="width: 250px"
+				/>
+
+				<div style="float: right">
+					<label>Health Benefits:</label>
+					<div class="radio-circle"></div>
+					HMO: <input type="text" style="width: 100px" />
+				</div>
+			</div>
+
+			<div class="form-field" style="margin-left: 350px">
+				<div class="radio-circle"></div>
+				PCSO
+				<span style="margin-left: 20px">
+					<div class="radio-circle"></div>
+					Senior Citizen
+				</span>
+			</div>
+
+			<div class="form-paragraph" style="margin-top: 20px">
+				I hereby certify that all information in this application is
+				true and correct and any misrepresentation of facts shall be
+				sufficient cause for denial of this benefit. For any amount in
+				excess of my maximum medical & hospitalization benefit, I am
+				personally liable to pay directly to UST Hospital.
+			</div>
+
+			<div style="text-align: right; margin-top: 20px">
+				<div class="signature-line"></div>
+				<span class="signature-label"
+					>Applicant's Signature / Date</span
+				>
+			</div>
+
+			<div class="divider"></div>
+			<p>
+				<em
+					>Please do not write anything below this line. USTFU use
+					only.</em
+				>
+			</p>
+
+			<div class="hospital-section">
+				<h3 class="form-section-title">To UST HOSPITAL:</h3>
+				<p class="form-paragraph">
+					This certifies that the above named faculty is entitled to
+					the following benefit on his/her total hospital charges, net
+					of PHIC, HMO, SC, AMS, and other applicable deductions,
+					subject to final verification:
+				</p>
+
+				<div style="margin: 15px 0">
+					<div class="radio-circle"></div>
+					50% of net hospital bill
+					<span style="margin-left: 50px">
+						<div class="radio-circle"></div>
+						100% of net hospital bill
+					</span>
+				</div>
+
+				<div style="margin: 15px 0">
+					<span>but not to exceed (₱</span>
+					<input
+						type="text"
+						style="width: 150px; margin-right: 5px"
+					/>)
+					<span style="float: right; font-style: italic"
+						>Remaining Benefit</span
+					>
+				</div>
+
+				<p style="margin-top: 20px">
+					Any amount in EXCESS of his /her remaining benefit shall be
+					shouldered by the FACULTY in CASH or through SALARY
+					DEDUCTION.
+				</p>
+
+				<div style="margin-top: 20px; text-align: right">
+					<p>for EMERITO C. GONZALES</p>
+					<p style="font-size: 12px">
+						USTFU President or Authorized Representative (Blue ink)
+					</p>
+				</div>
+			</div>
+
+			<div class="fund-section">
+				<h3 class="form-section-title">
+					To UST-USTFU HOSPITALIZATION FUND:
+				</h3>
+
+				<table class="payment-table">
+					<tr>
+						<td class="payment-option">
+							<div class="checkbox-square"></div>
+							<label for="pay-hospital"
+								>Pay UST HOSPITAL the amount of:</label
+							>
+						</td>
+						<td class="payment-amount">
+							₱: <input type="text" style="width: 100px" />
+						</td>
+						<td rowspan="3" style="width: 50%">
+							<div class="checkbox-square"></div>
+							<label for="pay-doctors"
+								>Pay the following DOCTORS the amount of:</label
+							>
+							<table class="doctors-table">
+								<tr>
+									<th>Name</th>
+									<th>Amount</th>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="width: 100%"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="width: 100%"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="width: 100%"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="width: 100%"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="width: 100%"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="width: 100%"
+										/>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td class="payment-option">
+							<div class="checkbox-square"></div>
+							<label for="refund-faculty"
+								>Refund the FACULTY the amount of:</label
+							>
+						</td>
+						<td class="payment-amount">
+							₱: <input type="text" style="width: 100px" />
+						</td>
+					</tr>
+					<tr>
+						<td class="payment-option">
+							<div class="checkbox-square"></div>
+							<label for="not-covered"
+								>Amount NOT covered by benefits of the FACULTY
+								and will NOT be settled by USTFU. The faculty
+								shall pay this amount directly to UST
+								Hospital.</label
+							>
+						</td>
+						<td class="payment-amount">
+							₱: <input type="text" style="width: 100px" />
+						</td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="form-footer">
+				<p>By: _________________________________</p>
+				<p style="font-size: 12px">
+					OIC for Hospitalization and Medical Benefits
+				</p>
+			</div>
+
+			<div class="form-version">
+				USTFU Med-1 Form<br />
+				Revised: 03/16/2020 ONLINE FORM
+			</div>
+		</div>
+	</body>
+</html>

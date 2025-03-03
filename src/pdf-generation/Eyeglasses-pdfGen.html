@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>UST Faculty Union - Eyeglasses Benefit Availment Form</title>
+		<link rel="stylesheet" href="Eyeglasses-pdfGen.css" />
+	</head>
+	<body>
+		<div class="eyeglasses-form-container">
+			<div class="eyeglasses-form-header">
+				<img
+					src="./images-pdfGen/USTFULogo.png"
+					alt="USTFU Logo"
+					class="eyeglasses-logo-left"
+				/>
+				<h1 class="eyeglasses-form-title">
+					HOSPITALIZATION AND MEDICAL BENEFITS FUND
+				</h1>
+				<h2 class="eyeglasses-form-subtitle">
+					Eyeglasses Benefit Availment Form
+				</h2>
+				<p class="eyeglasses-form-note">
+					(Note: For Tenured Faculty Members Only)
+				</p>
+			</div>
+
+			<div class="eyeglasses-term-field">
+				<input type="text" id="term" name="term" style="width: 80px" />
+				<label for="term">Term, AY</label>
+				<input
+					type="text"
+					id="acad-year"
+					name="year-start"
+					style="width: 80px"
+				/>
+				<span>-</span>
+				<input type="text" style="width: 80px" />
+			</div>
+
+			<div class="eyeglasses-form-body">
+				<div class="eyeglasses-form-field">
+					<label for="name">Name:</label>
+					<input
+						type="text"
+						id="name"
+						name="name"
+						style="width: 180px"
+					/>
+
+					<label for="age" style="margin-left: 3px">Age:</label>
+					<input
+						type="text"
+						id="age"
+						name="age"
+						style="width: 40px"
+					/>
+
+					<label for="sex" style="margin-left: 3px">Sex:</label>
+					<input
+						type="text"
+						id="sex"
+						name="sex"
+						style="width: 40px"
+					/>
+
+					<label for="affiliation" style="margin-left: 3px"
+						>Affiliation:</label
+					>
+					<input
+						type="text"
+						id="affiliation"
+						name="affiliation"
+						style="width: 130px"
+					/>
+				</div>
+
+				<div class="eyeglasses-form-field">
+					<label for="initial-employment">Initial Employment:</label>
+					<input
+						type="text"
+						id="initial-employment"
+						name="initial-employment"
+						style="width: 50px"
+					/>
+
+					<label for="teaching-load" style="margin-left: 3px"
+						>Current Teaching Load</label
+					>
+					<input
+						type="text"
+						id="teaching-load"
+						name="teaching-load"
+						style="width: 50px"
+					/>
+
+					<label for="contact" style="margin-left: 3px"
+						>Contact No.</label
+					>
+					<input
+						type="text"
+						id="contact"
+						name="contact"
+						style="width: 145px"
+					/>
+				</div>
+
+				<div class="eyeglasses-form-field">
+					<label for="receipt-details"
+						>(Official Receipt Details) Issued By:</label
+					>
+					<input
+						type="text"
+						id="receipt-details"
+						name="receipt-details"
+						style="width: 100px"
+					/>
+
+					<label for="number" style="margin-left: 3px">Number:</label>
+					<input
+						type="text"
+						id="number"
+						name="number"
+						style="width: 70px"
+					/>
+
+					<label for="amount" style="margin-left: 3px"
+						>Amount Paid:</label
+					>
+					<input
+						type="text"
+						id="amount"
+						name="amount"
+						style="width: 50px"
+					/>
+				</div>
+
+				<div class="eyeglasses-certification">
+					I hereby certify that all information in this application
+					are true and correct<br />
+					and any misrepresentation of fact/s shall be sufficient
+					cause for denial of this benefit.
+				</div>
+
+				<div class="eyeglasses-signature-container">
+					<div class="eyeglasses-signature-block">
+						<input
+							type="file"
+							id="upload-sig"
+							name="upload-sig"
+							accept="image/*"
+						/>
+						<div class="eyeglasses-signature-line"></div>
+						<span class="eyeglasses-signature-label"
+							>Applicant's Signature over Printed Name</span
+						>
+					</div>
+
+					<div class="eyeglasses-signature-block">
+						<input type="text" class="eyeglasses-signature-line" />
+						<span class="eyeglasses-signature-label">Date</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="eyeglasses-ustfu-section">
+				<h3 class="eyeglasses-section-title">USTFU Section</h3>
+
+				<p>
+					The faculty is entitled to a reimbursement of ₱<input
+						type="text"
+						style="width: 150px"
+					/>
+					for his/her eyeglasses benefit.
+				</p>
+
+				<div style="text-align: right; margin-top: 10px">
+					<input type="text" class="eyeglasses-signature-line" />
+					<span class="eyeglasses-signature-label"
+						>OIC for Hospitalization and Medical Benefits</span
+					>
+				</div>
+			</div>
+
+			<div class="eyeglasses-notes">
+				<p><strong>NOTE:</strong></p>
+				<ol>
+					<li class="eyeglasses-note-item">
+						This form should be accomplished fully and personally by
+						the faculty member.
+					</li>
+					<li class="eyeglasses-note-item">
+						Submit this form to USTFU together with the
+						OPHTHALMOLOGIST'S FINDINGS/VISIONAL RESULTS and OFFICIAL
+						RECEIPT OF THE EYEGLASSES.
+					</li>
+				</ol>
+			</div>
+		</div>
+	</body>
+</html>
