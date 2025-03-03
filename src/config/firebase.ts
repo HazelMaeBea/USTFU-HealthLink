@@ -36,20 +36,28 @@ interface GlobalVariables {
 
 const globalDoc = doc(db, 'globals', 'globalVariables');
 
-export const getFormID = async (increment: boolean) => {
+export const getFormID = async (increment: boolean): Promise<number | null> => {
   try {
     const docSnap = await getDoc(globalDoc);
     if (docSnap.exists()) {
       const data = docSnap.data() as GlobalVariables;
-      const formID = data.FormID;
+      let formID = data.FormID;
 
       if (increment) {
-        await updateDoc(globalDoc, {
-          FormID: formID + 1,
-        });
+        if (formID >= 999999) {
+          await updateDoc(globalDoc, {
+            FormID: 1,
+          });
+          return 1;
+        } else {
+          formID += 1;
+          await updateDoc(globalDoc, {
+            FormID: formID,
+          });
+        }
       }
 
-      return increment ? formID + 1 : formID;
+      return formID;
     } else {
       console.error("No such document!");
       return null;
