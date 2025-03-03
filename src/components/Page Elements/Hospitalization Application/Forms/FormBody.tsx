@@ -199,7 +199,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			const email = auth?.currentUser?.email;
 
 			const formID = await getFormID(true);
-			const formIDString = formID?.toString().padStart(5,"0") || "error"
+			const formIDString = formID?.toString().padStart(6,"0") || "error"
 			const currentYear: string = new Date().getFullYear().toString();
 
 			// Prepare file storage paths

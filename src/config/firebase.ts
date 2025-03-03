@@ -44,7 +44,7 @@ export const getFormID = async (increment: boolean): Promise<number | null> => {
       let formID = data.FormID;
 
       if (increment) {
-        if (formID >= 99999) {
+        if (formID >= 999999) {
           await updateDoc(globalDoc, {
             FormID: 1,
           });

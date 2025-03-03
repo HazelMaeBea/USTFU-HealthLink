@@ -82,7 +82,7 @@ const EyeglassesForm = () => {
 			const email = auth?.currentUser?.email;
 
 			const formID = await getFormID(true);
-			const formIDString = formID?.toString().padStart(5,"0") || "error"
+			const formIDString = formID?.toString().padStart(6,"0") || "error"
 			const currentYear: string = new Date().getFullYear().toString();
 
 			// Upload and get download URL for applicantSignature
