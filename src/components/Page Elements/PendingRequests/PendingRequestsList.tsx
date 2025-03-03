@@ -468,7 +468,9 @@ const PendingRequestList = () => {
 						<div className="request-content">
 							<h3>
 								{request.formData.formType === "hospital"
-									? request.formData.hospitalStatus.toUpperCase()
+									? request.formData.origFormType.toUpperCase() +
+									  "-" +
+									  request.formData.hospitalStatus.toUpperCase()
 									: request.formData.formType.toUpperCase()}{" "}
 								SUBMITTED FORM DETAILS
 							</h3>

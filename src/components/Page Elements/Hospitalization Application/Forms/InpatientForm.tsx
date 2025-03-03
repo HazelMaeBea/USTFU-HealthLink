@@ -3,14 +3,13 @@ import FormBody from "./FormBody";
 import BackButton from "./BackButton"; // Import BackButton
 
 const InpatientForm = () => {
-
-  return (
-    <div className="form-body">
-      <BackButton /> {/* Use BackButton component */}
-      <FormHeader formType="Inpatient Form" />
-      <FormBody />
-    </div>
-  );
+	return (
+		<div className="form-body">
+			<BackButton /> {/* Use BackButton component */}
+			<FormHeader formType="Inpatient Form" />
+			<FormBody origFormType="inpatient" />
+		</div>
+	);
 };
 
 export default InpatientForm;
