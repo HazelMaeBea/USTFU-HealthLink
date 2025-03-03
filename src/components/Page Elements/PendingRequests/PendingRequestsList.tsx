@@ -321,7 +321,9 @@ const PendingRequestList = () => {
 								onClick={() => setPreviewFile(item.data)}
 								title={item.data.filename}
 							>
-								{renderThumbnail(item.data)}
+								<div className="thumbnail-container">
+									{renderThumbnail(item.data)}
+								</div>
 								<div className="file-info">
 									<p className="document-type">
 										{formatDocumentType(item.type)}
