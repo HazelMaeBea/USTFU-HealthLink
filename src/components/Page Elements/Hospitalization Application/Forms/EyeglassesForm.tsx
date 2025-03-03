@@ -9,8 +9,8 @@ import FormInvoice from "./FormInvoice";
 import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormSigIDFiles from "./FormSigIDFiles";
 import FormCertify from "./FormCertify";
-import { collection, addDoc } from "firebase/firestore";
-import { auth, db, storage } from "../../../../config/firebase.ts";
+import { collection, addDoc, setDoc, doc } from "firebase/firestore";
+import { auth, db, getFormID, storage } from "../../../../config/firebase.ts";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import BackButton from "./BackButton"; // Import BackButton
 
@@ -75,14 +75,19 @@ const EyeglassesForm = () => {
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-	const formsCollectionRef = collection(db, "FormRequests");
+	// const formsCollectionRef = collection(db, "FormRequests");
 	const onSubmit = async (data: FieldValues) => {
 		try {
 			const email = auth?.currentUser?.email;
+
+			const formID = await getFormID(true);
+			const formIDString = formID?.toString().padStart(5,"0") || "error"
+			const currentYear: string = new Date().getFullYear().toString();
+
 			// Upload and get download URL for applicantSignature
 			let imageRef = ref(
 				storage,
-				`FormRequests/${email}/FormRequest O-0000000001/${data.applicantSignature[0].name}`
+				`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.applicantSignature[0].name}`
 			);
 			await uploadBytes(imageRef, data.applicantSignature[0]);
 			const applicantSignatureDownloadUrl = await getDownloadURL(
@@ -92,7 +97,7 @@ const EyeglassesForm = () => {
 			// Upload and get download URL for employeeID
 			imageRef = ref(
 				storage,
-				`FormRequests/${email}/FormRequest O-0000000001/${data.employeeID[0].name}`
+				`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.employeeID[0].name}`
 			);
 			await uploadBytes(imageRef, data.employeeID[0]);
 			const employeeIDDownloadUrl = await getDownloadURL(imageRef);
@@ -136,7 +141,9 @@ const EyeglassesForm = () => {
 				},
 			};
 
-			await addDoc(formsCollectionRef, newDoc);
+			// await addDoc(formsCollectionRef, newDoc);
+		await setDoc(doc(db, "FormRequests", currentYear + "-" + formIDString + "-O"), newDoc);
+		  console.log("Document written with ID: ", formIDString);
 		} catch (error) {
 			console.error(error);
 		}

@@ -108,6 +108,7 @@ const AdmissionForm = () => {
 	
 		  const formID = await getFormID(true);
 		  const formIDString = formID?.toString().padStart(5,"0") || "error"
+		  const currentYear: string = new Date().getFullYear().toString();
 	
 		  if (!formID) {
 			throw new Error("Failed to retrieve FormID");
@@ -116,7 +117,7 @@ const AdmissionForm = () => {
 		  // Upload and get download URL for applicantSignature
 		  let imageRef = ref(
 			storage,
-			`FormRequests/${email}/${formIDString}-O/${data.applicantSignature[0].name}`
+			`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.applicantSignature[0].name}`
 		  );
 		  await uploadBytes(imageRef, data.applicantSignature[0]);
 		  const applicantSignatureDownloadUrl = await getDownloadURL(imageRef);
@@ -124,7 +125,7 @@ const AdmissionForm = () => {
 		  // Upload and get download URL for docRequest
 		  imageRef = ref(
 			storage,
-			`FormRequests/${email}/${formIDString}-O/${data.docRequest[0].name}`
+			`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.docRequest[0].name}`
 		  );
 		  await uploadBytes(imageRef, data.docRequest[0]);
 		  const docRequestDownloadUrl = await getDownloadURL(imageRef);
@@ -132,7 +133,7 @@ const AdmissionForm = () => {
 		  // Upload and get download URL for employeeID
 		  imageRef = ref(
 			storage,
-			`FormRequests/${email}/${formIDString}-O/${data.employeeID[0].name}`
+			`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.employeeID[0].name}`
 		  );
 		  await uploadBytes(imageRef, data.employeeID[0]);
 		  const employeeIDDownloadUrl = await getDownloadURL(imageRef);
@@ -140,7 +141,7 @@ const AdmissionForm = () => {
 		  // Upload and get download URL for hospitalInvoice
 		  imageRef = ref(
 			storage,
-			`FormRequests/${email}/${formIDString}-O/${data.hospitalInvoice[0].name}`
+			`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.hospitalInvoice[0].name}`
 		  );
 		  await uploadBytes(imageRef, data.hospitalInvoice[0]);
 		  const hospitalInvoiceDownloadUrl = await getDownloadURL(imageRef);
@@ -148,7 +149,7 @@ const AdmissionForm = () => {
 		  // Upload and get download URL for labInvoice
 		  imageRef = ref(
 			storage,
-			`FormRequests/${email}/${formIDString}-O/${data.labInvoice[0].name}`
+			`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.labInvoice[0].name}`
 		  );
 		  await uploadBytes(imageRef, data.labInvoice[0]);
 		  const labInvoiceDownloadUrl = await getDownloadURL(imageRef);
@@ -203,8 +204,8 @@ const AdmissionForm = () => {
 		  };
 	
 		  // Add the pending request document to Firestore.
-		  await setDoc(doc(db, "FormRequests", formIDString), pendingRequestData);
-		  console.log("Document written with ID: ", formIDString);
+		  await setDoc(doc(db, "FormRequests", currentYear + "-" + formIDString + "-O"), pendingRequestData);
+		  console.log("Document written with ID: ", currentYear + "-" + formIDString);
 		} catch (error) {
 		  console.error(error);
 		}
