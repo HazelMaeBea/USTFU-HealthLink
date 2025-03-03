@@ -17,14 +17,14 @@ import Settings from "./components/Pages/Settings";
 import AdminSettings from "./components/Pages/AdminSettings";
 import PendingRequestList from "./components/Page Elements/PendingRequests/PendingRequestsList";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { RoleProvider } from "./components/Layout/RoleContext";
+import { UserProvider } from "./contexts/userContext";
 import { FirebaseProvider } from "./contexts/firebaseContext";
 import ProtectedRoute from "./components/protectedRoutes";
 
 const App: React.FC = () => {
     return (
         <FirebaseProvider>
-            <RoleProvider>
+            <UserProvider>
                 <Router>
                     <div className="App">
                         <Routes>
@@ -72,7 +72,7 @@ const App: React.FC = () => {
                         </Routes>
                     </div>
                 </Router>
-            </RoleProvider>
+            </UserProvider>
         </FirebaseProvider>
     );
 };
