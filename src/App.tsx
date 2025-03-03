@@ -20,6 +20,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { UserProvider } from "./contexts/userContext";
 import { FirebaseProvider } from "./contexts/firebaseContext";
 import ProtectedRoute from "./components/protectedRoutes";
+//TEMP
+import FormGenerator from "./components/Pages/FormGenerator";
 
 const App: React.FC = () => {
     return (
@@ -54,6 +56,11 @@ const App: React.FC = () => {
                                             </ErrorBoundary>
                                         }
                                     />
+                                    <Route
+                                        path="/generate"
+                                        element={<FormGenerator />}
+                                    />
+                                    
                                     <Route path="/faqs" element={<FAQs />} />
                                     <Route
                                         path="/settings"

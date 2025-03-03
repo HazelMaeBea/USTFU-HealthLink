@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>UST Faculty Union - Eyeglasses Benefit Availment Form</title>
+        <style>
+            /* Embed CSS directly to ensure it's included in the PDF */
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                font-family: "book antiqua", serif;
+            }
+
+            body {
+                background-color: #f9f9f9;
+                padding: 20px;
+                color: #333;
+            }
+
+            .eyeglasses-form-container {
+                max-width: 800px;
+                margin: 0 auto;
+                background-color: white;
+                padding: 30px;
+                border: 1px solid #ddd;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .eyeglasses-form-header {
+                text-align: center;
+                margin-bottom: 30px;
+                position: relative;
+            }
+
+            .eyeglasses-logo-left {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 90px;
+                background-color: #ffcc00;
+                border: 3px solid #333;
+            }
+
+            .eyeglasses-form-title {
+                font-size: 15px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+            .eyeglasses-form-subtitle {
+                font-size: 16px;
+                margin-bottom: 5px;
+                text-decoration: underline;
+            }
+
+            .eyeglasses-form-note {
+                font-size: 11px;
+                margin-top: 0px;
+            }
+
+            .eyeglasses-form-body {
+                border: 1px solid #333;
+                padding: 10px;
+                margin-top: 20px;
+            }
+
+            .eyeglasses-form-field {
+                margin-bottom: 15px;
+            }
+
+            .eyeglasses-form-field label {
+                display: inline-block;
+                font-weight: bold;
+                margin-right: 1px;
+                font-size: 12px;
+            }
+
+            .eyeglasses-placeholder {
+                display: inline-block;
+                border-bottom: 1px solid #333;
+                min-width: 50px;
+                padding: 0px 5px;
+            }
+
+            .eyeglasses-term-field {
+                text-align: right;
+                margin-bottom: 20px;
+            }
+
+            .eyeglasses-certification {
+                text-align: center;
+                margin: 20px 0;
+                line-height: 1;
+                font-size: 14px;
+            }
+
+            .eyeglasses-signature-line {
+                border-top: 1px solid #333;
+                width: 250px;
+                margin-top: 40px;
+                margin-bottom: 5px;
+                display: inline-block;
+                text-align: center;
+            }
+
+            .eyeglasses-signature-label {
+                font-size: 12px;
+                display: block;
+            }
+
+            .eyeglasses-signature-container {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 10px;
+            }
+
+            .eyeglasses-signature-block {
+                text-align: center;
+            }
+
+            .eyeglasses-signature-image {
+                height: 60px;
+                margin-bottom: 5px;
+                max-width: 200px;
+            }
+
+            .eyeglasses-ustfu-section {
+                border: 1px solid #333;
+                padding: 10px;
+                margin-top: 10px;
+            }
+
+            .eyeglasses-section-title {
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            .eyeglasses-notes {
+                margin-top: 20px;
+            }
+
+            .eyeglasses-note-item {
+                margin-bottom: 5px;
+                margin-left: 40px;
+                font-size: 14px;
+            }
+            
+            .approval-status {
+                margin-bottom: 10px;
+                text-align: right;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="eyeglasses-form-container">
+            <div class="eyeglasses-form-header">
+                <!-- Logo will be added dynamically through CSS -->
+                <h1 class="eyeglasses-form-title">
+                    HOSPITALIZATION AND MEDICAL BENEFITS FUND
+                </h1>
+                <h2 class="eyeglasses-form-subtitle">
+                    Eyeglasses Benefit Availment Form
+                </h2>
+                <p class="eyeglasses-form-note">
+                    (Note: For Tenured Faculty Members Only)
+                </p>
+            </div>
+
+            <div class="eyeglasses-term-field">
+                <span class="eyeglasses-placeholder">{{term}}</span>
+                <label for="term">Term, AY</label>
+                <span class="eyeglasses-placeholder">{{academicYearFrom}}</span>
+                <span>-</span>
+                <span class="eyeglasses-placeholder">{{academicYearTo}}</span>
+            </div>
+
+            <div class="eyeglasses-form-body">
+                <div class="eyeglasses-form-field">
+                    <label for="name">Name:</label>
+                    <span class="eyeglasses-placeholder" style="width: 180px">{{name}}</span>
+
+                    <label for="age" style="margin-left: 3px">Age:</label>
+                    <span class="eyeglasses-placeholder" style="width: 40px">{{age}}</span>
+
+                    <label for="sex" style="margin-left: 3px">Sex:</label>
+                    <span class="eyeglasses-placeholder" style="width: 40px">{{sex}}</span>
+
+                    <label for="affiliation" style="margin-left: 3px">Affiliation:</label>
+                    <span class="eyeglasses-placeholder" style="width: 130px">{{affiliation}}</span>
+                </div>
+
+                <div class="eyeglasses-form-field">
+                    <label for="initial-employment">Initial Employment:</label>
+                    <span class="eyeglasses-placeholder" style="width: 50px">{{initialEmployment}}</span>
+
+                    <label for="teaching-load" style="margin-left: 3px">Current Teaching Load</label>
+                    <span class="eyeglasses-placeholder" style="width: 50px">{{currentTeachingLoad}}</span>
+
+                    <label for="contact" style="margin-left: 3px">Contact No.</label>
+                    <span class="eyeglasses-placeholder" style="width: 145px">{{contactNo}}</span>
+                </div>
+
+                <div class="eyeglasses-form-field">
+                    <label for="receipt-details">(Official Receipt Details) Issued By:</label>
+                    <span class="eyeglasses-placeholder" style="width: 100px">{{issuedBy}}</span>
+
+                    <label for="number" style="margin-left: 3px">Number:</label>
+                    <span class="eyeglasses-placeholder" style="width: 70px">{{number}}</span>
+
+                    <label for="amount" style="margin-left: 3px">Amount Paid:</label>
+                    <span class="eyeglasses-placeholder" style="width: 50px">{{amountPaid}}</span>
+                </div>
+
+                <div class="eyeglasses-certification">
+                    I hereby certify that all information in this application
+                    are true and correct<br />
+                    and any misrepresentation of fact/s shall be sufficient
+                    cause for denial of this benefit.
+                </div>
+
+                <div class="eyeglasses-signature-container">
+                    <div class="eyeglasses-signature-block">
+                        <!-- Display signature image if provided -->
+                        <img class="eyeglasses-signature-image" src="{{applicantSignature}}" alt="Applicant's Signature" />
+                        <div class="eyeglasses-signature-line"></div>
+                        <span class="eyeglasses-signature-label">Applicant's Signature over Printed Name</span>
+                    </div>
+
+                    <div class="eyeglasses-signature-block">
+                        <div class="eyeglasses-signature-line"></div>
+                        <span class="eyeglasses-placeholder" style="width: 100px; text-align: center;">{{signatureDate}}</span>
+                        <span class="eyeglasses-signature-label">Date</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eyeglasses-ustfu-section">
+                <h3 class="eyeglasses-section-title">USTFU Section</h3>
+
+                <p>
+                    The faculty is entitled to a reimbursement of ₱
+                    <span class="eyeglasses-placeholder" style="width: 150px">{{reimbursementAmount}}</span>
+                    for his/her eyeglasses benefit.
+                </p>
+
+                <div class="approval-status">
+                    <strong>Status: </strong>
+                    <span class="eyeglasses-placeholder" style="width: 100px;">{{oicHospitalApproval}}</span>
+                </div>
+
+                <div style="text-align: right; margin-top: 10px">
+                    <div class="eyeglasses-signature-line"></div>
+                    <span class="eyeglasses-signature-label">OIC for Hospitalization and Medical Benefits</span>
+                </div>
+            </div>
+
+            <div class="eyeglasses-notes">
+                <p><strong>NOTE:</strong></p>
+                <ol>
+                    <li class="eyeglasses-note-item">
+                        This form should be accomplished fully and personally by
+                        the faculty member.
+                    </li>
+                    <li class="eyeglasses-note-item">
+                        Submit this form to USTFU together with the
+                        OPHTHALMOLOGIST'S FINDINGS/VISIONAL RESULTS and OFFICIAL
+                        RECEIPT OF THE EYEGLASSES.
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </body>
+</html>
