@@ -19,6 +19,7 @@ export type BaseFormData = {
 
 export type HospitalFormData = BaseFormData & {
 	formType: "hospital";
+	origFormType: string;
 	hospital: string;
 	illness: string;
 	physician: string;

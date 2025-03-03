@@ -163,6 +163,7 @@ const AdmissionForm = () => {
 				status: "pending",
 				formData: {
 					formType: "admission",
+					origFormType: "admission",
 					lastname: data["lastname"],
 					firstname: data["firstname"],
 					middlename: data["middlename"],

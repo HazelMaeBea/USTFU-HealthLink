@@ -113,6 +113,7 @@ const EyeglassesForm = () => {
 				status: "pending",
 				formData: {
 					formType: "eyeglasses",
+					origFormType: "eyeglasses",
 					lastname: data.lastname,
 					firstname: data.firstname,
 					middlename: data.middlename,

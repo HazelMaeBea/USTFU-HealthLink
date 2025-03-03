@@ -54,6 +54,21 @@ const PendingRequestList = () => {
 		setPreviewFile(null);
 	};
 
+	// Helper function to convert camelCase to Title Case with spaces
+	const formatDocumentType = (camelCaseKey: string): string => {
+		// Special case for ID
+		if (camelCaseKey === "employeeID") return "Employee ID";
+
+		// Handle other keys by splitting camelCase and capitalizing
+		return (
+			camelCaseKey
+				// Insert a space before all capital letters
+				.replace(/([A-Z])/g, " $1")
+				// Capitalize first letter
+				.replace(/^./, (str) => str.toUpperCase())
+		);
+	};
+
 	const renderFormFields = (request: PendingRequest) => {
 		const { formData } = request;
 
@@ -247,15 +262,21 @@ const PendingRequestList = () => {
 
 	const renderAttachments = (request: PendingRequest) => {
 		const { formData } = request;
-		const attachments = [
-			formData.employeeID,
-			formData.applicantSignature,
-			...("docRequest" in formData ? [formData.docRequest] : []),
-			...("hospitalInvoice" in formData
-				? [formData.hospitalInvoice]
+
+		// Create an array of objects that include both the attachment and its type
+		const attachmentsWithLabels = [
+			{ type: "employeeID", data: formData.employeeID },
+			{ type: "applicantSignature", data: formData.applicantSignature },
+			...("docRequest" in formData
+				? [{ type: "docRequest", data: formData.docRequest }]
 				: []),
-			...("labInvoice" in formData ? [formData.labInvoice] : []),
-		].filter((attachment) => attachment && attachment.filename);
+			...("hospitalInvoice" in formData
+				? [{ type: "hospitalInvoice", data: formData.hospitalInvoice }]
+				: []),
+			...("labInvoice" in formData
+				? [{ type: "labInvoice", data: formData.labInvoice }]
+				: []),
+		].filter((item) => item.data && item.data.filename);
 
 		// Helper: check file extension and return appropriate content
 		const renderThumbnail = (attachment: {
@@ -293,17 +314,24 @@ const PendingRequestList = () => {
 				<div className="attachments-section">
 					<h4>UPLOADED ATTACHMENTS</h4>
 					<div className="attachment-preview-container">
-						{attachments.map((attachment, index) => (
+						{attachmentsWithLabels.map((item, index) => (
 							<div
 								key={index}
 								className="attachment-preview"
-								onClick={() => setPreviewFile(attachment)}
-								title={attachment.filename}
+								onClick={() => setPreviewFile(item.data)}
+								title={item.data.filename}
 							>
-								{renderThumbnail(attachment)}
-								<p className="file-name">
-									{attachment.filename}
-								</p>
+								<div className="thumbnail-container">
+									{renderThumbnail(item.data)}
+								</div>
+								<div className="file-info">
+									<p className="document-type">
+										{formatDocumentType(item.type)}
+									</p>
+									<p className="file-name">
+										{item.data.filename}
+									</p>
+								</div>
 							</div>
 						))}
 					</div>
@@ -467,9 +495,42 @@ const PendingRequestList = () => {
 					{expandedId === request.transactionId && (
 						<div className="request-content">
 							<h3>
-								{request.formData.formType === "hospital"
-									? request.formData.hospitalStatus.toUpperCase()
-									: request.formData.formType.toUpperCase()}{" "}
+								{/* Form Type with conditional layout based on origFormType and hospitalStatus */}
+								{request.formData.formType === "hospital" &&
+								request.formData.origFormType ? (
+									<>
+										{/* Case 1: origFormType and hospitalStatus both match "inpatient" */}
+										{request.formData.origFormType.toLowerCase() ===
+											"inpatient" &&
+										request.formData.hospitalStatus?.toLowerCase() ===
+											"in-patient" ? (
+											"INPATIENT"
+										) : /* Case 2: origFormType and hospitalStatus both match "outpatient" */
+										request.formData.origFormType.toLowerCase() ===
+												"outpatient" &&
+										  request.formData.hospitalStatus?.toLowerCase() ===
+												"out-patient" ? (
+											"OUTPATIENT"
+										) : (
+											/* Case 3: Mixed case - show both with parentheses */
+											<>
+												{request.formData.origFormType.toUpperCase()}
+												{request.formData
+													.hospitalStatus && (
+													<>
+														{" "}
+														(DONE AS{" "}
+														{request.formData.hospitalStatus.toUpperCase()}
+														)
+													</>
+												)}
+											</>
+										)}
+									</>
+								) : (
+									/* Default case: just use formType if origFormType is missing */
+									request.formData.formType.toUpperCase()
+								)}{" "}
 								SUBMITTED FORM DETAILS
 							</h3>
 

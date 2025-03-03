@@ -19,6 +19,10 @@ import Popout from "../../../Page Elements/Popout/Popout"; // adjust path if nee
 
 export type FormData = z.infer<typeof schema>;
 
+interface FormBodyProps {
+	origFormType: string;
+}
+
 const schema = z
 	.object({
 		lastname: z
@@ -173,7 +177,7 @@ const schema = z
 		}
 	});
 
-const FormBody = () => {
+const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [dateHired, setDateHired] = useState<Date | null>(null);
 	const [dateRetired, setDateRetired] = useState<Date | null>(null);
 	const [showPopup, setShowPopup] = useState(false);
@@ -259,6 +263,7 @@ const FormBody = () => {
 				status: "pending",
 				formData: {
 					formType: "hospital",
+					origFormType: origFormType,
 					lastname: data.lastname,
 					firstname: data.firstname,
 					middlename: data.middlename,
