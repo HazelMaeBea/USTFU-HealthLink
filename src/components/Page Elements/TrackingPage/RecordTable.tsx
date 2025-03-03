@@ -12,7 +12,7 @@ interface RecordTableProps {
 	records: Record[];
 	onDetailsClick: (
 		transactionID: string,
-		typeOfForm: string,
+		dateTime: string,
 		status: string
 	) => void; // Prop to notify parent
 }
@@ -52,7 +52,11 @@ const RecordTable: React.FC<RecordTableProps> = ({
 									onClick={() =>
 										onDetailsClick(
 											record.transactionID,
-											record.typeOfForm,
+											new Date(record.dateTime).toLocaleTimeString([], {
+												hour: "2-digit",
+												minute: "2-digit",
+												hour12: true,
+											}),
 											record.status
 										)
 									}
