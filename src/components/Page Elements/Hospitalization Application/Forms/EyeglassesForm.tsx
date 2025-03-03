@@ -9,7 +9,8 @@ import FormInvoice from "./FormInvoice";
 import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormSigIDFiles from "./FormSigIDFiles";
 import FormCertify from "./FormCertify";
-import { collection, addDoc, setDoc, doc } from "firebase/firestore";
+// import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { auth, db, getFormID, storage } from "../../../../config/firebase.ts";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import BackButton from "./BackButton"; // Import BackButton

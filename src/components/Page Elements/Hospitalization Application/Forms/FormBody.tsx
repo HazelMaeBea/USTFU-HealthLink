@@ -11,7 +11,8 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormMedicalFiles from "./FormMedicalFiles";
 import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
-import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+// import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { auth, db, getFormID, storage } from "../../../../config/firebase.ts";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
@@ -192,7 +193,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
-	const formsCollectionRef = collection(db, "FormRequests");
+	// const formsCollectionRef = collection(db, "FormRequests");
 	const onSubmit = async (data: FieldValues) => {
 		try {
 			const email = auth?.currentUser?.email;
