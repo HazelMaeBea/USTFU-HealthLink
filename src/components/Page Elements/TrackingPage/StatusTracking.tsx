@@ -1,25 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import "./StatusTracking.css"; // Import the CSS
+import type { PendingRequest } from "../PendingRequests/types";
+import { usePendingRequests } from "../PendingRequests/PendingRequestBackend";
+import ViewFiles from "../PendingRequests/ViewFiles";
 
 interface StatusTrackingProps {
 	onBack: () => void;
 	transactionID: string;
-	typeOfForm: string;
 	status: string;
+	dateTime: string;
 }
 
 const StatusTracking: React.FC<StatusTrackingProps> = ({
 	onBack,
 	transactionID,
-	typeOfForm,
 	status,
+	dateTime,
 }) => {
-	const getStatusUpdates = (status: string) => {
+	const pendingRequests = usePendingRequests();
+	const [previewFile, setPreviewFile] = useState<any>(null);
+	const handleClosePreview = () => {
+		setPreviewFile(null);
+	};
+	const getStatusUpdates = (status: string, dateTime: string) => {
 		const timestamps: Record<
 			"submitted" | "reviewed" | "processing" | "approved" | "rejected",
 			string
 		> = {
-			submitted: "10:00 AM",
+			submitted: dateTime,
 			reviewed: "10:30 AM",
 			processing: "11:00 AM",
 			approved: "11:30 AM",
@@ -48,28 +56,28 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		}
 
 		return baseUpdates.map((update, index) => {
-			let bgClass = "pending";
-			let textColor = "pending";
+			let bgClass = "statusTracking-pending";
+			let textColor = "statusTracking-pending";
 			let icon = "";
 			let time = timestamps[update.key]; // TypeScript now recognizes this as valid
 
 			if (status === "Approved") {
-				bgClass = "approved";
-				textColor = "approved";
+				bgClass = "statusTracking-approved";
+				textColor = "statusTracking-approved";
 				icon = "✔";
 			} else if (status === "Rejected") {
-				bgClass = "rejected";
-				textColor = "rejected";
+				bgClass = "statusTracking-rejected";
+				textColor = "statusTracking-rejected";
 				icon = "✘";
 			} else if (status === "Pending") {
 				if (index === 0) {
 					icon = "✔";
-					bgClass = "approved"; // First step is completed
-					textColor = "approved";
+					bgClass = "statusTracking-approved"; // First step is completed
+					textColor = "statusTracking-approved";
 				} else {
 					icon = "";
-					bgClass = "pending";
-					textColor = "pending";
+					bgClass = "statusTracking-pending";
+					textColor = "statusTracking-pending";
 				}
 			}
 
@@ -83,77 +91,85 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		});
 	};
 
-	const defaultFields = () => {
-		return (
-			<div className="statusTracking-form-container">
-				<div className="statusTracking-form-contents">
-					<label>Last Name</label>
-					<p className="statusTracking-field-content">Batumbakal</p>
+	const fields = (request: PendingRequest) => {
+		const { formData } = request;
+
+		const defaultData = (
+			<>
+				<div className="statusTracking-form-container">
+					<div className="statusTracking-form-contents">
+						<label>Last Name</label>
+						<p className="statusTracking-field-content">{formData.lastname}</p>
+					</div>
+					<div className="statusTracking-form-contents">
+						<label>First Name</label>
+						<p className="statusTracking-field-content">{formData.firstname}</p>
+					</div>
+					<div className="statusTracking-form-contents">
+						<label>Middle Name</label>
+						<p className="statusTracking-field-content">
+							{formData.middlename}
+						</p>
+					</div>
+					<div className="statusTracking-form-contents">
+						<label>Suffix</label>
+						<p className="statusTracking-field-content">
+							{formData.suffix ? formData.suffix : "-"}
+						</p>
+					</div>
 				</div>
-				<div className="statusTracking-form-contents">
-					<label>First Name</label>
-					<p className="statusTracking-field-content">Yza</p>
+				<div className="statusTracking-form-container2">
+					<div className="statusTracking-form-contents">
+						<label>Age</label>
+						<p className="statusTracking-field-content st-age">
+							{formData.age}
+						</p>
+					</div>
+					<div className="statusTracking-form-contents st-gender">
+						<label>Gender</label>
+						<p className="statusTracking-field-content">{formData.gender}</p>
+					</div>
+					<div className="statusTracking-form-contents st-college">
+						<label>College Affiliation</label>
+						<p className="statusTracking-field-content">{formData.college}</p>
+					</div>
+					<div className="statusTracking-form-contents st-contact">
+						<label>Contact No.</label>
+						<p className="statusTracking-field-content">{formData.contact}</p>
+					</div>
 				</div>
-				<div className="statusTracking-form-contents">
-					<label>Middle Name</label>
-					<p className="statusTracking-field-content">Hambatukam</p>
-				</div>
-				<div className="statusTracking-form-contents">
-					<label>Suffix</label>
-					<p className="statusTracking-field-content">-</p>
-				</div>
-				<div className="statusTracking-form-contents">
-					<label>Age</label>
-					<p className="statusTracking-field-content">69</p>
-				</div>
-				<div className="statusTracking-form-contents">
-					<label>Gender</label>
-					<p className="statusTracking-field-content">Non-binary</p>
-				</div>
-				<div className="statusTracking-form-contents">
-					<label>College Affiliation</label>
-					<p className="statusTracking-field-content">
-						College of Rose Buds
-					</p>
-				</div>
-				<div className="statusTracking-form-contents">
-					<label>Contact No.</label>
-					<p className="statusTracking-field-content">09223334444</p>
-				</div>
-			</div>
+			</>
 		);
-	};
-	// Define different submission details based on typeOfForm
-	const getSubmissionDetails = () => {
-		switch (typeOfForm) {
-			case "In-Patient Form":
-			case "Out-Patient Form":
+
+		switch (formData.formType) {
+			case "hospital":
 				return (
 					<>
+						{defaultData}
 						<hr></hr>
 						<div className="statusTracking-form-container">
 							<div className="statusTracking-form-contents">
 								<label>Hospital</label>
 								<p className="statusTracking-field-content">
-									Sa Gedli Hospital
+									{formData.hospital}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Nature of Illness</label>
 								<p className="statusTracking-field-content">
-									Xavier Syndrome
+									{formData.illness}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Physician</label>
 								<p className="statusTracking-field-content">
-									Dr. Manhattan
+									{formData.physician}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Procedure</label>
 								<p className="statusTracking-field-content">
-									Surgery
+									{formData.procedures}
 								</p>
 							</div>
 						</div>
@@ -161,129 +177,170 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 						<div className="statusTracking-form-container">
 							<div className="statusTracking-form-contents">
 								<label>Academic Term</label>
-								<p className="statusTracking-field-content">
-									2nd
-								</p>
+								<p className="statusTracking-field-content">{formData.term}</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Academic Year</label>
-								<p className="statusTracking-field-content">
-									2025
-								</p>
+								<p className="statusTracking-field-content">{formData.year}</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Teaching Load</label>
-								<p className="statusTracking-field-content">
-									200
-								</p>
+								<p className="statusTracking-field-content">{formData.load}</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Status</label>
 								<p className="statusTracking-field-content">
-									-
+									{formData.status || "-"}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Date Hired:</label>
 								<p className="statusTracking-field-content">
-									01/01/1612
+									{formData.dateHired
+										? new Date(formData.dateHired).toLocaleDateString()
+										: "-"}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Date Retired:</label>
 								<p className="statusTracking-field-content">
-									-
+									{formData.dateRetired
+										? new Date(formData.dateRetired).toLocaleDateString()
+										: "-"}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Health Benefits</label>
 								<p className="statusTracking-field-content">
-									idk what this supposed to have
+									{formData.benefits}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>If HMO, please specify:</label>
 								<p className="statusTracking-field-content">
-									-
+									{formData.hmo ? formData.hmo : "-"}
 								</p>
 							</div>
 						</div>
 					</>
 				);
-			case "Admission":
+			case "admission":
 				return (
 					<>
+						{defaultData}
+						<hr></hr>
 						<div className="statusTracking-form-container">
 							<div className="statusTracking-form-contents">
 								<label>Load</label>
 								<p className="statusTracking-field-content">
-									Loadicakes
+									{formData.load ? formData.load : "-"}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Status</label>
 								<p className="statusTracking-field-content">
-									-
+									{formData.status ? formData.status : "-"}
 								</p>
 							</div>
 						</div>
 					</>
 				);
-			case "Eyeglasses":
+			case "eyeglasses":
 				return (
 					<>
+						{defaultData}
+						<hr></hr>
 						<div className="statusTracking-form-container">
 							<div className="statusTracking-form-contents">
 								<label>OR Number</label>
 								<p className="statusTracking-field-content">
-									-
+									{formData.ORNumber ? formData.ORNumber : "-"}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Issued By</label>
 								<p className="statusTracking-field-content">
-									-
+									{formData.issuedBy ? formData.issuedBy : "-"}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Amount Paid</label>
 								<p className="statusTracking-field-content">
-									-
+									{formData.amountPaid ? formData.amountPaid : "-"}
 								</p>
 							</div>
 						</div>
 					</>
 				);
-			default:
-				return <p>No additional details available.</p>;
 		}
 	};
+	// Define different submission details based on typeOfForm
 
-	const getAttachments = () => {
+	const getAttachments = (request: PendingRequest) => {
+		const { formData } = request;
 		const attachments = [
-			{ filename: "id.pdf" },
-			{ filename: "chuchu.docx" },
-			{ filename: "whatever-needs-to-be-passed.txt" },
-		];
+			formData.employeeID,
+			formData.applicantSignature,
+			...("docRequest" in formData ? [formData.docRequest] : []),
+			...("hospitalInvoice" in formData ? [formData.hospitalInvoice] : []),
+			...("labInvoice" in formData ? [formData.labInvoice] : []),
+		].filter((attachment) => attachment && attachment.filename);
+
+		const renderThumbnail = (attachment: {
+			url?: string;
+			filename: string;
+		}) => {
+			const ext = attachment.filename.split(".").pop()?.toLowerCase();
+			const imageTypes = ["png", "jpg", "jpeg", "gif", "svg"];
+			if (ext && imageTypes.includes(ext) && attachment.url) {
+				return (
+					<img
+						src={attachment.url}
+						alt={attachment.filename}
+						className="statusTracking-file-thumbnail"
+					/>
+				);
+			} else if (ext === "pdf") {
+				return (
+					<div
+						className="statusTracking-default-thumbnail"
+						data-label="PDF"
+					></div>
+				);
+			} else if (ext === "docx") {
+				return (
+					<div
+						className="statusTracking-default-thumbnail"
+						data-label="DOCX"
+					></div>
+				);
+			} else {
+				return (
+					<div
+						className="statusTracking-default-thumbnail"
+						data-label="FILE"
+					></div>
+				);
+			}
+		};
 
 		return (
 			<>
 				<hr></hr>
 				<div className="statusTracking-attachments-section">
 					<h4>UPLOADED ATTACHMENTS</h4>
-					<div className="statusTracking-attachment-list">
+					<div className="statusTracking-attachment-preview-container">
 						{attachments.map((attachment, index) => (
 							<div
 								key={index}
-								className="statusTracking-attachment-item"
+								className="statusTracking-attachment-preview"
+								onClick={() => setPreviewFile(attachment)}
+								title={attachment.filename}
 							>
-								<span
-									className="statusTracking-attachment-filename"
-									title={attachment.filename}
-								>
+								{renderThumbnail(attachment)}
+								<p className="statusTracking-file-name">
 									{attachment.filename}
-								</span>
-								<button className="view-btn">View</button>
+								</p>
 							</div>
 						))}
 					</div>
@@ -294,72 +351,68 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 
 	return (
 		<>
-			<div className="statusTracking-container">
-				<div className="statusTracking-transaction-header">
-					<div className="statusTracking-transaction-id">
-						TRANSACTION ID: <strong>{transactionID}</strong>
-					</div>
-					<button
-						className="statusTracking-back-button"
-						onClick={onBack}
-					>
-						BACK
-					</button>
-				</div>
-				<div className="statusTracking-status-updates">
-					<h3 className="statusTracking-status-title">
-						STATUS UPDATES
-					</h3>
-					{getStatusUpdates(status).map((update, index) => (
-						<div
-							key={index}
-							className={`statusTracking-status-item ${update.bgClass}`}
-						>
-							{update.icon && (
-								<span className="statusTracking-checkmark">
-									{update.icon}
-								</span>
-							)}
-							<div className="statusTracking-status-text">
-								<span>{update.label}</span>
-								<span>-</span>
-								<span className="timestamp">
-									{status === "Pending" &&
-									(update.key === "reviewed" ||
-										update.key === "processing")
-										? "..."
-										: update.time}
-								</span>
+			{pendingRequests
+				.filter((request) => request.transactionId === transactionID)
+				.map((request) => (
+					<div key={request.transactionId} className="statusTracking-container">
+						<div className="statusTracking-transaction-header">
+							<div className="statusTracking-transaction-id">
+								TRANSACTION ID: <strong>{transactionID}</strong>
+							</div>
+							<button className="statusTracking-back-button" onClick={onBack}>
+								BACK
+							</button>
+						</div>
+						<div className="statusTracking-status-updates">
+							<h3 className="statusTracking-status-title">STATUS UPDATES</h3>
+							{getStatusUpdates(status, dateTime).map((update, index) => (
+								<div
+									key={index}
+									className={`statusTracking-status-item ${update.bgClass}`}
+								>
+									{update.icon && (
+										<span className="statusTracking-checkmark">
+											{update.icon}
+										</span>
+									)}
+									<div className="statusTracking-status-text">
+										<span>{update.label}</span>
+										<span>-</span>
+										<span className="statusTracking-timestamp">
+											{status === "Pending" &&
+											(update.key === "reviewed" || update.key === "processing")
+												? "..."
+												: update.time}
+										</span>
+									</div>
+								</div>
+							))}
+						</div>
+						<div className="statusTracking-action-buttons">
+							<button
+								className="statusTracking-print-button"
+								onClick={() => window.print()}
+								disabled={status === "Pending"}
+							>
+								🖨 PRINT
+							</button>
+						</div>
+						<div className="statusTracking-submission-info-container">
+							<div className="statusTracking-submission-header">
+								<div className="statusTracking-submission-title">
+									SUBMITTED INFORMATION
+								</div>
+							</div>
+							<div className="statusTracking-submission-contents">
+								{fields(request)}
+								{getAttachments(request)}
 							</div>
 						</div>
-					))}
-				</div>
-				<div className="statusTracking-action-buttons">
-					<button
-						className="statusTracking-print-button"
-						onClick={() => window.print()}
-						disabled={status === "Pending"}
-					>
-						🖨 PRINT
-					</button>
-				</div>
-			</div>
-
-			{/* Submission Details Section */}
-			<div className="statusTracking-submission-info-container">
-				<div className="statusTracking-submission-header">
-					<div className="statusTracking-submission-title">
-						SUBMITTED INFORMATION
 					</div>
-				</div>
-				<div className="statusTracking-submission-contents">
-					<>
-						{defaultFields()}
-						{getSubmissionDetails()}
-						{getAttachments()}
-					</>
-				</div>
-			</div>
+				))}
+			{previewFile && (
+				<ViewFiles file={previewFile} onClose={handleClosePreview} />
+			)}
 		</>
 	);
 };
