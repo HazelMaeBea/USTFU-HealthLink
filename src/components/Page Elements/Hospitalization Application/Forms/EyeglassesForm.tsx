@@ -143,7 +143,7 @@ const EyeglassesForm = () => {
 
 			// await addDoc(formsCollectionRef, newDoc);
 		await setDoc(doc(db, "FormRequests", currentYear + "-" + formIDString + "-O"), newDoc);
-		  console.log("Document written with ID: ", formIDString);
+		console.log("Document written with ID: ", formIDString);
 		} catch (error) {
 			console.error(error);
 		}

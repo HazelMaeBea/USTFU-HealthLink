@@ -11,8 +11,8 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormMedicalFiles from "./FormMedicalFiles";
 import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
-import { collection, addDoc } from "firebase/firestore";
-import { auth, db, storage } from "../../../../config/firebase.ts";
+import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { auth, db, getFormID, storage } from "../../../../config/firebase.ts";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout"; // adjust path if needed
@@ -196,31 +196,36 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	const onSubmit = async (data: FieldValues) => {
 		try {
 			const email = auth?.currentUser?.email;
+
+			const formID = await getFormID(true);
+			const formIDString = formID?.toString().padStart(5,"0") || "error"
+			const currentYear: string = new Date().getFullYear().toString();
+
 			// Prepare file storage paths
 			const applicantSignatureUrl =
 				"FormRequests/" +
-				email +
-				"/FormRequest O-0000000001/" +
+				email + "/" +
+				currentYear + "-" + formIDString + "-O/" +
 				data.applicantSignature[0].name;
 			const docRequestUrl =
 				"FormRequests/" +
-				email +
-				"/FormRequest O-0000000001/" +
+				email + "/" +
+				currentYear + "-" + formIDString + "-O/" +
 				data.docRequest[0].name;
 			const employeeIDUrl =
 				"FormRequests/" +
-				email +
-				"/FormRequest O-0000000001/" +
+				email + "/" +
+				currentYear + "-" + formIDString + "-O/"
 				data.employeeID[0].name;
 			const hospitalInvoiceUrl =
 				"FormRequests/" +
-				email +
-				"/FormRequest O-0000000001/" +
+				email + "/" +
+				currentYear + "-" + formIDString + "-O/"
 				data.hospitalInvoice[0].name;
 			const labInvoiceUrl =
 				"FormRequests/" +
-				email +
-				"/FormRequest O-0000000001/" +
+				email + "/" +
+				currentYear + "-" + formIDString + "-O/"
 				data.labInvoice[0].name;
 
 			// Upload and get download URL for applicantSignature
@@ -307,7 +312,9 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				},
 			};
 
-			await addDoc(formsCollectionRef, newDoc);
+			// await addDoc(formsCollectionRef, newDoc);
+			await setDoc(doc(db, "FormRequests", currentYear + "-" + formIDString + "-O"), newDoc);
+			console.log("Document written with ID: ", formIDString);
 			setShowPopup(true);
 		} catch (error) {
 			console.error(error);
