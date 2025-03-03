@@ -467,11 +467,42 @@ const PendingRequestList = () => {
 					{expandedId === request.transactionId && (
 						<div className="request-content">
 							<h3>
-								{request.formData.formType === "hospital"
-									? request.formData.origFormType.toUpperCase() +
-									  "-" +
-									  request.formData.hospitalStatus.toUpperCase()
-									: request.formData.formType.toUpperCase()}{" "}
+								{/* Form Type with conditional layout based on origFormType and hospitalStatus */}
+								{request.formData.formType === "hospital" &&
+								request.formData.origFormType ? (
+									<>
+										{/* Case 1: origFormType and hospitalStatus both match "inpatient" */}
+										{request.formData.origFormType.toLowerCase() ===
+											"inpatient" &&
+										request.formData.hospitalStatus?.toLowerCase() ===
+											"in-patient" ? (
+											"INPATIENT"
+										) : /* Case 2: origFormType and hospitalStatus both match "outpatient" */
+										request.formData.origFormType.toLowerCase() ===
+												"outpatient" &&
+										  request.formData.hospitalStatus?.toLowerCase() ===
+												"out-patient" ? (
+											"OUTPATIENT"
+										) : (
+											/* Case 3: Mixed case - show both with parentheses */
+											<>
+												{request.formData.origFormType.toUpperCase()}
+												{request.formData
+													.hospitalStatus && (
+													<>
+														{" "}
+														(DONE AS{" "}
+														{request.formData.hospitalStatus.toUpperCase()}
+														)
+													</>
+												)}
+											</>
+										)}
+									</>
+								) : (
+									/* Default case: just use formType if origFormType is missing */
+									request.formData.formType.toUpperCase()
+								)}{" "}
 								SUBMITTED FORM DETAILS
 							</h3>
 
