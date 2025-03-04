@@ -13,7 +13,7 @@ body {
 }
 
 .eyeglasses-form-container {
-	max-width: 800px;
+	max-width: 640px;
 	margin: 0 auto;
 	background-color: white;
 	padding: 30px;
@@ -37,7 +37,7 @@ body {
 }
 
 .eyeglasses-form-title {
-	font-size: 15px;
+	font-size: 14px;
 	font-weight: bold;
 	margin-bottom: 5px;
 }
@@ -75,11 +75,16 @@ input[type="text"] {
 	border: none;
 	border-bottom: 1px solid #333;
 	padding: 0px 0;
+	font-size: 11px;
 }
 
 .eyeglasses-term-field {
 	text-align: right;
 	margin-bottom: 20px;
+}
+
+.center-align-text {
+	text-align: center;
 }
 
 .eyeglasses-certification {
