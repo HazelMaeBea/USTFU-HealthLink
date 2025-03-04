@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "../TrackingPage/TrackingPage.css";
 import "./HistoryPage.css";
+import type { Archive } from "../PendingRequests/types";
+import { usePendingRequests } from "../PendingRequests/PendingRequestBackend";
 
 const HospitalizationHistory = () => {
 	const [selectedType, setSelectedType] = useState("All");
@@ -10,72 +12,46 @@ const HospitalizationHistory = () => {
 	const [showDateRangePopup, setShowDateRangePopup] = useState(false);
 	const [dateRange, setDateRange] = useState({ start: "", end: "" });
 	const [showFilterPopup, setShowFilterPopup] = useState<string | null>(null);
+	const pendingRequests = usePendingRequests();
 
 	// connect to the database
 	//dapat pagkasubmit ng forms, kung anong tab nila ginawa isasave na yon as form type
 	//para malagyan niyo ng form type dito
-	const tableData = [
-		{
-			dateApproved: "2023-01-01",
-			formType: "Inpatient",
-			name: "Zander Zara",
-			age: 19,
-			college: "College of Engineering",
-			term: "1st",
-			academicYear: "2022-2023",
-			load: "Full",
-			status: "Approved",
-			natureOfIllness: "Flu",
-			physician: "Dr. Smith",
-			procedures: "Checkup",
-			remainingBenefits: "$1000",
-		},
-		{
-			dateApproved: "2023-02-15",
-			formType: "Outpatient",
-			name: "Laufey Lin",
-			age: 22,
-			college: "College of Music",
-			term: "2nd",
-			academicYear: "2022-2023",
-			load: "Part-time",
-			status: "Pending",
-			natureOfIllness: "Cold",
-			physician: "Dr. Johnson",
-			procedures: "Consultation",
-			remainingBenefits: "$800",
-		},
-		{
-			dateApproved: "2023-03-10",
-			formType: "Eyeglasses",
-			name: "Luke Chiang",
-			age: 21,
-			college: "College of Engineering",
-			term: "1st",
-			academicYear: "2022-2023",
-			load: "Full",
-			status: "Approved",
-			natureOfIllness: "Allergy",
-			physician: "Dr. Brown",
-			procedures: "Allergy Test",
-			remainingBenefits: "$950",
-		},
-		{
-			dateApproved: "2023-04-05",
-			formType: "Inpatient",
-			name: "Grent Perez",
-			age: 23,
-			college: "College of Music",
-			term: "2nd",
-			academicYear: "2022-2023",
-			load: "Full",
-			status: "Denied",
-			natureOfIllness: "Injury",
-			physician: "Dr. White",
-			procedures: "X-ray",
-			remainingBenefits: "$700",
-		},
-	];
+	const formatTableData = (request: Archive) => {
+		const { formData, dateSubmitted, requester } = request;
+
+		return {
+			formType: formData.formType,
+			dateApproved: dateSubmitted || "-",
+			name: requester, // Directly from Archive
+			age: formData.age || "-",
+			college: formData.college || "-",
+
+			// Only available in HospitalFormData and AdmissionFormData
+			term: formData.formType === "hospital" ? formData.term || "-" : "-",
+			academicYear:
+				formData.formType === "hospital" ? formData.year || "-" : "-",
+			load:
+				formData.formType === "hospital" || formData.formType === "admission"
+					? formData.load || "-"
+					: "-",
+			status:
+				formData.formType === "hospital" || formData.formType === "admission"
+					? formData.status || "-"
+					: "-",
+
+			// Only available in HospitalFormData
+			natureOfIllness:
+				formData.formType === "hospital" ? formData.illness || "-" : "-",
+			physician:
+				formData.formType === "hospital" ? formData.physician || "-" : "-",
+			procedures:
+				formData.formType === "hospital" ? formData.procedures || "-" : "-",
+			remainingBenefits: "-",
+		};
+	};
+
+	const tableData = pendingRequests.map(formatTableData);
 
 	const termOptions = ["1st", "2nd"];
 	const collegeOptions = ["College of Engineering", "College of Music"];
@@ -87,7 +63,7 @@ const HospitalizationHistory = () => {
 		setFilters((prev) => prev.filter((filter) => filter !== filterToRemove));
 	};
 
-	const applyFilters = (data: typeof tableData) => {
+	const applyFilters = (data: any[]) => {
 		return data.filter((row) => {
 			const matchesType =
 				selectedType === "All" || row.formType === selectedType;
@@ -115,16 +91,20 @@ const HospitalizationHistory = () => {
 		});
 	};
 
-	const filteredData = applyFilters(
-		tableData.filter((row) =>
-			row.name.toLowerCase().includes(searchQuery.toLowerCase())
-		)
-	);
+	const filteredData = applyFilters(tableData);
 
 	const isDateRangeValid =
 		dateRange.start !== "" &&
 		dateRange.end !== "" &&
 		dateRange.start <= dateRange.end;
+
+	const sortedData = [...filteredData].sort((a, b) => {
+		const dateA =
+			a.dateApproved !== "-" ? new Date(a.dateApproved).getTime() : 0;
+		const dateB =
+			b.dateApproved !== "-" ? new Date(b.dateApproved).getTime() : 0;
+		return dateB - dateA; // Descending order (latest date first)
+	});
 
 	const renderContent = () => {
 		return (
@@ -147,7 +127,7 @@ const HospitalizationHistory = () => {
 					</tr>
 				</thead>
 				<tbody>
-					{filteredData.map((row, index) => (
+					{sortedData.map((row, index) => (
 						<tr key={index}>
 							<td>{row.formType}</td>
 							<td>{row.dateApproved}</td>

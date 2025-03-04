@@ -18,10 +18,12 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 	dateTime,
 }) => {
 	const pendingRequests = usePendingRequests();
+
 	const [previewFile, setPreviewFile] = useState<any>(null);
 	const handleClosePreview = () => {
 		setPreviewFile(null);
 	};
+
 	const getStatusUpdates = (status: string, dateTime: string) => {
 		const timestamps: Record<
 			"submitted" | "reviewed" | "processing" | "approved" | "rejected",

@@ -1,0 +1,82 @@
+.history-popout {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.history-popout-content {
+	background: white;
+	padding: 20px;
+	border-radius: 8px;
+	width: 70%;
+	max-width: none;
+	text-align: center;
+	position: relative; /* Add this to position the close button */
+}
+
+.history-popout-content h2 {
+	margin-bottom: 20px;
+}
+
+.history-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 20px;
+	table-layout: fixed; /* Because it changes size when you use the search bar */
+	background: none; /* Remove the background */
+}
+
+.history-table th,
+.history-table td {
+	border: 1px solid black;
+	padding: 8px;
+	text-align: left;
+	color: black;
+	word-wrap: break-word;
+	font-size: 0.85em; /* size of the content, made it smaller because frequently nag nenext line */
+}
+
+.history-table th:first-child {
+	width: 4%;
+}
+
+.history-table th:nth-child(2) {
+	width: 5%;
+}
+.history-table th:nth-child(3) {
+	width: 10%;
+}
+.history-table th:nth-child(4) {
+	width: 10%;
+}
+.history-table th:nth-child(5) {
+	width: 15%;
+}
+.history-table th:last-child {
+	width: 5%;
+}
+
+.history-table th {
+	background-color: #f7e5aa;
+	color: black;
+	text-align: center;
+	font-size: 0.9em;
+}
+
+.close-button {
+	position: absolute;
+	top: 1px;
+	right: 10px;
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: black !important;
+}
