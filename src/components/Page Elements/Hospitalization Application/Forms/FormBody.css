@@ -402,6 +402,12 @@ table {
 	font-style: italic;
 }
 
+.button-container {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
 /* input:-webkit-autofill,
 textarea:-webkit-autofill,
 select:-webkit-autofill {
