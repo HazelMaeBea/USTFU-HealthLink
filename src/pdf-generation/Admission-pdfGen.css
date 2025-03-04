@@ -2,18 +2,18 @@
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
-	font-family: Arial, sans-serif;
+	font-family: "book antiqua";
 }
 
 body {
 	background-color: #f9f9f9;
 	padding: 20px;
 	color: #333;
-	font-family: "book antiqua";
+	font-size: 12px;
 }
 
 .admission-form-container {
-	max-width: 800px;
+	max-width: 640px;
 	margin: 0 auto;
 	background-color: white;
 	padding: 30px;
@@ -31,51 +31,53 @@ body {
 	position: absolute;
 	left: 0;
 	top: 0;
-	width: 100px;
+	width: 90px;
 }
 
 .admission-logo-right {
 	position: absolute;
 	right: 0;
 	top: 0;
-	width: 100px;
+	width: 90px;
+	border: 3px solid black;
 }
 
 .admission-form-title {
-	font-size: 18px;
+	font-size: 15px;
 	font-weight: bold;
-	margin-bottom: 5px;
+	margin-bottom: 3px;
+	font-weight: bold;
 }
 
 .admission-form-subtitle {
-	font-size: 16px;
-	margin-bottom: 5px;
-}
-
-.admission-sample-mark {
-	position: absolute;
-	right: 0;
-	top: -20px;
-	color: #c00;
-	font-style: italic;
-	font-weight: bold;
+	font-size: 13px;
+	margin-bottom: 0px;
 }
 
 .admission-form-field {
-	margin-bottom: 15px;
+	margin-bottom: 10px;
 }
 
 .admission-form-field label {
 	display: inline-block;
 	font-weight: bold;
-	margin-right: 10px;
+	margin-right: 2px;
 }
 
 .admission-form-field input[type="text"] {
 	border: none;
 	border-bottom: 1px solid #333;
-	padding: 5px 0;
+	padding: 0px 0;
 	width: 60%;
+}
+
+.admission-input-field {
+	border: none;
+	border-bottom: 1px solid #333;
+}
+
+.admission-checkbox-item > label {
+	font-size: 10px;
 }
 
 .admission-checkbox-group {
@@ -83,11 +85,11 @@ body {
 }
 
 .admission-checkbox-item {
-	margin-bottom: 10px;
+	margin-bottom: 5px;
 }
 
 .admission-checkbox-item input[type="checkbox"] {
-	margin-right: 10px;
+	margin-right: 2px;
 }
 
 .admission-divider {
@@ -107,25 +109,39 @@ body {
 .admission-form-paragraph {
 	margin-bottom: 15px;
 	line-height: 1.5;
+	text-align: justify;
+}
+
+.admission-date-line {
+	width: 200px;
+	margin-top: 24px;
+	margin-bottom: 5px;
+	margin-left: 10px;
+	display: inline-block;
+	text-align: center;
 }
 
 .admission-signature-line {
 	border-top: 1px solid #333;
-	width: 250px;
+	width: 300px;
 	margin-top: 40px;
 	margin-bottom: 5px;
+	margin-left: 20px;
 	display: inline-block;
+	text-align: center;
 }
 
 .admission-signature-label {
 	font-size: 12px;
 	display: block;
+	margin-right: 20px;
+	margin-left: 20px;
 }
 
 .admission-signature-container {
 	display: flex;
 	justify-content: space-between;
-	margin-top: 30px;
+	margin-top: 0px;
 }
 
 .admission-signature-block {

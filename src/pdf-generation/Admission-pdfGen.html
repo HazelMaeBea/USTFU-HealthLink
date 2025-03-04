@@ -9,19 +9,18 @@
 	<body>
 		<div class="admission-form-container">
 			<div class="admission-form-header">
-				<div class="admission-sample-mark">Sample</div>
 				<img
-					src="ust-logo.png"
+					src="./images-pdfGen/USTLogo.png"
 					alt="UST Logo"
 					class="admission-logo-left"
 				/>
 				<img
-					src="ustfu-logo.png"
+					src="./images-pdfGen/USTFULogo.png"
 					alt="USTFU Logo"
 					class="admission-logo-right"
 				/>
 				<h1 class="admission-form-title">UNIVERSITY OF SANTO TOMAS</h1>
-				<h2 class="admission-form-title">
+				<h2 class="admission-form-title" style="margin-bottom: 10px">
 					UNIVERSITY OF SANTO TOMAS FACULTY UNION
 				</h2>
 				<h3 class="admission-form-subtitle">
@@ -36,51 +35,55 @@
 			</div>
 
 			<div class="admission-form-field">
-				<label for="name">NAME:</label>
-				<input type="text" id="name" name="name" />
+				<label for="name" style="margin-left: 20px">NAME:</label>
+				<input type="text" id="name" name="name" style="width: 350px" />
 
-				<label for="id-no" style="margin-left: 20px">ID No.</label>
+				<label for="id-no" style="margin-left: 5px">ID No.</label>
 				<input
 					type="text"
 					id="id-no"
 					name="id-no"
-					style="width: 150px"
+					style="width: 95px"
 				/>
 			</div>
 
 			<div class="admission-form-field">
-				<label for="address">ADDRESS:</label>
+				<label for="address" style="margin-left: 20px">ADDRESS:</label>
 				<input
 					type="text"
 					id="address"
 					name="address"
-					style="width: 80%"
+					style="width: 82%"
 				/>
 			</div>
 
 			<div class="admission-form-field">
-				<label for="college">COLLEGE/DEPARTMENT:</label>
+				<label for="college" style="margin-left: 20px"
+					>COLLEGE/DEPARTMENT:</label
+				>
 				<input
 					type="text"
 					id="college"
 					name="college"
-					style="width: 70%"
+					style="width: 66.5%"
 				/>
 			</div>
 
 			<div class="admission-form-field">
-				<label for="teaching-load">Present Teaching Load:</label>
+				<label for="teaching-load" style="margin-left: 20px"
+					>Present Teaching Load:</label
+				>
 				<input
 					type="text"
 					id="teaching-load"
 					name="teaching-load"
-					style="width: 100px"
+					style="width: 50px"
 				/>
 				<span>units</span>
 			</div>
 
 			<div class="admission-form-field">
-				<label>Status:</label>
+				<label style="margin-left: 20px">Status:</label>
 				<div class="admission-checkbox-group">
 					<div class="admission-checkbox-item">
 						<input
@@ -88,6 +91,7 @@
 							id="tenured"
 							name="status"
 							value="tenured"
+							style="margin-left: 20px"
 						/>
 						<label for="tenured">Tenured</label>
 
@@ -96,7 +100,7 @@
 							id="lecturer"
 							name="status"
 							value="lecturer"
-							style="margin-left: 100px"
+							style="margin-left: 160px"
 						/>
 						<label for="lecturer">Lecturer before 2001</label>
 
@@ -105,7 +109,7 @@
 							id="extendee"
 							name="status"
 							value="extendee"
-							style="margin-left: 100px"
+							style="margin-left: 90px"
 						/>
 						<label for="extendee">Extendee</label>
 					</div>
@@ -116,13 +120,14 @@
 							id="probationary"
 							name="status"
 							value="probationary"
+							style="margin-left: 20px"
 						/>
 						<label for="probationary"
 							>Probationary (Date Hired:</label
 						>
 						<input
 							type="text"
-							style="width: 100px; margin-right: 5px"
+							style="width: 65px; margin-right: 2px"
 						/>)
 
 						<input
@@ -130,12 +135,12 @@
 							id="retiree"
 							name="status"
 							value="retiree"
-							style="margin-left: 20px"
+							style="margin-left: 5px"
 						/>
 						<label for="retiree">Retiree (Date Retired:</label>
 						<input
 							type="text"
-							style="width: 100px; margin-right: 5px"
+							style="width: 65px; margin-right: 2px"
 						/>)
 
 						<input
@@ -143,10 +148,10 @@
 							id="others"
 							name="status"
 							value="others"
-							style="margin-left: 20px"
+							style="margin-left: 10px"
 						/>
 						<label for="others">Others:</label>
-						<input type="text" style="width: 100px" />
+						<input type="text" style="width: 75px" />
 					</div>
 				</div>
 			</div>
@@ -154,22 +159,33 @@
 			<div class="admission-divider"></div>
 
 			<div class="admission-form-section">
-				<h3 class="admission-form-section-title">
+				<h3
+					class="admission-form-section-title"
+					style="margin-left: 20px"
+				>
 					TO: UNIVERSITY OF SANTO TOMAS HOSPITAL
 				</h3>
 
-				<p class="admission-form-paragraph">
+				<p
+					class="admission-form-paragraph"
+					style="margin-left: 20px; margin-right: 20px"
+				>
 					This is certify that
-					<input type="text" style="width: 300px" /> is University of
-					Santo Tomas academic personnel and is allowed to charge
-					his/her hospital bill up to the limit indicated below by the
-					Accounting Department subject to the rules and conditions of
-					the University of Santo Tomas Hospital and the Joint
-					UST-USTFU Hospitalization and Medical Benefits Committee.
+					<input
+						class="admission-input-field"
+						type="text"
+						style="width: 300px"
+					/>
+					is University of Santo Tomas academic personnel and is
+					allowed to charge his/her hospital bill up to the limit
+					indicated below by the Accounting Department subject to the
+					rules and conditions of the University of Santo Tomas
+					Hospital and the Joint UST-USTFU Hospitalization and Medical
+					Benefits Committee.
 				</p>
 			</div>
 
-			<div class="admission-form-section">
+			<div class="admission-form-section" style="margin-left: 20px">
 				<p class="admission-form-section-title">
 					To be filled up by official USTFU staff:
 				</p>
@@ -191,19 +207,22 @@
 							id="hundred-percent"
 							name="hospital-bill"
 							value="100"
-							style="margin-left: 50px"
+							style="margin-left: 20px"
 						/>
 						<label for="hundred-percent"
 							>100% of net hospital bill</label
 						>
 
-						<span style="margin-left: 20px"
-							>but not to exceed (₱</span
-						>
-						<input
-							type="text"
-							style="width: 150px; margin-right: 5px"
-						/>)
+						<span style="margin-left: 35px"
+							>but not to exceed (₱
+
+							<input
+								type="text"
+								class="admission-input-field"
+								style="width: 110px; margin-right: 3px"
+							/>
+							)
+						</span>
 					</div>
 				</div>
 			</div>
@@ -217,7 +236,11 @@
 				</div>
 
 				<div class="admission-signature-block">
-					<div class="admission-signature-line"></div>
+					<input
+						type="text"
+						class="admission-date-line admission-input-field"
+						style="margin-right: 20px"
+					/>
 					<span class="admission-signature-label">Date</span>
 				</div>
 			</div>
@@ -231,14 +254,18 @@
 				</div>
 
 				<div class="admission-signature-block">
-					<div class="admission-signature-line"></div>
+					<input
+						type="text"
+						class="admission-date-line admission-input-field"
+						style="margin-right: 20px"
+					/>
 					<span class="admission-signature-label">Date</span>
 				</div>
 			</div>
 
 			<div class="admission-footer-note">
-				FOR ADMISSION PURPOSES ONLY; GET IN-PATIENT FORM PRIOR TO
-				DISCHARGE
+				FOR ADMISSION PURPOSES ONLY; GET
+				<u>IN-PATIENT FORM PRIOR TO DISCHARGE</u>
 			</div>
 
 			<div style="font-size: 10px; margin-top: 20px">
