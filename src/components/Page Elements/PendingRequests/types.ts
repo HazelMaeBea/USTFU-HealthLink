@@ -66,3 +66,6 @@ export type PendingRequest = {
 	status: "pending" | "approved" | "rejected" | "revision";
 	formData: FormData;
 };
+
+export type Archive =
+	|PendingRequest;
