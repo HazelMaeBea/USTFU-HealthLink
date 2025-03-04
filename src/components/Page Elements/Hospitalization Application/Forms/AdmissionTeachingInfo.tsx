@@ -55,7 +55,7 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 
         <div className="mb-1 col-md-1">{/* empy space */}</div>
 
-        <div className="mb-1 col-md-3 ">
+        <div className="mb-1 col-md-4 ">
           <label className="form-label">Status</label>
           {statusOptions.map((option, index) => (
             <div key={index} className="form-check">
