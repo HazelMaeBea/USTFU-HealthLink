@@ -27,6 +27,10 @@
 	text-align: left;
 }
 
+.header-content:hover {
+	background-color: hsl(0, 0%, 94%) !important;
+}
+
 .arrow {
 	justify-self: end;
 }
@@ -505,63 +509,63 @@
 
 /* Create a fixed-height thumbnail container */
 .thumbnail-container {
-    width: 100%;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 8px;
-    overflow: hidden;
+	width: 100%;
+	height: 100px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 8px;
+	overflow: hidden;
 }
 
 .file-thumbnail {
-    width: 100%;
-    max-width: 100%;
-    max-height: 100px;
-    object-fit: contain;
-    border-radius: 4px;
+	width: 100%;
+	max-width: 100%;
+	max-height: 100px;
+	object-fit: contain;
+	border-radius: 4px;
 }
 
 /* Style for default thumbnails with consistent height */
 .default-thumbnail {
-    width: 80px;
-    height: 80px;
-    min-height: 80px;
-    background-color: #fff9f9;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+	width: 80px;
+	height: 80px;
+	min-height: 80px;
+	background-color: #fff9f9;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 18px;
+	font-weight: bold;
+	color: #333;
 }
 
 .file-info {
-    width: 100%;
-    overflow: hidden;
-    margin-top: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+	width: 100%;
+	overflow: hidden;
+	margin-top: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .document-type {
-    font-weight: bold;
-    color: #555;
-    margin-bottom: 4px;
-    font-size: 11px;
-    text-transform: uppercase;
-    background-color: #f0f0f0;
-    padding: 3px 6px;
-    border-radius: 3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-    text-align: center;
-    box-sizing: border-box;
+	font-weight: bold;
+	color: #555;
+	margin-bottom: 4px;
+	font-size: 11px;
+	text-transform: uppercase;
+	background-color: #f0f0f0;
+	padding: 3px 6px;
+	border-radius: 3px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 100%;
+	text-align: center;
+	box-sizing: border-box;
 }
 
 .attachment-preview:hover {
@@ -689,4 +693,17 @@
 	.attachment-preview:hover {
 		transform: none; /* Disable Y translation on mobile */
 	}
+}
+
+/* Adding pagination container styles */
+.pending-requests-container {
+	position: relative;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.pagination-container {
+	margin-top: 30px;
+	margin-bottom: 40px;
 }
