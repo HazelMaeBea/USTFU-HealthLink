@@ -36,9 +36,11 @@
 
 			<div class="admission-form-field">
 				<label for="name" style="margin-left: 20px">NAME:</label>
+				<!-- User Full Name firstname, middlename, lastname: string -->
 				<input type="text" id="name" name="name" style="width: 350px" />
 
 				<label for="id-no" style="margin-left: 5px">ID No.</label>
+				<!-- idNumber: string (Registration Page) -->
 				<input
 					type="text"
 					id="id-no"
@@ -49,6 +51,7 @@
 
 			<div class="admission-form-field">
 				<label for="address" style="margin-left: 20px">ADDRESS:</label>
+				<!-- address: string (Registration Page) -->
 				<input
 					type="text"
 					id="address"
@@ -61,6 +64,7 @@
 				<label for="college" style="margin-left: 20px"
 					>COLLEGE/DEPARTMENT:</label
 				>
+				<!-- college: string -->
 				<input
 					type="text"
 					id="college"
@@ -73,11 +77,12 @@
 				<label for="teaching-load" style="margin-left: 20px"
 					>Present Teaching Load:</label
 				>
+				<!-- load: string -->
 				<input
 					type="text"
 					id="teaching-load"
 					name="teaching-load"
-					style="width: 50px"
+					style="width: 50px; text-align: center"
 				/>
 				<span>units</span>
 			</div>
@@ -86,6 +91,7 @@
 				<label style="margin-left: 20px">Status:</label>
 				<div class="admission-checkbox-group">
 					<div class="admission-checkbox-item">
+						<!-- status: string in db -->
 						<input
 							type="checkbox"
 							id="tenured"
@@ -95,6 +101,7 @@
 						/>
 						<label for="tenured">Tenured</label>
 
+						<!-- status: string in db -->
 						<input
 							type="checkbox"
 							id="lecturer"
@@ -104,6 +111,7 @@
 						/>
 						<label for="lecturer">Lecturer before 2001</label>
 
+						<!-- status: string in db -->
 						<input
 							type="checkbox"
 							id="extendee"
@@ -115,6 +123,7 @@
 					</div>
 
 					<div class="admission-checkbox-item">
+						<!-- status: string in db -->
 						<input
 							type="checkbox"
 							id="probationary"
@@ -125,11 +134,13 @@
 						<label for="probationary"
 							>Probationary (Date Hired:</label
 						>
+						<!-- dateHired: string -->
 						<input
 							type="text"
 							style="width: 65px; margin-right: 2px"
 						/>)
 
+						<!-- status: string in db -->
 						<input
 							type="checkbox"
 							id="retiree"
@@ -138,6 +149,8 @@
 							style="margin-left: 5px"
 						/>
 						<label for="retiree">Retiree (Date Retired:</label>
+
+						<!-- dateRetired: string -->
 						<input
 							type="text"
 							style="width: 65px; margin-right: 2px"
@@ -151,6 +164,9 @@
 							style="margin-left: 10px"
 						/>
 						<label for="others">Others:</label>
+
+						<!-- otherStatus: string -->
+						<!-- not in db -->
 						<input type="text" style="width: 75px" />
 					</div>
 				</div>
@@ -171,6 +187,7 @@
 					style="margin-left: 20px; margin-right: 20px"
 				>
 					This is certify that
+					<!-- User Full Name firstname, middlename, lastname: string-->
 					<input
 						class="admission-input-field"
 						type="text"
@@ -192,6 +209,8 @@
 
 				<div class="admission-checkbox-group">
 					<div class="admission-checkbox-item">
+						<!-- netHostpitalBill50: boolean -->
+						<!-- not in db-->
 						<input
 							type="checkbox"
 							id="fifty-percent"
@@ -201,6 +220,9 @@
 						<label for="fifty-percent"
 							>50% of net hospital bill</label
 						>
+
+						<!-- netHostpitalBill100: boolean -->
+						<!-- not in db -->
 
 						<input
 							type="checkbox"
@@ -216,6 +238,8 @@
 						<span style="margin-left: 35px"
 							>but not to exceed (₱
 
+							<!-- RemainingBenefits: number -->
+							<!-- di rin sure if this field exists in db -->
 							<input
 								type="text"
 								class="admission-input-field"
@@ -229,13 +253,28 @@
 
 			<div class="admission-signature-container">
 				<div class="admission-signature-block">
-					<div class="admission-signature-line"></div>
+					<!-- applicantSignature: map {
+					 		url: string,
+							filename: string,
+						 } 
+					-->
+					<input
+						type="file"
+						class="admission-file"
+						style="margin-top: 16px"
+					/>
+					<div
+						class="admission-signature-line"
+						style="margin-top: 0px"
+					></div>
 					<span class="admission-signature-label"
 						>(Signature over Printed Name/USTFU Officer/Staff)</span
 					>
 				</div>
 
 				<div class="admission-signature-block">
+					<!-- dateApproved: string -->
+					<!-- di sure, check db -->
 					<input
 						type="text"
 						class="admission-date-line admission-input-field"
@@ -254,6 +293,7 @@
 				</div>
 
 				<div class="admission-signature-block">
+					<!-- Date Combination with OVRAA, should be left empty -->
 					<input
 						type="text"
 						class="admission-date-line admission-input-field"
@@ -271,7 +311,8 @@
 			<div style="font-size: 10px; margin-top: 20px">
 				USTFU Med-3 Form<br />
 				Revised: 03/16/2020<br />
-				ONLINE FORM
+				<!-- Document ID idk the specific name  -->
+				<input type="text" style="border: none" />
 			</div>
 		</div>
 	</body>
