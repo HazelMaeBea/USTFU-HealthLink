@@ -28,7 +28,9 @@ const TrackingPage = () => {
 
 	// Calculate total pages
 	const pendingTotalPages = Math.ceil(pendingRecords.length / recordsPerPage);
-	const previousTotalPages = Math.ceil(previousRecords.length / recordsPerPage);
+	const previousTotalPages = Math.ceil(
+		previousRecords.length / recordsPerPage
+	);
 
 	// Slice records based on pagination
 	const pendingCurrentRecords = pendingRecords.slice(

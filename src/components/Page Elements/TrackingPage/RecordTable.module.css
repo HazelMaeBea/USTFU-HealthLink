@@ -44,21 +44,25 @@
 	-webkit-flex-direction: column;
 	flex-direction: column;
 	justify-items: center;
-	-webkit-box-shadow: 1px 1px 1px 1px #d2d2d2;
-	box-shadow: 1px 1px 1px 1px #d2d2d2;
+	-webkit-box-shadow: 1px 1px 1px 1px hsl(0, 0%, 82%);
+	box-shadow: 1px 1px 1px 1px hsl(0, 0%, 82%);
+}
+
+.record-box:hover {
+	background-color: hsl(53, 100%, 93%) !important;
 }
 
 /* Variant Backgrounds */
 .record-box.approved {
-	background-color: rgb(214, 255, 214);
+	background-color: hsl(120, 100%, 92%);
 }
 
 .record-box.rejected {
-	background-color: rgb(255, 167, 167);
+	background-color: hsl(0, 100%, 83%);
 }
 
 .record-box.pending {
-	background-color: #fff9c4;
+	background-color: hsl(54, 100%, 88%);
 }
 
 /* Record Content */
@@ -117,7 +121,7 @@
 .details-button {
 	padding: 5px 10px;
 	background-color: #000;
-	color: #fff;
+	color: hsl(0, 0%, 100%);
 	border: none;
 	border-radius: 20px;
 	cursor: pointer;
@@ -126,8 +130,9 @@
 }
 
 .details-button:hover {
-	-webkit-box-shadow: inset 0 0 0 2px #6e6e6e;
-	box-shadow: inset 0 0 0 2px #6e6e6e;
+	background-color: hsl(45, 100%, 68%);
+	color: white;
+	border: none;
 }
 
 /* Responsive Adjustments */
