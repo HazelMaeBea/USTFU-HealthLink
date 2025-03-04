@@ -26,37 +26,54 @@
 			</div>
 
 			<div class="eyeglasses-term-field">
-				<input type="text" id="term" name="term" style="width: 80px" />
-				<label for="term">Term, AY</label>
+				<!-- term: string -->
 				<input
 					type="text"
+					class="center-align-text"
+					name="term"
+					style="width: 50px"
+				/>
+				<label for="term" style="font-size: 15px">Term, AY</label>
+				<!-- year:string (first part only) -->
+				<input
+					type="text"
+					class="center-align-text"
 					id="acad-year"
 					name="year-start"
-					style="width: 80px"
+					style="width: 60px"
 				/>
 				<span>-</span>
-				<input type="text" style="width: 80px" />
+				<!-- year:string (second part) -->
+				<input
+					type="text"
+					class="center-align-text"
+					style="width: 60px"
+				/>
 			</div>
 
 			<div class="eyeglasses-form-body">
 				<div class="eyeglasses-form-field">
 					<label for="name">Name:</label>
+					<!-- firstname, middlename, lastname, suffix: string -->
 					<input
 						type="text"
 						id="name"
 						name="name"
-						style="width: 180px"
+						style="width: 170px"
 					/>
 
 					<label for="age" style="margin-left: 3px">Age:</label>
+					<!-- birthdate: string (to be computed) -->
 					<input
 						type="text"
+						class="center-align-text"
 						id="age"
 						name="age"
-						style="width: 40px"
+						style="width: 20px"
 					/>
 
 					<label for="sex" style="margin-left: 3px">Sex:</label>
+					<!-- gender: string -->
 					<input
 						type="text"
 						id="sex"
@@ -67,16 +84,18 @@
 					<label for="affiliation" style="margin-left: 3px"
 						>Affiliation:</label
 					>
+					<!-- college: string -->
 					<input
 						type="text"
 						id="affiliation"
 						name="affiliation"
-						style="width: 130px"
+						style="width: 140px; font-size: 10px"
 					/>
 				</div>
 
 				<div class="eyeglasses-form-field">
 					<label for="initial-employment">Initial Employment:</label>
+					<!-- dateHired: string NOT SURE -->
 					<input
 						type="text"
 						id="initial-employment"
@@ -85,23 +104,25 @@
 					/>
 
 					<label for="teaching-load" style="margin-left: 3px"
-						>Current Teaching Load</label
+						>Current Teaching Load:</label
 					>
+					<!-- load: string -->
 					<input
 						type="text"
 						id="teaching-load"
 						name="teaching-load"
-						style="width: 50px"
+						style="width: 20px"
 					/>
 
 					<label for="contact" style="margin-left: 3px"
 						>Contact No.</label
 					>
+					<!-- contact: string -->
 					<input
 						type="text"
 						id="contact"
 						name="contact"
-						style="width: 145px"
+						style="width: 150px"
 					/>
 				</div>
 
@@ -109,6 +130,8 @@
 					<label for="receipt-details"
 						>(Official Receipt Details) Issued By:</label
 					>
+					<!-- issueBy: string -->
+					<!-- not in db -->
 					<input
 						type="text"
 						id="receipt-details"
@@ -117,16 +140,19 @@
 					/>
 
 					<label for="number" style="margin-left: 3px">Number:</label>
+					<!-- idk pa -->
 					<input
 						type="text"
 						id="number"
 						name="number"
-						style="width: 70px"
+						style="width: 50px"
 					/>
 
 					<label for="amount" style="margin-left: 3px"
 						>Amount Paid:</label
 					>
+					<!-- amountPaid: number -->
+					<!-- not in db -->
 					<input
 						type="text"
 						id="amount"
@@ -144,19 +170,29 @@
 
 				<div class="eyeglasses-signature-container">
 					<div class="eyeglasses-signature-block">
+						<!-- applicantSignature: map {
+					 		url: string,
+							filename: string,
+						 } 
+						-->
 						<input
 							type="file"
 							id="upload-sig"
 							name="upload-sig"
 							accept="image/*"
+							style="margin-top: 23px"
 						/>
-						<div class="eyeglasses-signature-line"></div>
+						<div
+							class="eyeglasses-signature-line"
+							style="margin-top: 0"
+						></div>
 						<span class="eyeglasses-signature-label"
 							>Applicant's Signature over Printed Name</span
 						>
 					</div>
 
 					<div class="eyeglasses-signature-block">
+						<!-- dateApproved: string -->
 						<input type="text" class="eyeglasses-signature-line" />
 						<span class="eyeglasses-signature-label">Date</span>
 					</div>
@@ -166,15 +202,20 @@
 			<div class="eyeglasses-ustfu-section">
 				<h3 class="eyeglasses-section-title">USTFU Section</h3>
 
-				<p>
+				<!-- reimbursementAmount: number -->
+				<!-- Not in eyeglasses form -->
+				<p style="font-size: 14px; margin-left: 20px">
 					The faculty is entitled to a reimbursement of ₱<input
 						type="text"
-						style="width: 150px"
+						class="center-align-text"
+						style="width: 150px; font-size: 16px"
 					/>
 					for his/her eyeglasses benefit.
 				</p>
 
 				<div style="text-align: right; margin-top: 10px">
+					<!-- idk pa dito, maybe representative signiture? -->
+					<!-- <input type="file" /> -->
 					<input type="text" class="eyeglasses-signature-line" />
 					<span class="eyeglasses-signature-label"
 						>OIC for Hospitalization and Medical Benefits</span

@@ -21,11 +21,17 @@ const HistoryPopout: React.FC<HistoryPopoutProps> = ({ onClose }) => {
 			formType: formData.formType,
 			dateApproved: dateSubmitted || "-",
 			natureOfIllness:
-				formData.formType === "hospital" ? formData.illness || "-" : "-",
+				formData.formType === "hospital"
+					? formData.illness || "-"
+					: "-",
 			physician:
-				formData.formType === "hospital" ? formData.physician || "-" : "-",
+				formData.formType === "hospital"
+					? formData.physician || "-"
+					: "-",
 			procedures:
-				formData.formType === "hospital" ? formData.procedures || "-" : "-",
+				formData.formType === "hospital"
+					? formData.procedures || "-"
+					: "-",
 			remainingBenefits: "-",
 		};
 	};
@@ -80,7 +86,10 @@ const HistoryPopout: React.FC<HistoryPopoutProps> = ({ onClose }) => {
 							))
 						) : (
 							<tr>
-								<td colSpan={13} style={{ textAlign: "center" }}>
+								<td
+									colSpan={13}
+									style={{ textAlign: "center" }}
+								>
 									No records available
 								</td>
 							</tr>
