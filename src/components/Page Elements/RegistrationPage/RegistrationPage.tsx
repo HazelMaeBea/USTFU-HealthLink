@@ -25,6 +25,7 @@ const schema = z.object({
   address: z.string().min(1, { message: "Address is required" }),
   dateHired: z.string().min(1, { message: "Date Hired is required" }),
   dateRetired: z.string().optional(),
+  gender: z.string().min(1, { message: "Gender is required" }),
 })
 
 type FormData = z.infer<typeof schema>
@@ -33,6 +34,7 @@ const suffixOptions = ["Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"]
 const termOptions = ["1st", "2nd"]
 const yearOptions = ["2021-2022", "2022-2023", "2023-2024"]
 const statusOptions = ["Tenured", "Tenured-Track", "Lecturer Prior 2001", "Extendee", "Retiree"]
+const genderOptions = ["Male", "Female", "Other"]
 
 const RegistrationPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false)
@@ -40,7 +42,7 @@ const RegistrationPage: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -79,12 +81,13 @@ const RegistrationPage: React.FC = () => {
                 <p className={styles.userName}>Hi, {displayName?.toLowerCase()}, let's get you started!</p> <br />
                 <p className={styles.registrationText}>Please set up your account and gain access to USTFU HealthLink.</p>
               </div>
+              <button className={styles.signin} onClick={() => window.location.href = "/signin"}>Go back to sign in page</button>
             </>
           )}
-        </div>
+         </div>
         <div className={styles.formContent}>
           <div className={styles.logoContainer}>
-            <img src={USTFULogo || "/placeholder.svg"} alt="USTFU Logo" className={styles.ustfuLogo} />
+            <img src={USTFULogo} alt="USTFU Logo" className={styles.ustfuLogo} />
             <h3>Registration Page</h3>
           </div>
 
@@ -150,7 +153,7 @@ const RegistrationPage: React.FC = () => {
             </div>
           </div>
           <div className="row">
-            <div className="mb-3 col-md-4">
+            <div className="mb-3 col-md-3">
               <label htmlFor="idNumber" className="form-label">
                 ID Number
               </label>
@@ -164,7 +167,7 @@ const RegistrationPage: React.FC = () => {
               />
               {errors.idNumber && <p className="invalid-feedback">{errors.idNumber.message}</p>}
             </div>
-            <div className="mb-3 col-md-4">
+            <div className="mb-3 col-md-3">
               <label htmlFor="birthdate" className="form-label">
                 Birthdate
               </label>
@@ -178,7 +181,27 @@ const RegistrationPage: React.FC = () => {
               />
               {errors.birthdate && <p className="invalid-feedback">{errors.birthdate.message}</p>}
             </div>
-            <div className="mb-3 col-md-4">
+            <div className="mb-3 col-md-3">
+              <label htmlFor="gender" className="form-label">
+                Gender
+              </label>
+              <select
+                id="gender"
+                className={`form-select ${errors.gender ? "is-invalid" : ""}`}
+                {...register("gender")}
+              >
+                <option value="" disabled selected hidden>
+                  Select gender
+                </option>
+                {genderOptions.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              {errors.gender && <p className="invalid-feedback">{errors.gender.message}</p>}
+            </div>
+            <div className="mb-3 col-md-3">
               <label htmlFor="phoneNumber" className="form-label">
                 Phone Number
               </label>
