@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, collection, getDoc, doc, updateDoc } from "firebase/firestore";
 import { getStorage, ref } from "firebase/storage";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
@@ -27,4 +27,43 @@ export const functions = getFunctions(app, 'asia-southeast1'); // Change to your
 export const callFunction = <T>(name: string, data?: any) => {
   const functionRef = httpsCallable<any, T>(functions, name);
   return functionRef(data);
+};
+
+interface GlobalVariables {
+  FormID: number;
+  // Add other fields if needed
+}
+
+const globalDoc = doc(db, 'globals', 'globalVariables');
+
+export const getFormID = async (increment: boolean): Promise<number | null> => {
+  try {
+    const docSnap = await getDoc(globalDoc);
+    if (docSnap.exists()) {
+      const data = docSnap.data() as GlobalVariables;
+      let formID = data.FormID;
+
+      if (increment) {
+        if (formID >= 999999) {
+          await updateDoc(globalDoc, {
+            FormID: 1,
+          });
+          return 1;
+        } else {
+          formID += 1;
+          await updateDoc(globalDoc, {
+            FormID: formID,
+          });
+        }
+      }
+
+      return formID;
+    } else {
+      console.error("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error reading or updating document:", error);
+    return null;
+  }
 };

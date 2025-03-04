@@ -1,0 +1,32 @@
+.confirmation-message {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.confirmation-message p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.confirmation-message .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.confirmation-message .btn-primary {
+  background-color: hsl(45, 100%, 51%);
+  color: white;
+  border: none;
+}
+
+.confirmation-message .btn-primary:hover {
+  background-color: hsl(45, 100%, 45%);
+  transform: translateY(-1px);
+}

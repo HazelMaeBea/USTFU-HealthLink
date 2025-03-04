@@ -24,10 +24,19 @@
 	cursor: pointer;
 }
 
-.full-file-preview {
-	width: 100%;
+/* Renamed from full-file-preview to full-size-image */
+.full-size-image {
+	width: auto;
+	min-width: 50%; /* Add minimum width to prevent tiny images */
+	max-width: 90%; /* Slightly reduced to ensure margins */
 	max-height: 80vh;
-	object-fit: contain;
+	object-fit: contain; /* This ensures the aspect ratio is preserved */
+	border-radius: 4px;
+	height: auto; /* Allow natural height */
+	min-height: 300px; /* Ensure a minimum height */
+	max-height: 85vh; /* Limit height to viewport */
+	max-width: 95%; /* Allow image to take up most of container */
+	object-fit: contain; /* Preserve aspect ratio */
 	border-radius: 4px;
 }
 
@@ -66,8 +75,8 @@
 /* Main container */
 .view-file-container {
 	background: #fff;
-	width: 90%;
-	max-width: 800px;
+	width: 95%; /* Increased from 90% */
+	max-width: 1200px; /* Increased from 800px for larger preview */
 	border-radius: 10px;
 	overflow: hidden;
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
@@ -112,8 +121,16 @@
 
 /* Content area */
 .view-file-content {
-	padding: 1rem;
+	padding: 10px; /* Add minimal padding */
 	text-align: center;
+	height: auto; /* Let height adjust to content */
+	min-height: 70vh; /* Minimum height */
+	max-height: 85vh; /* Maximum height */
+	overflow: auto; /* Scroll if needed */
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 
 /* Fallback container */
@@ -129,4 +146,15 @@
 	height: 80vh;
 	border: none;
 	border-radius: 4px;
+}
+
+/* Added new class for enhanced image viewing */
+.image-preview-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 60vh;
+	width: 100%;
+	padding: 20px; /* Increased padding */
+	box-sizing: border-box; /* Ensure padding doesn't add to width */
 }

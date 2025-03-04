@@ -1,103 +1,111 @@
-import React from "react";
+import React, { useState } from "react";
+import PageButtons from "../PageButtons/PageButtons";
 import "./HistoryPopout.css";
+import type { Archive } from "./types";
+import { usePendingRequests } from "../PendingRequests/PendingRequestBackend";
+
 interface HistoryPopoutProps {
-  onClose: () => void;
+	onClose: () => void;
 }
 
-const HistoryPopout: React.FC<HistoryPopoutProps> = ({ onClose }) => {
-  const tableData = [
-    {
-      dateApproved: "2023-01-01",
-      formType: "Inpatient",
-      age: 19,
-      college: "College of Engineering",
-      term: "1st",
-      academicYear: "2022-2023",
-      load: "Full",
-      status: "Approved",
-      natureOfIllness: "Flu",
-      physician: "Dr. Zander Jay De Guzman",
-      procedures: "Checkup",
-      remainingBenefits: "$1000",
-    },
-    {
-      dateApproved: "2023-02-15",
-      formType: "Inpatient",
-      age: 19,
-      college: "College of Engineering",
-      term: "1st",
-      academicYear: "2022-2023",
-      load: "Full",
-      status: "Pending",
-      natureOfIllness: "Cold",
-      physician: "Dr. Yellow",
-      procedures: "Consultation",
-      remainingBenefits: "$800",
-    },
-    {
-      dateApproved: "2023-03-10",
-      formType: "Inpatient",
-      age: 19,
-      college: "College of Engineering",
-      term: "1st",
-      academicYear: "2022-2023",
-      load: "Full",
-      status: "Approved",
-      natureOfIllness: "Allergy",
-      physician: "Dr. Brown",
-      procedures: "Allergy Test",
-      remainingBenefits: "$950",
-    },
-    {
-      dateApproved: "2023-04-05",
-      formType: "Outpatient",
-      age: 19,
-      college: "College of Engineering",
-      term: "1st",
-      academicYear: "2022-2023",
-      load: "Full",
-      status: "Denied",
-      natureOfIllness: "Injury",
-      physician: "Dr. White",
-      procedures: "X-ray",
-      remainingBenefits: "$700",
-    },
-  ];
+const recordsPerPage = 7;
 
-  return (
-    <div className="history-popout">
-      <div className="history-popout-content">
-        <button className="close-button" onClick={onClose}>
-          &times;
-        </button>
-        <h2>Laufey Lin</h2>
-        <table className="history-table">
-          <thead>
-            <tr>
-              <th>Form Type</th>
-              <th>Date Approved</th>
-              <th>Nature of Illness</th>
-              <th>Physician</th>
-              <th>Procedures</th>
-              <th>Remaining Benefits</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.map((row, index) => (
-              <tr key={index}>
-                <td>{row.formType}</td>
-                <td>{row.dateApproved}</td>
-                <td>{row.natureOfIllness}</td>
-                <td>{row.physician}</td>
-                <td>{row.procedures}</td>
-                <td>{row.remainingBenefits}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+const HistoryPopout: React.FC<HistoryPopoutProps> = ({ onClose }) => {
+	const [currentPage, setCurrentPage] = useState(1);
+	const pendingRequests = usePendingRequests();
+
+	const formatTableData = (request: Archive) => {
+		const { formData, dateSubmitted } = request;
+
+		return {
+			formType: formData.formType,
+			dateApproved: dateSubmitted || "-",
+			natureOfIllness:
+				formData.formType === "hospital"
+					? formData.illness || "-"
+					: "-",
+			physician:
+				formData.formType === "hospital"
+					? formData.physician || "-"
+					: "-",
+			procedures:
+				formData.formType === "hospital"
+					? formData.procedures || "-"
+					: "-",
+			remainingBenefits: "-",
+		};
+	};
+
+	const tableData = pendingRequests.map(formatTableData);
+
+	const sortedData = [...tableData].sort((a, b) => {
+		const dateA =
+			a.dateApproved !== "-" ? new Date(a.dateApproved).getTime() : 0;
+		const dateB =
+			b.dateApproved !== "-" ? new Date(b.dateApproved).getTime() : 0;
+		return dateB - dateA; // Descending order (latest date first)
+	});
+
+	// Compute total pages
+	const totalPages = Math.ceil(sortedData.length / recordsPerPage);
+
+	const currentRecords = sortedData.slice(
+		(currentPage - 1) * recordsPerPage,
+		currentPage * recordsPerPage
+	);
+
+	return (
+		<div className="history-popout">
+			<div className="history-popout-content">
+				<button className="close-button" onClick={onClose}>
+					&times;
+				</button>
+				<h2>Laufey Lin</h2>
+				<table className="history-table">
+					<thead>
+						<tr>
+							<th>Form Type</th>
+							<th>Date Approved</th>
+							<th>Nature of Illness</th>
+							<th>Physician</th>
+							<th>Procedures</th>
+							<th>Remaining Benefits</th>
+						</tr>
+					</thead>
+					<tbody>
+						{currentRecords.length > 0 ? (
+							currentRecords.map((row, index) => (
+								<tr key={index}>
+									<td>{row.formType}</td>
+									<td>{row.dateApproved}</td>
+									<td>{row.natureOfIllness}</td>
+									<td>{row.physician}</td>
+									<td>{row.procedures}</td>
+									<td>{row.remainingBenefits}</td>
+								</tr>
+							))
+						) : (
+							<tr>
+								<td
+									colSpan={13}
+									style={{ textAlign: "center" }}
+								>
+									No records available
+								</td>
+							</tr>
+						)}
+					</tbody>
+				</table>
+				{totalPages > 1 && (
+					<PageButtons
+						currentPage={currentPage}
+						totalPages={totalPages}
+						onPageChange={setCurrentPage}
+					/>
+				)}
+			</div>
+		</div>
+	);
 };
 
 export default HistoryPopout;

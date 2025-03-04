@@ -1,0 +1,135 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font-family: "book antiqua";
+}
+
+body {
+	font-family: ;
+	background-color: #f9f9f9;
+	padding: 20px;
+	color: #333;
+}
+
+.eyeglasses-form-container {
+	max-width: 800px;
+	margin: 0 auto;
+	background-color: white;
+	padding: 30px;
+	border: 1px solid #ddd;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.eyeglasses-form-header {
+	text-align: center;
+	margin-bottom: 30px;
+	position: relative;
+}
+
+.eyeglasses-logo-left {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 90px;
+	background-color: #ffcc00;
+	border: 3px solid #333;
+}
+
+.eyeglasses-form-title {
+	font-size: 15px;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+.eyeglasses-form-subtitle {
+	font-size: 16px;
+	margin-bottom: 5px;
+	text-decoration: underline;
+}
+
+.eyeglasses-form-note {
+	font-size: 11px;
+	margin-top: 0px;
+}
+
+.eyeglasses-form-body {
+	border: 1px solid #333;
+	padding: 10px;
+	margin-top: 20px;
+}
+
+.eyeglasses-form-field {
+	margin-bottom: 15px;
+}
+
+.eyeglasses-form-field label {
+	display: inline-block;
+	font-weight: bold;
+	margin-right: 1px;
+	font-size: 12px;
+}
+
+.eyeglasses-form-field input[type="text"],
+input[type="text"] {
+	border: none;
+	border-bottom: 1px solid #333;
+	padding: 0px 0;
+}
+
+.eyeglasses-term-field {
+	text-align: right;
+	margin-bottom: 20px;
+}
+
+.eyeglasses-certification {
+	text-align: center;
+	margin: 20px 0;
+	line-height: 1;
+	font-size: 14px;
+}
+
+.eyeglasses-signature-line {
+	border-top: 1px solid #333;
+	width: 250px;
+	margin-top: 40px;
+	margin-bottom: 5px;
+	display: inline-block;
+	text-align: center;
+}
+
+.eyeglasses-signature-label {
+	font-size: 12px;
+	display: block;
+}
+
+.eyeglasses-signature-container {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 10px;
+}
+
+.eyeglasses-signature-block {
+	text-align: center;
+}
+
+.eyeglasses-ustfu-section {
+	border: 1px solid #333;
+	padding: 10px;
+	margin-top: 10px;
+}
+
+.eyeglasses-section-title {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.eyeglasses-notes {
+	margin-top: 20px;
+}
+
+.eyeglasses-note-item {
+	margin-bottom: 5px;
+	margin-left: 40px;
+	font-size: 14px;
+}
