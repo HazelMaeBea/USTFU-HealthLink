@@ -30,9 +30,9 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-const suffixOptions = ["Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"]
+const suffixOptions = ["", "Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"]
 const termOptions = ["1st", "2nd"]
-const yearOptions = ["2021-2022", "2022-2023", "2023-2024"]
+const yearOptions = ["2024-2025"]
 const statusOptions = ["Tenured", "Tenured-Track", "Lecturer Prior 2001", "Extendee", "Retiree"]
 const genderOptions = ["Male", "Female", "Other"]
 
