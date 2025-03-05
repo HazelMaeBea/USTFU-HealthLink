@@ -43,21 +43,28 @@
 					/>
 
 					<!-- term: string -->
-					<input type="text" style="width: 35px; margin-left: 15px" />
+					<input
+						type="text"
+						style="
+							width: 35px;
+							margin-left: 15px;
+							text-align: center;
+						"
+					/>
 					<label for="term">Term AY </label>
 					<!-- year: string -->
 					<input
 						type="text"
 						id="year-start"
 						name="year-start"
-						style="width: 35px"
+						style="width: 35px; text-align: center"
 					/>
 					<span>-</span>
 					<input
 						type="text"
 						id="year-end"
 						name="year-end"
-						style="width: 35px"
+						style="width: 35px; text-align: center"
 					/>
 				</div>
 
@@ -86,7 +93,7 @@
 						type="text"
 						id="teaching-load"
 						name="teaching-load"
-						style="width: 50px"
+						style="width: 50px; text-align: center"
 					/>
 					<span>units</span>
 				</div>
@@ -97,7 +104,7 @@
 						type="text"
 						id="college"
 						name="college"
-						style="width: 165px"
+						style="width: 165px; font-size: 8px"
 					/>
 
 					<label for="status" style="margin-left: 15px"
@@ -133,7 +140,10 @@
 					<label for="tenure-track" class="outpatient-status-label"
 						>Tenure-Track (Date Hired:</label
 					>
-					<input type="text" style="width: 50px" />)
+					<input
+						type="text"
+						style="width: 50px; text-align: center"
+					/>)
 				</div>
 
 				<div class="outpatient-form-field">
@@ -197,7 +207,10 @@
 					<label for="retiree" class="outpatient-status-label"
 						>Retiree (Date Retired:</label
 					>
-					<input type="text" style="width: 73px" />)
+					<input
+						type="text"
+						style="width: 73px; text-align: center"
+					/>)
 				</div>
 
 				<div class="outpatient-form-field">
@@ -221,7 +234,10 @@
 					<label for="hmo" class="outpatient-status-label"
 						>HMO:
 					</label>
-					<input type="text" style="width: 95px" />
+					<input
+						type="text"
+						style="width: 95px; text-align: center"
+					/>
 				</div>
 
 				<div class="outpatient-form-field" style="margin-left: 370px">
@@ -295,8 +311,11 @@
 			</p>
 
 			<div class="outpatient-form-row">
-				<div class="outpatient-form-col">
-					<div class="outpatient-hospital-section">
+				<div class="outpatient-form-row item-large">
+					<div
+						class="outpatient-hospital-section"
+						style="padding-bottom: 5px"
+					>
 						<h3 class="outpatient-form-section-title">
 							To UST HOSPITAL:
 						</h3>
@@ -308,25 +327,65 @@
 							subject to final verification:
 						</p>
 
-						<div style="margin: 15px 0">
-							<div class="outpatient-radio-circle"></div>
-							50% of net hospital bill but not to exceed (₱<input
+						<div style="margin: 0px 0">
+							<input
+								type="radio"
+								id="50-percent-hospital-bill"
+								name="hospital-bill"
+								class="outpatient-radio-circle"
+							/>
+							<label
+								for="50-percent-hospital-bill"
+								style="font-size: 10px"
+								>50% of net hospital bill but not to exceed
+								(₱</label
+							>
+
+							<input
 								type="text"
-								style="width: 150px"
+								style="width: 100px; text-align: center"
+								class="outpatient-text-input"
 							/>)
 						</div>
 
-						<div style="margin: 15px 0">
-							<div class="outpatient-radio-circle"></div>
-							100% of net hospital bill
-							<span style="float: right; font-style: italic"
+						<div style="margin: 0">
+							<input
+								type="radio"
+								id="100-percent-hospital-bill"
+								name="hospital-bill"
+								class="outpatient-radio-circle"
+							/>
+							<label
+								for="100-percent-hospital-bill"
+								style="font-size: 10px"
+								>100% of net hospital bill</label
+							>
+
+							<span
+								style="
+									margin-left: 95px;
+									font-style: italic;
+									font-size: 10px;
+								"
 								>Remaining Benefit</span
 							>
 						</div>
 
-						<div style="margin-top: 20px; text-align: center">
-							<p>EMERITO C. GONZALES</p>
-							<p style="font-size: 12px">
+						<div style="margin-top: 15px; text-align: right">
+							<input type="file" class="" />
+							<input
+								type="text"
+								class="outpatient-text-input"
+								style="
+									width: 200px;
+									margin-right: 25px;
+									font-size: 13px;
+									text-align: center;
+								"
+								placeholder="EMERITO C. GONZALES"
+							/>
+
+							<p style="font-size: 9px; margin-right: 10px">
 								USTFU President or Authorized Representative
 								(Blue ink)
 							</p>
@@ -334,44 +393,84 @@
 					</div>
 				</div>
 
-				<div class="outpatient-form-col">
+				<div class="outpatient-form-row item">
 					<div class="outpatient-department-section">
 						<h3 class="outpatient-form-section-title">
 							To Department/ Unit Concerned:
 						</h3>
-						<p class="outpatient-form-paragraph">
+						<p
+							class="outpatient-form-paragraph"
+							style="margin-bottom: 10px; text-align: justify"
+						>
 							Please allow 50% or 100% discount on the requested
 							procedure/s, not to exceed remaining benefit.
 						</p>
-						<p style="margin-top: 20px">
-							VALID UNTIL ___________________
-						</p>
-						<p style="margin-top: 20px">BY: ___________________</p>
-						<p style="font-size: 12px">
+
+						<label style="font-size: 9px" for="valid-until-date"
+							>VALID UNTIL:</label
+						>
+						<input
+							name="valid-until-date"
+							type="text"
+							style="
+								width: 70px;
+								font-size: 9px;
+								text-align: center;
+							"
+							class="outpatient-text-input"
+						/>
+
+						<label for="ustfu-rep">By: </label>
+						<input
+							name="ustfu-rep"
+							type="text"
+							style="
+								width: 115px;
+								font-size: 9px;
+								text-align: center;
+							"
+							class="outpatient-text-input"
+						/>
+						<p style="font-size: 8px; margin-left: 23px">
 							USTFU Credit and Collection
 						</p>
 					</div>
 				</div>
 			</div>
 
-			<div class="outpatient-fund-section">
-				<h3 class="outpatient-form-section-title">
+			<div class="outpatient-fund-section" style="padding-top: 5px">
+				<h3
+					class="outpatient-form-section-title"
+					style="margin-left: 10px"
+				>
 					To UST-USTFU HOSPITALIZATION FUND:
 				</h3>
 
 				<table class="outpatient-payment-table">
 					<tr>
 						<td class="outpatient-payment-option">
-							<div class="outpatient-checkbox-square"></div>
+							<input
+								type="checkbox"
+								class="outpatient-checkbox-square"
+							/>
 							<label for="pay-hospital"
-								>Pay UST HOSPITAL the amount of:</label
+								>Pay <strong>UST HOSPITAL</strong> the amount
+								of:</label
 							>
 						</td>
 						<td class="outpatient-payment-amount">
-							₱: <input type="text" style="width: 100px" />
+							₱:
+							<input
+								type="text"
+								style="width: 80px"
+								class="outpatient-text-input"
+							/>
 						</td>
-						<td rowspan="3" style="width: 50%">
-							<div class="outpatient-checkbox-square"></div>
+						<td rowspan="3" style="width: 50%; padding: 5px">
+							<input
+								type="checkbox"
+								class="outpatient-checkbox-square"
+							/>
 							<label for="pay-doctors"
 								>Pay the following DOCTORS the amount of:</label
 							>
@@ -427,18 +526,30 @@
 					</tr>
 					<tr>
 						<td class="outpatient-payment-option">
-							<div class="outpatient-checkbox-square"></div>
+							<input
+								type="checkbox"
+								class="outpatient-checkbox-square"
+							/>
 							<label for="refund-faculty"
-								>Refund the FACULTY the amount of:</label
+								>Refund the <strong>FACULTY</strong> the amount
+								of:</label
 							>
 						</td>
 						<td class="outpatient-payment-amount">
-							₱: <input type="text" style="width: 100px" />
+							₱:
+							<input
+								type="text"
+								style="width: 80px"
+								class="outpatient-text-input"
+							/>
 						</td>
 					</tr>
 					<tr>
 						<td class="outpatient-payment-option">
-							<div class="outpatient-checkbox-square"></div>
+							<input
+								type="checkbox"
+								class="outpatient-checkbox-square"
+							/>
 							<label for="not-covered"
 								>Amount NOT covered by benefits of the FACULTY
 								and will NOT be settled by USTFU. The faculty
@@ -447,7 +558,12 @@
 							>
 						</td>
 						<td class="outpatient-payment-amount">
-							₱: <input type="text" style="width: 100px" />
+							₱:
+							<input
+								type="text"
+								style="width: 80px"
+								class="outpatient-text-input"
+							/>
 						</td>
 					</tr>
 				</table>
