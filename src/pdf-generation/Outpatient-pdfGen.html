@@ -451,6 +451,7 @@
 						<td class="outpatient-payment-option">
 							<input
 								type="checkbox"
+								id="pay-hospital"
 								class="outpatient-checkbox-square"
 							/>
 							<label for="pay-hospital"
@@ -466,14 +467,18 @@
 								class="outpatient-text-input"
 							/>
 						</td>
-						<td rowspan="3" style="width: 50%; padding: 5px">
-							<input
-								type="checkbox"
-								class="outpatient-checkbox-square"
-							/>
-							<label for="pay-doctors"
-								>Pay the following DOCTORS the amount of:</label
-							>
+						<td rowspan="3" style="width: 50%; padding: 0px">
+							<div style="padding: 5px">
+								<input
+									type="checkbox"
+									id="pay-doctors"
+									class="outpatient-checkbox-square"
+								/>
+								<label for="pay-doctors" style="font-size"
+									>Pay the following DOCTORS the amount
+									of:</label
+								>
+							</div>
 							<table class="outpatient-doctors-table">
 								<tr>
 									<th>Name</th>
@@ -483,27 +488,23 @@
 									<td>
 										<input
 											type="text"
-											style="width: 100%"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
 										/>
 									</td>
 									<td>
 										<input
 											type="text"
-											style="width: 100%"
-										/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<input
-											type="text"
-											style="width: 100%"
-										/>
-									</td>
-									<td>
-										<input
-											type="text"
-											style="width: 100%"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
 										/>
 									</td>
 								</tr>
@@ -511,13 +512,119 @@
 									<td>
 										<input
 											type="text"
-											style="width: 100%"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
 										/>
 									</td>
 									<td>
 										<input
 											type="text"
-											style="width: 100%"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
 										/>
 									</td>
 								</tr>
@@ -528,6 +635,7 @@
 						<td class="outpatient-payment-option">
 							<input
 								type="checkbox"
+								id="refund-faculty"
 								class="outpatient-checkbox-square"
 							/>
 							<label for="refund-faculty"
@@ -548,13 +656,14 @@
 						<td class="outpatient-payment-option">
 							<input
 								type="checkbox"
+								id="not-covered"
 								class="outpatient-checkbox-square"
 							/>
 							<label for="not-covered"
-								>Amount NOT covered by benefits of the FACULTY
-								and will NOT be settled by USTFU. The faculty
-								shall pay this amount directly to UST
-								Hospital.</label
+								>Amount <strong>NOT</strong> covered by benefits
+								of the FACULTY and will <strong>NOT</strong> be
+								settled by USTFU. The faculty shall pay this
+								amount directly to UST Hospital.</label
 							>
 						</td>
 						<td class="outpatient-payment-amount">

@@ -194,12 +194,18 @@
 	margin-top: 10px;
 }
 
-.outpatient-form-container .outpatient-payment-table td {
+.outpatient-form-container {
 	border: 1px solid #333;
 }
 
+.outpatient-payment-table td {
+	border-top: 1px solid #333;
+	border-right: 1px solid #333;
+	border-bottom: 1px solid #333;
+}
+
 .outpatient-form-container .outpatient-payment-option {
-	width: 50%;
+	width: 38%;
 	padding: 10px;
 	vertical-align: top;
 }
