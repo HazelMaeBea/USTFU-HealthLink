@@ -26,14 +26,14 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	width: 80px;
+	width: 70px;
 }
 
 .outpatient-form-container .outpatient-logo-right {
 	position: absolute;
 	right: 0;
 	top: 0;
-	width: 80px;
+	width: 70px;
 	border: 2px solid #333;
 }
 
@@ -42,20 +42,20 @@
 }
 
 .outpatient-form-container .outpatient-form-title {
-	font-size: 13px;
+	font-size: 12px;
 	font-weight: bold;
-	margin-bottom: 5px;
+	margin-bottom: 2px;
 }
 
 .outpatient-form-container .outpatient-form-title2 {
-	font-size: 13px;
+	font-size: 11px;
 	font-weight: bold;
 	margin-bottom: 2px;
 	margin-top: 20px;
 }
 
 .outpatient-form-container .outpatient-form-subtitle {
-	font-size: 13px;
+	font-size: 11px;
 	font-weight: bold;
 	margin-bottom: 5px;
 	text-decoration: underline;
@@ -112,7 +112,7 @@
 }
 
 .outpatient-form-container .outpatient-form-paragraph {
-	margin-bottom: 10px;
+	margin-bottom: 5px;
 	line-height: 1.5;
 	font-size: 10px;
 }
@@ -147,7 +147,7 @@
 }
 
 .outpatient-form-container .outpatient-footer-note {
-	margin-top: 30px;
+	margin-top: 10px;
 	font-size: 12px;
 	font-weight: bold;
 	text-align: center;
@@ -229,7 +229,7 @@
 }
 
 .outpatient-form-container .outpatient-form-footer {
-	margin-top: 20px;
+	margin-top: 10px;
 	text-align: right;
 }
 
@@ -262,4 +262,28 @@
 	margin-right: 5px;
 	position: relative;
 	top: 2px;
+}
+
+.background-div {
+	position: relative;
+
+	padding: 0px;
+	height: 160px;
+	width: 500px;
+	overflow: hidden;
+}
+
+.background-div::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-image: url("./images-pdfGen/USTFU-stamp.png");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+	opacity: 1;
+	z-index: 1;
 }
