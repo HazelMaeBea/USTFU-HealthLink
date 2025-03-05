@@ -32,21 +32,29 @@ const HospitalizationHistory = () => {
 			academicYear:
 				formData.formType === "hospital" ? formData.year || "-" : "-",
 			load:
-				formData.formType === "hospital" || formData.formType === "admission"
+				formData.formType === "hospital" ||
+				formData.formType === "admission"
 					? formData.load || "-"
 					: "-",
 			status:
-				formData.formType === "hospital" || formData.formType === "admission"
+				formData.formType === "hospital" ||
+				formData.formType === "admission"
 					? formData.status || "-"
 					: "-",
 
 			// Only available in HospitalFormData
 			natureOfIllness:
-				formData.formType === "hospital" ? formData.illness || "-" : "-",
+				formData.formType === "hospital"
+					? formData.illness || "-"
+					: "-",
 			physician:
-				formData.formType === "hospital" ? formData.physician || "-" : "-",
+				formData.formType === "hospital"
+					? formData.physician || "-"
+					: "-",
 			procedures:
-				formData.formType === "hospital" ? formData.procedures || "-" : "-",
+				formData.formType === "hospital"
+					? formData.procedures || "-"
+					: "-",
 			remainingBenefits: "-",
 		};
 	};
@@ -60,7 +68,9 @@ const HospitalizationHistory = () => {
 	const statusOptions = ["Approved", "Pending", "Denied"];
 
 	const removeFilter = (filterToRemove: string) => {
-		setFilters((prev) => prev.filter((filter) => filter !== filterToRemove));
+		setFilters((prev) =>
+			prev.filter((filter) => filter !== filterToRemove)
+		);
 	};
 
 	const applyFilters = (data: any[]) => {
@@ -73,13 +83,18 @@ const HospitalizationHistory = () => {
 					const [filterType, filterValue] = filter.split(": ");
 					if (filterType === "Date") {
 						const [startDate, endDate] = filterValue.split(" / ");
-						return row.dateApproved >= startDate && row.dateApproved <= endDate;
+						return (
+							row.dateApproved >= startDate &&
+							row.dateApproved <= endDate
+						);
 					} else if (filterType === "College") {
 						return filterValue.split(", ").includes(row.college);
 					} else if (filterType === "Term") {
 						return filterValue.split(", ").includes(row.term);
 					} else if (filterType === "Academic Year") {
-						return filterValue.split(", ").includes(row.academicYear);
+						return filterValue
+							.split(", ")
+							.includes(row.academicYear);
 					} else if (filterType === "Load") {
 						return filterValue.split(", ").includes(row.load);
 					} else if (filterType === "Status") {
@@ -236,7 +251,9 @@ const HospitalizationHistory = () => {
 	const handleFilterSubmit = (filter: string, selectedOptions: string[]) => {
 		setFilters((prev) => {
 			const newFilters = [...prev];
-			const filterIndex = newFilters.findIndex((f) => f.startsWith(filter));
+			const filterIndex = newFilters.findIndex((f) =>
+				f.startsWith(filter)
+			);
 			const filterValue = `${filter}: ${selectedOptions.join(", ")}`;
 			if (filterIndex !== -1) {
 				newFilters[filterIndex] = filterValue;
@@ -264,7 +281,10 @@ const HospitalizationHistory = () => {
 		<div>
 			<div title="history" className="Tabby">
 				<section className="tab-content">
-					<div className="title-header" style={{ textAlign: "center" }}>
+					<div
+						className="title-header"
+						style={{ textAlign: "center" }}
+					>
 						<h3 className="header">History</h3>
 					</div>
 					<div className="history-header">
@@ -280,7 +300,9 @@ const HospitalizationHistory = () => {
 								className="btn btn-filter document-type"
 								aria-label="Document Type"
 								value={selectedType}
-								onChange={(e) => setSelectedType(e.target.value)}
+								onChange={(e) =>
+									setSelectedType(e.target.value)
+								}
 							>
 								<option value="All">All Forms</option>
 								<option value="Inpatient">Inpatient</option>
@@ -291,7 +313,9 @@ const HospitalizationHistory = () => {
 								<button
 									key={index}
 									className="btn btn-filter"
-									onClick={() => handleAddFilter(filter.split(":")[0])}
+									onClick={() =>
+										handleAddFilter(filter.split(":")[0])
+									}
 								>
 									{filter}
 									<span
@@ -311,7 +335,11 @@ const HospitalizationHistory = () => {
 								{availableFilters.length > 0 && (
 									<button
 										className="btn btn-filter add-filter"
-										onClick={() => setShowFilterOptions(!showFilterOptions)}
+										onClick={() =>
+											setShowFilterOptions(
+												!showFilterOptions
+											)
+										}
 									>
 										<strong>+</strong> Add Filter
 									</button>
@@ -325,7 +353,9 @@ const HospitalizationHistory = () => {
 											<button
 												key={filter}
 												className="btn btn-filter-option"
-												onClick={() => handleAddFilter(filter)}
+												onClick={() =>
+													handleAddFilter(filter)
+												}
 											>
 												{filter}
 											</button>
@@ -334,7 +364,10 @@ const HospitalizationHistory = () => {
 								)}
 							</div>
 						</div>
-						<button className="btn btn-export" onClick={exportToCSV}>
+						<button
+							className="btn btn-export"
+							onClick={exportToCSV}
+						>
 							Export CSV
 						</button>
 					</div>
@@ -372,7 +405,9 @@ const HospitalizationHistory = () => {
 							/>
 						</label>
 						<div className="popup-buttons">
-							<button onClick={() => setShowDateRangePopup(false)}>
+							<button
+								onClick={() => setShowDateRangePopup(false)}
+							>
 								Cancel
 							</button>
 							<button
@@ -388,7 +423,9 @@ const HospitalizationHistory = () => {
 			{showFilterPopup && (
 				<div className="filter-popup">
 					<div className="filter-popup-content">
-						<h3 className="filter-header">Filter {showFilterPopup}</h3>
+						<h3 className="filter-header">
+							Filter {showFilterPopup}
+						</h3>
 						<div className="filter-options-list">
 							{showFilterPopup === "Term" &&
 								termOptions.map((option) => (
@@ -477,7 +514,9 @@ const HospitalizationHistory = () => {
 								))}
 						</div>
 						<div className="popup-buttons">
-							<button onClick={() => setShowFilterPopup(null)}>Cancel</button>
+							<button onClick={() => setShowFilterPopup(null)}>
+								Cancel
+							</button>
 							<button
 								onClick={() =>
 									handleFilterSubmit(
@@ -486,7 +525,11 @@ const HospitalizationHistory = () => {
 											document.querySelectorAll(
 												".filter-popup-content input:checked"
 											)
-										).map((input) => (input as HTMLInputElement).value)
+										).map(
+											(input) =>
+												(input as HTMLInputElement)
+													.value
+										)
 									)
 								}
 							>
