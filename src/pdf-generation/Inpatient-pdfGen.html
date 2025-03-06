@@ -7,204 +7,365 @@
 		<link rel="stylesheet" href="Inpatient-pdfGen.css" />
 	</head>
 	<body>
-		<div class="form-container">
-			<div class="form-header">
-				<div class="sample-mark">Sample</div>
-				<img src="ust-logo.png" alt="UST Logo" class="logo-left" />
-				<img src="ustfu-logo.png" alt="USTFU Logo" class="logo-right" />
-				<h1 class="form-title">UNIVERSITY OF SANTO TOMAS</h1>
-				<h2 class="form-title">
+		<div class="inpatient-form-container">
+			<div class="inpatient-header">
+				<img
+					src="./images-pdfGen/USTLogo.png"
+					alt="UST Logo"
+					class="ust-logo"
+				/>
+				<img
+					src="./images-pdfGen/USTFULogo.png"
+					alt="USTFU Logo"
+					class="ustfu-logo"
+				/>
+				<h1 class="inpatient-title">UNIVERSITY OF SANTO TOMAS</h1>
+				<h2 class="inpatient-title">
 					UNIVERSITY OF SANTO TOMAS FACULTY UNION
 				</h2>
-				<h3 class="form-title">
+				<h3 class="inpatient-title">
 					HOSPITALIZATION AND MEDICAL BENEFITS FUND
 				</h3>
-				<h4 class="form-subtitle">Application Form: In-Patient</h4>
+				<h4 class="inpatient-subtitle">Application Form: In-Patient</h4>
 			</div>
 
-			<div class="form-type-options">
-				<div class="option-item">
-					<div class="radio-circle"></div>
+			<div class="inpatient-type-options">
+				<div class="inpatient-option-item">
+					<input
+						type="radio"
+						class="inpatient-radio"
+						name="inpatient-type"
+						id="confinement"
+					/>
 					<label for="confinement">For Confinement</label>
 				</div>
 
-				<div class="option-item">
-					<div class="radio-circle"></div>
+				<div class="inpatient-option-item">
+					<input
+						type="radio"
+						class="inpatient-radio"
+						name="inpatient-type"
+						id="out-patient"
+					/>
 					<label for="out-patient">Done as Out-Patient</label>
 				</div>
 
-				<div class="option-item">
-					<div class="radio-circle"></div>
-					<label for="er-consultation">ER Consultation</label>
+				<div class="inpatient-option-item" style="margin-bottom: 5px;">
+					<input
+						type="radio"
+						class="inpatient-radio"
+						name="inpatient-type"
+						id="er-consultation"
+					/>
+					<label for="er-consultation" "
+						>ER Consultation</label
+					>
 				</div>
 			</div>
 
-			<div class="form-field">
-				<label for="name">Name:</label>
-				<input type="text" id="name" name="name" style="width: 300px" />
-
-				<div style="float: right">
-					<label for="term">Term AY 20</label>
+			<div class="inpatient-general-section" style="padding-bottom: 5px">
+				<div class="inpatient-form-field">
+					<label for="name">Name:</label>
+					<!-- firstname, middlename, lastname, suffix: string -->
 					<input
 						type="text"
-						id="term"
-						name="term"
-						style="width: 50px"
+						id="name"
+						name="name"
+						style="width: 230px"
 					/>
-					<span>-20</span>
-					<input type="text" style="width: 50px" />
+
+					<!-- academicYear: map {
+					 		 term: string,
+							 startYear: string, 
+							 endYear: string,
+						 } 
+					-->
+					<input
+						type="text"
+						style="
+							width: 35px;
+							margin-left: 15px;
+							text-align: center;
+						"
+					/>
+					<label for="term">Term AY </label>
+					<input
+						type="text"
+						id="year-start"
+						name="year-start"
+						style="width: 35px; text-align: center"
+					/>
+					<span>-</span>
+					<input
+						type="text"
+						id="year-end"
+						name="year-end"
+						style="width: 35px; text-align: center"
+					/>
 				</div>
-			</div>
 
-			<div class="form-field">
-				<label for="age">Age:</label>
-				<input type="text" id="age" name="age" style="width: 80px" />
+				<div class="inpatient-form-field">
+					<label for="age">Age:</label>
+					<!-- birthdate: string (to be computed) -->
+					<input
+						type="text"
+						id="age"
+						name="age"
+						style="width: 80px"
+					/>
 
-				<label for="gender" style="margin-left: 20px">Gender:</label>
-				<input
-					type="text"
-					id="gender"
-					name="gender"
-					style="width: 150px"
-				/>
+					<label for="gender" style="margin-left: 2px">Gender:</label>
+					<!-- gender: string -->
+					<input
+						type="text"
+						id="gender"
+						name="gender"
+						style="width: 110px"
+					/>
 
-				<div style="float: right">
-					<label for="teaching-load">Present Teaching Load:</label>
+					<label for="teaching-load" style="margin-left: 15px"
+						>Present Teaching Load:</label
+					>
+					<!-- load: number -->
 					<input
 						type="text"
 						id="teaching-load"
 						name="teaching-load"
-						style="width: 50px"
+						style="width: 50px; text-align: center"
 					/>
 					<span>units</span>
 				</div>
-			</div>
 
-			<div class="form-field">
-				<label for="college">College Affiliation:</label>
-				<input
-					type="text"
-					id="college"
-					name="college"
-					style="width: 250px"
-				/>
+				<div class="inpatient-form-field">
+					<label for="college">College Affiliation:</label>
+					<!-- college: string -->
+					<input
+						type="text"
+						id="college"
+						name="college"
+						style="width: 165px; font-size: 8px"
+					/>
 
-				<div style="float: right">
-					<label for="status">Status:</label>
-					<div class="radio-circle"></div>
-					Tenured
+					<label for="status" style="margin-left: 15px"
+						>Status:</label
+					>
+					<!--  -->
+					<input
+						type="radio"
+						id="tenured"
+						name="user-status"
+						class="outpatient-radio-circle"
+					/>
+					<label for="tenured" class="outpatient-status-label"
+						>Tenured</label
+					>
 				</div>
-			</div>
 
-			<div class="form-field">
-				<label for="contact">Contact No.:</label>
-				<input
-					type="text"
-					id="contact"
-					name="contact"
-					style="width: 250px"
-				/>
+				<div class="inpatient-form-field">
+					<label for="contact">Contact No.:</label>
+					<!-- contact: number -->
+					<input
+						type="text"
+						id="contact"
+						name="contact"
+						style="width: 200px"
+					/>
 
-				<div style="float: right">
-					<div style="margin-left: 60px">
-						<div class="radio-circle"></div>
-						Tenure-Track (Date Hired:
-						<input type="text" style="width: 100px" />)
-					</div>
+					<input
+						type="radio"
+						id="tenure-track"
+						name="user-status"
+						class="outpatient-radio-circle"
+						style="margin-left: 55px"
+					/>
+					<label for="tenure-track" class="outpatient-status-label"
+						>Tenure-Track (Date Hired:</label
+					>
+					<!-- dateHired: string -->
+					<input
+						type="text"
+						style="width: 50px; text-align: center"
+					/>)
 				</div>
-			</div>
 
-			<div class="form-field">
-				<label for="confinement-period">Confinement Period:</label>
-				<label for="from">from</label>
-				<input type="text" id="from" name="from" style="width: 100px" />
-				<label for="to">to</label>
-				<input type="text" id="to" name="to" style="width: 100px" />
+				<div class="inpatient-form-field">
+					<label for="confinement-period">Confinement Period:</label>
+					<!-- confinementPeriod: { 
+							startDate: timestamp, 
+							endDate: timestamp 
+						} 
+					-->
+					<label for="from">from</label>
+					<input
+						type="text"
+						id="from"
+						name="from"
+						style="width: 55px"
+					/>
+					<label for="to">to</label>
+					<input type="text" id="to" name="to" style="width: 55px" />
 
-				<div style="float: right">
-					<div style="margin-left: 60px">
-						<div class="radio-circle"></div>
-						Lecturer before 2001
-					</div>
+					<!-- This is the radio input -->
+					<input
+						type="radio"
+						id="lecturer"
+						name="user-status"
+						class="outpatient-radio-circle"
+						style="margin-left: 55px"
+					/>
+					<label for="lecturer" class="outpatient-status-label"
+						>Lecturer before 2001</label
+					>
 				</div>
-			</div>
 
-			<div class="form-field">
-				<label for="hospital">Hospital:</label>
-				<input
-					type="text"
-					id="hospital"
-					name="hospital"
-					style="width: 250px"
-				/>
+				<div class="inpatient-form-field">
+					<label for="hospital">Hospital:</label>
+					<!-- hospital: string -->
+					<input
+						type="text"
+						id="hospital"
+						name="hospital"
+						style="width: 216px"
+					/>
 
-				<div style="float: right">
-					<div style="margin-left: 60px">
-						<div class="radio-circle"></div>
-						Extendee
-					</div>
+					<!-- This is the radio input -->
+					<input
+						type="radio"
+						name="user-status"
+						id="extendee"
+						class="outpatient-radio-circle"
+						style="margin-left: 55px"
+					/>
+					<label for="extendee" class="outpatient-status-label"
+						>Extendee</label
+					>
 				</div>
-			</div>
 
-			<div class="form-field">
-				<label for="illness">Nature of Illness:</label>
-				<input
-					type="text"
-					id="illness"
-					name="illness"
-					style="width: 250px"
-				/>
+				<div class="inpatient-form-field">
+					<label for="illness">Nature of Illness:</label>
+					<!-- illness: string -->
+					<input
+						type="text"
+						id="illness"
+						name="illness"
+						style="width: 175px; margin-right: 55px"
+					/>
 
-				<div style="float: right">
-					<div style="margin-left: 60px">
-						<div class="radio-circle"></div>
-						Retiree (Date Retired:
-						<input type="text" style="width: 100px" />)
-					</div>
+					<!-- this is the radio input -->
+					<input
+						type="radio"
+						name="user-status"
+						id="retiree"
+						class="outpatient-radio-circle"
+						style="margin-left: 0px"
+					/>
+					<label for="retiree" class="outpatient-status-label"
+						>Retiree (Date Retired:</label
+					>
+					<!-- dateRetired: string -->
+					<input
+						type="text"
+						style="width: 73px; text-align: center"
+					/>)
 				</div>
-			</div>
 
-			<div class="form-field">
-				<label for="physician">Physician:</label>
-				<input
-					type="text"
-					id="physician"
-					name="physician"
-					style="width: 250px"
-				/>
+				<div class="inpatient-form-field">
+					<label for="physician">Physician:</label>
+					<!-- physician: string -->
+					<input
+						type="text"
+						id="physician"
+						name="physician"
+						style="width: 211px; margin-top: 2px"
+					/>
 
-				<div style="float: right">
-					<label>Health Benefits:</label>
-					<div class="radio-circle"></div>
-					HMO: <input type="text" style="width: 100px" />
+					<label style="margin-left: 15px; margin-top: 2px"
+						>Health Benefits:</label
+					>
+
+					<!-- Radio Input -->
+					<input
+						type="radio"
+						name="health-benefits"
+						id="hmo"
+						class="outpatient-radio-circle"
+					/>
+					<label for="hmo" class="outpatient-status-label"
+						>HMO:
+					</label>
 				</div>
-			</div>
 
-			<div class="form-field" style="margin-left: 350px">
-				<div class="radio-circle"></div>
-				PCSO
-				<span style="margin-left: 20px">
-					<div class="radio-circle"></div>
-					Senior Citizen
-				</span>
-			</div>
+				<div class="inpatient-form-field" style="margin-left: 370px">
+					<!-- Radio input -->
+					<input
+						type="radio"
+						name="health-benefits"
+						id="pcso"
+						class="outpatient-radio-circle"
+					/>
+					<label for="pcso" class="outpatient-status-label"
+						>PCSO</label
+					>
+				</div>
 
-			<div class="form-paragraph" style="margin-top: 20px">
-				I hereby certify that all information in this application is
-				true and correct and any misrepresentation of facts shall be
-				sufficient cause for denial of this benefit. For any amount in
-				excess of my maximum medical & hospitalization benefit, I am
-				personally liable to pay directly to UST Hospital.
-			</div>
+				<div class="outpatient-form-field" style="margin-left: 370px">
+					<!-- Radio input -->
+					<input
+						type="radio"
+						name="health-benefits"
+						id="senior"
+						class="outpatient-radio-circle"
+					/>
+					<label for="senior" class="outpatient-status-label"
+						>Senior Citizen</label
+					>
+				</div>
 
-			<div style="text-align: right; margin-top: 20px">
-				<div class="signature-line"></div>
-				<span class="signature-label"
-					>Applicant's Signature / Date</span
+				<div
+					class="inpatient-paragraph"
+					style="
+						margin-top: 7px;
+						text-align: justify;
+						font-size: 10px;
+						margin-bottom: 0;
+					"
 				>
+					I hereby certify that all information in this application is
+					true and correct and any misrepresentation of facts shall be
+					sufficient cause for denial of this benefit. For any amount
+					in excess of my maximum medical & hospitalization benefit, I
+					am personally liable to pay directly to UST Hospital.
+				</div>
+
+				<div style="text-align: right; margin-top: 0px">
+					<!-- signature: map {
+					 		 url: string
+							 filename: string
+					 	 }
+					-->
+					<input type="file" style="margin: 0" />
+				</div>
+
+				<div
+					style="
+						text-align: right;
+						margin-top: 0px;
+						margin-right: 30px;
+					"
+				>
+					<!-- dateApproved: string -->
+					<input
+						class="inpatient-text-input"
+						type="text"
+						id="date"
+						style="width: 200px; text-align: center; height: 15px"
+					/>
+				</div>
+				<div style="text-align: right; margin-right: 55px">
+					<label>Applicant's Signature / Date</label>
+				</div>
 			</div>
 
-			<div class="divider"></div>
 			<p>
 				<em
 					>Please do not write anything below this line. USTFU use
@@ -212,20 +373,31 @@
 				>
 			</p>
 
-			<div class="hospital-section">
-				<h3 class="form-section-title">To UST HOSPITAL:</h3>
-				<p class="form-paragraph">
+			<div class="inpatient-hospital-section">
+				<h3 class="inpatient-section-title">To UST HOSPITAL:</h3>
+				<p class="inpatient-paragraph">
 					This certifies that the above named faculty is entitled to
 					the following benefit on his/her total hospital charges, net
 					of PHIC, HMO, SC, AMS, and other applicable deductions,
 					subject to final verification:
 				</p>
 
-				<div style="margin: 15px 0">
-					<div class="radio-circle"></div>
-					50% of net hospital bill
+				<div style="margin: 0px 0">
+					<!--  -->
+					<input
+						type="radio"
+						id="50-percent-hospital-bill"
+						name="hospital-bill"
+						class="inpatient-radio"
+					/>
+					<label
+						for="50-percent-hospital-bill"
+						style="font-size: 10px"
+						>50% of net hospital bill but not to exceed (₱</label
+					>
+
 					<span style="margin-left: 50px">
-						<div class="radio-circle"></div>
+						<div class="inpatient-radio"></div>
 						100% of net hospital bill
 					</span>
 				</div>
@@ -248,35 +420,46 @@
 				</p>
 
 				<div style="margin-top: 20px; text-align: right">
-					<p>for EMERITO C. GONZALES</p>
+					<input type="file" class="" />
+					<input
+						type="text"
+						class="inpatient-text-input"
+						style="
+							width: 200px;
+							margin-right: 25px;
+							font-size: 13px;
+							text-align: center;
+						"
+						placeholder="EMERITO C. GONZALES"
+					/>
 					<p style="font-size: 12px">
 						USTFU President or Authorized Representative (Blue ink)
 					</p>
 				</div>
 			</div>
 
-			<div class="fund-section">
-				<h3 class="form-section-title">
+			<div class="inpatient-fund-section">
+				<h3 class="inpatient-section-title">
 					To UST-USTFU HOSPITALIZATION FUND:
 				</h3>
 
-				<table class="payment-table">
+				<table class="inpatient-payment-table">
 					<tr>
-						<td class="payment-option">
-							<div class="checkbox-square"></div>
+						<td class="inpatient-payment-option">
+							<div class="inpatient-checkbox"></div>
 							<label for="pay-hospital"
 								>Pay UST HOSPITAL the amount of:</label
 							>
 						</td>
-						<td class="payment-amount">
+						<td class="inpatient-payment-amount">
 							₱: <input type="text" style="width: 100px" />
 						</td>
 						<td rowspan="3" style="width: 50%">
-							<div class="checkbox-square"></div>
+							<div class="inpatient-checkbox"></div>
 							<label for="pay-doctors"
 								>Pay the following DOCTORS the amount of:</label
 							>
-							<table class="doctors-table">
+							<table class="inpatient-doctors-table">
 								<tr>
 									<th>Name</th>
 									<th>Amount</th>
@@ -327,19 +510,19 @@
 						</td>
 					</tr>
 					<tr>
-						<td class="payment-option">
-							<div class="checkbox-square"></div>
+						<td class="inpatient-payment-option">
+							<div class="inpatient-checkbox"></div>
 							<label for="refund-faculty"
 								>Refund the FACULTY the amount of:</label
 							>
 						</td>
-						<td class="payment-amount">
+						<td class="inpatient-payment-amount">
 							₱: <input type="text" style="width: 100px" />
 						</td>
 					</tr>
 					<tr>
-						<td class="payment-option">
-							<div class="checkbox-square"></div>
+						<td class="inpatient-payment-option">
+							<div class="inpatient-checkbox"></div>
 							<label for="not-covered"
 								>Amount NOT covered by benefits of the FACULTY
 								and will NOT be settled by USTFU. The faculty
@@ -347,21 +530,29 @@
 								Hospital.</label
 							>
 						</td>
-						<td class="payment-amount">
+						<td class="inpatient-payment-amount">
 							₱: <input type="text" style="width: 100px" />
 						</td>
 					</tr>
 				</table>
 			</div>
 
-			<div class="form-footer">
+			<div class="inpatient-form-footer">
+				<div class="inpatient-control-number">
+					CTRL No.:
+					<input
+						type="text"
+						class="inpatient-text-input"
+						style="text-align: center"
+					/>
+				</div>
 				<p>By: _________________________________</p>
 				<p style="font-size: 12px">
 					OIC for Hospitalization and Medical Benefits
 				</p>
 			</div>
 
-			<div class="form-version">
+			<div class="inpatient-form-version">
 				USTFU Med-1 Form<br />
 				Revised: 03/16/2020 ONLINE FORM
 			</div>
