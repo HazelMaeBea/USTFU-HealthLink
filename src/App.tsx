@@ -22,8 +22,6 @@ import { FirebaseProvider } from "./contexts/firebaseContext";
 import ProtectedRoute from "./components/protectedRoutes";
 //TEMP
 import FormGenerator from "./components/Pages/FormGenerator";
-//Hello world
-// luh bluh bluh
 
 const App: React.FC = () => {
     return (
