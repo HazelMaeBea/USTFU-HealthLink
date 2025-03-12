@@ -8,9 +8,15 @@ import { HiOutlineX } from "react-icons/hi";
 import Popout from "../Popout/Popout";
 import ViewFiles from "./ViewFiles";
 import HistoryPopout from "./HistoryPopout";
+import PageButtons from "../PageButtons/PageButtons"; // Import the PageButtons component
 
 const PendingRequestList = () => {
-	const pendingRequests = usePendingRequests();
+	// Use the updated hook with pagination
+	const {
+		requests: pendingRequests,
+		pagination,
+		setCurrentPage,
+	} = usePendingRequests(1, 7);
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 	const [showCommentBox, setShowCommentBox] = useState<string | null>(
 		"Additional Comments"
@@ -21,6 +27,13 @@ const PendingRequestList = () => {
 	const [showPopout, setShowPopout] = useState<boolean>(false);
 	const [previewFile, setPreviewFile] = useState<any>(null);
 	const [showHistoryPopout, setShowHistoryPopout] = useState<boolean>(false);
+
+	// Handle page change from the PageButtons component
+	const handlePageChange = (page: number) => {
+		setCurrentPage(page);
+		// Reset expanded state when changing pages
+		setExpandedId(null);
+	};
 
 	const handleAction = (
 		action: "approval" | "rejection" | "for revision"
@@ -620,6 +633,16 @@ const PendingRequestList = () => {
 					)}
 				</div>
 			))}
+
+			{/* Add pagination controls if there are multiple pages */}
+			{pagination.totalPages > 1 && (
+				<PageButtons
+					currentPage={pagination.currentPage}
+					totalPages={pagination.totalPages}
+					onPageChange={handlePageChange}
+				/>
+			)}
+
 			{showPopout && (
 				<Popout
 					title="Confirm Decision"

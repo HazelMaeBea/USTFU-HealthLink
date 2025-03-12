@@ -3,11 +3,30 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
 
-// Export a hook to retrieve pending requests in real-time
-export const usePendingRequests = () => {
-	const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>(
-		[]
-	);
+// Interface for pagination metadata
+export interface PaginationInfo {
+	currentPage: number;
+	totalPages: number;
+	pageSize: number;
+	totalItems: number;
+}
+
+// Interface for the hook return value
+export interface PaginatedRequests {
+	requests: PendingRequest[];
+	pagination: PaginationInfo;
+	setCurrentPage: (page: number) => void;
+}
+
+// Export a hook to retrieve paginated pending requests in real-time
+export const usePendingRequests = (
+	initialPage = 1,
+	pageSize = 6
+): PaginatedRequests => {
+	const [allRequests, setAllRequests] = useState<PendingRequest[]>([]);
+	const [currentPage, setCurrentPage] = useState<number>(initialPage);
+
+	// Fetch all requests in real-time
 	useEffect(() => {
 		const reqCollection = collection(db, "FormRequests");
 		const unsubscribe = onSnapshot(reqCollection, (snapshot) => {
@@ -15,15 +34,55 @@ export const usePendingRequests = () => {
 				transactionId: doc.id,
 				...doc.data(),
 			})) as PendingRequest[];
-			setPendingRequests(requests);
+
+			// Sort by date if needed (assuming dateSubmitted is a string in format MM/DD/YYYY)
+			const sortedRequests = requests.sort((a, b) => {
+				return (
+					new Date(b.dateSubmitted).getTime() -
+					new Date(a.dateSubmitted).getTime()
+				);
+			});
+
+			setAllRequests(sortedRequests);
 		});
 		return () => unsubscribe();
 	}, []);
-	return pendingRequests;
+
+	// Calculate pagination info
+	const totalItems = allRequests.length;
+	const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+	// Ensure currentPage is valid
+	useEffect(() => {
+		if (currentPage > totalPages && totalPages > 0) {
+			setCurrentPage(totalPages);
+		}
+	}, [currentPage, totalPages]);
+
+	// Get paginated data
+	const startIndex = (currentPage - 1) * pageSize;
+	const paginatedRequests = allRequests.slice(
+		startIndex,
+		startIndex + pageSize
+	);
+
+	// Create pagination info object
+	const pagination: PaginationInfo = {
+		currentPage,
+		totalPages,
+		pageSize,
+		totalItems,
+	};
+
+	return {
+		requests: paginatedRequests,
+		pagination,
+		setCurrentPage,
+	};
 };
 
 const PendingRequestBackend = () => {
-	const pendingRequests = usePendingRequests();
+	const { requests: pendingRequests } = usePendingRequests();
 
 	return (
 		<div>

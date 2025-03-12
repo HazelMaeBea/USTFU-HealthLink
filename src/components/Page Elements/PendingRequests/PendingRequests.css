@@ -707,3 +707,17 @@
 	margin-top: 30px;
 	margin-bottom: 40px;
 }
+
+/* Center pagination for pending requests */
+.pending-requests .page-buttons-wrapper {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	margin-top: 1.5rem;
+	margin-bottom: 1rem;
+}
+
+/* Add some spacing between the last request and pagination */
+.pending-requests .pending-request:last-of-type {
+	margin-bottom: 1rem;
+}
