@@ -63,7 +63,7 @@
 				</div>
 			</div>
 
-			<div class="inpatient-general-section" style="padding-bottom: 5px">
+			<div class="inpatient-general-section" style="padding-bottom: 5px; padding-top: 7px">
 				<div class="inpatient-form-field">
 					<label for="name">Name:</label>
 					<!-- firstname, middlename, lastname, suffix: string -->
@@ -338,6 +338,7 @@
 				</div>
 
 				<div style="text-align: right; margin-top: 0px">
+					<!-- Applicant Signature -->
 					<!-- signature: map {
 					 		 url: string
 							 filename: string
@@ -373,7 +374,7 @@
 				>
 			</p>
 
-			<div class="inpatient-hospital-section">
+			<div class="inpatient-hospital-section" style="padding-top: 10px; padding-bottom: 10px;">
 				<h3 class="inpatient-section-title">To UST HOSPITAL:</h3>
 				<p class="inpatient-paragraph">
 					This certifies that the above named faculty is entitled to
@@ -383,7 +384,7 @@
 				</p>
 
 				<div style="margin: 0px 0">
-					<!--  -->
+					<!-- Radio Input for 50% Hospital Bill -->
 					<input
 						type="radio"
 						id="50-percent-hospital-bill"
@@ -393,34 +394,52 @@
 					<label
 						for="50-percent-hospital-bill"
 						style="font-size: 10px"
-						>50% of net hospital bill but not to exceed (₱</label
+						>50% of net hospital bill</label
 					>
 
-					<span style="margin-left: 50px">
-						<div class="inpatient-radio"></div>
-						100% of net hospital bill
-					</span>
-				</div>
+					<!-- Radio Input for 100% Hospital Bill -->
+					<input
+						type="radio"
+						id="100-percent-hospital-bill"
+						name="hospital-bill"
+						class="inpatient-radio"
+						style="margin-left: 10px;"
+					/>
+					<label
+						for="100-percent-hospital-bill"
+						style="font-size: 10px;"
+						>100% of net hospital bill</label
+					>
 
-				<div style="margin: 15px 0">
-					<span>but not to exceed (₱</span>
+					<label
+						style="margin-left: 20px;"
+					>but not to exceed (₱</label>
 					<input
 						type="text"
-						style="width: 150px; margin-right: 5px"
-					/>)
-					<span style="float: right; font-style: italic"
-						>Remaining Benefit</span
+						style="width: 140px; text-align:center"
+						class="inpatient-text-input"
+					/>
+					<span>)</span>
+					<p style="float: right; font-style: italic; margin-right: 55px; font-size: 9px"
+						>Remaining Benefit</p
 					>
 				</div>
 
-				<p style="margin-top: 20px">
+				<p style="margin-top: 15px">
 					Any amount in EXCESS of his /her remaining benefit shall be
 					shouldered by the FACULTY in CASH or through SALARY
 					DEDUCTION.
 				</p>
 
-				<div style="margin-top: 20px; text-align: right">
-					<input type="file" class="" />
+				<div style="text-align: right">
+					<!-- USTRep Signature -->
+					<!-- signature: map {
+					 		 url: string
+							 filename: string
+					 	 }
+					-->
+						 <div><input type="file" style="margin-right:0px;" /></div>
+					
 					<input
 						type="text"
 						class="inpatient-text-input"
@@ -432,63 +451,100 @@
 						"
 						placeholder="EMERITO C. GONZALES"
 					/>
-					<p style="font-size: 12px">
+					<p style="font-size: 9px; margin-right: 7px;">
 						USTFU President or Authorized Representative (Blue ink)
 					</p>
 				</div>
 			</div>
 
-			<div class="inpatient-fund-section">
-				<h3 class="inpatient-section-title">
+			<div class="inpatient-fund-section" style="margin-top: 2px;padding-bottom: 0; border-bottom: none">
+				<h3 class="inpatient-section-title" style="margin-left: 10px">
 					To UST-USTFU HOSPITALIZATION FUND:
 				</h3>
 
-				<table class="inpatient-payment-table">
-					<tr>
+				<table class="inpatient-payment-table" >
+					<tr style="height: 8px;">
 						<td class="inpatient-payment-option">
-							<div class="inpatient-checkbox"></div>
-							<label for="pay-hospital"
-								>Pay UST HOSPITAL the amount of:</label
+							<input
+								type="checkbox"
+								id="pay-hospital"
+								class="outpatient-checkbox-square"
+							/>
+							<label for="pay-hospital" style="font-size: 10px"
+								>Pay <strong>UST HOSPITAL</strong> the amount
+								of:</label
 							>
 						</td>
 						<td class="inpatient-payment-amount">
-							₱: <input type="text" style="width: 100px" />
+							<span>₱:</span>
+							<input
+								type="text"
+								style="width: 80px"
+								class="inpatient-text-input"
+							/>
 						</td>
 						<td rowspan="3" style="width: 50%">
-							<div class="inpatient-checkbox"></div>
-							<label for="pay-doctors"
-								>Pay the following DOCTORS the amount of:</label
-							>
+							<div style="padding: 5px">
+								<input
+									type="checkbox"
+									id="pay-doctors"
+									class="outpatient-checkbox-square"
+								/>
+								<label for="pay-doctors" style="font-size: 10px"
+									>Pay the following DOCTORS the amount
+									of:</label
+								>
+							</div>
 							<table class="inpatient-doctors-table">
-								<tr>
-									<th>Name</th>
-									<th>Amount</th>
+								<tr style="height: 8px;">
+									<th style="width: 200px;">Name</th>
+									<th style="width: 100px;">Amount</th>
+								</tr>
+								<tr style="height: 8px;">
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
 								</tr>
 								<tr>
 									<td>
 										<input
 											type="text"
-											style="width: 100%"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
 										/>
 									</td>
 									<td>
 										<input
 											type="text"
-											style="width: 100%"
-										/>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<input
-											type="text"
-											style="width: 100%"
-										/>
-									</td>
-									<td>
-										<input
-											type="text"
-											style="width: 100%"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
 										/>
 									</td>
 								</tr>
@@ -496,42 +552,155 @@
 									<td>
 										<input
 											type="text"
-											style="width: 100%"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
 										/>
 									</td>
 									<td>
 										<input
 											type="text"
-											style="width: 100%"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
+										/>
+									</td>
+									<td>
+										<input
+											type="text"
+											style="
+												width: 100%;
+												border: none;
+												font-size: 9px;
+												padding: 1px;
+											"
 										/>
 									</td>
 								</tr>
 							</table>
 						</td>
 					</tr>
-					<tr>
+					<tr style="height: 10px;">
 						<td class="inpatient-payment-option">
-							<div class="inpatient-checkbox"></div>
-							<label for="refund-faculty"
-								>Refund the FACULTY the amount of:</label
+							<input
+								type="checkbox"
+								id="refund-faculty"
+								class="outpatient-checkbox-square"
+							/>
+							<label for="refund-faculty" style="font-size: 10px"
+								>Refund the <strong>FACULTY</strong> the amount
+								of:</label
 							>
 						</td>
 						<td class="inpatient-payment-amount">
-							₱: <input type="text" style="width: 100px" />
+							<span>₱:</span>
+							<input
+								type="text"
+								style="width: 80px"
+								class="inpatient-text-input"
+							/>
 						</td>
 					</tr>
 					<tr>
-						<td class="inpatient-payment-option">
-							<div class="inpatient-checkbox"></div>
-							<label for="not-covered"
-								>Amount NOT covered by benefits of the FACULTY
-								and will NOT be settled by USTFU. The faculty
-								shall pay this amount directly to UST
-								Hospital.</label
+						<td class="inpatient-payment-option"
+							style="
+									border-top: 3px solid #333;
+									border-left: 3px solid #333;
+									border-bottom: 3px solid #333;
+								"
+							>
+							<input
+								type="checkbox"
+								id="not-covered"
+								class="outpatient-checkbox-square"
+							/>
+							<label for="not-covered" style="font-size: 10px"
+								>Amount <strong>NOT</strong> covered by benefits
+								of the FACULTY and will <strong>NOT</strong> be
+								settled by USTFU. The faculty shall pay this
+								amount directly to UST Hospital.</label
 							>
 						</td>
-						<td class="inpatient-payment-amount">
-							₱: <input type="text" style="width: 100px" />
+						<td class="inpatient-payment-amount"
+							style="
+							border-top: 3px solid #333;
+							border-right: 3px solid #333;
+							border-bottom: 3px solid #333;
+							"
+						>
+							<span>₱:</span>
+							<input
+								type="text"
+								style="width: 80px"
+								class="inpatient-text-input"
+							/>
 						</td>
 					</tr>
 				</table>
@@ -547,15 +716,16 @@
 					/>
 				</div>
 				<p>By: _________________________________</p>
-				<p style="font-size: 12px">
+				<p style="font-size: 10px">
 					OIC for Hospitalization and Medical Benefits
 				</p>
 			</div>
 
 			<div class="inpatient-form-version">
 				USTFU Med-1 Form<br />
-				Revised: 03/16/2020 ONLINE FORM
+				<span>Revised: 03/16/2020 ONLINE FORM</span>
 			</div>
+			
 		</div>
 	</body>
 </html>

@@ -88,6 +88,7 @@ h3.inpatient-title {
 
 .inpatient-form-field {
 	margin-bottom: 0px;
+	height: 14px;
 }
 
 .inpatient-form-field label {
@@ -209,7 +210,7 @@ h3.inpatient-title {
 
 .inpatient-fund-section {
 	border: 1px solid #333;
-	padding: 15px;
+	padding: 1px;
 	margin-top: 0px;
 	padding-left: 0px;
 	padding-right: 0px;
@@ -218,7 +219,7 @@ h3.inpatient-title {
 .inpatient-payment-table {
 	width: 100%;
 	border-collapse: collapse;
-	margin-top: 10px;
+	margin-top: 1px;
 }
 
 .inpatient-payment-table td {
@@ -229,7 +230,7 @@ h3.inpatient-title {
 
 .inpatient-payment-option {
 	width: 38%;
-	padding: 10px;
+	padding: 7px;
 	vertical-align: top;
 }
 
@@ -249,6 +250,10 @@ h3.inpatient-title {
 	padding: 5px;
 	border: 1px solid #333;
 	text-align: center;
+}
+
+.inpatient-doctors-table td {
+	padding: 1px;
 }
 
 .inpatient-doctors-table input {
@@ -280,10 +285,9 @@ h3.inpatient-title {
 .inpatient-radio {
 	display: inline-block;
 	width: 14px;
-	height: 14px;
+	height: 10px;
 	border: 1px solid #333;
 	border-radius: 50%;
-	margin-right: 5px;
 	position: relative;
 	top: 2px;
 }
