@@ -97,7 +97,10 @@ const schema = z
 		term: z.string().nonempty("Please select the academic term"),
 		year: z.string().nonempty("Please select the academic year"),
 		load: z.string().nonempty("Please select your teaching load"),
-		status: z.string().nonempty("Please select your employment status"),
+		status: z.preprocess(
+			(val) => (val === null ? "" : val),
+			z.string().nonempty("Please select your employment status")
+		),
 		dateHired: z
 			.string({
 				invalid_type_error: "Please select a valid date",
@@ -112,7 +115,10 @@ const schema = z
 			.nullable()
 			.transform((val) => (val ? new Date(val) : null))
 			.optional(),
-		benefits: z.string().nonempty("Please select your health benefits"),
+		benefits: z.preprocess(
+			(val) => (val === null ? "" : val),
+			z.string().nonempty("Please select your health benefitS")
+		),
 		hmo: z.string().nullable().optional(),
 		docRequest: z.any().refine((files) => files && files.length > 0, {
 			message: "Please upload your doctor's request/order",
@@ -199,35 +205,55 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			const email = auth?.currentUser?.email;
 
 			const formID = await getFormID(true);
-			const formIDString = formID?.toString().padStart(6,"0") || "error"
+			const formIDString = formID?.toString().padStart(6, "0") || "error";
 			const currentYear: string = new Date().getFullYear().toString();
 
 			// Prepare file storage paths
 			const applicantSignatureUrl =
 				"FormRequests/" +
-				email + "/" +
-				currentYear + "-" + formIDString + "-O/" +
+				email +
+				"/" +
+				currentYear +
+				"-" +
+				formIDString +
+				"-O/" +
 				data.applicantSignature[0].name;
 			const docRequestUrl =
 				"FormRequests/" +
-				email + "/" +
-				currentYear + "-" + formIDString + "-O/" +
+				email +
+				"/" +
+				currentYear +
+				"-" +
+				formIDString +
+				"-O/" +
 				data.docRequest[0].name;
 			const employeeIDUrl =
 				"FormRequests/" +
-				email + "/" +
-				currentYear + "-" + formIDString + "-O/"
-				data.employeeID[0].name;
+				email +
+				"/" +
+				currentYear +
+				"-" +
+				formIDString +
+				"-O/";
+			data.employeeID[0].name;
 			const hospitalInvoiceUrl =
 				"FormRequests/" +
-				email + "/" +
-				currentYear + "-" + formIDString + "-O/"
-				data.hospitalInvoice[0].name;
+				email +
+				"/" +
+				currentYear +
+				"-" +
+				formIDString +
+				"-O/";
+			data.hospitalInvoice[0].name;
 			const labInvoiceUrl =
 				"FormRequests/" +
-				email + "/" +
-				currentYear + "-" + formIDString + "-O/"
-				data.labInvoice[0].name;
+				email +
+				"/" +
+				currentYear +
+				"-" +
+				formIDString +
+				"-O/";
+			data.labInvoice[0].name;
 
 			// Upload and get download URL for applicantSignature
 			let imageRef = ref(storage, applicantSignatureUrl);
@@ -314,7 +340,14 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			};
 
 			// await addDoc(formsCollectionRef, newDoc);
-			await setDoc(doc(db, "FormRequests", currentYear + "-" + formIDString + "-O"), newDoc);
+			await setDoc(
+				doc(
+					db,
+					"FormRequests",
+					currentYear + "-" + formIDString + "-O"
+				),
+				newDoc
+			);
 			console.log("Document written with ID: ", formIDString);
 			setShowPopup(true);
 		} catch (error) {
