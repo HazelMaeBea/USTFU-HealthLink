@@ -2,12 +2,47 @@
 
 /* Yellow theme colors */
 :root {
-	--primary-yellow: #ffc107;
-	--light-yellow: #fff8e1;
-	--dark-yellow: #ffb300;
-	--hover-yellow: #ffecb3;
-	--yellow-shadow: rgba(255, 193, 7, 0.25);
-	--white: #fff;
+	--primary-yellow: hsl(45, 100%, 51%);
+	--light-yellow: hsl(46, 100%, 94%);
+	--dark-yellow: hsl(42, 100%, 50%);
+	--hover-yellow: hsl(45, 100%, 85%);
+	--yellow-shadow: hsla(45, 100%, 51%, 0.25);
+	--white: hsl(0, 0%, 100%);
+}
+
+/* Global button styles imported from HistoryPage.css */
+:global(.btn) {
+	padding: 0.6em 1.2em;
+	font-size: 1em;
+	font-weight: 500;
+	border-radius: 8px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition: border-color 0.25s;
+}
+
+:global(.btn-history) {
+	border: 1px solid #000 !important;
+	color: #000 !important;
+	background-color: #fff;
+	margin: 0 5px;
+	padding: 0.4em 0.8em;
+	font-size: 0.8em !important;
+	cursor: pointer;
+}
+
+:global(.btn-active) {
+	background-color: #000 !important;
+	color: #fff !important;
+}
+
+:global(.btn:hover) {
+	border-color: #646cff;
+}
+
+:global(.btn:focus),
+:global(.btn:focus-visible) {
+	outline: 4px auto -webkit-focus-ring-color;
 }
 
 .historyPageContainer {
@@ -15,21 +50,25 @@
 	padding: 1rem;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
 		Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+	position: relative;
 }
 
-/* Card Layout with yellow accent */
 .historyCard {
 	background-color: #fff;
 	border-radius: 12px;
 	box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
 	overflow: hidden;
 	border-top: 4px solid var(--primary-yellow);
+	display: flex;
+	flex-direction: column;
+	height: 115vh; /* Fixed height for consistency */
 }
 
 .historyCardHeader {
 	padding: 1.5rem 2rem;
 	border-bottom: 1px solid #f0f0f0;
 	background-color: var(--light-yellow);
+	flex-shrink: 0;
 }
 
 .historyTitle {
@@ -245,9 +284,14 @@
 	background-color: var(--light-yellow);
 }
 
-/* Content Section */
+/* Content Section - updated to take available space */
 .historyContent {
 	padding: 1rem;
+	flex: 1;
+	overflow: hidden;
+	min-height: 0; /* Needed for Firefox */
+	display: flex;
+	flex-direction: column;
 }
 
 .tableContainer {
@@ -255,6 +299,8 @@
 	overflow-x: auto;
 	border-radius: 8px;
 	border: 1px solid #eee;
+	flex: 1;
+	overflow-y: auto; /* Makes the table area scrollable */
 }
 
 .table {
@@ -272,10 +318,10 @@
 	white-space: nowrap;
 }
 
-/* Updated table header with yellow theme */
+/* Table Design */
 .table th {
-	background-color: rgb(235, 235, 235);
-	color: #333;
+	background-color: var(--primary-yellow);
+	color: hsl(0, 0%, 20%);
 	font-weight: 600;
 	text-align: left;
 	position: sticky;
@@ -351,7 +397,7 @@
 	color: hsl(220, 9%, 46%);
 }
 
-/* Footer with yellow accent */
+/* Footer with yellow accent - prevent shrinking */
 .historyFooter {
 	padding: 1rem 2rem;
 	border-top: 1px solid hsl(0, 0%, 94%);
@@ -359,6 +405,7 @@
 	justify-content: space-between;
 	align-items: center;
 	background-color: hsl(0, 0%, 100%);
+	flex-shrink: 0; /* Prevents footer from shrinking */
 }
 
 .recordsCount {
@@ -366,7 +413,7 @@
 	color: #666;
 }
 
-/* Empty states and errors */
+/* Empty states and errors - consistent sizing */
 .errorMessage,
 .noDataMessage {
 	display: flex;
@@ -377,6 +424,9 @@
 	text-align: center;
 	background-color: #fff;
 	border-radius: 8px;
+	height: 100%; /* Takes full height of content area */
+	flex: 1;
+	margin: 0;
 }
 
 .errorMessage {
@@ -604,6 +654,36 @@
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
+}
+
+/* Pagination styles - updated to work with default button styles */
+.pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 0.5rem;
+}
+
+.pageInfo {
+	font-size: 0.9rem;
+	color: #666;
+	margin: 0 0.5rem;
+}
+
+/* Improved scrollbar */
+.tableContainer::-webkit-scrollbar {
+	height: 7px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+	background-color: var(--primary-yellow);
+	border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+	background-color: #f0f0f0;
+	border-radius: 4px;
 }
 
 /* Animation */
