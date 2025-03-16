@@ -429,7 +429,7 @@ const HospitalizationHistory = () => {
 	// Generate descriptive filename based on applied filters - Enhanced version
 	const generateFilename = () => {
 		const datePart = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-		let nameComponents = ["HealthLink-History"];
+		const nameComponents = ["HealthLink-History"];
 
 		// Add form type if specific
 		if (selectedType !== "All") {
@@ -442,7 +442,7 @@ const HospitalizationHistory = () => {
 		// Add filter details
 		if (filters.length > 0) {
 			// Create a shortened representation of the filters
-			let filterSummary = [];
+			const filterSummary = [];
 
 			// Check for date filter
 			const dateFilter = filters.find((f) => f.startsWith("Date:"));
@@ -500,7 +500,7 @@ const HospitalizationHistory = () => {
 
 	// Get descriptive info for the filename hint
 	const getExportFileDescription = () => {
-		let descriptions = [];
+		const descriptions = [];
 
 		// Add form type info
 		if (selectedType !== "All") {
@@ -694,7 +694,6 @@ const HospitalizationHistory = () => {
 							/>
 						</div>
 
-						{/* Custom form type dropdown to match Filter dropdown style */}
 						<div
 							className={styles.formTypeFilter}
 							ref={formTypeDropdownRef}
@@ -1076,6 +1075,7 @@ const HospitalizationHistory = () => {
 							<button
 								className={styles.closeModal}
 								onClick={() => setShowExportPopup(false)}
+								aria-label="Export"
 							>
 								<FiX size={20} />
 							</button>

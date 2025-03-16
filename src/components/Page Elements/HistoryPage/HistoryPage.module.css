@@ -735,7 +735,7 @@
 	font-size: 0.875rem;
 	color: #111827;
 	transition: border-color 0.15s ease;
-	background-color: #fff;
+	background-color: white;
 }
 
 .formGroup input[type="date"]:focus {
