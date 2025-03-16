@@ -32,6 +32,7 @@
 					class="center-align-text"
 					name="term"
 					style="width: 50px"
+					aria-label="term"
 				/>
 				<label for="term" style="font-size: 15px">Term, AY</label>
 				<!-- year:string (first part only) -->
@@ -41,6 +42,7 @@
 					id="acad-year"
 					name="year-start"
 					style="width: 60px"
+					aria-label="acad-year-start"
 				/>
 				<span>-</span>
 				<!-- year:string (second part) -->
@@ -48,6 +50,7 @@
 					type="text"
 					class="center-align-text"
 					style="width: 60px"
+					aria-label="acad-year-end"
 				/>
 			</div>
 
@@ -181,6 +184,7 @@
 							name="upload-sig"
 							accept="image/*"
 							style="margin-top: 23px"
+							aria-label="uploaded-signature"
 						/>
 						<div
 							class="eyeglasses-signature-line"
@@ -193,7 +197,11 @@
 
 					<div class="eyeglasses-signature-block">
 						<!-- dateApproved: string -->
-						<input type="text" class="eyeglasses-signature-line" />
+						<input
+							type="text"
+							class="eyeglasses-signature-line"
+							aria-label="uploaded-signature"
+						/>
 						<span class="eyeglasses-signature-label">Date</span>
 					</div>
 				</div>
@@ -209,14 +217,19 @@
 						type="text"
 						class="center-align-text"
 						style="width: 150px; font-size: 16px"
+						aria-label="reimbursement-amount"
 					/>
 					for his/her eyeglasses benefit.
 				</p>
 
 				<div style="text-align: right; margin-top: 10px">
-					<!-- idk pa dito, maybe representative signiture? -->
+					<!-- idk pa dito, maybe representative signature? -->
 					<!-- <input type="file" /> -->
-					<input type="text" class="eyeglasses-signature-line" />
+					<input
+						type="text"
+						class="eyeglasses-signature-line"
+						aria-label="signature"
+					/>
 					<span class="eyeglasses-signature-label"
 						>OIC for Hospitalization and Medical Benefits</span
 					>
