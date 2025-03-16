@@ -206,50 +206,60 @@ const AdminSettings = () => {
 			<hr className="ustfu-hr" />
 
 			{activeTab === "userManagement" && (
-				<div style={{ overflowX: "auto", width: "100%" }}>
-					<table
-						style={{
-							minWidth: "600px",
-							borderCollapse: "collapse",
-						}}
-						className="user-mngmnt-table"
-					>
-						<thead className="user-mngmnt-table-header">
-							<tr>
-								<th>ID</th>
-								<th>Name</th>
-								<th>Email Address</th>
-								<th>College</th>
-								<th>Birthdate</th>
-								<th>Contact #</th>
-								<th>Role</th>
-								<th>Status</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-							{currentUsers.map((user) => (
-								<UserRow
-									key={user.document}
-									user={user}
-									onSave={handleSave}
-								/>
-							))}
-						</tbody>
-					</table>
-				</div>
+				<>
+					<div style={{ overflowX: "auto", width: "100%" }}>
+						<table
+							style={{
+								minWidth: "600px",
+								borderCollapse: "collapse",
+							}}
+							className="user-mngmnt-table"
+						>
+							<thead className="user-mngmnt-table-header">
+								<tr>
+									<th>ID</th>
+									<th>Name</th>
+									<th>Email Address</th>
+									<th>College</th>
+									<th>Birthdate</th>
+									<th>Contact #</th>
+									<th>Role</th>
+									<th>Status</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								{currentUsers.map((user) => (
+									<UserRow
+										key={user.document}
+										user={user}
+										onSave={handleSave}
+									/>
+								))}
+							</tbody>
+						</table>
+					</div>
+
+					{/* New layout for buttons */}
+					<div className="controls-container">
+						<div className="pagination-container">
+							<PageButtons
+								currentPage={currentPage}
+								totalPages={totalPages}
+								onPageChange={(page) => setCurrentPage(page)}
+							/>
+						</div>
+						<div className="action-buttons">
+							<button
+								className="btn primary-btn audit-logs-btn"
+								onClick={handleAuditLogsClick}
+							>
+								VIEW USER AUDIT LOGS
+							</button>
+						</div>
+					</div>
+				</>
 			)}
-			<PageButtons
-				currentPage={currentPage}
-				totalPages={totalPages}
-				onPageChange={(page) => setCurrentPage(page)}
-			/>
-			<input
-				type="button"
-				className="btn primary-btn save-btn"
-				value="VIEW USER AUDIT LOGS"
-				onClick={handleAuditLogsClick}
-			/>
 
 			{activeTab === "registrationVerification" && (
 				// Registration Verification content placeholder

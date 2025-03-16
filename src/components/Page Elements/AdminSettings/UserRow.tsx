@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { useState } from "react";
 import { Button, Input, FormGroup, Label, Row, Col } from "reactstrap";
 import DatePicker from "react-datepicker";
@@ -8,6 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { differenceInDays, differenceInWeeks } from "date-fns";
 import { Timestamp } from "firebase/firestore";
 import { HiOutlineDotsVertical } from "react-icons/hi";
+import { FiEdit2, FiUsers, FiToggleLeft } from "react-icons/fi";
 import { createPortal } from "react-dom";
 
 interface User {
@@ -87,25 +88,40 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
 	>(null);
 	const [showOptions, setShowOptions] = useState(false);
 	const [popupStyle, setPopupStyle] = useState<React.CSSProperties>({});
-	const containerRef = React.useRef<HTMLDivElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
 
-	const handleToggleOptions = () => {
+	// Close the dropdown when clicking outside
+	useEffect(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (
+				containerRef.current &&
+				!containerRef.current.contains(event.target as Node) &&
+				menuRef.current &&
+				!menuRef.current.contains(event.target as Node)
+			) {
+				setShowOptions(false);
+			}
+		}
+
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, []);
+
+	const handleToggleOptions = (e: React.MouseEvent) => {
+		e.stopPropagation();
 		setShowOptions(!showOptions);
 		if (containerRef.current) {
 			const rect = containerRef.current.getBoundingClientRect();
+			// Position the dropdown better
 			setPopupStyle({
-				position: "absolute",
-				top: rect.bottom + window.scrollY,
-				left: rect.left + rect.width / 2 + window.scrollX - 80,
-				transform: "translateX(-50%)",
-				zIndex: 1000,
-				backgroundColor: "white",
-				border: "1px solid #ccc",
-				boxShadow: "0 2px 5px rgba(0,0,0,0.15)",
-				whiteSpace: "nowrap",
-				padding: "10px",
-				maxWidth: "180px",
-				pointerEvents: "auto",
+				position: "fixed",
+				top: rect.bottom + 8,
+				left: rect.left - 150, // Better positioning
+				zIndex: 1050,
+				// Remove other styling properties as they're now in CSS
 			});
 		}
 	};
@@ -252,42 +268,65 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
 				<td>{user.phoneNumber}</td>
 				<td>{user.role}</td>
 				<td>{getStatusBadge(user.status)}</td>
-				<td style={{ overflow: "visible" }}>
+				<td style={{ position: "relative" }}>
 					<div
 						className="edit-button-container"
 						ref={containerRef}
-						onClick={handleToggleOptions}
-						style={{ position: "relative", overflow: "visible" }}
+						style={{ position: "relative" }}
 					>
 						<HiOutlineDotsVertical
 							className="edit-button"
 							size={24}
+							onClick={handleToggleOptions}
+							style={{ color: "#666" }} // Slightly more muted color
 						/>
 					</div>
-					{showOptions &&
-						createPortal(
-							<div
-								className="edit-options-menu"
-								style={popupStyle}
-							>
-								<button onClick={() => handleEdit("college")}>
-									Edit College
-								</button>
-								<button onClick={() => handleEdit("role")}>
-									Edit Role
-								</button>
-								{editedUser.role !== "retiree" && (
-									<button
-										onClick={() => handleEdit("status")}
-									>
-										Edit Status
-									</button>
-								)}
-							</div>,
-							document.body
-						)}
 				</td>
 			</tr>
+			{showOptions &&
+				createPortal(
+					<div
+						className="edit-options-menu"
+						style={popupStyle}
+						ref={menuRef}
+						onClick={(e) => e.stopPropagation()}
+					>
+						<div className="edit-options-menu-inner">
+							<button
+								onClick={() => {
+									handleEdit("college");
+									setShowOptions(false);
+								}}
+							>
+								<FiUsers style={{ marginRight: "10px" }} /> Edit
+								College
+							</button>
+							<button
+								onClick={() => {
+									handleEdit("role");
+									setShowOptions(false);
+								}}
+							>
+								<FiEdit2 style={{ marginRight: "10px" }} /> Edit
+								Role
+							</button>
+							{editedUser.role !== "retiree" && (
+								<button
+									onClick={() => {
+										handleEdit("status");
+										setShowOptions(false);
+									}}
+								>
+									<FiToggleLeft
+										style={{ marginRight: "10px" }}
+									/>{" "}
+									Edit Status
+								</button>
+							)}
+						</div>
+					</div>,
+					document.body
+				)}
 			{isEditing && (
 				<tr>
 					<td colSpan={10}>

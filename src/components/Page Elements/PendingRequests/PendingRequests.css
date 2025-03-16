@@ -703,11 +703,6 @@
 	margin: 0 auto;
 }
 
-.pagination-container {
-	margin-top: 30px;
-	margin-bottom: 40px;
-}
-
 /* Center pagination for pending requests */
 .pending-requests .page-buttons-wrapper {
 	display: flex;

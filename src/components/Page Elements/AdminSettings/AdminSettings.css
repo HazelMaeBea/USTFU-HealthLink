@@ -335,6 +335,7 @@ p {
 .admin-settings-container .edit-button-container {
 	position: relative;
 	display: inline-block;
+	cursor: pointer;
 }
 
 .admin-settings-container .edit-button {
@@ -343,33 +344,106 @@ p {
 }
 
 .admin-settings-container .edit-button:hover {
+	color: hsl(45, 100%, 51%);
 	border-radius: 50%;
-	background-color: rgba(0, 0, 0, 0.1);
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Completely revamped dropdown styles */
+.edit-options-menu {
+	position: fixed;
+	background: white;
+	border: none;
+	border-radius: 8px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	z-index: 1050;
+	overflow: hidden;
+	width: 180px;
+	animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.edit-options-menu-inner {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	padding: 6px 0;
+}
+
+.edit-options-menu button {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: 10px 16px;
+	background: white;
+	border: none;
+	text-align: left;
+	cursor: pointer;
+	font-size: 14px;
+	color: #424242;
+	transition: all 0.15s ease;
+	line-height: 1.5;
+}
+
+.edit-options-menu button:hover {
+	background-color: rgba(255, 193, 7, 0.1); /* Lighter yellow background */
+	color: hsl(45, 100%, 40%); /* Slightly darker yellow text */
+}
+
+/* Remove duplicate styles that might be causing issues */
+.admin-settings-container .edit-options-menu,
+.admin-settings-container .edit-options-menu-inner,
+.admin-settings-container .edit-options-menu button {
+	/* These will inherit from the non-namespaced selectors above */
 }
 
 .admin-settings-container .edit-options-menu {
-	position: absolute;
+	position: fixed;
 	background: white;
 	border: 1px solid #ccc;
 	border-radius: 4px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-	z-index: 1000;
-	width: 180px;
+	box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+	z-index: 1050;
+	overflow: hidden;
+}
+
+.admin-settings-container .edit-options-menu-inner {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
 }
 
 .admin-settings-container .edit-options-menu button {
 	display: block;
 	width: 100%;
-	padding: 8px 12px;
-	background: none;
+	padding: 10px 15px;
+	background: white;
 	border: none;
+	border-bottom: 1px solid #eee;
 	text-align: left;
 	cursor: pointer;
-	color: grey;
+	font-size: 14px;
+	color: #333;
+	transition: background-color 0.2s;
+}
+
+.admin-settings-container .edit-options-menu button:last-child {
+	border-bottom: none;
 }
 
 .admin-settings-container .edit-options-menu button:hover {
-	background-color: rgba(0, 0, 0, 0.1);
+	background-color: hsl(45, 100%, 95%);
+	color: hsl(45, 100%, 51%);
 }
 
 #edit_status,
@@ -541,42 +615,69 @@ p {
 	background-color: hsl(0, 0%, 91%);
 }
 
-.admin-settings-container .edit-button-container {
-	position: relative;
-	display: inline-block;
+/* Better Controls Layout */
+.admin-settings-container .controls-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1rem;
 }
 
-.admin-settings-container .edit-button {
-	cursor: pointer;
-	font-size: 24px; /* Ensure the icon size is consistent */
+.admin-settings-container .pagination-container {
+	flex-grow: 1;
 }
 
-.admin-settings-container .edit-button:hover {
-	border-radius: 50%;
-	background-color: rgba(0, 0, 0, 0.1);
+.admin-settings-container .action-buttons {
+	display: flex;
+	gap: 0.75rem;
+	justify-content: flex-end;
 }
 
-.edit-options-menu {
-	position: absolute;
-	background: white;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-	z-index: 1000;
-	width: 180px;
-}
-
-.admin-settings-container .edit-options-menu button {
-	display: block;
-	width: 100%;
-	padding: 8px 12px;
-	background: none;
+/* Enhanced Audit Logs Button */
+.admin-settings-container .audit-logs-btn {
+	background-color: white;
+	color: #333;
 	border: none;
-	text-align: left;
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	display: inline-flex;
+	align-items: center;
 	cursor: pointer;
-	color: grey;
+	border-radius: 8px;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	outline: 1px solid #ccc;
+	text-transform: uppercase;
 }
 
-.admin-settings-container .edit-options-menu button:hover {
-	background-color: rgba(0, 0, 0, 0.1);
+.admin-settings-container .audit-logs-btn:hover {
+	background-color: hsl(45, 100%, 51%);
+	color: white;
+	outline: none;
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive adjustments for controls container */
+@media (max-width: 768px) {
+	.admin-settings-container .controls-container {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.admin-settings-container .pagination-container,
+	.admin-settings-container .action-buttons {
+		width: 100%;
+	}
+
+	.admin-settings-container .action-buttons {
+		margin-top: 0.75rem;
+		justify-content: flex-start;
+	}
+
+	.admin-settings-container .audit-logs-btn {
+		width: 100%;
+		justify-content: center;
+	}
 }
