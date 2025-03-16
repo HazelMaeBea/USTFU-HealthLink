@@ -54,9 +54,9 @@ body {
 /* Status Title */
 .statusTracking-status-title {
 	text-align: center;
-	font-size: 14px;
+	font-size: 18px; /* Increased from 14px */
 	font-weight: bold;
-	margin: 20px 0;
+	margin: 25px 0; /* Increased margin */
 }
 
 /* Status Updates */
@@ -66,20 +66,22 @@ body {
 	align-items: center;
 	justify-content: center;
 	width: 100%;
+	padding: 10px 0;
 }
 
 /* Individual Status Box */
 .statusTracking-status-item {
 	display: flex;
 	align-items: center;
-	padding: 8px;
-	border-radius: 4px;
+	padding: 12px 15px; /* Increased padding */
+	border-radius: 6px; /* Slightly larger radius */
 	font-weight: bold;
-	font-size: 0.9rem;
-	width: 50%;
+	font-size: 1.1rem; /* Increased from 0.9rem */
+	width: 65%; /* Increased from 50% */
 	max-width: 100%;
-	margin-bottom: 10px;
+	margin-bottom: 15px; /* More spacing between items */
 	margin-top: 5px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Added subtle shadow */
 }
 
 /* Approved Status */
@@ -106,9 +108,9 @@ body {
 
 /* Green Checkmark */
 .statusTracking-checkmark {
-	font-size: 16px;
+	font-size: 20px; /* Increased from 16px */
 	color: green;
-	margin-right: 8px;
+	margin-right: 12px; /* More spacing */
 }
 
 .statusTracking-rejected .statusTracking-checkmark {
@@ -120,7 +122,12 @@ body {
 .statusTracking-status-text {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 12px; /* Increased from 10px */
+	font-weight: 600;
+}
+
+.statusTracking-timestamp {
+	font-weight: 700; /* Make timestamp stand out more */
 }
 
 /* Action Buttons */
