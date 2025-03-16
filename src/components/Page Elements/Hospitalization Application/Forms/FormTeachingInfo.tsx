@@ -163,9 +163,6 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						>
 							<label htmlFor="dateHired" className="form-label">
 								If Tenure-Track, please input DATE HIRED:
-								<span className="date-format">
-									(MM/DD/YYYY)
-								</span>
 							</label>
 							<input
 								type="date"
@@ -199,9 +196,6 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						>
 							<label htmlFor="dateRetired" className="form-label">
 								If Retiree, please input DATE RETIRED:
-								<span className="date-format">
-									(MM/DD/YYYY)
-								</span>
 							</label>
 							<input
 								type="date"

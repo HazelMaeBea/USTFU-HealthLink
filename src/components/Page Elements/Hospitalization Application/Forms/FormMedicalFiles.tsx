@@ -172,11 +172,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 								className="form-control claimRequestCount"
 								placeholder="1-10"
 							/>
-							{errors.claimRequestCount && (
-								<p className="text-danger">
-									{errors.claimRequestCount.message}
-								</p>
-							)}
+
 							<span
 								className="claim-text"
 								style={{ fontWeight: "normal" }}
@@ -185,6 +181,15 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 								claims
 							</span>
 						</div>
+						{errors.claimRequestCount && (
+							<span
+								className="text-danger claim-error"
+								style={{ fontWeight: "normal" }}
+							>
+								{" "}
+								{errors.claimRequestCount.message}
+							</span>
+						)}
 					</div>
 				</div>
 			</div>

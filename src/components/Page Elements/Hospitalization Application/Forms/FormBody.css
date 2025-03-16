@@ -40,6 +40,10 @@ fieldset {
 	margin: 0.5rem 0;
 }
 
+.claim-error {
+	float: right;
+}
+
 /* Medical Files: Row alignment */
 fieldset.medicalFiles .row {
 	align-items: center;
