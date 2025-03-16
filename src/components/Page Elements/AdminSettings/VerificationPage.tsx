@@ -1,12 +1,9 @@
 import "./AdminSettings.css";
 import "./VerificationPage.css";
 import { useState } from "react";
-import {
-	MdOutlineKeyboardArrowLeft,
-	MdOutlineKeyboardArrowRight,
-	MdOutlineIndeterminateCheckBox,
-} from "react-icons/md";
-import Popout from "../Popout/Popout"; // added import for Popout
+import { MdOutlineIndeterminateCheckBox } from "react-icons/md";
+import Popout from "../Popout/Popout";
+import PageButtons from "../PageButtons/PageButtons"; // Import PageButtons component
 
 interface VerificationRequest {
 	name: string;
@@ -26,7 +23,9 @@ const VerificationPage = () => {
 		}));
 	};
 
-	const [requests, setRequests] = useState<VerificationRequest[]>(generateSampleData());
+	const [requests, setRequests] = useState<VerificationRequest[]>(
+		generateSampleData()
+	);
 	const [selectAll, setSelectAll] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const requestsPerPage = 6;
@@ -39,7 +38,8 @@ const VerificationPage = () => {
 
 	// Remove headerCheckboxRef; compute indeterminate directly:
 	const isIndeterminate =
-		requests.some((req) => req.selected) && !requests.every((req) => req.selected);
+		requests.some((req) => req.selected) &&
+		!requests.every((req) => req.selected);
 
 	const handleSelectAll = () => {
 		setSelectAll(!selectAll);
@@ -65,7 +65,8 @@ const VerificationPage = () => {
 	// Bulk Actions
 	const handleBulkApprove = () => {
 		const selectedRequests = requests.filter((req) => req.selected);
-		const target = selectedRequests.length > 0 ? selectedRequests : requests;
+		const target =
+			selectedRequests.length > 0 ? selectedRequests : requests;
 		setPopoutTitle("Confirm Bulk Approval");
 		setPopoutMessage(
 			selectedRequests.length > 0
@@ -80,7 +81,8 @@ const VerificationPage = () => {
 
 	const handleBulkDeny = () => {
 		const selectedRequests = requests.filter((req) => req.selected);
-		const target = selectedRequests.length > 0 ? selectedRequests : requests;
+		const target =
+			selectedRequests.length > 0 ? selectedRequests : requests;
 		setPopoutTitle("Confirm Bulk Denial");
 		setPopoutMessage(
 			selectedRequests.length > 0
@@ -96,22 +98,20 @@ const VerificationPage = () => {
 	// Pagination logic
 	const indexOfLastRequest = currentPage * requestsPerPage;
 	const indexOfFirstRequest = indexOfLastRequest - requestsPerPage;
-	const currentRequests = requests.slice(indexOfFirstRequest, indexOfLastRequest);
+	const currentRequests = requests.slice(
+		indexOfFirstRequest,
+		indexOfLastRequest
+	);
 	const totalPages = Math.ceil(requests.length / requestsPerPage);
 
-	// Pagination handlers
-	const handlePrevPage = () => {
-		if (currentPage > 1) setCurrentPage(currentPage - 1);
-	};
-	const handleNextPage = () => {
-		if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-	};
-
 	return (
-		<div>
+		<div className="verification-page-container">
 			{/* Wrap the table in a responsive container */}
 			<div style={{ overflowX: "auto", width: "100%" }}>
-				<table style={{ minWidth: "600px", borderCollapse: "collapse" }} className="verification-table">
+				<table
+					style={{ minWidth: "600px", borderCollapse: "collapse" }}
+					className="verification-table"
+				>
 					<thead className="verification-page-header">
 						<tr className="verification-tr">
 							<th className="first-column">
@@ -126,14 +126,23 @@ const VerificationPage = () => {
 									}}
 								>
 									{isIndeterminate ? (
-										<MdOutlineIndeterminateCheckBox size={24} />
+										<MdOutlineIndeterminateCheckBox
+											size={24}
+										/>
 									) : (
-										<input type="checkbox" checked={selectAll} readOnly style={{ pointerEvents: "none" }} />
+										<input
+											type="checkbox"
+											checked={selectAll}
+											readOnly
+											style={{ pointerEvents: "none" }}
+										/>
 									)}
 								</button>
 							</th>
 							<th className="verification-header">NAME</th>
-							<th className="verification-header">EMAIL ADDRESS</th>
+							<th className="verification-header">
+								EMAIL ADDRESS
+							</th>
 							<th className="verification-header">ROLE</th>
 							<th className="verification-header">ACTION</th>
 						</tr>
@@ -150,29 +159,47 @@ const VerificationPage = () => {
 										aria-label="select this user"
 									/>
 								</td>
-								<td className="verfication-td">{request.name}</td>
-								<td className="verfication-td">{request.email}</td>
+								<td className="verfication-td">
+									{request.name}
+								</td>
+								<td className="verfication-td">
+									{request.email}
+								</td>
 								<td className="verfication-td">
 									<select
 										className="item-select verfication-role"
 										value={request.role}
-										onChange={(e) => handleRoleChange(index, e.target.value)}
+										onChange={(e) =>
+											handleRoleChange(
+												index,
+												e.target.value
+											)
+										}
 										aria-label="Select Role"
 									>
 										<option value="MEMBER">MEMBER</option>
-										<option value="OPERATIONS HANDLER">OPEARATIONS HANDLER</option>
+										<option value="OPERATIONS HANDLER">
+											OPERATIONS HANDLER
+										</option>
 										{/* Add more options as needed */}
 									</select>
 								</td>
 								<td className="verfication-td">
 									<div className="d-flex justify-content-center gap-3">
 										<button
-											className="verification-btn approve-btn"
+											className="verification-btn verification-approve-btn"
 											onClick={() => {
-												setPopoutTitle("Confirm Approval");
-												setPopoutMessage(`Are you sure you want to approve ${request.name}?`);
+												setPopoutTitle(
+													"Confirm Approval"
+												);
+												setPopoutMessage(
+													`Are you sure you want to approve ${request.name}?`
+												);
 												setPendingAction(() => () => {
-													console.log("Approve:", request.name);
+													console.log(
+														"Approve:",
+														request.name
+													);
 												});
 												setPopoutOpen(true);
 											}}
@@ -183,10 +210,17 @@ const VerificationPage = () => {
 										<button
 											className="verification-btn deny-btn"
 											onClick={() => {
-												setPopoutTitle("Confirm Denial");
-												setPopoutMessage(`Are you sure you want to deny ${request.name}?`);
+												setPopoutTitle(
+													"Confirm Denial"
+												);
+												setPopoutMessage(
+													`Are you sure you want to deny ${request.name}?`
+												);
 												setPendingAction(() => () => {
-													console.log("Deny:", request.name);
+													console.log(
+														"Deny:",
+														request.name
+													);
 												});
 												setPopoutOpen(true);
 											}}
@@ -201,47 +235,16 @@ const VerificationPage = () => {
 				</table>
 			</div>
 
-			{/* Updated container: aligned far left */}
-			<div className="d-flex justify-content-start align-items-center mt-4 gap-4">
-				<div className="page-buttons-wrapper">
-					<div className="page-buttons">
-						<button
-							className="prev-button"
-							onClick={handlePrevPage}
-							disabled={currentPage <= 1}
-							aria-label="Previous Page"
-						>
-							<MdOutlineKeyboardArrowLeft color="black" size={20} />
-						</button>
-						<div className="page-input-container">
-							<input
-								className="current-page-input"
-								type="text"
-								value={currentPage.toString()}
-								onChange={(e) => {
-									const val = Number(e.target.value);
-									if (val >= 1 && val <= totalPages) setCurrentPage(val);
-								}}
-								onBlur={(e) => {
-									if (e.target.value === "") {
-										setCurrentPage(1);
-									}
-								}}
-								placeholder={currentPage.toString()}
-							/>
-							<span className="page-input-suffix">of {totalPages}</span>
-						</div>
-						<button
-							className="next-button"
-							onClick={handleNextPage}
-							disabled={currentPage >= totalPages}
-							aria-label="Next Page"
-						>
-							<MdOutlineKeyboardArrowRight color="white" size={20} />
-						</button>
-					</div>
+			{/* Updated controls container matching AdminSettings */}
+			<div className="controls-container">
+				<div className="pagination-container">
+					<PageButtons
+						currentPage={currentPage}
+						totalPages={totalPages}
+						onPageChange={(page) => setCurrentPage(page)}
+					/>
 				</div>
-				<div className="d-flex gap-2">
+				<div className="action-buttons">
 					<button
 						className="bulk-btn bulk-approve"
 						onClick={handleBulkApprove}
