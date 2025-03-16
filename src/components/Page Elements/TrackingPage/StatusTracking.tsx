@@ -17,7 +17,8 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 	status,
 	dateTime,
 }) => {
-	const pendingRequests = usePendingRequests();
+	// Update to use the new hook structure
+	const { requests: pendingRequests } = usePendingRequests(1, 100); // Request a large number to ensure we get all requests
 
 	const [previewFile, setPreviewFile] = useState<any>(null);
 	const handleClosePreview = () => {
@@ -101,11 +102,15 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 				<div className="statusTracking-form-container">
 					<div className="statusTracking-form-contents">
 						<label>Last Name</label>
-						<p className="statusTracking-field-content">{formData.lastname}</p>
+						<p className="statusTracking-field-content">
+							{formData.lastname}
+						</p>
 					</div>
 					<div className="statusTracking-form-contents">
 						<label>First Name</label>
-						<p className="statusTracking-field-content">{formData.firstname}</p>
+						<p className="statusTracking-field-content">
+							{formData.firstname}
+						</p>
 					</div>
 					<div className="statusTracking-form-contents">
 						<label>Middle Name</label>
@@ -129,15 +134,21 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 					</div>
 					<div className="statusTracking-form-contents st-gender">
 						<label>Gender</label>
-						<p className="statusTracking-field-content">{formData.gender}</p>
+						<p className="statusTracking-field-content">
+							{formData.gender}
+						</p>
 					</div>
 					<div className="statusTracking-form-contents st-college">
 						<label>College Affiliation</label>
-						<p className="statusTracking-field-content">{formData.college}</p>
+						<p className="statusTracking-field-content">
+							{formData.college}
+						</p>
 					</div>
 					<div className="statusTracking-form-contents st-contact">
 						<label>Contact No.</label>
-						<p className="statusTracking-field-content">{formData.contact}</p>
+						<p className="statusTracking-field-content">
+							{formData.contact}
+						</p>
 					</div>
 				</div>
 			</>
@@ -179,15 +190,21 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 						<div className="statusTracking-form-container">
 							<div className="statusTracking-form-contents">
 								<label>Academic Term</label>
-								<p className="statusTracking-field-content">{formData.term}</p>
+								<p className="statusTracking-field-content">
+									{formData.term}
+								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Academic Year</label>
-								<p className="statusTracking-field-content">{formData.year}</p>
+								<p className="statusTracking-field-content">
+									{formData.year}
+								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Teaching Load</label>
-								<p className="statusTracking-field-content">{formData.load}</p>
+								<p className="statusTracking-field-content">
+									{formData.load}
+								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Status</label>
@@ -199,7 +216,9 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 								<label>Date Hired:</label>
 								<p className="statusTracking-field-content">
 									{formData.dateHired
-										? new Date(formData.dateHired).toLocaleDateString()
+										? new Date(
+												formData.dateHired
+										  ).toLocaleDateString()
 										: "-"}
 								</p>
 							</div>
@@ -207,7 +226,9 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 								<label>Date Retired:</label>
 								<p className="statusTracking-field-content">
 									{formData.dateRetired
-										? new Date(formData.dateRetired).toLocaleDateString()
+										? new Date(
+												formData.dateRetired
+										  ).toLocaleDateString()
 										: "-"}
 								</p>
 							</div>
@@ -256,19 +277,25 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 							<div className="statusTracking-form-contents">
 								<label>OR Number</label>
 								<p className="statusTracking-field-content">
-									{formData.ORNumber ? formData.ORNumber : "-"}
+									{formData.ORNumber
+										? formData.ORNumber
+										: "-"}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Issued By</label>
 								<p className="statusTracking-field-content">
-									{formData.issuedBy ? formData.issuedBy : "-"}
+									{formData.issuedBy
+										? formData.issuedBy
+										: "-"}
 								</p>
 							</div>
 							<div className="statusTracking-form-contents">
 								<label>Amount Paid</label>
 								<p className="statusTracking-field-content">
-									{formData.amountPaid ? formData.amountPaid : "-"}
+									{formData.amountPaid
+										? formData.amountPaid
+										: "-"}
 								</p>
 							</div>
 						</div>
@@ -284,7 +311,9 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			formData.employeeID,
 			formData.applicantSignature,
 			...("docRequest" in formData ? [formData.docRequest] : []),
-			...("hospitalInvoice" in formData ? [formData.hospitalInvoice] : []),
+			...("hospitalInvoice" in formData
+				? [formData.hospitalInvoice]
+				: []),
 			...("labInvoice" in formData ? [formData.labInvoice] : []),
 		].filter((attachment) => attachment && attachment.filename);
 
@@ -356,39 +385,50 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			{pendingRequests
 				.filter((request) => request.transactionId === transactionID)
 				.map((request) => (
-					<div key={request.transactionId} className="statusTracking-container">
+					<div
+						key={request.transactionId}
+						className="statusTracking-container"
+					>
 						<div className="statusTracking-transaction-header">
 							<div className="statusTracking-transaction-id">
 								TRANSACTION ID: <strong>{transactionID}</strong>
 							</div>
-							<button className="statusTracking-back-button" onClick={onBack}>
+							<button
+								className="statusTracking-back-button"
+								onClick={onBack}
+							>
 								BACK
 							</button>
 						</div>
 						<div className="statusTracking-status-updates">
-							<h3 className="statusTracking-status-title">STATUS UPDATES</h3>
-							{getStatusUpdates(status, dateTime).map((update, index) => (
-								<div
-									key={index}
-									className={`statusTracking-status-item ${update.bgClass}`}
-								>
-									{update.icon && (
-										<span className="statusTracking-checkmark">
-											{update.icon}
-										</span>
-									)}
-									<div className="statusTracking-status-text">
-										<span>{update.label}</span>
-										<span>-</span>
-										<span className="statusTracking-timestamp">
-											{status === "Pending" &&
-											(update.key === "reviewed" || update.key === "processing")
-												? "..."
-												: update.time}
-										</span>
+							<h3 className="statusTracking-status-title">
+								STATUS UPDATES
+							</h3>
+							{getStatusUpdates(status, dateTime).map(
+								(update, index) => (
+									<div
+										key={index}
+										className={`statusTracking-status-item ${update.bgClass}`}
+									>
+										{update.icon && (
+											<span className="statusTracking-checkmark">
+												{update.icon}
+											</span>
+										)}
+										<div className="statusTracking-status-text">
+											<span>{update.label}</span>
+											<span>-</span>
+											<span className="statusTracking-timestamp">
+												{status === "Pending" &&
+												(update.key === "reviewed" ||
+													update.key === "processing")
+													? "..."
+													: update.time}
+											</span>
+										</div>
 									</div>
-								</div>
-							))}
+								)
+							)}
 						</div>
 						<div className="statusTracking-action-buttons">
 							<button
