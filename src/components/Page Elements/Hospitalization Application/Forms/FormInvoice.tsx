@@ -21,6 +21,7 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({ register, errors }) => {
 							id="ORNumber"
 							type="text"
 							className="form-control"
+							placeholder="eg. OR-2025-00001"
 						/>
 						{errors.ORNumber && (
 							<p className="text-danger">
@@ -38,6 +39,7 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({ register, errors }) => {
 							id="issuedBy"
 							type="text"
 							className="form-control"
+							placeholder="eg. Metro Optical"
 						/>
 						{errors.issuedBy && (
 							<p className="text-danger">
@@ -55,6 +57,7 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({ register, errors }) => {
 							id="amountPaid"
 							type="number"
 							className="form-control"
+							placeholder="eg. 5000"
 						/>
 						{errors.amountPaid && (
 							<p className="text-danger">
@@ -64,7 +67,6 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({ register, errors }) => {
 					</div>
 				</div>
 			</fieldset>
-			<hr className="section-separator" />
 		</>
 	);
 };

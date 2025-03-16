@@ -47,7 +47,7 @@ const schema = z
 			.min(1, "Please enter your middle name"),
 		suffix: z
 			.string({
-				invalid_type_error: "Suffix must be text",
+				invalid_type_error: "Please enter your suffix",
 			})
 			.nullish(),
 		age: z.coerce
