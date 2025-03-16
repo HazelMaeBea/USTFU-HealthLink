@@ -1,9 +1,8 @@
 import "./AdminSettings.css";
 import "./VerificationPage.css";
-import { useState } from "react";
-import { MdOutlineIndeterminateCheckBox } from "react-icons/md";
+import { useState, useEffect, useRef } from "react";
 import Popout from "../Popout/Popout";
-import PageButtons from "../PageButtons/PageButtons"; // Import PageButtons component
+import PageButtons from "../PageButtons/PageButtons";
 
 interface VerificationRequest {
 	name: string;
@@ -27,8 +26,11 @@ const VerificationPage = () => {
 		generateSampleData()
 	);
 	const [selectAll, setSelectAll] = useState(false);
+	const [isIndeterminate, setIsIndeterminate] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const requestsPerPage = 7;
+
+	const headerCheckboxRef = useRef<HTMLInputElement>(null);
 
 	// State for popout confirmation
 	const [popoutOpen, setPopoutOpen] = useState(false);
@@ -36,14 +38,35 @@ const VerificationPage = () => {
 	const [popoutMessage, setPopoutMessage] = useState("");
 	const [pendingAction, setPendingAction] = useState<() => void>(() => {});
 
-	// Remove headerCheckboxRef; compute indeterminate directly:
-	const isIndeterminate =
-		requests.some((req) => req.selected) &&
-		!requests.every((req) => req.selected);
+	// Update indeterminate state when requests change
+	useEffect(() => {
+		const selectedCount = requests.filter((req) => req.selected).length;
+
+		if (selectedCount === 0) {
+			setSelectAll(false);
+			setIsIndeterminate(false);
+		} else if (selectedCount === requests.length) {
+			setSelectAll(true);
+			setIsIndeterminate(false);
+		} else {
+			setSelectAll(false);
+			setIsIndeterminate(true);
+		}
+
+		// Set indeterminate property on DOM element
+		if (headerCheckboxRef.current) {
+			headerCheckboxRef.current.indeterminate =
+				selectedCount > 0 && selectedCount < requests.length;
+		}
+	}, [requests]);
 
 	const handleSelectAll = () => {
-		setSelectAll(!selectAll);
-		setRequests(requests.map((req) => ({ ...req, selected: !selectAll })));
+		const newSelectAll = !selectAll || isIndeterminate;
+		setSelectAll(newSelectAll);
+		setIsIndeterminate(false);
+		setRequests(
+			requests.map((req) => ({ ...req, selected: newSelectAll }))
+		);
 	};
 
 	const handleSelect = (index: number) => {
@@ -51,7 +74,6 @@ const VerificationPage = () => {
 		const actualIndex = (currentPage - 1) * requestsPerPage + index;
 		newRequests[actualIndex].selected = !newRequests[actualIndex].selected;
 		setRequests(newRequests);
-		setSelectAll(newRequests.every((req) => req.selected));
 	};
 
 	// New handler for role change via dropdown
@@ -115,29 +137,22 @@ const VerificationPage = () => {
 					<thead className="verification-page-header">
 						<tr className="verification-tr">
 							<th className="first-column">
-								<button
-									onClick={handleSelectAll}
-									className="custom-header-checkbox"
-									style={{
-										background: "none",
-										border: "none",
-										padding: 0,
-										cursor: "pointer",
-									}}
+								<label
+									className="custom-checkbox"
+									title={
+										selectAll
+											? "Deselect all"
+											: "Select all"
+									}
 								>
-									{isIndeterminate ? (
-										<MdOutlineIndeterminateCheckBox
-											size={24}
-										/>
-									) : (
-										<input
-											type="checkbox"
-											checked={selectAll}
-											readOnly
-											style={{ pointerEvents: "none" }}
-										/>
-									)}
-								</button>
+									<input
+										type="checkbox"
+										checked={selectAll}
+										ref={headerCheckboxRef}
+										onChange={handleSelectAll}
+									/>
+									<span className="checkmark"></span>
+								</label>
 							</th>
 							<th className="verification-header">NAME</th>
 							<th className="verification-header">
@@ -151,13 +166,15 @@ const VerificationPage = () => {
 						{currentRequests.map((request, index) => (
 							<tr className="verification-tr" key={index}>
 								<td className="first-column">
-									<input
-										type="checkbox"
-										checked={request.selected}
-										onChange={() => handleSelect(index)}
-										className="rounded border-gray-300"
-										aria-label="select this user"
-									/>
+									<label className="custom-checkbox">
+										<input
+											type="checkbox"
+											checked={request.selected}
+											onChange={() => handleSelect(index)}
+											aria-label="select this user"
+										/>
+										<span className="checkmark"></span>
+									</label>
 								</td>
 								<td className="verfication-td">
 									{request.name}
@@ -235,7 +252,7 @@ const VerificationPage = () => {
 				</table>
 			</div>
 
-			{/* Updated controls container matching AdminSettings */}
+			{/* Controls container - No changes needed */}
 			<div className="controls-container">
 				<div className="pagination-container">
 					<PageButtons
