@@ -412,18 +412,174 @@ table {
 	margin-bottom: 1rem;
 }
 
-/* input:-webkit-autofill,
-textarea:-webkit-autofill,
-select:-webkit-autofill {
-	background-color: #ffffff !important;
-	color: #333333 !important;
-	font-size: inherit !important;
-	transition: background-color 5000s ease-in-out 0s;
+/* Updated Success Notification with close button */
+.success-notification {
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+	display: flex;
+	align-items: center;
+	background-color: #ffffff;
+	border-left: 4px solid hsl(45, 100%, 51%);
+	border-radius: 8px;
+	padding: 12px 20px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	z-index: 1050;
+	animation: slideIn 0.3s ease-out forwards;
+	max-width: 400px;
 }
 
-input:-moz-autofill,
-textarea:-moz-autofill,
-select:-moz-autofill {
-	background-color: #ffffff !important;
-	color: #333333 !important;
-} */
+.success-notification.hiding {
+	animation: slideOut 0.3s ease-in forwards;
+}
+
+/* Add style for close button */
+.success-close {
+	background: transparent;
+	border: none;
+	color: #999;
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: all 0.2s ease;
+	margin-left: 8px;
+}
+
+.success-close:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+	color: #666;
+}
+
+.success-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background-color: hsl(45, 100%, 51%);
+	color: white;
+	margin-right: 12px;
+	flex-shrink: 0;
+}
+
+.success-content {
+	flex-grow: 1;
+}
+
+.success-title {
+	font-weight: 600;
+	margin: 0;
+	color: #333;
+}
+
+.success-message {
+	margin: 4px 0 0;
+	color: #666;
+	font-size: 14px;
+}
+
+.success-action {
+	display: flex;
+	margin-top: 8px;
+}
+
+.success-link {
+	color: hsl(45, 100%, 51%);
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+}
+
+.success-link:hover {
+	text-decoration: underline;
+}
+
+.success-link-icon {
+	margin-left: 4px;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes slideOut {
+	from {
+		transform: translateX(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+}
+
+/* Remove old popup styling */
+.popup-overlay {
+	display: none; /* Hide old popup */
+}
+
+/* Updated Success Notification with status styles */
+.success-notification.error-notification {
+	border-left-color: #dc3545;
+}
+
+/* Spinner for processing state */
+.spinner {
+	width: 18px;
+	height: 18px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-radius: 50%;
+	border-top-color: #fff;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Status-specific styles for the icon */
+.success-icon.processing {
+	background-color: #6c757d;
+}
+
+.success-icon.success {
+	background-color: hsl(45, 100%, 51%);
+}
+
+.success-icon.error {
+	background-color: #dc3545;
+}
+
+/* Try again link styling */
+.try-again-link {
+	color: #dc3545;
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+	background: transparent;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	margin-top: 8px;
+}
+
+.try-again-link:hover {
+	text-decoration: underline;
+}

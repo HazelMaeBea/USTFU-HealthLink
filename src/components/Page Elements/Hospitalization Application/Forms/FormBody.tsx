@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,12 +11,13 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormMedicalFiles from "./FormMedicalFiles";
 import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
-// import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db, getFormID, storage } from "../../../../config/firebase.ts";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
-import Popout from "../../../Page Elements/Popout/Popout"; // adjust path if needed
+import Popout from "../../../Page Elements/Popout/Popout";
+// Add X icon for close button
+import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -187,9 +188,16 @@ const schema = z
 const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [dateHired, setDateHired] = useState<Date | null>(null);
 	const [dateRetired, setDateRetired] = useState<Date | null>(null);
-	const [showPopup, setShowPopup] = useState(false);
+	const [showSuccessNotification, setShowSuccessNotification] =
+		useState(false);
+	const [isNotificationHiding, setIsNotificationHiding] = useState(false);
 	const [showClearConfirmation, setShowClearConfirmation] =
 		useState<boolean>(false);
+	const [formIdString, setFormIdString] = useState<string>("");
+	const [submissionStatus, setSubmissionStatus] = useState<
+		"processing" | "success" | "error"
+	>("processing");
+	const [errorMessage, setErrorMessage] = useState<string>("");
 	const navigate = useNavigate();
 
 	const {
@@ -199,13 +207,28 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
-	// const formsCollectionRef = collection(db, "FormRequests");
+	// Add a handler to close the notification with animation
+	const closeNotification = () => {
+		setIsNotificationHiding(true);
+
+		// After animation completes, hide the notification
+		setTimeout(() => {
+			setShowSuccessNotification(false);
+			setIsNotificationHiding(false);
+		}, 300); // Animation duration
+	};
+
 	const onSubmit = async (data: FieldValues) => {
+		// Show notification immediately with processing state
+		setSubmissionStatus("processing");
+		setShowSuccessNotification(true);
+
 		try {
 			const email = auth?.currentUser?.email;
 
 			const formID = await getFormID(true);
 			const formIDString = formID?.toString().padStart(6, "0") || "error";
+			setFormIdString(formIDString);
 			const currentYear: string = new Date().getFullYear().toString();
 
 			// Prepare file storage paths
@@ -234,8 +257,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				currentYear +
 				"-" +
 				formIDString +
-				"-O/";
-			data.employeeID[0].name;
+				"-O/" +
+				data.employeeID[0].name;
 			const hospitalInvoiceUrl =
 				"FormRequests/" +
 				email +
@@ -243,8 +266,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				currentYear +
 				"-" +
 				formIDString +
-				"-O/";
-			data.hospitalInvoice[0].name;
+				"-O/" +
+				data.hospitalInvoice[0].name;
 			const labInvoiceUrl =
 				"FormRequests/" +
 				email +
@@ -252,8 +275,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				currentYear +
 				"-" +
 				formIDString +
-				"-O/";
-			data.labInvoice[0].name;
+				"-O/" +
+				data.labInvoice[0].name;
 
 			// Upload and get download URL for applicantSignature
 			let imageRef = ref(storage, applicantSignatureUrl);
@@ -349,13 +372,24 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				newDoc
 			);
 			console.log("Document written with ID: ", formIDString);
-			setShowPopup(true);
+			// Show success notification instead of old popup
+			setSubmissionStatus("success");
+
+			// Reset form after successful submission
+			reset();
 		} catch (error) {
 			console.error(error);
+			setSubmissionStatus("error");
+			setErrorMessage(
+				error instanceof Error
+					? error.message
+					: "An unexpected error occurred"
+			);
 		}
 	};
 
-	const handlePopupClick = () => {
+	const handleTrackingClick = (e: React.MouseEvent) => {
+		e.preventDefault();
 		navigate("/tracking");
 	};
 
@@ -406,17 +440,76 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					</button>
 				</div>
 			</form>
-			{showPopup && (
-				<>
-					<div className="popup-overlay"></div>
-					<div className="popup">
-						<p>Claim Request submitted!</p>
-						<a href="#" onClick={handlePopupClick}>
-							Click here to track your pending requests
-						</a>
+
+			{showSuccessNotification && (
+				<div
+					className={`success-notification ${
+						isNotificationHiding ? "hiding" : ""
+					} ${
+						submissionStatus === "error" ? "error-notification" : ""
+					}`}
+				>
+					<div className={`success-icon ${submissionStatus}`}>
+						{submissionStatus === "processing" ? (
+							<div className="spinner"></div>
+						) : submissionStatus === "success" ? (
+							<FiCheck size={18} />
+						) : (
+							<FiX size={18} />
+						)}
 					</div>
-				</>
+					<div className="success-content">
+						<h4 className="success-title">
+							{submissionStatus === "processing"
+								? "Submitting Form..."
+								: submissionStatus === "success"
+								? "Form Submitted Successfully"
+								: "Submission Failed"}
+						</h4>
+						<p className="success-message">
+							{submissionStatus === "processing"
+								? "Please wait while we process your claim request..."
+								: submissionStatus === "success"
+								? `Your claim request has been submitted with ID: ${formIdString}`
+								: errorMessage ||
+								  "An error occurred during submission. Please try again."}
+						</p>
+						{submissionStatus === "success" && (
+							<div className="success-action">
+								<a
+									href="#"
+									onClick={handleTrackingClick}
+									className="success-link"
+								>
+									Track your request{" "}
+									<FiArrowRight
+										size={14}
+										className="success-link-icon"
+									/>
+								</a>
+							</div>
+						)}
+						{submissionStatus === "error" && (
+							<div className="success-action">
+								<button
+									onClick={closeNotification}
+									className="try-again-link"
+								>
+									Close and try again
+								</button>
+							</div>
+						)}
+					</div>
+					<button
+						className="success-close"
+						onClick={closeNotification}
+						aria-label="Close notification"
+					>
+						<FiX size={18} />
+					</button>
+				</div>
 			)}
+
 			{showClearConfirmation && (
 				<Popout
 					title="Confirm Clear Form"
