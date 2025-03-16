@@ -28,7 +28,7 @@ const VerificationPage = () => {
 	);
 	const [selectAll, setSelectAll] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
-	const requestsPerPage = 6;
+	const requestsPerPage = 7;
 
 	// State for popout confirmation
 	const [popoutOpen, setPopoutOpen] = useState(false);
