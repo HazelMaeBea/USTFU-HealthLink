@@ -21,6 +21,15 @@
 	transition: border-color 0.25s;
 }
 
+:global(.btn:hover) {
+	border-color: #646cff;
+}
+
+:global(.btn:focus),
+:global(.btn:focus-visible) {
+	outline: 4px auto -webkit-focus-ring-color;
+}
+
 :global(.btn-history) {
 	border: 1px solid #000 !important;
 	color: #000 !important;
@@ -36,15 +45,7 @@
 	color: #fff !important;
 }
 
-:global(.btn:hover) {
-	border-color: #646cff;
-}
-
-:global(.btn:focus),
-:global(.btn:focus-visible) {
-	outline: 4px auto -webkit-focus-ring-color;
-}
-
+/* Main container and card */
 .historyPageContainer {
 	max-width: 100%;
 	padding: 1rem;
@@ -61,9 +62,10 @@
 	border-top: 4px solid var(--primary-yellow);
 	display: flex;
 	flex-direction: column;
-	height: 115vh; /* Fixed height for consistency */
+	height: 120vh; /* Fixed height for consistency */
 }
 
+/* Header section */
 .historyCardHeader {
 	padding: 1.5rem 2rem;
 	border-bottom: 1px solid #f0f0f0;
@@ -95,6 +97,7 @@
 	align-items: center;
 }
 
+/* Search controls */
 .searchControls {
 	display: flex;
 	gap: 1rem;
@@ -117,7 +120,6 @@
 	color: #888;
 }
 
-/* Updated search input to white background */
 .searchInput {
 	color: black;
 	width: 100%;
@@ -135,33 +137,74 @@
 	outline: none;
 }
 
+/* Form type selector */
 .formTypeFilter {
 	min-width: 150px;
+	position: relative;
 }
 
-/* Updated select with yellow accent */
-.formTypeSelect {
+.formTypeButton {
 	color: black;
 	width: 100%;
 	padding: 0.65rem 1rem;
 	border: 1px solid #ddd;
 	border-radius: 6px;
 	font-size: 0.9rem;
-	appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right 1rem center;
-	background-size: 10px;
 	cursor: pointer;
+	text-align: left;
 	background-color: #fff;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: all 0.2s ease;
 }
 
-.formTypeSelect:focus {
+.formTypeButton:hover {
 	border-color: var(--primary-yellow);
-	box-shadow: 0 0 0 3px var(--yellow-shadow);
-	outline: none;
 }
 
+.formTypeIcon {
+	font-size: 0.7rem;
+	margin-left: 8px;
+	color: #666;
+}
+
+.formTypeDropdown {
+	position: absolute;
+	top: calc(100% + 5px);
+	left: 0;
+	width: 100%;
+	background: white;
+	border-radius: 8px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	z-index: 10;
+	overflow: hidden;
+	animation: fadeIn 0.2s ease;
+	border: 1px solid var(--primary-yellow);
+}
+
+.formTypeOption {
+	width: 100%;
+	text-align: left;
+	padding: 0.75rem 1rem;
+	border: none;
+	background: transparent;
+	font-size: 0.9rem;
+	color: #333;
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
+
+.formTypeOption:hover {
+	background-color: var(--light-yellow);
+}
+
+.formTypeOptionSelected {
+	background-color: var(--light-yellow);
+	font-weight: 500;
+}
+
+/* Filter controls */
 .filterControls {
 	display: flex;
 	gap: 1rem;
@@ -175,7 +218,6 @@
 	flex-wrap: wrap;
 }
 
-/* Updated filter tag with yellow theme */
 .filterTag {
 	display: flex;
 	align-items: center;
@@ -190,10 +232,15 @@
 }
 
 .filterText {
-	font-weight: 500;
+	font-weight: 600;
+	color: #333;
 }
 
-/* Changed filter remove button color */
+.filterValue {
+	font-weight: 400;
+	color: #555;
+}
+
 .filterRemove {
 	background: none;
 	border: none;
@@ -206,17 +253,33 @@
 	border-radius: 50%;
 	width: 18px;
 	height: 18px;
+	margin-left: 4px;
 }
 
-.filterRemove:hover {
-	background-color: rgba(255, 193, 7, 0.2);
+/* Clear all filters button */
+.clearAllFiltersBtn {
+	display: flex;
+	align-items: center;
+	background: none;
+	border: 1px dashed var(--primary-yellow);
+	border-radius: 20px;
+	padding: 0.4rem 0.8rem;
+	font-size: 0.85rem;
+	color: var(--dark-yellow);
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
+.clearAllFiltersBtn:hover {
+	background-color: var(--light-yellow);
+}
+
+/* Filter dropdown */
 .filterDropdownContainer {
 	position: relative;
 }
 
-/* Updated filter button with yellow theme */
 .addFilterBtn,
 .exportBtn {
 	display: flex;
@@ -284,7 +347,7 @@
 	background-color: var(--light-yellow);
 }
 
-/* Content Section - updated to take available space */
+/* Content Section */
 .historyContent {
 	padding: 1rem;
 	flex: 1;
@@ -294,6 +357,7 @@
 	flex-direction: column;
 }
 
+/* Table styles */
 .tableContainer {
 	width: 100%;
 	overflow-x: auto;
@@ -318,10 +382,9 @@
 	white-space: nowrap;
 }
 
-/* Table Design */
 .table th {
-	background-color: var(--primary-yellow);
-	color: hsl(0, 0%, 20%);
+	background-color: hsl(210, 10%, 23%);
+	color: white;
 	font-weight: 600;
 	text-align: left;
 	position: sticky;
@@ -397,7 +460,7 @@
 	color: hsl(220, 9%, 46%);
 }
 
-/* Footer with yellow accent - prevent shrinking */
+/* Footer and pagination */
 .historyFooter {
 	padding: 1rem 2rem;
 	border-top: 1px solid hsl(0, 0%, 94%);
@@ -413,7 +476,108 @@
 	color: #666;
 }
 
-/* Empty states and errors - consistent sizing */
+/* Simple pagination styles - updated for cleaner look */
+.historyPagination {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	justify-content: flex-end;
+}
+
+.pageButton {
+	min-width: 2.2rem;
+	height: 2.2rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 !important;
+	margin: 0 2px !important;
+	font-weight: 500;
+}
+
+.pageButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.pageEllipsis {
+	margin: 0 0.2rem;
+	color: #666;
+	align-self: center;
+	font-weight: bold;
+}
+
+/* Override the default .btn-active for our pagination */
+.historyPagination :global(.btn-active) {
+	background-color: #333 !important;
+	color: white !important;
+	border-color: #333 !important;
+	font-weight: 600;
+}
+
+/* Export filename input */
+.filenameInput {
+	width: 100%;
+	padding: 0.625rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	color: #111827;
+	transition: border-color 0.15s ease;
+	background-color: #fff;
+}
+
+.filenameInput:focus {
+	border-color: var(--primary-yellow);
+	outline: none;
+	box-shadow: 0 0 0 3px var(--yellow-shadow);
+}
+
+.filenameHint {
+	display: block;
+	margin-top: 0.5rem;
+	font-size: 0.85rem;
+	color: #6b7280;
+	line-height: 1.4;
+	margin-bottom: 0.25rem;
+}
+
+/* Export success notification */
+.exportSuccess {
+	position: fixed;
+	bottom: 2rem;
+	right: 2rem;
+	background-color: var(--light-yellow);
+	border-left: 4px solid var(--primary-yellow);
+	padding: 1rem 1.5rem;
+	border-radius: 6px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	z-index: 100;
+	animation: slideIn 0.3s ease, fadeOut 0.3s ease 3s forwards;
+}
+
+.exportSuccessIcon {
+	color: var(--dark-yellow);
+	background-color: white;
+	border-radius: 50%;
+	width: 2rem;
+	height: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.exportSuccessText {
+	color: #333;
+	font-weight: 500;
+	font-size: 0.95rem;
+	margin: 0;
+}
+
+/* Empty states and errors */
 .errorMessage,
 .noDataMessage {
 	display: flex;
@@ -447,10 +611,9 @@
 	margin-bottom: 1rem;
 }
 
-/* Updated no-data message with yellow theme */
 .noDataMessage {
 	color: #6b7280;
-	background-color: var(--light-yellow);
+	background-color: var(--white);
 	border: 1px solid var(--primary-yellow);
 }
 
@@ -477,7 +640,7 @@
 	border: 2px solid var(--primary-yellow);
 }
 
-/* Modal styles with yellow accents */
+/* Modal styles */
 .modalOverlay {
 	position: fixed;
 	top: 0;
@@ -551,7 +714,7 @@
 	border-top: 1px solid #f0f0f0;
 }
 
-/* Date range modal */
+/* Form elements */
 .formGroup {
 	margin-bottom: 1.25rem;
 }
@@ -595,7 +758,6 @@
 	align-items: center;
 }
 
-/* Updated checkbox with yellow accent */
 .checkboxInput {
 	margin-right: 0.75rem;
 	width: 1rem;
@@ -608,6 +770,12 @@
 .checkboxLabel {
 	font-size: 0.9rem;
 	color: #374151;
+}
+
+.filterOptionsList {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 
 /* Button styles */
@@ -632,7 +800,6 @@
 	color: #374151;
 }
 
-/* Updated apply button with yellow theme */
 .applyBtn {
 	background-color: var(--primary-yellow);
 	color: #333;
@@ -650,27 +817,6 @@
 	cursor: not-allowed;
 }
 
-.filterOptionsList {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
-
-/* Pagination styles - updated to work with default button styles */
-.pagination {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 1rem;
-	margin-top: 0.5rem;
-}
-
-.pageInfo {
-	font-size: 0.9rem;
-	color: #666;
-	margin: 0 0.5rem;
-}
-
 /* Improved scrollbar */
 .tableContainer::-webkit-scrollbar {
 	height: 7px;
@@ -686,7 +832,7 @@
 	border-radius: 4px;
 }
 
-/* Animation */
+/* Animations */
 @keyframes fadeIn {
 	from {
 		opacity: 0;
@@ -696,11 +842,41 @@
 	}
 }
 
+@keyframes slideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
 /* Responsive styles */
 @media screen and (max-width: 768px) {
+	.historyCardHeader,
+	.historyFooter {
+		padding: 1rem 1.25rem;
+	}
+
 	.historyControls {
+		padding: 1rem 1.25rem;
 		flex-direction: column;
 		align-items: flex-start;
+	}
+
+	.historyContent {
+		padding: 0.75rem;
 	}
 
 	.searchControls {
@@ -720,21 +896,5 @@
 	.activeFilters {
 		width: 100%;
 		margin-bottom: 0.75rem;
-	}
-
-	.historyCardHeader {
-		padding: 1rem 1.25rem;
-	}
-
-	.historyControls {
-		padding: 1rem 1.25rem;
-	}
-
-	.historyContent {
-		padding: 0.75rem;
-	}
-
-	.historyFooter {
-		padding: 0.75rem 1.25rem;
 	}
 }

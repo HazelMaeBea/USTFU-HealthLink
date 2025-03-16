@@ -1,9 +1,17 @@
-import { useState } from "react"; // Remove useRef and useEffect
+import { useState, useEffect, useRef } from "react";
 import "../TrackingPage/TrackingPage.css";
 import styles from "./HistoryPage.module.css";
 import type { PendingRequest } from "../PendingRequests/types";
 import { usePendingRequests } from "../PendingRequests/PendingRequestBackend";
-import { FiSearch, FiFilter, FiDownload, FiPlus, FiX } from "react-icons/fi";
+import {
+	FiSearch,
+	FiFilter,
+	FiDownload,
+	FiPlus,
+	FiX,
+	FiCheck,
+} from "react-icons/fi";
+import PageButtons from "../PageButtons/PageButtons";
 
 const HospitalizationHistory = () => {
 	const [selectedType, setSelectedType] = useState("All");
@@ -13,6 +21,19 @@ const HospitalizationHistory = () => {
 	const [showDateRangePopup, setShowDateRangePopup] = useState(false);
 	const [dateRange, setDateRange] = useState({ start: "", end: "" });
 	const [showFilterPopup, setShowFilterPopup] = useState<string | null>(null);
+	const [showExportPopup, setShowExportPopup] = useState(false);
+	const [exportFilename, setExportFilename] = useState("");
+	const [currentPage, setCurrentPage] = useState(1);
+	const recordsPerPage = 10;
+	// Add export success notification state
+	const [showExportSuccess, setShowExportSuccess] = useState(false);
+	const [showClearAllConfirmation, setShowClearAllConfirmation] =
+		useState(false);
+	const [showFormTypeDropdown, setShowFormTypeDropdown] = useState(false);
+
+	// Refs for the dropdown containers
+	const formTypeDropdownRef = useRef<HTMLDivElement>(null);
+	const filterDropdownRef = useRef<HTMLDivElement>(null);
 
 	// Fix destructuring from the hook
 	const { requests: pendingRequestsData, pagination } = usePendingRequests(
@@ -23,8 +44,46 @@ const HospitalizationHistory = () => {
 	// Add error handling state
 	const [error, setError] = useState<string | null>(null);
 
-	// Remove tableContainerRef and hasHorizontalScroll state
-	// Remove the useEffect for scroll detection
+	// Reset to page 1 when filters change
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [selectedType, filters, searchQuery]);
+
+	// Hide export success notification after timeout
+	useEffect(() => {
+		if (showExportSuccess) {
+			const timer = setTimeout(() => {
+				setShowExportSuccess(false);
+			}, 3000);
+			return () => clearTimeout(timer);
+		}
+	}, [showExportSuccess]);
+
+	// Close dropdowns when clicking outside
+	useEffect(() => {
+		function handleClickOutside(event: MouseEvent) {
+			// Close form type dropdown when clicking outside
+			if (
+				formTypeDropdownRef.current &&
+				!formTypeDropdownRef.current.contains(event.target as Node)
+			) {
+				setShowFormTypeDropdown(false);
+			}
+
+			// Close filter options dropdown when clicking outside
+			if (
+				filterDropdownRef.current &&
+				!filterDropdownRef.current.contains(event.target as Node)
+			) {
+				setShowFilterOptions(false);
+			}
+		}
+
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, []);
 
 	// Format data for the table
 	const formatTableData = (request: PendingRequest) => {
@@ -81,7 +140,27 @@ const HospitalizationHistory = () => {
 		.filter((item) => item !== null); // Filter out any null items from errors
 
 	const termOptions = ["1st", "2nd"];
-	const collegeOptions = ["College of Engineering", "College of Music"];
+	const collegeOptions = [
+		"College of Accountancy",
+		"College of Architecture",
+		"Faculty of Arts and Letters",
+		"Faculty of Civil Law",
+		"College of Commerce and Business Administration",
+		"College of Education",
+		"Faculty of Engineering",
+		"College of Fine Arts and Design",
+		"Graduate School",
+		"Graduate School of Law",
+		"College of Information and Computing Sciences",
+		"Faculty of Medicine and Surgery",
+		"Conservatory of Music",
+		"College of Nursing",
+		"Faculty of Pharmacy",
+		"Institute of Physical Education and Athletics",
+		"College of Rehabilitation Sciences",
+		"College of Science",
+		"College of Tourism and Hospitality Management",
+	];
 	const academicYearOptions = ["2022-2023", "2023-2024"];
 	const loadOptions = ["Full", "Part-time"];
 	const statusOptions = ["Approved", "Pending", "Denied"];
@@ -149,6 +228,100 @@ const HospitalizationHistory = () => {
 		return dateB - dateA; // Descending order (latest date first)
 	});
 
+	// Pagination logic
+	const totalPages = Math.max(
+		1,
+		Math.ceil(sortedData.length / recordsPerPage)
+	);
+	const indexOfLastRecord = currentPage * recordsPerPage;
+	const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+	const currentRecords = sortedData.slice(
+		indexOfFirstRecord,
+		indexOfLastRecord
+	);
+
+	// Handle page change
+	const handlePageChange = (pageNumber: number) => {
+		setCurrentPage(pageNumber);
+	};
+
+	// Create a function to render page numbers - simplified version
+	const renderPageButtons = () => {
+		const pageNumbers = [];
+		const maxButtonsToShow = 5; // Show max 5 buttons at a time
+
+		let startPage = Math.max(
+			1,
+			currentPage - Math.floor(maxButtonsToShow / 2)
+		);
+		const endPage = Math.min(totalPages, startPage + maxButtonsToShow - 1);
+
+		// Adjust if we're near the end
+		if (endPage - startPage + 1 < maxButtonsToShow) {
+			startPage = Math.max(1, endPage - maxButtonsToShow + 1);
+		}
+
+		// Previous button
+		pageNumbers.push(
+			<button
+				key="prev"
+				onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+				className={`btn btn-history ${styles.pageButton}`}
+				disabled={currentPage === 1}
+			>
+				&laquo;
+			</button>
+		);
+
+		// Page numbers
+		for (let i = 1; i <= totalPages; i++) {
+			// Only show certain pages to prevent too many buttons
+			if (
+				i === 1 || // First page
+				i === totalPages || // Last page
+				(i >= startPage && i <= endPage) // Pages in the middle range
+			) {
+				pageNumbers.push(
+					<button
+						key={i}
+						onClick={() => handlePageChange(i)}
+						className={`btn btn-history ${
+							currentPage === i ? "btn-active" : ""
+						} ${styles.pageButton}`}
+					>
+						{i}
+					</button>
+				);
+			} else if (
+				(i === startPage - 1 && startPage > 2) ||
+				(i === endPage + 1 && endPage < totalPages - 1)
+			) {
+				// Add ellipsis where needed
+				pageNumbers.push(
+					<span key={`ellipsis-${i}`} className={styles.pageEllipsis}>
+						&hellip;
+					</span>
+				);
+			}
+		}
+
+		// Next button
+		pageNumbers.push(
+			<button
+				key="next"
+				onClick={() =>
+					handlePageChange(Math.min(totalPages, currentPage + 1))
+				}
+				className={`btn btn-history ${styles.pageButton}`}
+				disabled={currentPage === totalPages}
+			>
+				&raquo;
+			</button>
+		);
+
+		return pageNumbers;
+	};
+
 	const renderContent = () => {
 		if (error) {
 			return (
@@ -192,7 +365,7 @@ const HospitalizationHistory = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{sortedData.map((row, index) => (
+						{currentRecords.map((row, index) => (
 							<tr
 								key={index}
 								className={
@@ -245,8 +418,135 @@ const HospitalizationHistory = () => {
 		);
 	};
 
-	const exportToCSV = () => {
-		const csvRows = [];
+	// Form type options
+	const formTypeOptions = [
+		{ value: "All", label: "All Forms" },
+		{ value: "hospital", label: "Hospital" },
+		{ value: "eyeglasses", label: "Eyeglasses" },
+		{ value: "admission", label: "Admission" },
+	];
+
+	// Generate descriptive filename based on applied filters - Enhanced version
+	const generateFilename = () => {
+		const datePart = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+		let nameComponents = ["HealthLink-History"];
+
+		// Add form type if specific
+		if (selectedType !== "All") {
+			const formType =
+				formTypeOptions.find((opt) => opt.value === selectedType)
+					?.label || selectedType;
+			nameComponents.push(formType);
+		}
+
+		// Add filter details
+		if (filters.length > 0) {
+			// Create a shortened representation of the filters
+			let filterSummary = [];
+
+			// Check for date filter
+			const dateFilter = filters.find((f) => f.startsWith("Date:"));
+			if (dateFilter) {
+				filterSummary.push("DateRange");
+			}
+
+			// Check for status filter
+			const statusFilter = filters.find((f) => f.startsWith("Status:"));
+			if (statusFilter) {
+				const statusValue = statusFilter.split(": ")[1];
+				filterSummary.push(statusValue.replace(/, /g, "-"));
+			}
+
+			// Check for college filter
+			const collegeFilter = filters.find((f) => f.startsWith("College:"));
+			if (collegeFilter) {
+				filterSummary.push("College");
+			}
+
+			// Add term filter if present
+			const termFilter = filters.find((f) => f.startsWith("Term:"));
+			if (termFilter) {
+				const termValue = termFilter.split(": ")[1];
+				filterSummary.push(`Term-${termValue}`);
+			}
+
+			// Add academic year filter if present
+			const yearFilter = filters.find((f) =>
+				f.startsWith("Academic Year:")
+			);
+			if (yearFilter) {
+				const yearValue = yearFilter.split(": ")[1];
+				filterSummary.push(`AY-${yearValue}`);
+			}
+
+			// If we have filter info, add to filename
+			if (filterSummary.length > 0) {
+				nameComponents.push(filterSummary.join("_"));
+			}
+		}
+
+		// If search query is present
+		if (searchQuery) {
+			nameComponents.push(
+				`Search-${searchQuery.substring(0, 10).replace(/\s+/g, "-")}`
+			);
+		}
+
+		// Add export date
+		nameComponents.push(datePart);
+
+		return nameComponents.join("_").replace(/\s+/g, "-") + ".csv";
+	};
+
+	// Get descriptive info for the filename hint
+	const getExportFileDescription = () => {
+		let descriptions = [];
+
+		// Add form type info
+		if (selectedType !== "All") {
+			descriptions.push(
+				`Form type: ${
+					formTypeOptions.find((opt) => opt.value === selectedType)
+						?.label
+				}`
+			);
+		}
+
+		// Add filter descriptions
+		if (filters.length > 0) {
+			descriptions.push(`Filters: ${filters.length} active`);
+		}
+
+		// Add search info
+		if (searchQuery) {
+			descriptions.push(`Search: "${searchQuery}"`);
+		}
+
+		// If no specific filters, mention it includes all records
+		if (selectedType === "All" && filters.length === 0 && !searchQuery) {
+			return "Includes all history records.";
+		}
+
+		return descriptions.join(" • ");
+	};
+
+	const prepareExport = () => {
+		const suggestedFilename = generateFilename();
+		setExportFilename(suggestedFilename);
+		setShowExportPopup(true);
+	};
+
+	// Improved CSV export with better handling of special characters
+	const exportToCSV = (filename: string) => {
+		// Helper function to format cell data safely for CSV
+		const escapeCSV = (field: string) => {
+			// If the field contains quotes, commas, or newlines, wrap in quotes and escape inner quotes
+			if (/[",\n\r]/.test(field)) {
+				return `"${field.replace(/"/g, '""')}"`;
+			}
+			return field;
+		};
+
 		const headers = [
 			"Date Approved",
 			"Form Type",
@@ -262,38 +562,43 @@ const HospitalizationHistory = () => {
 			"Procedures",
 			"Remaining Benefits",
 		];
-		csvRows.push(headers.join(","));
 
-		for (const row of filteredData) {
-			if (!row) continue; // Skip null rows
-			const values = [
-				row.dateApproved,
-				row.formType,
-				row.name,
-				row.age,
-				row.college,
-				row.term,
-				row.academicYear,
-				row.load,
-				row.status,
-				row.natureOfIllness,
-				row.physician,
-				row.procedures,
-				row.remainingBenefits,
-			];
-			csvRows.push(values.join(","));
-		}
+		const csvContent = [
+			headers.join(","),
+			...filteredData.map((row) => {
+				if (!row) return "";
+				return [
+					escapeCSV(row.dateApproved || ""),
+					escapeCSV(row.formType || ""),
+					escapeCSV(row.name || ""),
+					escapeCSV(row.age?.toString() || ""),
+					escapeCSV(row.college || ""),
+					escapeCSV(row.term || ""),
+					escapeCSV(row.academicYear || ""),
+					escapeCSV(row.load || ""),
+					escapeCSV(row.status || ""),
+					escapeCSV(row.natureOfIllness || ""),
+					escapeCSV(row.physician || ""),
+					escapeCSV(row.procedures || ""),
+					escapeCSV(row.remainingBenefits || ""),
+				].join(",");
+			}),
+		].join("\n");
 
-		const csvContent = csvRows.join("\n");
-		const blob = new Blob([csvContent], { type: "text/csv" });
+		const blob = new Blob([csvContent], {
+			type: "text/csv;charset=utf-8;",
+		});
 		const url = window.URL.createObjectURL(blob);
 		const a = document.createElement("a");
 		a.setAttribute("hidden", "");
 		a.setAttribute("href", url);
-		a.setAttribute("download", "history.csv");
+		a.setAttribute("download", filename);
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
+
+		setShowExportPopup(false);
+		setShowExportSuccess(true);
 	};
 
 	const handleAddFilter = (filter: string) => {
@@ -347,6 +652,13 @@ const HospitalizationHistory = () => {
 		setShowFilterPopup(null);
 	};
 
+	const clearAllFilters = () => {
+		setFilters([]);
+		setSelectedType("All");
+		setSearchQuery("");
+		setShowClearAllConfirmation(false);
+	};
+
 	const availableFilters = [
 		"Date",
 		"College",
@@ -382,46 +694,103 @@ const HospitalizationHistory = () => {
 							/>
 						</div>
 
-						<div className={styles.formTypeFilter}>
-							<select
-								className={styles.formTypeSelect}
-								aria-label="Form Type"
-								value={selectedType}
-								onChange={(e) =>
-									setSelectedType(e.target.value)
+						{/* Custom form type dropdown to match Filter dropdown style */}
+						<div
+							className={styles.formTypeFilter}
+							ref={formTypeDropdownRef}
+						>
+							<button
+								className={styles.formTypeButton}
+								onClick={() =>
+									setShowFormTypeDropdown(
+										!showFormTypeDropdown
+									)
 								}
+								aria-label="Select Form Type"
+								aria-expanded={showFormTypeDropdown}
 							>
-								<option value="All">All Forms</option>
-								<option value="hospital">Hospital</option>
-								<option value="eyeglasses">Eyeglasses</option>
-								<option value="admission">Admission</option>
-							</select>
+								{formTypeOptions.find(
+									(option) => option.value === selectedType
+								)?.label || "All Forms"}
+								<span className={styles.formTypeIcon}>▼</span>
+							</button>
+
+							{showFormTypeDropdown && (
+								<div className={styles.formTypeDropdown}>
+									{formTypeOptions.map((option) => (
+										<button
+											key={option.value}
+											className={`${
+												styles.formTypeOption
+											} ${
+												selectedType === option.value
+													? styles.formTypeOptionSelected
+													: ""
+											}`}
+											onClick={() => {
+												setSelectedType(option.value);
+												setShowFormTypeDropdown(false);
+											}}
+										>
+											{option.label}
+										</button>
+									))}
+								</div>
+							)}
 						</div>
 					</div>
 
 					<div className={styles.filterControls}>
 						<div className={styles.activeFilters}>
-							{filters.map((filter, index) => (
-								<div key={index} className={styles.filterTag}>
-									<span className={styles.filterText}>
-										{filter.split(":")[0]}
-									</span>
-									<button
-										className={styles.filterRemove}
-										onClick={(e) => {
-											e.stopPropagation();
-											removeFilter(filter);
-										}}
-										title="Remove filter"
+							{filters.map((filter, index) => {
+								const [filterType, filterValue] =
+									filter.split(": ");
+								return (
+									<div
+										key={index}
+										className={styles.filterTag}
 									>
-										<FiX size={16} />
-									</button>
-								</div>
-							))}
+										<span className={styles.filterText}>
+											{filterType}:
+										</span>
+										<span className={styles.filterValue}>
+											{filterValue}
+										</span>
+										<button
+											className={styles.filterRemove}
+											onClick={(e) => {
+												e.stopPropagation();
+												removeFilter(filter);
+											}}
+											title="Remove filter"
+										>
+											<FiX size={16} />
+										</button>
+									</div>
+								);
+							})}
+
+							{/* Add clear all filters button if there are any filters */}
+							{(filters.length > 0 ||
+								selectedType !== "All" ||
+								searchQuery) && (
+								<button
+									className={styles.clearAllFiltersBtn}
+									onClick={() =>
+										setShowClearAllConfirmation(true)
+									}
+									title="Clear all filters"
+								>
+									<span>Clear all</span>
+								</button>
+							)}
 						</div>
 
 						{availableFilters.length > 0 && (
-							<div className={styles.filterDropdownContainer}>
+							<div
+								className={styles.filterDropdownContainer}
+								ref={filterDropdownRef}
+							>
 								<button
 									className={styles.addFilterBtn}
 									onClick={() =>
@@ -454,7 +823,7 @@ const HospitalizationHistory = () => {
 
 						<button
 							className={styles.exportBtn}
-							onClick={exportToCSV}
+							onClick={prepareExport}
 							disabled={filteredData.length === 0}
 							title="Export to CSV"
 						>
@@ -468,12 +837,24 @@ const HospitalizationHistory = () => {
 
 				<div className={styles.historyFooter}>
 					<div className={styles.recordsCount}>
-						Showing {sortedData.length} of {tableData.length}{" "}
-						records
+						{sortedData.length > 0
+							? `Showing ${indexOfFirstRecord + 1}-${Math.min(
+									indexOfLastRecord,
+									sortedData.length
+							  )} of ${sortedData.length} records`
+							: "No records to display"}
 					</div>
+
+					{/* Replace PageButtons component with our custom pagination */}
+					{sortedData.length > 0 && (
+						<div className={styles.historyPagination}>
+							{renderPageButtons()}
+						</div>
+					)}
 				</div>
 			</div>
 
+			{/* Date Range Popup */}
 			{showDateRangePopup && (
 				<div className={styles.modalOverlay}>
 					<div className={styles.modalContainer}>
@@ -535,6 +916,7 @@ const HospitalizationHistory = () => {
 				</div>
 			)}
 
+			{/* Filter Options Popup */}
 			{showFilterPopup && (
 				<div className={styles.modalOverlay}>
 					<div
@@ -571,6 +953,7 @@ const HospitalizationHistory = () => {
 											</label>
 										</div>
 									))}
+								{/* ...existing code... */}
 								{showFilterPopup === "College" &&
 									collegeOptions.map((option) => (
 										<div
@@ -678,6 +1061,113 @@ const HospitalizationHistory = () => {
 								}
 							>
 								Apply Filter
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Export Confirmation Modal */}
+			{showExportPopup && (
+				<div className={styles.modalOverlay}>
+					<div className={styles.modalContainer}>
+						<div className={styles.modalHeader}>
+							<h3>Export History Data</h3>
+							<button
+								className={styles.closeModal}
+								onClick={() => setShowExportPopup(false)}
+							>
+								<FiX size={20} />
+							</button>
+						</div>
+						<div className={styles.modalBody}>
+							<p>
+								You are about to export {filteredData.length}{" "}
+								records to CSV format.
+							</p>
+							<div className={styles.formGroup}>
+								<label htmlFor="export-filename">
+									Filename
+								</label>
+								<input
+									id="export-filename"
+									type="text"
+									value={exportFilename}
+									onChange={(e) =>
+										setExportFilename(e.target.value)
+									}
+									className={styles.filenameInput}
+								/>
+								<small className={styles.filenameHint}>
+									{getExportFileDescription()}
+								</small>
+							</div>
+						</div>
+						<div className={styles.modalFooter}>
+							<button
+								className={styles.cancelBtn}
+								onClick={() => setShowExportPopup(false)}
+							>
+								Cancel
+							</button>
+							<button
+								className={styles.applyBtn}
+								onClick={() => exportToCSV(exportFilename)}
+							>
+								Export Now
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Export success notification */}
+			{showExportSuccess && (
+				<div className={styles.exportSuccess}>
+					<div className={styles.exportSuccessIcon}>
+						<FiCheck size={20} />
+					</div>
+					<p className={styles.exportSuccessText}>
+						Export successful! File downloaded to your device.
+					</p>
+				</div>
+			)}
+
+			{/* Clear All Filters Confirmation Modal */}
+			{showClearAllConfirmation && (
+				<div className={styles.modalOverlay}>
+					<div className={styles.modalContainer}>
+						<div className={styles.modalHeader}>
+							<h3>Clear All Filters</h3>
+							<button
+								className={styles.closeModal}
+								onClick={() =>
+									setShowClearAllConfirmation(false)
+								}
+							>
+								<FiX size={20} />
+							</button>
+						</div>
+						<div className={styles.modalBody}>
+							<p>
+								Are you sure you want to clear all filters? This
+								will reset your search and filter selections.
+							</p>
+						</div>
+						<div className={styles.modalFooter}>
+							<button
+								className={styles.cancelBtn}
+								onClick={() =>
+									setShowClearAllConfirmation(false)
+								}
+							>
+								Cancel
+							</button>
+							<button
+								className={styles.applyBtn}
+								onClick={clearAllFilters}
+							>
+								Clear All
 							</button>
 						</div>
 					</div>
