@@ -3,6 +3,8 @@ import "./StatusTracking.css"; // Import the CSS
 import type { PendingRequest } from "../PendingRequests/types";
 import { usePendingRequests } from "../PendingRequests/PendingRequestBackend";
 import ViewFiles from "../PendingRequests/ViewFiles";
+import { IoIosArrowBack } from "react-icons/io"; // Import arrow icon
+import "../Hospitalization Application/Forms/BackButton.css"; // Import BackButton styles
 
 interface StatusTrackingProps {
 	onBack: () => void;
@@ -393,12 +395,14 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 							<div className="statusTracking-transaction-id">
 								TRANSACTION ID: <strong>{transactionID}</strong>
 							</div>
-							<button
-								className="statusTracking-back-button"
-								onClick={onBack}
-							>
-								BACK
-							</button>
+							{/* Replace the old button with BackButton styling */}
+							<div className="back-button" onClick={onBack}>
+								<IoIosArrowBack
+									size={20}
+									style={{ marginRight: "0.5rem" }}
+								/>
+								<span>BACK</span>
+							</div>
 						</div>
 						<div className="statusTracking-status-updates">
 							<h3 className="statusTracking-status-title">
