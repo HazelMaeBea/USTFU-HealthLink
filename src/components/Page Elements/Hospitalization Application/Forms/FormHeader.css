@@ -31,13 +31,13 @@
 }
 
 /* Responsive adjustments for header on medium screens */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 880px) {
 	.form-header {
 		padding: 15px;
 	}
 	.header-text h1 {
 		margin: 0 10px;
-		font-size: 16px;
+		font-size: 14px;
 	}
 	.logo {
 		width: 80px;
@@ -84,3 +84,4 @@
 .table-header {
 	border-bottom: 1px solid black;
 }
+

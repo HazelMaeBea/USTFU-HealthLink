@@ -870,6 +870,50 @@
 	.attachment-preview:hover {
 		transform: none; /* Disable Y translation on mobile */
 	}
+	
+} 
+
+@media screen and (max-width: 576px) {
+	.header-content {
+		grid-template-columns: 1fr; /* Single column for mobile */
+	}
+
+	.arrow {
+		justify-self: flex-end;
+	}
+
+	.pending-request {
+		margin-bottom: 0.5rem; /* Smaller margin */
+	}
+
+	.request-content {
+		padding: 1rem; /* Smaller padding */
+	}
+
+	.form-grid {
+		grid-template-columns: 1fr; /* Single column for mobile */
+	}
+
+	.form-second-row-grid {
+		grid-template-columns: 1fr; /* Single column for mobile */
+	}
+
+	.form-admission-row-grid {
+		grid-template-columns: 1fr; /* Single column for mobile */
+	}
+
+	.form-eyeglasses-row-grid {
+		grid-template-columns: 1fr; /* Single column for mobile */
+	}
+
+	.pending-request-college-field {
+		grid-column: span 1;
+	}
+
+	.pending-request-contact-field {
+		grid-column: span 1;
+	}
+	
 }
 
 /* Mobile Styling */

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import type { PendingRequest } from "./types";
 import { usePendingRequests } from "./PendingRequestBackend"; // use the hook instead of mock data
 import "./PendingRequests.css";
