@@ -3,10 +3,11 @@ import "./VerificationPage.css";
 import { useState, useEffect, useRef } from "react";
 import Popout from "../Popout/Popout";
 import PageButtons from "../PageButtons/PageButtons";
-import { collection, DocumentData, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, DocumentData, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { db } from "../../../config/firebase";
 
 interface VerificationRequest {
+	id: string
 	name: string;
 	email: string;
 	role: string;
@@ -17,6 +18,7 @@ const VerificationPage = () => {
 	// Generate sample data
 	const generateSampleData = () => {
 		return Array.from({ length: 25 }, (_, i) => ({
+			id: i + "id",
 			name: `Doe, Jane Jacquxvious ${i + 1}`,
 			email: `janejacquxvious.doe${i + 1}@ust.edu.ph`,
 			role: "member",
@@ -26,27 +28,29 @@ const VerificationPage = () => {
 
 	const generateData = async () => {
 		// let unverifiedUsers = [];
-		const usersCollection = collection(db, "users");
-		const userQuery = query(
-			usersCollection,
-			where("verified", "==", false)
-		);
-		const querySnapshot = await getDocs(userQuery);
-		
-		const unverifiedUsers: VerificationRequest[] = querySnapshot.docs.map(doc => {
-			const data = doc.data(); // Retrieve the document's data
-			return {
-			  name: data.fullName, // Access the 'fullName' field
-			  email: data.email, // Replace with actual email field if needed
-			  role: data.role, // Replace with actual role field if needed
-			  selected: false,
-			};
-		  });
-		// console.log("querySnapshot:", querySnapshot);
-		// console.log("unverifiedUsers: " + unverifiedUsers);
-		// console.log("Is query snapshot empty?", querySnapshot.empty);
-		// console.log(userQuery);
-		return unverifiedUsers;
+		try {
+			const usersCollection = collection(db, "users");
+			const userQuery = query(
+				usersCollection,
+				where("verified", "==", false)
+			);
+			const querySnapshot = await getDocs(userQuery);
+			
+			const unverifiedUsers: VerificationRequest[] = querySnapshot.docs.map(doc => {
+				const data = doc.data(); // Retrieve the document's data
+				return {
+					id: doc.id,
+					name: data.fullName,
+					email: data.email,
+					role: data.role,
+					selected: false,
+				};
+			  });
+
+			  return unverifiedUsers;
+		} catch (error) {
+			console.error(error);
+		}
 	}
 
 	const [requests, setRequests] = useState<VerificationRequest[]>(
@@ -67,7 +71,7 @@ const VerificationPage = () => {
 
 	// Update indeterminate state when requests change
 	useEffect(() => {
-		generateData().then((data) => {setRequests(data)})
+		generateData().then((data) => {setRequests(data || generateSampleData)})
 		const selectedCount = requests.filter((req) => req.selected).length;
 
 		if (selectedCount === 0) {
@@ -241,11 +245,19 @@ const VerificationPage = () => {
 												setPopoutMessage(
 													`Are you sure you want to approve ${request.name}?`
 												);
-												setPendingAction(() => () => {
-													console.log(
-														"Approve:",
-														request.name
-													);
+												setPendingAction(() => async () => {
+													try {
+														console.log(
+															"Approve:",
+															request.name
+														);
+														const userDocRef = doc(db, "users", request.id);
+														await updateDoc(userDocRef, {
+															verified: true,
+														  });
+													} catch (error) {
+														console.error(error)
+													}
 												});
 												setPopoutOpen(true);
 											}}
