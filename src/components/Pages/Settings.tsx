@@ -54,8 +54,8 @@ const Settings = () => {
 		phoneNumber: "",
 		gender: "",
 		college: "",
-		// Toggles
-		notifications: false,
+		// Toggles - fixed naming to match database
+		notification: false,
 		autofill: false,
 	});
 
@@ -118,17 +118,21 @@ const Settings = () => {
 						phoneNumber: personalInfo.phoneNumber || "",
 						gender: personalInfo.gender || "",
 						college: userData.college || "",
-						notifications:
+						notification:
 							userData.notification !== undefined
 								? userData.notification
 								: false,
 						autofill:
-							userData.autofill !== undefined ? userData.autofill : false,
+							userData.autofill !== undefined
+								? userData.autofill
+								: false,
 					};
 
 					setSettings(updatedSettings);
 					setOriginalSettings({ ...updatedSettings }); // Store original values for comparison
-					setCalculatedAge(calculateAge(personalInfo.birthdate || ""));
+					setCalculatedAge(
+						calculateAge(personalInfo.birthdate || "")
+					);
 					setChangedFields({}); // Reset changed fields when loading new data
 
 					console.log("Fetched user data:", userData);
@@ -138,7 +142,9 @@ const Settings = () => {
 				}
 			} catch (err) {
 				console.error("Error fetching user data:", err);
-				setError("Failed to load your profile data. Please try again later.");
+				setError(
+					"Failed to load your profile data. Please try again later."
+				);
 			} finally {
 				setIsLoading(false);
 			}
@@ -217,7 +223,7 @@ const Settings = () => {
 			phoneNumber: "Phone Number",
 			gender: "Gender",
 			college: "College",
-			notifications: "Email Notifications",
+			notification: "Email Notifications",
 			autofill: "Auto-fill Information",
 		};
 
@@ -230,8 +236,11 @@ const Settings = () => {
 							<strong>{fieldLabels[field] || field}:</strong>
 							<span className="old-value">
 								{values.old || "(empty)"}
-							</span> →{" "}
-							<span className="new-value">{values.new || "(empty)"}</span>
+							</span>{" "}
+							→{" "}
+							<span className="new-value">
+								{values.new || "(empty)"}
+							</span>
 						</li>
 					))}
 				</ul>
@@ -250,37 +259,54 @@ const Settings = () => {
 			setIsSaving(true);
 			const userDocRef = doc(db, "users", uid);
 
+			// Create the update object with the correct structure
 			const updateData: Record<string, any> = {};
-			// Map settings back to the correct structure for Firestore
-			const personalInfoUpdate: Record<string, any> = {
-				firstName: settings.firstname,
-				lastName: settings.lastname,
-				middleName: settings.middlename,
-				suffix: settings.suffix,
-				term: settings.term,
-				year: settings.year,
-				load: settings.load,
-				status: settings.status,
-				idNumber: settings.numberID,
-				address: settings.address,
-				dateHired: settings.dateHired,
-				dateRetired: settings.dateRetired,
-				birthdate: settings.birthdate,
-				phoneNumber: settings.phoneNumber,
-				gender: settings.gender,
+
+			// Map settings fields directly to their counterparts in personalInfo
+			const fieldMappings: Record<string, string> = {
+				firstname: "firstName",
+				lastname: "lastName",
+				middlename: "middleName",
+				suffix: "suffix",
+				term: "term",
+				year: "year",
+				load: "load",
+				status: "status",
+				numberID: "idNumber",
+				address: "address",
+				dateHired: "dateHired",
+				dateRetired: "dateRetired",
+				birthdate: "birthdate",
+				phoneNumber: "phoneNumber",
+				gender: "gender",
 			};
 
-			Object.keys(personalInfoUpdate).forEach((key) => {
-				if (personalInfoUpdate[key] !== (originalSettings as any)[key]) {
-					updateData[`personalInfo.${key}`] = personalInfoUpdate[key];
+			// Check each field against the original value
+			for (const [settingKey, firestoreKey] of Object.entries(
+				fieldMappings
+			)) {
+				if (
+					settings[settingKey as keyof typeof settings] !==
+					(originalSettings as any)[settingKey]
+				) {
+					updateData[`personalInfo.${firestoreKey}`] =
+						settings[settingKey as keyof typeof settings];
 				}
-			});
+			}
 
-			if (settings.notifications !== (originalSettings as any).notifications) {
-				updateData["settings.notification"] = settings.notifications;
+			// Handle top-level fields
+			if (settings.college !== (originalSettings as any).college) {
+				updateData.college = settings.college;
+			}
+
+			// Fix the path for notification and autofill - they should be at top level, not under settings
+			if (
+				settings.notification !== (originalSettings as any).notification
+			) {
+				updateData.notification = settings.notification;
 			}
 			if (settings.autofill !== (originalSettings as any).autofill) {
-				updateData["settings.autofill"] = settings.autofill;
+				updateData.autofill = settings.autofill;
 			}
 
 			if (Object.keys(updateData).length === 0) {
@@ -314,7 +340,9 @@ const Settings = () => {
 	if (isLoading) {
 		return (
 			<div className="settings-container">
-				<div className="loading-indicator">Loading your settings...</div>
+				<div className="loading-indicator">
+					Loading your settings...
+				</div>
 			</div>
 		);
 	}
@@ -342,9 +370,12 @@ const Settings = () => {
 								<input
 									className="form-check-input"
 									type="checkbox"
-									checked={settings.notifications}
+									checked={settings.notification}
 									onChange={(e) =>
-										handleToggleChange("notifications", e.target.checked)
+										handleToggleChange(
+											"notification",
+											e.target.checked
+										)
 									}
 									aria-label="toggle notifications"
 								/>
@@ -361,7 +392,10 @@ const Settings = () => {
 									type="checkbox"
 									checked={settings.autofill}
 									onChange={(e) =>
-										handleToggleChange("autofill", e.target.checked)
+										handleToggleChange(
+											"autofill",
+											e.target.checked
+										)
 									}
 									aria-label="toggle autofill"
 								/>
@@ -578,7 +612,9 @@ const Settings = () => {
 						onClick={() => setIsConfirmOpen(true)}
 						className="settings-btn-submit"
 						disabled={
-							isLoading || isSaving || Object.keys(changedFields).length === 0
+							isLoading ||
+							isSaving ||
+							Object.keys(changedFields).length === 0
 						}
 					>
 						{isSaving ? "Saving..." : "Save Changes"}
