@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormData } from "./FormBody";
 
@@ -9,10 +9,10 @@ interface FormTeachingInfoProps {
 	setDateHired: React.Dispatch<React.SetStateAction<Date | null>>;
 	dateRetired: Date | null;
 	setDateRetired: React.Dispatch<React.SetStateAction<Date | null>>;
+	setValue: any; // Add setValue to the props
 }
 
-const termOptions = ["1st", "2nd"];
-const yearOptions = ["2021-2022", "2022-2023", "2023-2024"];
+// Removed commented-out termOptions and yearOptions as they're no longer needed
 const loadOptions = ["Full", "Part"];
 const statusOptions = [
 	"Tenured",
@@ -23,6 +23,41 @@ const statusOptions = [
 ];
 const benefitsOptions = ["HMO", "PCSO", "Senior Citizen"];
 
+// Get current academic year
+const getCurrentAcademicYear = () => {
+	const today = new Date();
+	const currentMonth = today.getMonth();
+	const currentYear = today.getFullYear();
+
+	let academicYearStart: number;
+
+	if (currentMonth >= 7) {
+		//August or later
+		academicYearStart = currentYear;
+	} else {
+		//Before August
+		academicYearStart = currentYear - 1;
+	}
+	return `${academicYearStart}-${academicYearStart + 1}`;
+};
+
+// Get current term
+const getCurrentTerm = () => {
+	const today = new Date();
+	const currentMonth = today.getMonth(); // 0-11 (Jan-Dec)
+
+	// First term: Aug(7) to Dec(11)
+	// Second term: Jan(0) to May(4)
+	// Special term: Jun(5) to Jul(6)
+	if (currentMonth >= 7 && currentMonth <= 11) {
+		return "1st";
+	} else if (currentMonth >= 0 && currentMonth <= 4) {
+		return "2nd";
+	} else {
+		return "Su";
+	}
+};
+
 const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	register,
 	errors,
@@ -30,9 +65,21 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	setDateHired,
 	dateRetired,
 	setDateRetired,
+	setValue,
 }) => {
 	const [status, setStatus] = useState("");
 	const [benefit, setBenefit] = useState("");
+	const currentAcademicYear = getCurrentAcademicYear();
+	const currentTerm = getCurrentTerm();
+
+	//set initial values when component mounts
+	useEffect(() => {
+		// Set the academic year field
+		setValue("year", currentAcademicYear);
+
+		// Set the term field
+		setValue("term", currentTerm);
+	}, [setValue, currentAcademicYear, currentTerm]);
 
 	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setStatus(event.target.value);
@@ -55,20 +102,14 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 								<label htmlFor="term" className="form-label">
 									Academic Term
 								</label>
-								<select
+								<input
 									{...register("term")}
 									id="term"
-									className="form-select"
-								>
-									<option value="" disabled selected hidden>
-										Select term
-									</option>
-									{termOptions.map((option, index) => (
-										<option key={index} value={option}>
-											{option}
-										</option>
-									))}
-								</select>
+									type="text"
+									className="form-control"
+									value={currentTerm}
+									readOnly
+								/>
 								{errors.term && (
 									<p className="text-danger">
 										{errors.term.message}
@@ -79,20 +120,14 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 								<label htmlFor="year" className="form-label">
 									Academic Year
 								</label>
-								<select
+								<input
 									{...register("year")}
 									id="year"
-									className="form-select"
-								>
-									<option value="" disabled selected hidden>
-										Select year
-									</option>
-									{yearOptions.map((option, index) => (
-										<option key={index} value={option}>
-											{option}
-										</option>
-									))}
-								</select>
+									type="text"
+									className="form-control"
+									value={currentAcademicYear}
+									readOnly
+								/>
 								{errors.year && (
 									<p className="text-danger">
 										{errors.year.message}

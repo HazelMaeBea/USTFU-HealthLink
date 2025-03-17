@@ -204,6 +204,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		register,
 		handleSubmit,
 		reset,
+		setValue, // Make sure setValue is destructured here
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -418,6 +419,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					setDateHired={setDateHired}
 					dateRetired={dateRetired}
 					setDateRetired={setDateRetired}
+					setValue={setValue} // Pass setValue to the component
 				/>
 				<FormUploadDisclaimer />
 				<FormMedicalFiles register={register} errors={errors} />
