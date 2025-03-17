@@ -579,7 +579,7 @@ const PendingRequestList = () => {
 												handleAction("approval")
 											}
 										>
-											<FiCheck size={20} />
+											<FiCheck size={25} />
 											<span className="ms-2">
 												Approve
 											</span>
@@ -590,7 +590,7 @@ const PendingRequestList = () => {
 												handleAction("rejection")
 											}
 										>
-											<HiOutlineX size={20} />
+											<HiOutlineX size={25} />
 											<span className="ms-2">Reject</span>
 										</button>
 										<button
@@ -599,7 +599,7 @@ const PendingRequestList = () => {
 												handleAction("for revision")
 											}
 										>
-											<FiEdit2 size={20} />
+											<FiEdit2 size={23} />
 											<span className="ms-2">
 												To Revise
 											</span>
@@ -612,21 +612,23 @@ const PendingRequestList = () => {
 											placeholder={showCommentBox}
 										/>
 									)}
-								</div>
-
-								{/* Send Button Section - Centered on small screens, bottom-right on large screens */}
-								<div className="send-section">
-									<p className="send-note">
-										** Clicking the send button will
-										finalize the decision and notify the
-										requester. This action is irreversible.
-									</p>
-									<button
-										className="send-btn"
-										onClick={handleSendClick}
-									>
-										SEND
-									</button>
+									{/* Send Button Section - Centered on small screens, bottom-right on large screens */}
+									<div className="send-section">
+										<div className="send-box">
+											<p className="send-note">
+												** Clicking the send button will
+												finalize the decision and notify
+												the requester. This action is
+												irreversible.
+											</p>
+											<button
+												className="send-btn"
+												onClick={handleSendClick}
+											>
+												SEND
+											</button>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
