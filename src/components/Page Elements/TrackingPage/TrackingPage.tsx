@@ -72,11 +72,23 @@ const TrackingPage = () => {
 									records={pendingCurrentRecords}
 									onDetailsClick={handleDetailsClick}
 								/>
-								<PageButtons
-									currentPage={pendingCurrentPage}
-									totalPages={pendingTotalPages}
-									onPageChange={setPendingCurrentPage}
-								/>
+								<div
+									className="page-buttons-container"
+									style={{
+										width: "100%",
+										display: "flex",
+										justifyContent: "center",
+										marginTop: "1rem",
+									}}
+								>
+									<div style={{ display: "inline-block" }}>
+										<PageButtons
+											currentPage={pendingCurrentPage}
+											totalPages={pendingTotalPages}
+											onPageChange={setPendingCurrentPage}
+										/>
+									</div>
+								</div>
 							</>
 						)}
 					</section>
@@ -97,11 +109,25 @@ const TrackingPage = () => {
 									records={previousCurrentRecords}
 									onDetailsClick={handleDetailsClick}
 								/>
-								<PageButtons
-									currentPage={previousCurrentPage}
-									totalPages={previousTotalPages}
-									onPageChange={setPreviousCurrentPage}
-								/>
+								<div
+									className="page-buttons-container"
+									style={{
+										width: "100%",
+										display: "flex",
+										justifyContent: "center",
+										marginTop: "1rem",
+									}}
+								>
+									<div style={{ display: "inline-block" }}>
+										<PageButtons
+											currentPage={previousCurrentPage}
+											totalPages={previousTotalPages}
+											onPageChange={
+												setPreviousCurrentPage
+											}
+										/>
+									</div>
+								</div>
 							</>
 						)}
 					</section>
