@@ -1,63 +1,98 @@
 import { useState, useEffect } from "react";
 import { db } from "../../../config/firebase";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+	collection,
+	query,
+	orderBy,
+	onSnapshot,
+	getDocs,
+} from "firebase/firestore";
 import { PendingRequest } from "../PendingRequests/types";
-
-// Define the structure expected by RecordTable
-interface Record {
-	dateTime: string;
-	transactionID: string;
-	typeOfForm: string;
-	status: string;
-}
+import { DocumentData } from "firebase/firestore";
+import { Record } from "../PendingRequests/types";
+import { useFirebase } from "../../../contexts/firebaseContext";
 
 const useTrackingRecords = () => {
+	const { fullName } = useFirebase();
 	const [pendingRecords, setPendingRecords] = useState<Record[]>([]);
-	const [previousRecords, setPreviousRecords] = useState<Record[]>([]);
+	const [accomplishedRecords, setAccomplishedRecords] = useState<Record[]>([]);
 
 	useEffect(() => {
+    if (!fullName) return;
 		// Reference Firestore collections
 		const pendingRef = collection(db, "FormRequests");
-		const previousRef = collection(db, "ApprovedForms");
+    const pendingQuery = query(pendingRef, orderBy("dateSubmitted", "desc"));
 
 		// Fetch and listen for pending requests
-		const pendingQuery = query(pendingRef, orderBy("dateSubmitted", "desc"));
 		const unsubscribePending = onSnapshot(pendingQuery, (snapshot) => {
+			console.log("PendingRequests snapshot size:", snapshot.size);
 			const pendingData: Record[] = snapshot.docs.map((doc) => {
 				const data = doc.data() as PendingRequest;
+				const dateTime = data.dateSubmitted
+					? new Date(data.dateSubmitted)
+					: new Date(0); // Handle null date
 				return {
-					dateTime: data.dateSubmitted,
+					dateTime: dateTime,
 					transactionID: data.transactionId,
-					typeOfForm: data.formData.formType,
+					typeOfForm: data.formData?.formType || "Unknown",
 					status: "Pending",
+					formData: data.formData, // Include formData
+					dateSubmitted: data.dateSubmitted, // Include dateSubmitted
+					DateDecided: data.DateDecided, // Include DateDecided
+          requester: data.requester,
 				};
 			});
-			setPendingRecords(pendingData);
+      const filteredPendingData = pendingData.filter(record => record.requester === fullName);
+			setPendingRecords(filteredPendingData);
 		});
 
-		// Fetch and listen for previous records
-		const previousQuery = query(previousRef, orderBy("dateSubmitted", "desc"));
-		const unsubscribePrevious = onSnapshot(previousQuery, (snapshot) => {
-			const previousData: Record[] = snapshot.docs.map((doc) => {
-				const data = doc.data() as PendingRequest;
-				return {
-					dateTime: data.dateSubmitted,
-					transactionID: data.transactionId,
-					typeOfForm: data.formData.formType,
-					status: data.status === "approved" ? "Approved" : "Rejected",
-				};
-			});
-			setPreviousRecords(previousData);
-		});
+		// Fetch and listen for accomplished requests
+		const fetchAccomplishedRecords = async () => {
+			try {
+				const accomplishedSnapshot = await getDocs(
+					query(
+						collection(db, "AccomplishedRequests"),
+						orderBy("DateDecided", "desc")
+					)
+				);
+
+				const accomplishedData: Record[] = accomplishedSnapshot.docs.map(
+					(doc) => {
+						const data = doc.data() as DocumentData;
+						const dateDecided = data.DateDecided
+							? data.DateDecided.toDate()
+							: new Date(0);
+						return {
+							dateTime: dateDecided,
+							transactionID: data.transactionId || "No ID",
+							typeOfForm: data.formType || "Unknown",
+							status:
+								data.status.toLowerCase() === "approved"
+									? "Approved"
+									: "Rejected",
+							formData: data.formData, // Include formData
+							dateSubmitted: data.dateSubmitted, // Include dateSubmitted
+							DateDecided: data.DateDecided, // Include DateDecided
+              requester: data.requester,
+						};
+					}
+				);
+        const filteredAccomplishedData = accomplishedData.filter(record => record.requester === fullName);
+        setAccomplishedRecords(filteredAccomplishedData);
+			} catch (error) {
+				console.error("Error fetching accomplished requests:", error);
+			}
+		};
+
+		fetchAccomplishedRecords();
 
 		// Cleanup listeners on unmount
 		return () => {
 			unsubscribePending();
-			unsubscribePrevious();
 		};
 	}, []);
 
-	return { pendingRecords, previousRecords };
+	return { pendingRecords, accomplishedRecords };
 };
 
 export default useTrackingRecords;

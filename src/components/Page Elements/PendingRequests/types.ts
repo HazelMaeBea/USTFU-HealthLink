@@ -60,6 +60,7 @@ export type FormData =
 	| AdmissionFormData;
 
 export type PendingRequest = {
+	[x: string]: any;
 	transactionId: string;
 	requester: string;
 	dateSubmitted: string;
@@ -69,3 +70,14 @@ export type PendingRequest = {
 
 export type Archive =
 	|PendingRequest;
+
+export interface Record {
+    dateTime: Date;
+    transactionID: string;
+    typeOfForm: string;
+    status: string;
+    formData?: any; // Make optional
+    dateSubmitted?: string; // Make optional
+    DateDecided?: { toDate: () => Date }; // Make optional
+	requester: string;
+}
