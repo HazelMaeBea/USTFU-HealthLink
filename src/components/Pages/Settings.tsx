@@ -119,8 +119,8 @@ const Settings = () => {
 						gender: personalInfo.gender || "",
 						college: userData.college || "",
 						notifications:
-							userData.notifications !== undefined
-								? userData.notifications
+							userData.notification !== undefined
+								? userData.notification
 								: false,
 						autofill:
 							userData.autofill !== undefined ? userData.autofill : false,
@@ -162,21 +162,6 @@ const Settings = () => {
 					new: newValue,
 				},
 			}));
-			try {
-				if (!uid) {
-					console.error("❌ No user ID found.");
-					return;
-				}
-
-				const userDocRef = doc(db, "users", uid);
-				await updateDoc(userDocRef, {
-					[`personalInfo.${field}`]: newValue,
-				});
-
-				console.log(`✅ Successfully updated ${field} in Firestore.`);
-			} catch (err) {
-				console.error(`❌ Error updating ${field} in Firestore:`, err);
-			}
 		} else {
 			// Remove from changed fields if it matches original
 			const updatedChanges = { ...changedFields };
@@ -204,23 +189,6 @@ const Settings = () => {
 			delete updatedChanges[field];
 			setChangedFields(updatedChanges);
 		}
-
-		try {
-			if (!uid) {
-				console.error("❌ No user ID found.");
-				return;
-			}
-
-			const userDocRef = doc(db, "users", uid);
-			await updateDoc(userDocRef, {
-				[field]: checked,
-			});
-
-			console.log(`✅ Successfully updated ${field} in Firestore.`);
-		} catch (err) {
-			console.error(`❌ Error updating ${field} in Firestore:`, err);
-		}
-
 		// Update the settings state
 		setSettings({ ...settings, [field]: checked });
 	};
@@ -282,8 +250,9 @@ const Settings = () => {
 			setIsSaving(true);
 			const userDocRef = doc(db, "users", uid);
 
+			const updateData: Record<string, any> = {};
 			// Map settings back to the correct structure for Firestore
-			const personalInfoUpdate = {
+			const personalInfoUpdate: Record<string, any> = {
 				firstName: settings.firstname,
 				lastName: settings.lastname,
 				middleName: settings.middlename,
@@ -301,13 +270,30 @@ const Settings = () => {
 				gender: settings.gender,
 			};
 
-			// Update the document with the correct structure
-			await updateDoc(userDocRef, {
-				personalInfo: personalInfoUpdate,
-				college: settings.college,
-				notifications: settings.notifications,
-				autofill: settings.autofill,
+			Object.keys(personalInfoUpdate).forEach((key) => {
+				if (personalInfoUpdate[key] !== (originalSettings as any)[key]) {
+					updateData[`personalInfo.${key}`] = personalInfoUpdate[key];
+				}
 			});
+
+			if (settings.notifications !== (originalSettings as any).notifications) {
+				updateData["settings.notification"] = settings.notifications;
+			}
+			if (settings.autofill !== (originalSettings as any).autofill) {
+				updateData["settings.autofill"] = settings.autofill;
+			}
+
+			if (Object.keys(updateData).length === 0) {
+				console.log("No changes detected. Skipping Firestore update.");
+				setIsConfirmOpen(false);
+				setIsSaving(false);
+				return;
+			}
+
+			console.log("🔄 Saving changes to Firestore:", updateData);
+
+			// Update the document with the correct structure
+			await updateDoc(userDocRef, updateData);
 
 			console.log("Settings saved successfully");
 
