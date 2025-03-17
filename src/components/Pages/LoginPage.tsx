@@ -4,15 +4,34 @@ import "./LoginPage.css";
 import USTFULogo from "../../assets/2.png";
 import GoogleLogo from "../../assets/signin.png";
 import { useFirebase } from "../../contexts/firebaseContext";
-import { callFunction, isRegistered } from "../../config/firebase";
+import {
+	callFunction,
+	isRegistered,
+	getUserStatus,
+	auth,
+} from "../../config/firebase";
 import Popout from "../Page Elements/Popout/Popout";
 
 const LoginPage: React.FC = () => {
 	const { login } = useFirebase();
 	const [isLoggingIn, setIsLoggingIn] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [userStatus, setUserStatus] = useState<string | null>(null);
 	const [showPopout, setShowPopout] = useState<boolean>(false);
+	const [popoutData, setPopoutData] = useState({
+		title: "",
+		message: "",
+		onConfirm: () => {},
+		onCancel: () => {},
+	});
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (userStatus === "verified") {
+			console.log("✅ User is verified! Redirecting to home...");
+			setTimeout(() => navigate("/home"), 1000);
+		}
+	}, [userStatus, navigate]);
 
 	// TEMPORARY: Add keyboard shortcut to sync claims (Alt+Shift+S)
 	useEffect(() => {
@@ -48,19 +67,51 @@ const LoginPage: React.FC = () => {
 				return;
 			}
 
-			const registered = await isRegistered(user.uid);
-			console.log("User registered:", registered);
+			await user.reload();
+			const refreshedUser = auth.currentUser;
+
+			if (!refreshedUser) {
+				setError("Failed to refresh user. Please try again.");
+				return;
+			}
+
+			// Check if the user is registered in Firestore
+			const registered = await isRegistered(refreshedUser.uid);
+			console.log("User is registered:", registered);
 
 			if (!registered) {
-				console.log("Before setting popout: ", showPopout);
-				setTimeout(() => {
-					setShowPopout((prev) => {
-						console.log("Previous showPopout:", prev);
-						return true;
-					});
-				}, 0);
-			} else {
-				navigate("/home");
+				setPopoutData({
+					title: "Not Registered",
+					message: "You are not yet registered. Proceed to registration?",
+					onConfirm: () => {
+						setShowPopout(false);
+						navigate("/register");
+					},
+					onCancel: () => setShowPopout(false),
+				});
+				setShowPopout(true);
+				return;
+			}
+
+			// Fetch user status
+			const status = await getUserStatus(refreshedUser.uid);
+			setUserStatus(status);
+			console.log("User status:", status);
+
+			if (status !== "verified") {
+				setPopoutData({
+					title:
+						status === "pending"
+							? "Verification Pending"
+							: "Incomplete Registration",
+					message:
+						status === "pending"
+							? "Your account is pending verification. Please wait for admin approval."
+							: "You need to complete your registration before accessing the platform.",
+					onConfirm: () => setShowPopout(false),
+					onCancel: () => setShowPopout(false),
+				});
+				setShowPopout(true);
 			}
 		} catch (error: any) {
 			console.error("Login error:", error);
@@ -68,20 +119,6 @@ const LoginPage: React.FC = () => {
 		} finally {
 			setIsLoggingIn(false);
 		}
-	};
-
-	// Debug useEffect
-	useEffect(() => {
-		console.log("Updated showPopout:", showPopout);
-	}, [showPopout]);
-
-	const handleConfirm = () => {
-		setShowPopout(false);
-		navigate("/register");
-	};
-
-	const handleCancel = () => {
-		setShowPopout(false); // Close popout without confirming
 	};
 
 	return (
@@ -107,15 +144,15 @@ const LoginPage: React.FC = () => {
 					</button>
 				</div>
 			</div>
-			{showPopout ? (
+			{showPopout && (
 				<Popout
-					title="NOTICE!!"
-					message="You are not yet a registered member. Proceed to Registration?"
-					onConfirm={handleConfirm}
-					onCancel={handleCancel}
+					title={popoutData.title}
+					message={popoutData.message}
+					onConfirm={popoutData.onConfirm}
+					onCancel={popoutData.onCancel}
 					isOpen={showPopout}
 				/>
-			) : null}
+			)}
 		</div>
 	);
 };
