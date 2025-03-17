@@ -133,23 +133,25 @@
 
 /* Form type selector */
 .formTypeFilter {
-	min-width: 150px;
 	position: relative;
+	display: inline-block;
+	min-width: 150px;
 }
 
 .formTypeButton {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 16px;
+	background-color: white;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	cursor: pointer;
+	min-width: 150px;
 	color: black;
 	width: 100%;
-	padding: 0.65rem 1rem;
-	border: 1px solid #ddd;
-	border-radius: 6px;
 	font-size: 0.9rem;
-	cursor: pointer;
 	text-align: left;
-	background-color: #fff;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
 	transition: all 0.2s ease;
 }
 
@@ -158,42 +160,48 @@
 }
 
 .formTypeIcon {
-	font-size: 0.7rem;
 	margin-left: 8px;
+	font-size: 0.8em;
+	transition: transform 0.2s;
 	color: #666;
 }
 
 .formTypeDropdown {
 	position: absolute;
-	top: calc(100% + 5px);
+	top: 100%;
 	left: 0;
-	width: 100%;
+	right: 0;
 	background: white;
-	border-radius: 8px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-	z-index: 10;
-	overflow: hidden;
-	animation: fadeIn 0.2s ease;
+	border: 1px solid #ddd;
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	z-index: 1000; /* Make sure dropdown appears above other elements */
+	max-height: 200px;
+	overflow-y: auto;
 	border: 1px solid var(--primary-yellow);
 }
 
 .formTypeOption {
+	display: block;
 	width: 100%;
 	text-align: left;
-	padding: 0.75rem 1rem;
+	padding: 8px 16px;
+	background: none;
 	border: none;
-	background: transparent;
+	cursor: pointer;
 	font-size: 0.9rem;
 	color: #333;
-	cursor: pointer;
 	transition: background 0.15s ease;
 }
 
 .formTypeOption:hover {
-	background-color: var(--light-yellow);
+	background-color: #f5f5f5;
 }
 
 .formTypeOptionSelected {
+	background-color: #e6f7ff;
+	font-weight: bold;
 	background-color: var(--light-yellow);
 	font-weight: 500;
 }
@@ -271,7 +279,7 @@
 
 /* Filter dropdown */
 .filterDropdownContainer {
-	position: relative;
+	position: relative; /* Keep this as relative for proper positioning */
 }
 
 .addFilterBtn,
@@ -323,6 +331,9 @@
 	overflow: hidden;
 	animation: fadeIn 0.2s ease;
 	border: 1px solid var(--primary-yellow);
+	/* Fix for mobile: ensure dropdown stays in viewport */
+	max-height: 300px;
+	overflow-y: auto;
 }
 
 .filterOption {
@@ -421,6 +432,13 @@
 
 .nameCell {
 	font-weight: 500;
+	color: #333;
+}
+
+.doneAsText {
+	display: block;
+	font-style: italic;
+	font-size: 0.7rem;
 	color: #333;
 }
 
@@ -890,5 +908,27 @@
 	.activeFilters {
 		width: 100%;
 		margin-bottom: 0.75rem;
+	}
+
+	/* Fix for filter dropdown position on mobile */
+	.filterDropdownContainer {
+		position: relative; /* Change back to relative from static */
+	}
+
+	.filterOptionsDropdown {
+		position: absolute; /* Change back to absolute from fixed */
+		top: 100%; /* Position below the button */
+		left: 0; /* Reset left position */
+		right: auto; /* Align to right edge */
+		transform: none; /* Remove the centering transform */
+		width: 200px; /* Fixed width */
+		max-width: 90vw; /* Prevent overflow on very small screens */
+		max-height: 60vh; /* Limit height on mobile */
+	}
+
+	/* Make filter options more touch-friendly while preserving dropdown behavior */
+	.filterOption {
+		padding: 0.75rem 1rem;
+		font-size: 0.95rem;
 	}
 }

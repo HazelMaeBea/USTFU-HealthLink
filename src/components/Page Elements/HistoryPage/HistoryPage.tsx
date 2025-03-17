@@ -90,8 +90,42 @@ const HospitalizationHistory = () => {
 		try {
 			const { formData, dateSubmitted, requester } = request;
 
+			let formTypeDisplay;
+			let formTypeValue; // For filtering
+			let formTypeText; // Added for CSV export - plain text representation
+
+			if (formData?.formType === "hospital" && formData?.origFormType) {
+				const origType = formData.origFormType;
+				formTypeValue = origType;
+
+				if (formData.hospital) {
+					// Create JSX for display
+					formTypeDisplay = (
+						<>
+							{origType}{" "}
+							<span className={styles.doneAsText}>
+								(done as {formData.hospitalStatus})
+							</span>
+						</>
+					);
+					// Create plain text for export
+					formTypeText = `${origType} (done as ${formData.hospitalStatus})`;
+				} else {
+					formTypeDisplay = origType;
+					formTypeText = origType;
+				}
+			} else {
+				formTypeDisplay = formData?.formType
+					? formData.formType
+					: "Unknown";
+				formTypeValue = formData?.formType || "Unknown";
+				formTypeText = formData?.formType || "Unknown";
+			}
+
 			return {
-				formType: formData?.formType || "Unknown",
+				formType: formTypeDisplay,
+				formTypeValue: formTypeValue,
+				formTypeText: formTypeText, // Added for CSV export
 				dateApproved: dateSubmitted || "-",
 				name: requester || "Unknown",
 				age: formData?.age || "-",
@@ -176,7 +210,11 @@ const HospitalizationHistory = () => {
 			if (!row) return false; // Skip null rows
 
 			const matchesType =
-				selectedType === "All" || row.formType === selectedType;
+				selectedType === "All" ||
+				row.formTypeValue === selectedType ||
+				(selectedType === "hospital" &&
+					(row.formTypeValue === "inpatient" ||
+						row.formTypeValue === "outpatient"));
 
 			const matchesSearch =
 				searchQuery === "" ||
@@ -421,7 +459,8 @@ const HospitalizationHistory = () => {
 	// Form type options
 	const formTypeOptions = [
 		{ value: "All", label: "All Forms" },
-		{ value: "hospital", label: "Hospital" },
+		{ value: "inpatient", label: "Inpatient" },
+		{ value: "outpatient", label: "Outpatient" },
 		{ value: "eyeglasses", label: "Eyeglasses" },
 		{ value: "admission", label: "Admission" },
 	];
@@ -569,7 +608,7 @@ const HospitalizationHistory = () => {
 				if (!row) return "";
 				return [
 					escapeCSV(row.dateApproved || ""),
-					escapeCSV(row.formType || ""),
+					escapeCSV(row.formTypeText || ""), // Use formTypeText instead of formType
 					escapeCSV(row.name || ""),
 					escapeCSV(row.age?.toString() || ""),
 					escapeCSV(row.college || ""),
@@ -694,6 +733,7 @@ const HospitalizationHistory = () => {
 							/>
 						</div>
 
+						{/* This is your current dropdown implementation which should work */}
 						<div
 							className={styles.formTypeFilter}
 							ref={formTypeDropdownRef}
