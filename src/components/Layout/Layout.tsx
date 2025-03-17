@@ -11,12 +11,12 @@ import { useFirebase } from "../../contexts/firebaseContext";
 
 // No longer need the LayoutProps interface since we're using Outlet
 const Layout: React.FC = () => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 930);
   const { logout } = useFirebase(); // Get logout directly from context
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
+      setIsMobile(window.innerWidth <= 930);
     };
 
     window.addEventListener("resize", handleResize);

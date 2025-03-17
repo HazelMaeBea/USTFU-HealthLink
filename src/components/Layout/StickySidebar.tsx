@@ -14,7 +14,9 @@ import { FaRegFolderOpen } from "react-icons/fa";
 import { AiOutlineFileDone } from "react-icons/ai";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import Popout from "../Page Elements/Popout/Popout.tsx";
-import NotifBadge from "../Page Elements/NotifBadge/NotifBadge"; // add import
+import NotifBadge from "../Page Elements/NotifBadge/NotifBadge";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../../src/config/firebase";
 
 interface StickySidebarProps {
 	onLogout: () => Promise<void>;
@@ -24,7 +26,7 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
-	const { selectedRole, switchRole } = useUser();
+	const { selectedRole } = useUser();
 	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(true);
 	const navigate = useNavigate();
 
@@ -64,14 +66,6 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		}, 3000);
 	};
 
-	const handleRoleSwitch = () => {
-		if (selectedRole === "operations handler") {
-			switchRole("member");
-		} else if (selectedRole === "member") {
-			switchRole("operations handler");
-		}
-	};
-
 	// Close sidebar on click outside (for mobile)
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -102,6 +96,20 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		};
 	}, []);
 
+	useEffect(() => {
+		const formRequestRef = collection(db, "FormRequest");
+		const unsubscribe = onSnapshot(formRequestRef, (snapshot) => {
+			const hasUpdate = snapshot
+				.docChanges()
+				.some(
+					(change) =>
+						change.type === "added" || change.type === "modified"
+				);
+			setHasNewPendingRequest(hasUpdate);
+		});
+		return () => unsubscribe();
+	}, []);
+
 	const menuItems = [
 		{
 			name: "FAQ",
@@ -120,7 +128,7 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 		},
 	];
 
-	if (selectedRole === "member" || selectedRole === "operations handler" || selectedRole === "admin") {
+	if (selectedRole === "member") {
 		menuItems.unshift(
 			{
 				name: "HOSPITALIZATION APPLICATION",
@@ -153,14 +161,6 @@ const StickySidebar: React.FC<StickySidebarProps> = ({ onLogout }) => {
 				path: "/adminsettings",
 			}
 		);
-	}
-
-	if (selectedRole === "operations handler" || selectedRole === "admin") {
-		menuItems.push({
-			name: "SWITCH ROLE",
-			icon: <MdOutlineAdminPanelSettings size={20} />,
-			action: handleRoleSwitch,
-		});
 	}
 
 	return (
