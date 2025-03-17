@@ -215,14 +215,15 @@ input[type="number"]::-webkit-inner-spin-button {
 		padding: 1rem;
 		font-size: 14px;
 	}
-
+/* 
 	.buttonDiv {
 		flex-direction: column;
-	}
+	} */
 
 	.buttonDiv .btn-submit,
 	.buttonDiv .btn-clear {
-		width: 100%;
+		width: 40%;
+		flex-direction: column;
 	}
 }
 
