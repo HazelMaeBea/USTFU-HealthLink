@@ -135,24 +135,22 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 								)}
 							</div>
 						</div>
-						<div className="mb-1 col-md-12">
+						<div className="mb-1 col-md-5">
 							<label htmlFor="load" className="form-label">
-								Teaching Load
+								Load (Units){" "}
 							</label>
-							<select
-								{...register("load")}
+							<input
 								id="load"
-								className="form-select"
-							>
-								<option value="" disabled selected hidden>
-									Select teaching load
-								</option>
-								{loadOptions.map((option, index) => (
-									<option key={index} value={option}>
-										{option}
-									</option>
-								))}
-							</select>
+								type="number"
+								className={`form-control ${
+									errors.load ? "is-invalid" : ""
+								}`}
+								{...register("load", { valueAsNumber: true })}
+								name="load"
+								min="0"
+								max="30"
+								placeholder="Enter units"
+							/>
 							{errors.load && (
 								<p className="text-danger">
 									{errors.load.message}

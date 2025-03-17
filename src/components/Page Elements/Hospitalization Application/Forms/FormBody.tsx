@@ -99,7 +99,13 @@ const schema = z
 			.min(1, "Please specify the medical procedures"),
 		term: z.string().nonempty("Please select the academic term"),
 		year: z.string().nonempty("Please select the academic year"),
-		load: z.string().nonempty("Please select your teaching load"),
+		load: z.coerce
+			.number({
+				required_error: "Please enter your teaching load",
+				invalid_type_error: "Teaching load must be a number",
+			})
+			.min(0, "Teaching load cannot be negative")
+			.max(30, "Teaching load cannot exceed 30 units"),
 		status: z.preprocess(
 			(val) => (val === null ? "" : val),
 			z.string().nonempty("Please select your employment status")

@@ -75,7 +75,13 @@ const schema = z.object({
 			invalid_type_error: "Please make a valid selection",
 		})
 		.min(1, "Please select your college"),
-
+	load: z.coerce
+		.number({
+			required_error: "Please enter your teaching load",
+			invalid_type_error: "Teaching load must be a number",
+		})
+		.min(0, "Teaching load cannot be negative")
+		.max(30, "Teaching load cannot exceed 30 units"),
 	employeeID: z.any().refine((files) => files && files.length > 0, {
 		message: "File is required",
 	}),
