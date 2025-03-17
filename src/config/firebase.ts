@@ -67,3 +67,15 @@ export const getFormID = async (increment: boolean): Promise<number | null> => {
     return null;
   }
 };
+
+export const isRegistered = async (uid: string): Promise<boolean> => {
+  try {
+    const userRef = doc(db, "users", uid); // Reference to Firestore "users" collection
+    const userSnap = await getDoc(userRef);
+
+    return userSnap.exists(); // Returns true if the user document exists
+  } catch (error) {
+    console.error("Error checking user registration:", error);
+    return false; // Assume unregistered in case of an error
+  }
+};
