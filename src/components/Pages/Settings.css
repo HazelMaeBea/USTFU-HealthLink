@@ -270,10 +270,140 @@ hr {
 	transition: all 0.2s ease;
 }
 
-.settings-btn-submit:hover {
+/* Hover effect only when button is not disabled */
+.settings-btn-submit:not([disabled]):hover {
 	background-color: hsl(45, 100%, 68%) !important;
 	color: white;
 	border: none;
+}
+
+/* Additional styling for disabled button to make it visually clear it's disabled */
+.settings-btn-submit[disabled] {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* New form layout styles */
+.form-row {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 15px;
+	gap: 15px;
+	width: 100%;
+	justify-content: space-between;
+}
+
+.form-group {
+	margin-bottom: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Extra small for very minimal content (suffix, single value fields) */
+.form-group-xs {
+	flex: 0 0 calc(8% - 8px);
+}
+
+/* Small for minimal content (age, term, load) */
+.form-group-sm {
+	flex: 0 0 calc(12% - 10px);
+}
+
+/* Medium for standard fields */
+.form-group-md {
+	flex: 0 0 calc(24% - 12px);
+}
+
+/* Half-width fields (for college and address in same row) */
+.form-group-half {
+	flex: 0 0 calc(50% - 8px);
+}
+
+/* Large for fields that need more space */
+.form-group-lg {
+	flex: 0 0 calc(32% - 30px);
+}
+
+/* Fill remaining space in a flexible way */
+.form-group-flex {
+	flex: 1;
+}
+
+/* Modern input styling - renamed from editable to settings-field-value */
+.editable.settings-field-value {
+	width: 100%;
+	padding: 8px 12px;
+	background: #f8f9fa;
+	border: 1px solid #e5e9ed;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	color: black;
+	transition: all 0.2s;
+	min-height: 38px;
+}
+
+/* Non-editable fields */
+.settings-field-value.non-editable {
+	width: 100%;
+	padding: 8px 12px;
+	background: #f0f0f0;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	color: #555;
+	min-height: 38px;
+}
+
+/* Focus styles */
+.editable.settings-field-value:focus {
+	background: #fff;
+	border-color: hsl(45, 100%, 51%);
+	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.1);
+	outline: none;
+}
+
+.non-editable {
+	width: 100%;
+	padding: 8px 12px;
+	background: #f0f0f0;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	color: #555;
+	min-height: 38px;
+}
+
+/* Changes summary styling */
+.changes-summary ul {
+	max-height: 300px;
+	overflow-y: auto;
+	list-style-type: none;
+	padding: 10px;
+	margin: 10px 0;
+	background: #f8f9fa;
+	border-radius: 8px;
+	border: 1px solid #e5e9ed;
+}
+
+.changes-summary li {
+	padding: 5px 0;
+	border-bottom: 1px dashed #e5e9ed;
+}
+
+.changes-summary li:last-child {
+	border-bottom: none;
+}
+
+.changes-summary .old-value {
+	color: #d32f2f;
+	text-decoration: line-through;
+	margin: 0 5px;
+}
+
+.changes-summary .new-value {
+	color: #388e3c;
+	margin: 0 5px;
+	font-weight: 500;
 }
 
 /* Responsive grid adjustments */
@@ -301,6 +431,22 @@ hr {
 	.field-item.large {
 		grid-column: span 8;
 	}
+
+	.form-group-xs {
+		flex: 0 0 calc(10% - 8px);
+	}
+
+	.form-group-sm {
+		flex: 0 0 calc(15% - 10px);
+	}
+
+	.form-group-md {
+		flex: 0 0 calc(27% - 10px);
+	}
+
+	.form-group-half {
+		flex: 0 0 calc(49% - 8px);
+	}
 }
 
 @media (max-width: 1024px) {
@@ -319,6 +465,18 @@ hr {
 	}
 	.field-item.large {
 		grid-column: span 6;
+	}
+}
+
+@media (max-width: 992px) {
+	.form-row {
+		flex-direction: column;
+	}
+	.form-group-sm,
+	.form-group-md,
+	.form-group-lg,
+	.form-group-half {
+		flex: 1 0 100%;
 	}
 }
 
