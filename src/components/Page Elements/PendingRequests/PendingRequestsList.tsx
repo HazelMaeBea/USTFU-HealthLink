@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { PendingRequest } from "./types";
-import { usePendingRequests } from "./PendingRequestBackend"; // use the hook instead of mock data
+import { getRemainingBenefits, usePendingRequests } from "./PendingRequestBackend"; // use the hook instead of mock data
 import "./PendingRequests.css";
 import { RiArrowDownSFill, RiArrowRightSFill } from "react-icons/ri";
 import { FiCheck, FiEdit2 } from "react-icons/fi";
@@ -27,6 +27,7 @@ const PendingRequestList = () => {
 	const [showPopout, setShowPopout] = useState<boolean>(false);
 	const [previewFile, setPreviewFile] = useState<any>(null);
 	const [showHistoryPopout, setShowHistoryPopout] = useState<boolean>(false);
+	const [getBenefits, setBenefits] = useState<number>(0);
 
 	// Handle page change from the PageButtons component
 	const handlePageChange = (page: number) => {
@@ -365,6 +366,13 @@ const PendingRequestList = () => {
 
 	const renderHospitalCertification = (request: PendingRequest) => {
 		if (request.formData.formType !== "hospital") return null;
+		getRemainingBenefits(request.requester)
+    .then((result) => {
+        setBenefits(result)
+    })
+    .catch((error) => {
+        console.error("Error fetching remainingBenefits:", error);
+    });
 
 		return (
 			<>
@@ -422,7 +430,7 @@ const PendingRequestList = () => {
 												<input
 													aria-label="amount left"
 													type="text"
-													value="82000.00"
+													value={ getBenefits }
 													disabled
 													className="amount-input"
 												/>

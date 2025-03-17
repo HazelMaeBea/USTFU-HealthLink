@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, DocumentData, getDocs, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
 
@@ -96,5 +96,30 @@ const PendingRequestBackend = () => {
 		</div>
 	);
 };
+
+export async function getRemainingBenefits(inputRequester: string): Promise<number> {
+    try {
+        const usersCollection = collection(db, "users");
+        const userQuery = query(usersCollection, where("displayName", "==", inputRequester));
+        const querySnapshot = await getDocs(userQuery);
+
+        if (querySnapshot.empty) {
+            console.log("No matching documents found.");
+            return 0;
+        }
+
+        let remainingBenefits: number = 0;
+
+        querySnapshot.forEach((doc: DocumentData) => {
+            remainingBenefits = doc.data().remainingBenefits;
+			// console.log(doc.data().remainingBenefits);
+        });
+
+        return remainingBenefits;
+    } catch (error) {
+        console.error("Error fetching remainingBenefits:", error);
+        throw error;
+    }
+}
 
 export default PendingRequestBackend;
