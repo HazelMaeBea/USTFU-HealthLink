@@ -161,7 +161,7 @@ const UserAuditLogs: React.FC = () => {
 			<table className="audit-logs-table">
 				<thead>
 					<tr>
-						<th>Timestamp</th>
+						<th>Time</th>
 						<th>Name</th>
 						<th>Changes</th>
 					</tr>

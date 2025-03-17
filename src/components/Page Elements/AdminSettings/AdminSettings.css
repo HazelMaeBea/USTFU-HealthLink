@@ -55,6 +55,7 @@
 	border-radius: 0.25rem;
 	outline: none;
 }
+
 .admin-settings-container input[type="search"]:focus,
 .admin-settings-container .ustfu-form-control:focus {
 	border-color: hsl(218, 11%, 65%);
@@ -100,6 +101,7 @@
 	padding: 10px;
 }
 
+/* User Management Table */
 .admin-settings-container .user-mngmnt-table {
 	width: 100%;
 	border-collapse: separate;
@@ -222,16 +224,19 @@
 	display: inline-block;
 	width: 100%;
 }
+
 .admin-settings-container .search-input {
 	width: 100%;
 	padding: 0.5rem 2.5rem;
 	border-radius: 50px;
 	box-sizing: border-box;
 }
+
 .admin-settings-container .search-input:focus {
 	outline: 2px solid hsl(45, 100%, 51%);
 	border-color: hsl(45, 100%, 51%);
 }
+
 .admin-settings-container .burger-icon {
 	position: absolute;
 	left: 0.75rem;
@@ -324,14 +329,7 @@ p {
 	font-style: italic;
 }
 
-/* .FormLabel {
-	font-weight: bold;
-} */
-
-/* .column-borders th, .column-borders td {
-	border: 0.5px solid #ddd;
-} */
-
+/* Edit Button Styles */
 .admin-settings-container .edit-button-container {
 	position: relative;
 	display: inline-block;
@@ -349,7 +347,7 @@ p {
 	background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Completely revamped dropdown styles */
+/* Dropdown Styles */
 .edit-options-menu {
 	position: fixed;
 	background: white;
@@ -400,51 +398,12 @@ p {
 	color: hsl(45, 100%, 40%); /* Slightly darker yellow text */
 }
 
-/* Remove duplicate styles that might be causing issues */
+/* Remove duplicate styles that might be causing issues
 .admin-settings-container .edit-options-menu,
 .admin-settings-container .edit-options-menu-inner,
 .admin-settings-container .edit-options-menu button {
 	/* These will inherit from the non-namespaced selectors above */
-}
 
-.admin-settings-container .edit-options-menu {
-	position: fixed;
-	background: white;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
-	z-index: 1050;
-	overflow: hidden;
-}
-
-.admin-settings-container .edit-options-menu-inner {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-}
-
-.admin-settings-container .edit-options-menu button {
-	display: block;
-	width: 100%;
-	padding: 10px 15px;
-	background: white;
-	border: none;
-	border-bottom: 1px solid #eee;
-	text-align: left;
-	cursor: pointer;
-	font-size: 14px;
-	color: #333;
-	transition: background-color 0.2s;
-}
-
-.admin-settings-container .edit-options-menu button:last-child {
-	border-bottom: none;
-}
-
-.admin-settings-container .edit-options-menu button:hover {
-	background-color: hsl(45, 100%, 95%);
-	color: hsl(45, 100%, 51%);
-}
 
 #edit_status,
 #edit_role {
@@ -459,7 +418,8 @@ p {
 	width: 100%;
 }
 
-@media (max-width: 480px) {
+/* Responsive adjustments */
+@media (max-width: 1142px) {
 	.admin-settings-container .ustfu-as-btn {
 		padding: 0.5rem 0.75rem;
 		font-size: 0.8rem;
@@ -475,7 +435,7 @@ p {
 	}
 	.admin-settings-container .ustfu-as-btn,
 	.admin-settings-container .tab-btn {
-		width: 100%;
+		width: 50%;
 		margin-bottom: 0.5rem;
 		font-size: 0.8rem;
 	}
@@ -483,11 +443,7 @@ p {
 	.admin-settings-container .user-mngmnt-table {
 		overflow-x: auto;
 		display: block;
-	}
-	.admin-settings-container .user-mngmnt-table {
 		width: 1200px;
-		display: block;
-		overflow-x: auto;
 	}
 
 	.dropdown-select {
@@ -497,123 +453,8 @@ p {
 	}
 }
 
-@media (max-width: 768px) {
-	/* The inline styles in the component provide overflow-x and min-width.
-     These extra rules enable smooth scrolling on mobile devices. */
-	.admin-settings-container .user-mngmnt-table {
-		-webkit-overflow-scrolling: touch;
-	}
 
-	/* Optional: If you prefer class-based styling, you could use:
-  .table-wrapper {
-    overflow-x: auto;
-    width: 100%;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .table-wrapper table {
-    min-width: 600px;
-    border-collapse: collapse;
-  }
-  */
-}
 
-@media (min-width: 481px) and (max-width: 1024px) {
-	.admin-settings-container {
-		padding: 1.25rem;
-	}
-	.admin-settings-container .ustfu-as-btn,
-	.admin-settings-container .tab-btn {
-		font-size: 0.9rem;
-	}
-	.admin-settings-container .user-mngmnt-table {
-		overflow-x: auto;
-	}
-}
-
-@media (min-width: 1920px) {
-	.admin-settings-container {
-		max-width: 1600px;
-		margin: 0 auto;
-		padding: 2rem;
-	}
-	.admin-settings-container .ustfu-as-btn,
-	.admin-settings-container .tab-btn {
-		font-size: 1.1rem;
-		padding: 0.75rem 1.25rem;
-	}
-}
-
-/* Audit Logs Table */
-.admin-settings-container .audit-logs-container {
-	padding: 1.5rem;
-	background-color: hsl(0, 0%, 100%);
-}
-
-.admin-settings-container .audit-logs-table {
-	width: 100%;
-	border-collapse: separate;
-	border-spacing: 0;
-	margin-top: 1rem;
-	border: 1px solid hsl(220, 13%, 91%);
-	border-radius: 0.5rem;
-	overflow: hidden;
-	table-layout: fixed; /* Ensure fixed layout */
-}
-
-.admin-settings-container .audit-logs-table tbody {
-	height: calc(100% - 50px); /* Adjust height to account for the header */
-	display: block;
-	overflow-y: auto;
-}
-
-.admin-settings-container .audit-logs-table thead,
-.admin-settings-container .audit-logs-table tbody tr {
-	display: table;
-	width: 100%;
-	table-layout: fixed;
-}
-
-.admin-settings-container .audit-logs-table th,
-.admin-settings-container .audit-logs-table td {
-	padding: 0.5rem 1rem;
-	border-bottom: 1px solid hsl(220, 13%, 91%);
-	font-size: 0.875rem;
-	vertical-align: middle;
-	text-align: left;
-	overflow-wrap: break-word;
-	white-space: normal;
-	word-break: break-word;
-}
-
-.admin-settings-container .audit-logs-table th {
-	text-align: center;
-	background-color: hsl(210, 10%, 23%);
-	color: hsl(0, 0%, 100%);
-}
-
-.admin-settings-container .audit-logs-table th:first-child,
-.admin-settings-container .audit-logs-table td:first-child {
-	width: 20%; /* Adjust width for timestamp column */
-}
-
-.admin-settings-container .audit-logs-table th:nth-child(2),
-.admin-settings-container .audit-logs-table td:nth-child(2) {
-	width: 80%; /* Adjust width for changes column */
-}
-
-.admin-settings-container .audit-logs-table tbody tr:last-child td {
-	border-bottom: none;
-}
-
-/* Zebra stripes for readability */
-.admin-settings-container .audit-logs-table tbody tr:nth-child(even) {
-	background-color: hsl(0, 0%, 98%);
-}
-
-.admin-settings-container .audit-logs-table tbody tr:hover {
-	background-color: hsl(0, 0%, 91%);
-}
 
 /* Better Controls Layout */
 .admin-settings-container .controls-container {
@@ -679,5 +520,9 @@ p {
 	.admin-settings-container .audit-logs-btn {
 		width: 100%;
 		justify-content: center;
+	}
+	
+	.admin-settings-container .user-mngmnt-table {
+		-webkit-overflow-scrolling: touch;
 	}
 }

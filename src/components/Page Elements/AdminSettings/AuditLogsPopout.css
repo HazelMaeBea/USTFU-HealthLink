@@ -8,15 +8,15 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	z-index: 3000;
+	z-index: 5000;
 }
 
 .audit-logs-popout {
 	background: white;
-	padding: 20px;
+	padding: 1rem;
 	border-radius: 8px;
-	width: 80%;
-	max-width: 800px;
+	width: 90%;
+	max-width: 900px;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -56,17 +56,20 @@
 }
 
 .audit-logs-table {
-	width: 100%;              /* use full width */
+	width: 1080px;
+	overflow: auto;              /* use full width */
 	border-collapse: collapse; 
 	border-spacing: 0;
+	
 }
 
 /* Optionally, style table cells */
 .audit-logs-table th,
 .audit-logs-table td {
-	padding: 0.5rem 1rem;
+	padding: 0.5rem;
 	text-align: left;
-}
+	white-space: normal;
+	}
 
 .audit-logs-table th:first-child,
 .audit-logs-table td:first-child {
@@ -88,4 +91,114 @@
 	width: 50%;
 	padding: 0.5rem 1rem;
 	text-align: left;
+}
+
+/* Audit Logs Table */
+.admin-settings-container .audit-logs-container {
+	padding: 1rem;
+	background-color: hsl(0, 0%, 100%);
+	/* width: 500px; */
+}
+
+.admin-settings-container .audit-logs-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	margin-top: 1rem;
+	border: 1px solid hsl(220, 13%, 91%);
+	border-radius: 0.5rem;
+	overflow: hidden;
+	table-layout: fixed; /* Ensure fixed layout */
+}
+
+.admin-settings-container .audit-logs-table tbody {
+	height: calc(100% - 50px); /* Adjust height to account for the header */
+	display: block;
+	overflow-y: auto;
+}
+
+.admin-settings-container .audit-logs-table thead,
+.admin-settings-container .audit-logs-table tbody tr {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.admin-settings-container .audit-logs-table th,
+.admin-settings-container .audit-logs-table td {
+	padding: 0.5rem 1rem;
+	border-bottom: 1px solid hsl(220, 13%, 91%);
+	font-size: 0.875rem;
+	vertical-align: middle;
+	text-align: left;
+	overflow-wrap: break-word;
+	white-space: normal;
+	word-break: break-word;
+}
+
+.admin-settings-container .audit-logs-table th {
+	text-align: center;
+	background-color: hsl(210, 10%, 23%);
+	color: hsl(0, 0%, 100%);
+}
+
+.admin-settings-container .audit-logs-table th:first-child,
+.admin-settings-container .audit-logs-table td:first-child {
+	width: 22%; /* Adjust width for timestamp column */
+}
+
+.admin-settings-container .audit-logs-table th:nth-child(2),
+.admin-settings-container .audit-logs-table td:nth-child(2) {
+	width: 22%; /* Adjust width for changes column */
+}
+
+.admin-settings-container .audit-logs-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+/* Zebra stripes for readability */
+.admin-settings-container .audit-logs-table tbody tr:nth-child(even) {
+	background-color: hsl(0, 0%, 98%);
+}
+
+.admin-settings-container .audit-logs-table tbody tr:hover {
+	background-color: hsl(0, 0%, 91%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.audit-logs-popout {
+		width: 95%;
+		padding: 0.5rem 0.25rem;
+	}
+
+	.audit-logs-popout-header h2 {
+		margin-top: 10px;
+		font-size: 1.25rem;
+	}
+
+	.audit-logs-popout-body {
+		max-height: 50vh; /* Adjust as needed */
+	}
+
+	.audit-logs-table th,
+	.audit-logs-table td {
+		padding: 0.25rem 0.5rem;
+		font-size: 0.75rem;
+	}
+
+	.audit-logs-table th:first-child,
+	.audit-logs-table td:first-child {
+		width: 30%;
+	}
+
+	.audit-logs-table th:nth-child(2),
+	.audit-logs-table td:nth-child(2) {
+		width: 30%;
+	}
+
+	.audit-logs-table th:last-child,
+	.audit-logs-table td:last-child {
+		width: 30%;
+	}
 }

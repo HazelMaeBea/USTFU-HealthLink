@@ -15,9 +15,9 @@ const VerificationPage = () => {
 	// Generate sample data
 	const generateSampleData = () => {
 		return Array.from({ length: 25 }, (_, i) => ({
-			name: `DOE, JANE JACQUXVIOUS ${i + 1}`,
-			email: `JANEJACQUXVIOUS.DOE${i + 1}@UST.EDU.PH`,
-			role: "MEMBER",
+			name: `Doe, Jane Jacquxvious ${i + 1}`,
+			email: `janejacquxvious.doe${i + 1}@ust.edu.ph`,
+			role: "member",
 			selected: false,
 		}));
 	};
@@ -154,12 +154,12 @@ const VerificationPage = () => {
 									<span className="checkmark"></span>
 								</label>
 							</th>
-							<th className="verification-header">NAME</th>
+							<th className="verification-header">Name</th>
 							<th className="verification-header">
-								EMAIL ADDRESS
+								Email Address
 							</th>
-							<th className="verification-header">ROLE</th>
-							<th className="verification-header">ACTION</th>
+							<th className="verification-header">Role</th>
+							<th className="verification-header">Action</th>
 						</tr>
 					</thead>
 					<tbody className="verfication-tbody">
@@ -194,10 +194,11 @@ const VerificationPage = () => {
 										}
 										aria-label="Select Role"
 									>
-										<option value="MEMBER">MEMBER</option>
+										<option value="MEMBER">member</option>
 										<option value="OPERATIONS HANDLER">
-											OPERATIONS HANDLER
+											operations handler
 										</option>
+										<option value="RETIREE">retiree</option>
 										{/* Add more options as needed */}
 									</select>
 								</td>
