@@ -3,7 +3,7 @@ import "./VerificationPage.css";
 import { useState, useEffect, useRef } from "react";
 import Popout from "../Popout/Popout";
 import PageButtons from "../PageButtons/PageButtons";
-import { collection, doc, DocumentData, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { collection, doc, DocumentData, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { db } from "../../../config/firebase";
 
 interface VerificationRequest {
@@ -109,12 +109,12 @@ const VerificationPage = () => {
 	};
 
 	const handleSelect = (index: number) => {
-		console.log(index);
+		// console.log(index);
 		const newRequests = [...requests];
-		console.log(newRequests);
+		// console.log(newRequests);
 		const actualIndex = (currentPage - 1) * requestsPerPage + index;
 		newRequests[actualIndex].selected = !newRequests[actualIndex].selected;
-		console.log(newRequests[actualIndex])
+		// console.log(newRequests[actualIndex])
 		setRequests(newRequests);
 	};
 
@@ -138,7 +138,15 @@ const VerificationPage = () => {
 				: `No requests are selected. Approve all (${requests.length}) requests?`
 		);
 		setPendingAction(() => () => {
-			console.log("Approved bulk:", target);
+			// console.log("Approved bulk:", target);
+			target.forEach(async (docs) => {
+				console.log("testing docs ", docs.id)
+				const userDocRef = doc(db, "users", docs.id);
+				await updateDoc(userDocRef, {
+					verified: true,
+				}
+				);
+			})
 		});
 		setPopoutOpen(true);
 	};
