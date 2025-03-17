@@ -82,6 +82,13 @@ const schema = z.object({
 		})
 		.min(0, "Teaching load cannot be negative")
 		.max(30, "Teaching load cannot exceed 30 units"),
+	dateHired: z
+		.string({
+			invalid_type_error: "Please select a valid date",
+		})
+		.nullable()
+		.transform((val) => (val ? new Date(val) : null))
+		.optional(),
 	employeeID: z.any().refine((files) => files && files.length > 0, {
 		message: "File is required",
 	}),
@@ -114,6 +121,7 @@ const EyeglassesForm = () => {
 		"processing" | "success" | "error"
 	>("processing");
 	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [dateHired, setDateHired] = useState<Date | null>(null);
 	const navigate = useNavigate();
 
 	const {
@@ -216,6 +224,8 @@ const EyeglassesForm = () => {
 					ORNumber: data.ORNumber,
 					issuedBy: data.issuedBy,
 					amountPaid: data.amountPaid,
+					load: data.load,
+					dateHired: data.dateHired,
 					employeeID: {
 						url: employeeIDDownloadUrl,
 						filename: data.employeeID[0].name,
@@ -275,6 +285,79 @@ const EyeglassesForm = () => {
 								register={register}
 								errors={errors}
 							/>
+
+							{/* Add Date Hired field */}
+							<fieldset className="personal-info-container">
+								<div className="row mb-3">
+									<div className="col-md-3">
+										<label
+											htmlFor="load"
+											className="form-label"
+										>
+											Load (Units){" "}
+										</label>
+										<input
+											id="load"
+											type="number"
+											className={`form-control ${
+												errors.load ? "is-invalid" : ""
+											}`}
+											{...register("load", {
+												valueAsNumber: true,
+											})}
+											name="load"
+											min="0"
+											max="30"
+											placeholder="Enter units"
+										/>
+										{errors.load && (
+											<div className="invalid-feedback">
+												{
+													errors.load
+														?.message as React.ReactNode
+												}
+											</div>
+										)}
+									</div>
+									<div className="col-md-6">
+										<label
+											htmlFor="dateHired"
+											className="form-label"
+										>
+											Date Hired
+										</label>
+										<input
+											type="date"
+											{...register("dateHired")}
+											id="dateHired"
+											className={`form-control ${
+												errors.dateHired
+													? "is-invalid"
+													: ""
+											}`}
+											onChange={(e) => {
+												const date = e.target.value
+													? new Date(e.target.value)
+													: null;
+												setDateHired(date);
+												register("dateHired").onChange(
+													e
+												);
+											}}
+											style={{ color: "black" }}
+										/>
+										{errors.dateHired && (
+											<p className="text-danger">
+												{
+													errors.dateHired
+														?.message as string
+												}
+											</p>
+										)}
+									</div>
+								</div>
+							</fieldset>
+
 							<FormInvoice register={register} errors={errors} />
 							<FormUploadDisclaimer />
 
