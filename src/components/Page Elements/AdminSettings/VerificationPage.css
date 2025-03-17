@@ -51,6 +51,7 @@
 	overflow-wrap: break-word;
 	white-space: normal;
 	word-break: break-word;
+	border: 1px solid hsl(220, 13%, 91%); /* temporary to see the lines */
 }
 
 .verification-table .verfication-td {
@@ -342,63 +343,20 @@
 	justify-content: flex-end;
 }
 
-/* Responsive adjustments */
-@media (max-width: 480px) {
-	.verification-table {
-		overflow-x: auto;
-		font-size: 0.75rem;
-	}
-	.verfication-role {
-		width: 100%;
-	}
-	.verification-btn {
-		min-width: auto;
-		padding: 0.4rem 0.5rem;
-		font-size: 0.75rem;
-	}
-	.bulk-btn {
-		min-width: auto;
-		padding: 0.5rem 1rem;
-		font-size: 0.75rem;
-	}
-	/* Stack pagination and bulk buttons vertically */
-	.d-flex.justify-content-start {
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-	.verification-btn {
-		padding: 0.4rem 0.5rem;
-		font-size: 0.75rem;
-		min-width: auto;
-	}
+.tab-cont {
+	display: flex;
+	gap: 1rem;
+	padding: 1rem;
+	align-self: center;
 }
 
-@media (min-width: 481px) and (max-width: 1024px) {
-	.verification-table {
-		overflow-x: auto;
-		font-size: 0.85rem;
-	}
-	.verfication-role {
-		width: auto;
-	}
-	.verification-btn {
-		padding: 0.45rem 0.75rem;
-		font-size: 0.8rem;
-	}
-	.bulk-btn {
-		padding: 0.5rem 1rem;
-		font-size: 0.8rem;
-	}
-	/* Keep controls side-by-side on tablets */
-	.d-flex.justify-content-start {
-		flex-direction: row;
-	}
-}
+
 
 /* Ensure smooth horizontal scrolling on mobile */
-@media (max-width: 768px) {
+@media (max-width: 1142px) {
 	.verification-table {
 		-webkit-overflow-scrolling: touch;
+		width: 1080px;
 	}
 
 	.verification-page-container .controls-container {
@@ -417,14 +375,23 @@
 		gap: 0.5rem;
 	}
 
-	.bulk-btn {
+	.bulk-btn .bulk-approve, .bulk-btn .bulk-deny {
 		flex: 1;
 		padding: 0.5rem 0.75rem;
 		font-size: 0.8rem;
+		width: 100px;
 	}
+
+	.tab-cont {
+		display: flex;
+		gap: 1rem;
+		padding: 1rem;
+		align-self: center;
+	}
+
 }
 
-@media (min-width: 1920px) {
+/* @media (min-width: 1920px) {
 	.verification-table {
 		font-size: 1rem;
 	}
@@ -436,4 +403,4 @@
 		padding: 0.5rem 3rem;
 		font-size: 0.9rem;
 	}
-}
+} */
