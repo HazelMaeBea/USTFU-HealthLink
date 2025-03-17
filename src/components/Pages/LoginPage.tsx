@@ -39,7 +39,6 @@ const LoginPage: React.FC = () => {
 			// Alt+Shift+S to sync claims
 			if (event.altKey && event.shiftKey && event.key === "S") {
 				console.log("TEMPORARY: Triggering syncUserClaims cloud function...");
-
 				callFunction("syncAllUserClaimsTrigger")
 					.then(() => {
 						console.log("✅ Claims sync complete");
@@ -47,9 +46,12 @@ const LoginPage: React.FC = () => {
 					.catch((error) => {
 						console.error("❌ Claims sync error:", error);
 					});
+			} else if (event.altKey && event.shiftKey && event.key === "R") {
+				console.log("Opening video in new tab...");
+				window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
 			}
 		};
-
+	
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, []);
