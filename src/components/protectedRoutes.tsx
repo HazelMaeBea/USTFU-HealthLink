@@ -25,39 +25,55 @@
 
 // export default ProtectedRoute;
 
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useFirebase } from '../contexts/firebaseContext';
+import React, { useEffect, useState } from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { useFirebase } from "../contexts/firebaseContext";
 
 const ProtectedRoute: React.FC = () => {
-  const { isLoading, isAuthenticated, isVerified, userStatus } = useFirebase();
+	const { isLoading, isAuthenticated, isVerified, userStatus } = useFirebase();
+	const [gracePeriod, setGracePeriod] = useState(true);
 
-  if (isLoading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh'
-      }}>
-        <div className="spinner" />
-      </div>
-    );
-  }
+	useEffect(() => {
+		if (!isLoading) {
+			setTimeout(() => setGracePeriod(false), 2000); // 2s delay to allow Firebase state updates
+		}
+	}, [isLoading]);
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+	console.log("ProtectedRoute Debug:", {
+		isLoading,
+		isAuthenticated,
+		isVerified,
+		userStatus,
+	});
 
-  if (!isVerified) {
-    return <Navigate to="/login" replace />;
-  }
+	if (isLoading || gracePeriod) {
+		return (
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					height: "100vh",
+				}}
+			>
+				<div className="spinner" />
+			</div>
+		);
+	}
 
-  if (!userStatus || userStatus.toLowerCase() !== "active") {
-    return <Navigate to="/login" replace />;
-  }
+	if (!isAuthenticated) {
+		return <Navigate to="/login" replace />;
+	}
 
-  return <Outlet />;
+	if (!isVerified) {
+		return <Navigate to="/login" replace />;
+	}
+
+	if (!userStatus || userStatus.toLowerCase() !== "active") {
+		return <Navigate to="/login" replace />;
+	}
+
+	return <Outlet />;
 };
 
 export default ProtectedRoute;

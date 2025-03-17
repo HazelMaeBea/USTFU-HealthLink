@@ -67,3 +67,33 @@ export const getFormID = async (increment: boolean): Promise<number | null> => {
     return null;
   }
 };
+
+export const isRegistered = async (uid: string): Promise<boolean> => {  
+  try {  
+    const userRef = doc(db, "users", uid);  
+    const userSnap = await getDoc(userRef);  
+
+    if (!userSnap.exists()) return false;
+
+    const userData = userSnap.data();  
+    return !!userData?.personalInfo; 
+  } catch (error) {  
+    console.error("Error checking user registration:", error);  
+    return false; 
+  }  
+};
+
+export const getUserStatus = async (uid: string): Promise<"unregistered" | "pending" | "verified"> => {
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) return "unregistered"; // User not found
+
+    const userData = userSnap.data();
+    return userData?.verified ? "verified" : "pending"; // If 'verified' is true → "verified", otherwise "pending"
+  } catch (error) {
+    console.error("Error fetching user status:", error);
+    return "unregistered"; // Fail-safe to prevent blocking login flow
+  }
+};
