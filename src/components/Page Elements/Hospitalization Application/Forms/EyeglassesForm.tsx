@@ -87,6 +87,12 @@ const schema = z.object({
 		})
 		.min(1, "Please enter at least 1 claim")
 		.max(10, "Maximum of 10 claims allowed"),
+	certify: z.enum(["Yes"], {
+		errorMap: () => ({
+			message:
+				"You must certify that all information provided is true and correct",
+		}),
+	}),
 });
 
 const EyeglassesForm = () => {
