@@ -1,20 +1,14 @@
 import React from "react";
 import styles from "./RecordTable.module.css";
-
-interface Record {
-	dateTime: string;
-	transactionID: string;
-	typeOfForm: string;
-	status: string;
-}
+import { Record } from "../PendingRequests/types";
 
 interface RecordTableProps {
 	records: Record[];
 	onDetailsClick: (
 		transactionID: string,
-		dateTime: string,
+		dateTime: Date, // Pass a Date object
 		status: string
-	) => void; // Prop to notify parent
+	) => void;
 }
 
 const RecordTable: React.FC<RecordTableProps> = ({
@@ -24,49 +18,50 @@ const RecordTable: React.FC<RecordTableProps> = ({
 	return (
 		<div className={styles["table-component-container"]}>
 			<div className={styles["records-container"]}>
-				{records.map((record, index) => (
-					<div
-						key={index}
-						className={`${styles["record-box"]} ${
-							record.status === "Pending" ? styles.pending : ""
-						} ${record.status === "Approved" ? styles.approved : ""} ${
-							record.status === "Rejected" ? styles.rejected : ""
-						}`}
-					>
-						<div className={styles["record-content"]}>
-							<div className={styles["details-container"]}>
-								<div className={styles["record-dateTime"]}>
-									{record.dateTime}
+				{records.map((record, index) => {
+					const date = new Date(record.dateTime);
+					const isValidDate = !isNaN(date.getTime());
+
+					return (
+						<div
+							key={index}
+							className={`${styles["record-box"]} ${
+								record.status === "Pending" ? styles.pending : ""
+							} ${record.status === "Approved" ? styles.approved : ""} ${
+								record.status === "Rejected" ? styles.rejected : ""
+							}`}
+						>
+							<div className={styles["record-content"]}>
+								<div className={styles["details-container"]}>
+									<div className={styles["record-dateTime"]}>
+										{isValidDate ? date.toLocaleString() : "Invalid Date"}
+									</div>
+									<div className={styles["record-transactionID"]}>
+										{record.transactionID}
+									</div>
+									<div className={styles["record-typeOfForm"]}>
+										{record.typeOfForm}
+									</div>
+									<div className={styles["record-status"]}>{record.status}</div>
 								</div>
-								<div className={styles["record-transactionID"]}>
-									{record.transactionID}
+								<div className={styles["button-container"]}>
+									<button
+										className={styles["details-button"]}
+										onClick={() =>
+											onDetailsClick(
+												record.transactionID,
+												date, // Pass the Date object
+												record.status
+											)
+										}
+									>
+										DETAILS
+									</button>
 								</div>
-								<div className={styles["record-typeOfForm"]}>
-									{record.typeOfForm}
-								</div>
-								<div className={styles["record-status"]}>{record.status}</div>
-							</div>
-							<div className={styles["button-container"]}>
-								<button
-									className={styles["details-button"]}
-									onClick={() =>
-										onDetailsClick(
-											record.transactionID,
-											new Date(record.dateTime).toLocaleTimeString([], {
-												hour: "2-digit",
-												minute: "2-digit",
-												hour12: true,
-											}),
-											record.status
-										)
-									}
-								>
-									DETAILS
-								</button>
 							</div>
 						</div>
-					</div>
-				))}
+					);
+				})}
 			</div>
 		</div>
 	);

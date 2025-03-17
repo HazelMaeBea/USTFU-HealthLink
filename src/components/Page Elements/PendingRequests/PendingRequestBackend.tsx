@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { collection, doc, DocumentData, getDocs, onSnapshot, query, setDoc, where } from "firebase/firestore";
+import {
+	collection,
+	doc,
+	DocumentData,
+	getDocs,
+	onSnapshot,
+	query,
+	setDoc,
+	where,
+	deleteDoc,
+	Timestamp,
+} from "firebase/firestore";
 import { db } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
 
@@ -98,44 +109,93 @@ const PendingRequestBackend = () => {
 	);
 };
 
-export async function getRemainingBenefits(inputRequester: string): Promise<number> {
-    try {
-        const usersCollection = collection(db, "users");
-        const userQuery = query(usersCollection, where("displayName", "==", inputRequester));
-        const querySnapshot = await getDocs(userQuery);
-
-        if (querySnapshot.empty) {
-            console.log("No matching documents found.");
-            return 0;
-        }
-
-        let remainingBenefits: number = 0;
-
-        querySnapshot.forEach((doc: DocumentData) => {
-            remainingBenefits = doc.data().remainingBenefits;
-			// console.log(doc.data().remainingBenefits);
-        });
-
-        return remainingBenefits;
-    } catch (error) {
-        console.error("Error fetching remainingBenefits:", error);
-        throw error;
-    }
-}
-
-export const updateDocument = async (transID: string, textArea: string, status: string) => {
+export async function getRemainingBenefits(
+	inputRequester: string
+): Promise<number> {
 	try {
-		const userQuery = query(reqCollection, where("transactionId", "==", transID));
+		const usersCollection = collection(db, "users");
+		const userQuery = query(
+			usersCollection,
+			where("displayName", "==", inputRequester)
+		);
 		const querySnapshot = await getDocs(userQuery);
-		querySnapshot.forEach(async (document) => {
-            const docRef = doc(db, "FormRequests", document.id); // Get the document reference
-            await setDoc(docRef, { statusReason: textArea, status: status }, { merge: true }); // Update or set fields
-            console.log(`Document with ID ${document.id} has been updated.`);
-			// console.log(docRef);
-        });
+
+		if (querySnapshot.empty) {
+			console.log("No matching documents found.");
+			return 0;
+		}
+
+		let remainingBenefits: number = 0;
+
+		querySnapshot.forEach((doc: DocumentData) => {
+			remainingBenefits = doc.data().remainingBenefits;
+			// console.log(doc.data().remainingBenefits);
+		});
+
+		return remainingBenefits;
 	} catch (error) {
-		console.error("Something happened I dunno paalala nalang to edit this");
+		console.error("Error fetching remainingBenefits:", error);
+		throw error;
 	}
 }
+
+export const updateDocument = async (
+	transID: string,
+	textArea: string,
+	status: string
+) => {
+	try {
+		const userQuery = query(
+			reqCollection,
+			where("transactionId", "==", transID)
+		);
+		const querySnapshot = await getDocs(userQuery);
+		querySnapshot.forEach(async (document) => {
+			const docRef = doc(db, "FormRequests", document.id); // Get the document reference
+			const docData = document.data();
+
+			const decisionTimestamp = Timestamp.now();
+
+			await setDoc(
+				docRef,
+				{
+					statusReason: textArea,
+					status: status,
+					DateDecided: decisionTimestamp,
+				},
+				{ merge: true }
+			); // Update or set fields
+			console.log(`Document with ID ${document.id} has been updated.`);
+			// console.log(docRef);
+
+			let newCollection = "";
+			if (["approved", "rejected"].includes(status)) {
+				newCollection = "AccomplishedRequests"; // Approved & Rejected go here
+			} else if (status === "for revision") {
+				newCollection = "RevisionsRequests";
+			}
+
+			if (newCollection) {
+				const newDocRef = doc(db, newCollection, document.id);
+
+				// Copy document to the new collection with DateDecided
+				await setDoc(newDocRef, {
+					...docData,
+					status,
+					statusReason: textArea,
+					DateDecided: decisionTimestamp, // Add DateDecided here as well
+				});
+
+				// Delete from the original collection
+				await deleteDoc(docRef);
+				console.log(
+					`Document moved to ${newCollection} and deleted from FormRequests.`
+				);
+			}
+		});
+	} catch (error) {
+		console.error("Error updating document:", error);
+	}
+};
 
 export default PendingRequestBackend;
