@@ -3,6 +3,8 @@ import "./VerificationPage.css";
 import { useState, useEffect, useRef } from "react";
 import Popout from "../Popout/Popout";
 import PageButtons from "../PageButtons/PageButtons";
+import { collection, DocumentData, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../../config/firebase";
 
 interface VerificationRequest {
 	name: string;
@@ -22,8 +24,33 @@ const VerificationPage = () => {
 		}));
 	};
 
+	const generateData = async () => {
+		// let unverifiedUsers = [];
+		const usersCollection = collection(db, "users");
+		const userQuery = query(
+			usersCollection,
+			where("verified", "==", false)
+		);
+		const querySnapshot = await getDocs(userQuery);
+		
+		const unverifiedUsers: VerificationRequest[] = querySnapshot.docs.map(doc => {
+			const data = doc.data(); // Retrieve the document's data
+			return {
+			  name: data.fullName, // Access the 'fullName' field
+			  email: data.email, // Replace with actual email field if needed
+			  role: data.role, // Replace with actual role field if needed
+			  selected: false,
+			};
+		  });
+		// console.log("querySnapshot:", querySnapshot);
+		// console.log("unverifiedUsers: " + unverifiedUsers);
+		// console.log("Is query snapshot empty?", querySnapshot.empty);
+		// console.log(userQuery);
+		return unverifiedUsers;
+	}
+
 	const [requests, setRequests] = useState<VerificationRequest[]>(
-		generateSampleData()
+		generateSampleData
 	);
 	const [selectAll, setSelectAll] = useState(false);
 	const [isIndeterminate, setIsIndeterminate] = useState(false);
@@ -40,6 +67,7 @@ const VerificationPage = () => {
 
 	// Update indeterminate state when requests change
 	useEffect(() => {
+		generateData().then((data) => {setRequests(data)})
 		const selectedCount = requests.filter((req) => req.selected).length;
 
 		if (selectedCount === 0) {
