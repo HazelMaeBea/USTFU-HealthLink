@@ -17,8 +17,8 @@ import RemainingBenefit from "./RemainingBenefit.tsx";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
-// Import autofill functionality
-import { useAutofill } from "../Autofill";
+// Import autofill functionality with new name
+import { applyAutofill } from "../Autofill";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -132,13 +132,17 @@ const EyeglassesForm = () => {
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-	// Apply autofill on component mount
+	// Apply autofill on component mount - Update to use the renamed function
 	useEffect(() => {
-		const applyAutoFill = async () => {
-			await useAutofill(setValue);
+		const fetchAndApplyAutofill = async () => {
+			try {
+				await applyAutofill(setValue);
+			} catch (error) {
+				console.error("Failed to apply autofill:", error);
+			}
 		};
 
-		applyAutoFill();
+		fetchAndApplyAutofill();
 	}, [setValue]);
 
 	// Add a handler to close the notification with animation

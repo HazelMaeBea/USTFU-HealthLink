@@ -100,6 +100,12 @@ const Settings = () => {
 					const userData = userDoc.data();
 					const personalInfo = userData.personalInfo || {};
 
+					// Add console log to debug the structure
+					console.log(
+						"Full user data structure:",
+						JSON.stringify(userData, null, 2)
+					);
+
 					// Set settings with nested fields from personalInfo
 					const updatedSettings = {
 						firstname: personalInfo.firstName || "",
@@ -117,14 +123,18 @@ const Settings = () => {
 						birthdate: personalInfo.birthdate || "",
 						phoneNumber: personalInfo.phoneNumber || "",
 						gender: personalInfo.gender || "",
-						college: userData.college || "",
+						college: personalInfo.college || "",
 						notification:
 							userData.notification !== undefined
 								? userData.notification
+								: userData.settings?.notification !== undefined
+								? userData.settings.notification
 								: false,
 						autofill:
 							userData.autofill !== undefined
 								? userData.autofill
+								: userData.settings?.autofill !== undefined
+								? userData.settings.autofill
 								: false,
 					};
 
@@ -296,17 +306,33 @@ const Settings = () => {
 
 			// Handle top-level fields
 			if (settings.college !== (originalSettings as any).college) {
-				updateData.college = settings.college;
+				updateData["personalInfo.college"] = settings.college; // Changed from updateData.college
 			}
 
-			// Fix the path for notification and autofill - they should be at top level, not under settings
+			// Fix the path for notification and autofill - check both possible locations
+			const userDoc = await getDoc(userDocRef);
+			const userData = userDoc.exists() ? userDoc.data() : null;
+
+			// Determine where notification and autofill should be saved based on current structure
+			const hasSettingsObject =
+				userData && userData.settings !== undefined;
+
 			if (
 				settings.notification !== (originalSettings as any).notification
 			) {
-				updateData.notification = settings.notification;
+				if (hasSettingsObject) {
+					updateData["settings.notification"] = settings.notification;
+				} else {
+					updateData.notification = settings.notification;
+				}
 			}
+
 			if (settings.autofill !== (originalSettings as any).autofill) {
-				updateData.autofill = settings.autofill;
+				if (hasSettingsObject) {
+					updateData["settings.autofill"] = settings.autofill;
+				} else {
+					updateData.autofill = settings.autofill;
+				}
 			}
 
 			if (Object.keys(updateData).length === 0) {

@@ -16,8 +16,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit";
 import "./FormBody.css";
-// Import autofill functionality
-import { useAutofill } from "../Autofill";
+// Import autofill functionality with new name
+import { applyAutofill } from "../Autofill";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
@@ -176,13 +176,17 @@ const AdmissionForm = () => {
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-	// Apply autofill on component mount
+	// Apply autofill on component mount - Update to use the renamed function
 	useEffect(() => {
-		const applyAutoFill = async () => {
-			await useAutofill(setValue);
+		const fetchAndApplyAutofill = async () => {
+			try {
+				await applyAutofill(setValue, setDateHired, setDateRetired);
+			} catch (error) {
+				console.error("Failed to apply autofill:", error);
+			}
 		};
 
-		applyAutoFill();
+		fetchAndApplyAutofill();
 	}, [setValue]);
 
 	// Add a handler to close the notification with animation

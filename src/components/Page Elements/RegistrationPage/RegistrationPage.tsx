@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,13 +32,13 @@ const schema = z.object({
 	dateHired: z.string().min(1, { message: "Date Hired is required" }),
 	dateRetired: z.string().optional(),
 	gender: z.string().min(1, { message: "Gender is required" }),
+	college: z.string().min(1, { message: "College is required" }),
 });
 
 type FormData = z.infer<typeof schema>;
 
 const suffixOptions = ["", "Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"];
-const termOptions = ["1st", "2nd"];
-const yearOptions = ["2024-2025"];
+const genderOptions = ["Male", "Female"];
 const statusOptions = [
 	"Tenured",
 	"Tenured-Track",
@@ -46,19 +46,89 @@ const statusOptions = [
 	"Extendee",
 	"Retiree",
 ];
-const genderOptions = ["Male", "Female", "Other"];
+const collegeOptions = [
+	"College of Accountancy",
+	"College of Architecture",
+	"Faculty of Arts and Letters",
+	"Faculty of Civil Law",
+	"College of Commerce and Business Administration",
+	"College of Education",
+	"Faculty of Engineering",
+	"College of Fine Arts and Design",
+	"Graduate School",
+	"Graduate School of Law",
+	"College of Information and Computing Sciences",
+	"Faculty of Medicine and Surgery",
+	"Conservatory of Music",
+	"College of Nursing",
+	"Faculty of Pharmacy",
+	"Institute of Physical Education and Athletics",
+	"College of Rehabilitation Sciences",
+	"College of Science",
+	"College of Tourism and Hospitality Management",
+];
+
+const calculateAcademicYear = (): string => {
+	const currentDate = new Date();
+	const currentYear = currentDate.getFullYear();
+	const currentMonth = currentDate.getMonth(); // 0-indexed (0 = January, 11 = December)
+
+	// If we're in June-December, the academic year is currentYear-(currentYear+1)
+	// If we're in January-May, the academic year is (currentYear-1)-currentYear
+	if (currentMonth >= 5) {
+		// June and onwards
+		return `${currentYear}-${currentYear + 1}`;
+	} else {
+		return `${currentYear - 1}-${currentYear}`;
+	}
+};
+
+const calculateTerm = (): string => {
+	const currentDate = new Date();
+	const currentMonth = currentDate.getMonth(); // 0-indexed (0 = January, 11 = December)
+
+	// 1st term: August-December (months 7-11)
+	// 2nd term: January-May (months 0-4)
+	// June-July might be considered summer term or special term
+	if (currentMonth >= 7 || currentMonth === 0) {
+		// August-December, January
+		return "1st";
+	} else if (currentMonth >= 1 && currentMonth <= 4) {
+		// February-May
+		return "2nd";
+	} else {
+		// June-July and special cases
+		return "1st"; // Default to 1st term
+	}
+};
 
 const RegistrationPage: React.FC = () => {
 	const [submitted, setSubmitted] = useState(false);
+	const [currentTerm, setCurrentTerm] = useState<string>("");
+	const [currentYear, setCurrentYear] = useState<string>("");
 	const { displayName, photoURL, email, currentUser } = useFirebase(); // Ensure `useFirebase` provides user info
 	const {
 		register,
 		handleSubmit,
+		setValue,
 		formState: { errors },
 	} = useForm<FormData>({
 		resolver: zodResolver(schema),
 		mode: "onChange",
 	});
+
+	useEffect(() => {
+		// Calculate and set the current academic year and term
+		const year = calculateAcademicYear();
+		const term = calculateTerm();
+
+		setCurrentYear(year);
+		setCurrentTerm(term);
+
+		// Set default values for the form
+		setValue("year", year);
+		setValue("term", term);
+	}, [setValue]);
 
 	const handleRegister = async (formData: FormData) => {
 		try {
@@ -78,7 +148,12 @@ const RegistrationPage: React.FC = () => {
 			setSubmitted(true);
 		} catch (error) {
 			console.error("Error during registration:", error);
-			setError(error instanceof Error ? error.message : "Failed to register.");
+			// Using a proper error handling approach
+			if (error instanceof Error) {
+				console.error(error.message);
+			} else {
+				console.error("Failed to register.");
+			}
 		}
 	};
 
@@ -120,19 +195,23 @@ const RegistrationPage: React.FC = () => {
 								className={styles.userImage}
 							/>
 							<div className={styles.userInfo}>
-								<p className={styles.userEmail}>{email}</p> <br />
+								<p className={styles.userEmail}>{email}</p>{" "}
+								<br />
 								<p className={styles.userName}>
-									Hi, {displayName?.toLowerCase()}, let's get you started!
+									Hi, {displayName?.toLowerCase()}, let's get
+									you started!
 								</p>{" "}
 								<br />
 								<p className={styles.registrationText}>
-									Please set up your account and gain access to USTFU
-									HealthLink.
+									Please set up your account and gain access
+									to USTFU HealthLink.
 								</p>
 							</div>
 							<button
 								className={styles.signin}
-								onClick={() => (window.location.href = "/login")}
+								onClick={() =>
+									(window.location.href = "/login")
+								}
 							>
 								Go back to sign in page
 							</button>
@@ -164,7 +243,9 @@ const RegistrationPage: React.FC = () => {
 								placeholder="Enter first name"
 							/>
 							{errors.firstName && (
-								<p className="invalid-feedback">{errors.firstName.message}</p>
+								<p className="invalid-feedback">
+									{errors.firstName.message}
+								</p>
 							)}
 						</div>
 						<div className="mb-3 col-md-3">
@@ -181,7 +262,9 @@ const RegistrationPage: React.FC = () => {
 								placeholder="Enter last name"
 							/>
 							{errors.lastName && (
-								<p className="invalid-feedback">{errors.lastName.message}</p>
+								<p className="invalid-feedback">
+									{errors.lastName.message}
+								</p>
 							)}
 						</div>
 						<div className="mb-3 col-md-3">
@@ -198,7 +281,9 @@ const RegistrationPage: React.FC = () => {
 								placeholder="Enter middle name"
 							/>
 							{errors.middleName && (
-								<p className="invalid-feedback">{errors.middleName.message}</p>
+								<p className="invalid-feedback">
+									{errors.middleName.message}
+								</p>
 							)}
 						</div>
 						<div className="mb-3 col-md-3">
@@ -207,7 +292,9 @@ const RegistrationPage: React.FC = () => {
 							</label>
 							<select
 								id="suffix"
-								className={`form-select ${errors.suffix ? "is-invalid" : ""}`}
+								className={`form-select ${
+									errors.suffix ? "is-invalid" : ""
+								}`}
 								{...register("suffix")}
 							>
 								<option value="" disabled selected hidden>
@@ -220,7 +307,9 @@ const RegistrationPage: React.FC = () => {
 								))}
 							</select>
 							{errors.suffix && (
-								<p className="invalid-feedback">{errors.suffix.message}</p>
+								<p className="invalid-feedback">
+									{errors.suffix.message}
+								</p>
 							)}
 						</div>
 					</div>
@@ -240,7 +329,9 @@ const RegistrationPage: React.FC = () => {
 								onChange={formatIDNumber}
 							/>
 							{errors.idNumber && (
-								<p className="invalid-feedback">{errors.idNumber.message}</p>
+								<p className="invalid-feedback">
+									{errors.idNumber.message}
+								</p>
 							)}
 						</div>
 						<div className="mb-3 col-md-3">
@@ -258,7 +349,9 @@ const RegistrationPage: React.FC = () => {
 								onChange={formatBirthdate}
 							/>
 							{errors.birthdate && (
-								<p className="invalid-feedback">{errors.birthdate.message}</p>
+								<p className="invalid-feedback">
+									{errors.birthdate.message}
+								</p>
 							)}
 						</div>
 						<div className="mb-3 col-md-3">
@@ -267,7 +360,9 @@ const RegistrationPage: React.FC = () => {
 							</label>
 							<select
 								id="gender"
-								className={`form-select ${errors.gender ? "is-invalid" : ""}`}
+								className={`form-select ${
+									errors.gender ? "is-invalid" : ""
+								}`}
 								{...register("gender")}
 							>
 								<option value="" disabled selected hidden>
@@ -280,7 +375,9 @@ const RegistrationPage: React.FC = () => {
 								))}
 							</select>
 							{errors.gender && (
-								<p className="invalid-feedback">{errors.gender.message}</p>
+								<p className="invalid-feedback">
+									{errors.gender.message}
+								</p>
 							)}
 						</div>
 						<div className="mb-3 col-md-3">
@@ -298,7 +395,9 @@ const RegistrationPage: React.FC = () => {
 								maxLength={12}
 							/>
 							{errors.phoneNumber && (
-								<p className="invalid-feedback">{errors.phoneNumber.message}</p>
+								<p className="invalid-feedback">
+									{errors.phoneNumber.message}
+								</p>
 							)}
 						</div>
 					</div>
@@ -307,45 +406,27 @@ const RegistrationPage: React.FC = () => {
 							<label htmlFor="term" className="form-label">
 								Term
 							</label>
-							<select
+							<input
 								id="term"
-								className={`form-select ${errors.term ? "is-invalid" : ""}`}
+								type="text"
+								className="form-control"
+								value={currentTerm}
+								readOnly
 								{...register("term")}
-							>
-								<option value="" disabled selected hidden>
-									Select term
-								</option>
-								{termOptions.map((option, index) => (
-									<option key={index} value={option}>
-										{option}
-									</option>
-								))}
-							</select>
-							{errors.term && (
-								<p className="invalid-feedback">{errors.term.message}</p>
-							)}
+							/>
 						</div>
 						<div className="mb-3 col-md-3">
 							<label htmlFor="year" className="form-label">
 								Year
 							</label>
-							<select
+							<input
 								id="year"
-								className={`form-select ${errors.year ? "is-invalid" : ""}`}
+								type="text"
+								className="form-control"
+								value={currentYear}
+								readOnly
 								{...register("year")}
-							>
-								<option value="" disabled selected hidden>
-									Select year
-								</option>
-								{yearOptions.map((option, index) => (
-									<option key={index} value={option}>
-										{option}
-									</option>
-								))}
-							</select>
-							{errors.year && (
-								<p className="invalid-feedback">{errors.year.message}</p>
-							)}
+							/>
 						</div>
 						<div className="mb-3 col-md-3">
 							<label htmlFor="load" className="form-label">
@@ -354,12 +435,16 @@ const RegistrationPage: React.FC = () => {
 							<input
 								id="load"
 								type="text"
-								className={`form-control ${errors.load ? "is-invalid" : ""}`}
+								className={`form-control ${
+									errors.load ? "is-invalid" : ""
+								}`}
 								{...register("load")}
 								placeholder="Enter Units"
 							/>
 							{errors.load && (
-								<p className="invalid-feedback">{errors.load.message}</p>
+								<p className="invalid-feedback">
+									{errors.load.message}
+								</p>
 							)}
 						</div>
 						<div className="mb-3 col-md-3">
@@ -368,7 +453,9 @@ const RegistrationPage: React.FC = () => {
 							</label>
 							<select
 								id="status"
-								className={`form-select ${errors.status ? "is-invalid" : ""}`}
+								className={`form-select ${
+									errors.status ? "is-invalid" : ""
+								}`}
 								{...register("status")}
 							>
 								<option value="" disabled selected hidden>
@@ -381,11 +468,39 @@ const RegistrationPage: React.FC = () => {
 								))}
 							</select>
 							{errors.status && (
-								<p className="invalid-feedback">{errors.status.message}</p>
+								<p className="invalid-feedback">
+									{errors.status.message}
+								</p>
 							)}
 						</div>
 					</div>
 					<div className="row">
+						<div className="mb-3 col-md-6">
+							<label htmlFor="college" className="form-label">
+								College
+							</label>
+							<select
+								id="college"
+								className={`form-select ${
+									errors.college ? "is-invalid" : ""
+								}`}
+								{...register("college")}
+							>
+								<option value="" disabled selected hidden>
+									Select college
+								</option>
+								{collegeOptions.map((option, index) => (
+									<option key={index} value={option}>
+										{option}
+									</option>
+								))}
+							</select>
+							{errors.college && (
+								<p className="invalid-feedback">
+									{errors.college.message}
+								</p>
+							)}
+						</div>
 						<div className="mb-3 col-md-6">
 							<label htmlFor="address" className="form-label">
 								Address
@@ -393,15 +508,21 @@ const RegistrationPage: React.FC = () => {
 							<input
 								id="address"
 								type="text"
-								className={`form-control ${errors.address ? "is-invalid" : ""}`}
+								className={`form-control ${
+									errors.address ? "is-invalid" : ""
+								}`}
 								{...register("address")}
 								placeholder="Enter address"
 							/>
 							{errors.address && (
-								<p className="invalid-feedback">{errors.address.message}</p>
+								<p className="invalid-feedback">
+									{errors.address.message}
+								</p>
 							)}
 						</div>
-						<div className="mb-3 col-md-3">
+					</div>
+					<div className="row">
+						<div className="mb-3 col-md-6">
 							<label htmlFor="dateHired" className="form-label">
 								Date Hired
 							</label>
@@ -416,10 +537,12 @@ const RegistrationPage: React.FC = () => {
 								onChange={formatBirthdate}
 							/>
 							{errors.dateHired && (
-								<p className="invalid-feedback">{errors.dateHired.message}</p>
+								<p className="invalid-feedback">
+									{errors.dateHired.message}
+								</p>
 							)}
 						</div>
-						<div className="mb-3 col-md-3">
+						<div className="mb-3 col-md-6">
 							<label htmlFor="dateRetired" className="form-label">
 								Date Retired
 							</label>
@@ -434,7 +557,9 @@ const RegistrationPage: React.FC = () => {
 								onChange={formatBirthdate}
 							/>
 							{errors.dateRetired && (
-								<p className="invalid-feedback">{errors.dateRetired.message}</p>
+								<p className="invalid-feedback">
+									{errors.dateRetired.message}
+								</p>
 							)}
 						</div>
 					</div>
@@ -453,6 +578,9 @@ const RegistrationPage: React.FC = () => {
 };
 
 export default RegistrationPage;
-function setError(arg0: string) {
-	throw new Error("Function not implemented.");
+
+// Replace the previous setError function with this:
+function setError(message: string) {
+	console.error(message);
+	// You would implement proper error handling here
 }

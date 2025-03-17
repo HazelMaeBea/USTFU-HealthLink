@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
+import React, { useState, Dispatch, SetStateAction } from "react";
+import { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
 import { FormData } from "./AdmissionForm"; // Update import to use AdmissionForm's FormData type
 
 interface AdmissionTeachingInfoProps {
 	register: UseFormRegister<FormData>; // Use FormData type
 	errors: FieldErrors<FormData>; // Use FormData type
 	dateHired: Date | null;
-	setDateHired: React.Dispatch<React.SetStateAction<Date | null>>;
+	setDateHired: Dispatch<SetStateAction<Date | null>>;
 	dateRetired: Date | null;
-	setDateRetired: React.Dispatch<React.SetStateAction<Date | null>>;
+	setDateRetired: Dispatch<SetStateAction<Date | null>>;
+	setValue?: UseFormSetValue<FormData>; // Make setValue optional
 }
 
 // Status options matching the FormTeachingInfo component
@@ -27,6 +28,7 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 	setDateHired,
 	dateRetired,
 	setDateRetired,
+	setValue, // Accept setValue but make it optional
 }) => {
 	const [status, setStatus] = useState("");
 

@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
+import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
+import { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
 import { FormData } from "./FormBody";
 
 interface FormTeachingInfoProps {
 	register: UseFormRegister<FormData>;
 	errors: FieldErrors<FormData>;
 	dateHired: Date | null;
-	setDateHired: React.Dispatch<React.SetStateAction<Date | null>>;
+	setDateHired: Dispatch<SetStateAction<Date | null>>;
 	dateRetired: Date | null;
-	setDateRetired: React.Dispatch<React.SetStateAction<Date | null>>;
-	setValue: any; // Add setValue to the props
+	setDateRetired: Dispatch<SetStateAction<Date | null>>;
+	setValue?: UseFormSetValue<FormData>; // Make setValue optional
 }
 
 // Removed commented-out termOptions and yearOptions as they're no longer needed
@@ -65,7 +65,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	setDateHired,
 	dateRetired,
 	setDateRetired,
-	setValue,
+	setValue, // Accept setValue but make it optional
 }) => {
 	const [status, setStatus] = useState("");
 	const [benefit, setBenefit] = useState("");
@@ -75,10 +75,10 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	//set initial values when component mounts
 	useEffect(() => {
 		// Set the academic year field
-		setValue("year", currentAcademicYear);
+		setValue?.("year", currentAcademicYear);
 
 		// Set the term field
-		setValue("term", currentTerm);
+		setValue?.("term", currentTerm);
 	}, [setValue, currentAcademicYear, currentTerm]);
 
 	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
