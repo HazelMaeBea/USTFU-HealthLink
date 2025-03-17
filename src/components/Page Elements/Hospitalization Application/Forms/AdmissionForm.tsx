@@ -18,6 +18,9 @@ import RemainingBenefit from "./RemainingBenefit";
 import "./FormBody.css";
 // Import autofill functionality
 import { useAutofill } from "../Autofill";
+import { useNavigate } from "react-router-dom";
+import Popout from "../../../Page Elements/Popout/Popout";
+import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -156,15 +159,19 @@ const AdmissionForm = () => {
 	const [showSuccessNotification, setShowSuccessNotification] =
 		useState(false);
 	const [isNotificationHiding, setIsNotificationHiding] = useState(false);
+	const [showClearConfirmation, setShowClearConfirmation] =
+		useState<boolean>(false);
 	const [formIdString, setFormIdString] = useState<string>("");
 	const [submissionStatus, setSubmissionStatus] = useState<
 		"processing" | "success" | "error"
 	>("processing");
 	const [errorMessage, setErrorMessage] = useState<string>("");
+	const navigate = useNavigate();
 
 	const {
 		register,
 		handleSubmit,
+		reset,
 		setValue,
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
@@ -178,6 +185,31 @@ const AdmissionForm = () => {
 		applyAutoFill();
 	}, [setValue]);
 
+	// Add a handler to close the notification with animation
+	const closeNotification = () => {
+		setIsNotificationHiding(true);
+
+		// After animation completes, hide the notification
+		setTimeout(() => {
+			setShowSuccessNotification(false);
+			setIsNotificationHiding(false);
+		}, 300); // Animation duration
+	};
+
+	const handleTrackingClick = (e: React.MouseEvent) => {
+		e.preventDefault();
+		navigate("/tracking");
+	};
+
+	const handleClearConfirm = () => {
+		reset();
+		setShowClearConfirmation(false);
+	};
+
+	const handleClearCancel = () => {
+		setShowClearConfirmation(false);
+	};
+
 	const onSubmit = async (data: FieldValues) => {
 		// Show notification immediately with processing state
 		setSubmissionStatus("processing");
@@ -188,11 +220,8 @@ const AdmissionForm = () => {
 
 			const formID = await getFormID(true);
 			const formIDString = formID?.toString().padStart(6, "0") || "error";
+			setFormIdString(formIDString); // Make sure to set this state for the notification
 			const currentYear: string = new Date().getFullYear().toString();
-
-			if (!formID) {
-				throw new Error("Failed to retrieve FormID");
-			}
 
 			// Upload and get download URL for applicantSignature
 			let imageRef = ref(
@@ -302,6 +331,12 @@ const AdmissionForm = () => {
 				"Document written with ID: ",
 				currentYear + "-" + formIDString
 			);
+
+			// Show success notification
+			setSubmissionStatus("success");
+
+			// Reset form after successful submission
+			reset();
 		} catch (error) {
 			console.error(error);
 			setSubmissionStatus("error");
@@ -357,8 +392,11 @@ const AdmissionForm = () => {
 									Submit
 								</button>
 								<button
-									type="reset"
+									type="button"
 									className="btn btn-clear form-submit"
+									onClick={() =>
+										setShowClearConfirmation(true)
+									}
 								>
 									Clear
 								</button>
@@ -368,7 +406,85 @@ const AdmissionForm = () => {
 				</div>
 			</div>
 
-			{/* Add success notification similar to EyeglassesForm if needed */}
+			{/* Add success notification component */}
+			{showSuccessNotification && (
+				<div
+					className={`success-notification ${
+						isNotificationHiding ? "hiding" : ""
+					} ${
+						submissionStatus === "error" ? "error-notification" : ""
+					}`}
+				>
+					<div className={`success-icon ${submissionStatus}`}>
+						{submissionStatus === "processing" ? (
+							<div className="spinner"></div>
+						) : submissionStatus === "success" ? (
+							<FiCheck size={18} />
+						) : (
+							<FiX size={18} />
+						)}
+					</div>
+					<div className="success-content">
+						<h4 className="success-title">
+							{submissionStatus === "processing"
+								? "Submitting Form..."
+								: submissionStatus === "success"
+								? "Form Submitted Successfully"
+								: "Submission Failed"}
+						</h4>
+						<p className="success-message">
+							{submissionStatus === "processing"
+								? "Please wait while we process your claim request..."
+								: submissionStatus === "success"
+								? `Your claim request has been submitted with ID: ${formIdString}`
+								: errorMessage ||
+								  "An error occurred during submission. Please try again."}
+						</p>
+						{submissionStatus === "success" && (
+							<div className="success-action">
+								<a
+									href="#"
+									onClick={handleTrackingClick}
+									className="success-link"
+								>
+									Track your request{" "}
+									<FiArrowRight
+										size={14}
+										className="success-link-icon"
+									/>
+								</a>
+							</div>
+						)}
+						{submissionStatus === "error" && (
+							<div className="success-action">
+								<button
+									onClick={closeNotification}
+									className="try-again-link"
+								>
+									Close and try again
+								</button>
+							</div>
+						)}
+					</div>
+					<button
+						className="success-close"
+						onClick={closeNotification}
+						aria-label="Close notification"
+					>
+						<FiX size={18} />
+					</button>
+				</div>
+			)}
+
+			{showClearConfirmation && (
+				<Popout
+					title="Confirm Clear Form"
+					message="Are you sure you want to clear the form? All entered data will be lost."
+					onConfirm={handleClearConfirm}
+					onCancel={handleClearCancel}
+					isOpen={showClearConfirmation}
+				/>
+			)}
 		</div>
 	);
 };
