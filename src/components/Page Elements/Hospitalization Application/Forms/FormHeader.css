@@ -30,11 +30,9 @@
 	margin: 0 20px;
 }
 
-/* Responsive adjustments for header on small screens */
+/* Responsive adjustments for header on medium screens */
 @media screen and (max-width: 768px) {
 	.form-header {
-		flex-direction: row;
-		align-items: center;
 		padding: 15px;
 	}
 	.header-text h1 {
@@ -44,6 +42,41 @@
 	.logo {
 		width: 80px;
 		height: 80px;
+	}
+}
+
+/* Responsive adjustments for small screens */
+@media screen and (max-width: 576px) {
+	.form-header {
+		flex-direction: row;
+		padding: 12px;
+		gap: 8px;
+	}
+	.header-text h1 {
+		font-size: 14px;
+		line-height: 1.2;
+		margin: 0 5px;
+	}
+	.logo {
+		width: 60px;
+		height: 60px;
+	}
+}
+
+/* Extra small screens */
+@media screen and (max-width: 375px) {
+	.form-header {
+		padding: 8px;
+		gap: 5px;
+	}
+	.header-text h1 {
+		font-size: 11px;
+		line-height: 1.1;
+		margin: 0 3px;
+	}
+	.logo {
+		width: 50px;
+		height: 50px;
 	}
 }
 

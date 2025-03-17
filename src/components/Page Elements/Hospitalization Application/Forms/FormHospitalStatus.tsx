@@ -20,23 +20,27 @@ const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 				<label className="form-label hospital-status-label">
 					Hospital Status:{" "}
 				</label>
-				{hospitalStatusOptions.map((option, index) => (
-					<div key={index} className="form-check form-check-inline">
-						<input
-							{...register("hospitalStatus")}
-							id={`hospitalStatus-${index}`}
-							type="radio"
-							value={option}
-							className="form-check-input"
-						/>
-						<label
-							htmlFor={`hospitalStatus-${index}`}
-							className="form-check-label"
-						>
-							{option}
-						</label>
-					</div>
-				))}
+				<div className="hospital-status-options-container row">
+					{hospitalStatusOptions.map((option, index) => (
+						<div key={index} className="col-12 col-md-auto mb-2">
+							<div className="hospital-status-option">
+								<input
+									{...register("hospitalStatus")}
+									id={`hospitalStatus-${index}`}
+									type="radio"
+									value={option}
+									className="form-check-input me-2"
+								/>
+								<label
+									htmlFor={`hospitalStatus-${index}`}
+									className="form-check-label"
+								>
+									{option}
+								</label>
+							</div>
+						</div>
+					))}
+				</div>
 				{errors.hospitalStatus && (
 					<p className="text-danger">
 						{errors.hospitalStatus.message}
