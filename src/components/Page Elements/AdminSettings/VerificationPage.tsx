@@ -17,13 +17,13 @@ interface VerificationRequest {
 const VerificationPage = () => {
 	// Generate sample data
 	const generateSampleData = () => {
-		return Array.from({ length: 25 }, (_, i) => ({
+		return Array.from({ length: 1 }, (_, i) => ({
 			id: i + "id",
-			name: `Doe, Jane Jacquxvious ${i + 1}`,
-			email: `janejacquxvious.doe${i + 1}@ust.edu.ph`,
-			role: "member",
+			name: ``,
+			email: ``,
+			role: "",
 			selected: false,
-		}));
+		})) as VerificationRequest[];
 	};
 
 	const generateData = async () => {
@@ -53,9 +53,8 @@ const VerificationPage = () => {
 		}
 	}
 
-	const [requests, setRequests] = useState<VerificationRequest[]>(
-		generateSampleData
-	);
+	const sampleData = generateSampleData();
+	const [requests, setRequests] = useState<VerificationRequest[]>([]);
 	const [selectAll, setSelectAll] = useState(false);
 	const [isIndeterminate, setIsIndeterminate] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
@@ -69,9 +68,17 @@ const VerificationPage = () => {
 	const [popoutMessage, setPopoutMessage] = useState("");
 	const [pendingAction, setPendingAction] = useState<() => void>(() => {});
 
+	useEffect(() => {
+		const fetchData = async () => {
+		  const data = await generateData();
+		  setRequests(data || sampleData); // Fallback to sampleData
+		};
+		fetchData();
+	  }, []); // Run once on mount
+
 	// Update indeterminate state when requests change
 	useEffect(() => {
-		generateData().then((data) => {setRequests(data || generateSampleData)})
+		// generateData().then((data) => {setRequests(data || generateSampleData)})
 		const selectedCount = requests.filter((req) => req.selected).length;
 
 		if (selectedCount === 0) {
@@ -102,9 +109,12 @@ const VerificationPage = () => {
 	};
 
 	const handleSelect = (index: number) => {
+		console.log(index);
 		const newRequests = [...requests];
+		console.log(newRequests);
 		const actualIndex = (currentPage - 1) * requestsPerPage + index;
 		newRequests[actualIndex].selected = !newRequests[actualIndex].selected;
+		console.log(newRequests[actualIndex])
 		setRequests(newRequests);
 	};
 
