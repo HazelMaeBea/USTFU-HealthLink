@@ -65,7 +65,7 @@ const useTrackingRecords = () => {
 						return {
 							dateTime: dateDecided,
 							transactionID: data.transactionId || "No ID",
-							typeOfForm: data.formType || "Unknown",
+							typeOfForm: data.formData?.formType || "Unknown",
 							status:
 								data.status.toLowerCase() === "approved"
 									? "Approved"
