@@ -38,8 +38,8 @@ export const usePendingRequests = (
 			// Sort by date if needed (assuming dateSubmitted is a string in format MM/DD/YYYY)
 			const sortedRequests = requests.sort((a, b) => {
 				return (
-					new Date(b.dateSubmitted).getTime() -
-					new Date(a.dateSubmitted).getTime()
+					new Date(a.dateSubmitted).getTime() -
+					new Date(b.dateSubmitted).getTime()
 				);
 			});
 
