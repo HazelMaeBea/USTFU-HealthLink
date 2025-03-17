@@ -19,8 +19,8 @@
 
 /* Updated header content layout with labeled fields */
 .header-content {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	grid-template-columns: 1.5fr 1.3fr 1fr auto; /* Default: Single column for mobile */
 	align-items: center;
 	padding: 1rem;
 	gap: 0.5rem;
@@ -870,12 +870,11 @@
 	.attachment-preview:hover {
 		transform: none; /* Disable Y translation on mobile */
 	}
-	
-} 
+}
 
 @media screen and (max-width: 576px) {
 	.header-content {
-		grid-template-columns: 1fr; /* Single column for mobile */
+		display: grid; /* Single column for mobile */
 	}
 
 	.arrow {
@@ -913,7 +912,13 @@
 	.pending-request-contact-field {
 		grid-column: span 1;
 	}
-	
+}
+
+@media screen and (max-width: 485px) {
+	.header-content {
+		display: flex;
+		flex-wrap: wrap;
+	}
 }
 
 /* Mobile Styling */
