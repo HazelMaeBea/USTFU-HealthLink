@@ -1,6 +1,6 @@
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../config/firebase";
-import { UseFormSetValue } from "react-hook-form";
+import { FieldValues, UseFormSetValue } from "react-hook-form";
 
 // Define interface for autofill data
 interface AutofillData {
@@ -73,7 +73,7 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 		console.log("Autofill: User data retrieved:", userData);
 
 		// Check if autofill is enabled
-		if (userData.autofill !== true) {
+		if (userData.settings.autofill !== true) {
 			console.log("Autofill: Autofill is disabled for this user");
 			return null;
 		}
@@ -133,7 +133,7 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
  * @param setValue - React Hook Form's setValue function
  * @param data - The data to fill into the form
  */
-export const applyAutofill = <T>(
+export const applyAutofill = <T extends FieldValues>(
 	setValue: UseFormSetValue<T>,
 	data: AutofillData
 ): void => {
@@ -157,7 +157,7 @@ export const applyAutofill = <T>(
  * @param setDateHired - Optional state setter for dateHired (if form uses it)
  * @param setDateRetired - Optional state setter for dateRetired (if form uses it)
  */
-export const useAutofill = async <T>(
+export const useAutofill = async <T extends FieldValues>(
 	setValue: UseFormSetValue<T>,
 	setDateHired?: React.Dispatch<React.SetStateAction<Date | null>>,
 	setDateRetired?: React.Dispatch<React.SetStateAction<Date | null>>

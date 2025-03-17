@@ -123,16 +123,12 @@ const Settings = () => {
 								? userData.notifications
 								: false,
 						autofill:
-							userData.autofill !== undefined
-								? userData.autofill
-								: false,
+							userData.autofill !== undefined ? userData.autofill : false,
 					};
 
 					setSettings(updatedSettings);
 					setOriginalSettings({ ...updatedSettings }); // Store original values for comparison
-					setCalculatedAge(
-						calculateAge(personalInfo.birthdate || "")
-					);
+					setCalculatedAge(calculateAge(personalInfo.birthdate || ""));
 					setChangedFields({}); // Reset changed fields when loading new data
 
 					console.log("Fetched user data:", userData);
@@ -142,9 +138,7 @@ const Settings = () => {
 				}
 			} catch (err) {
 				console.error("Error fetching user data:", err);
-				setError(
-					"Failed to load your profile data. Please try again later."
-				);
+				setError("Failed to load your profile data. Please try again later.");
 			} finally {
 				setIsLoading(false);
 			}
@@ -153,7 +147,7 @@ const Settings = () => {
 		fetchUserData();
 	}, [db, uid]);
 
-	const handleFieldBlur = (
+	const handleFieldBlur = async (
 		field: string,
 		e: React.FocusEvent<HTMLDivElement>
 	) => {
@@ -168,6 +162,21 @@ const Settings = () => {
 					new: newValue,
 				},
 			}));
+			try {
+				if (!uid) {
+					console.error("❌ No user ID found.");
+					return;
+				}
+
+				const userDocRef = doc(db, "users", uid);
+				await updateDoc(userDocRef, {
+					[`personalInfo.${field}`]: newValue,
+				});
+
+				console.log(`✅ Successfully updated ${field} in Firestore.`);
+			} catch (err) {
+				console.error(`❌ Error updating ${field} in Firestore:`, err);
+			}
 		} else {
 			// Remove from changed fields if it matches original
 			const updatedChanges = { ...changedFields };
@@ -179,7 +188,7 @@ const Settings = () => {
 	};
 
 	// Handle toggle changes and track them properly
-	const handleToggleChange = (field: string, checked: boolean) => {
+	const handleToggleChange = async (field: string, checked: boolean) => {
 		// Track the change for the summary popup
 		if (checked !== (originalSettings as any)[field]) {
 			setChangedFields((prev) => ({
@@ -194,6 +203,22 @@ const Settings = () => {
 			const updatedChanges = { ...changedFields };
 			delete updatedChanges[field];
 			setChangedFields(updatedChanges);
+		}
+
+		try {
+			if (!uid) {
+				console.error("❌ No user ID found.");
+				return;
+			}
+
+			const userDocRef = doc(db, "users", uid);
+			await updateDoc(userDocRef, {
+				[field]: checked,
+			});
+
+			console.log(`✅ Successfully updated ${field} in Firestore.`);
+		} catch (err) {
+			console.error(`❌ Error updating ${field} in Firestore:`, err);
 		}
 
 		// Update the settings state
@@ -237,11 +262,8 @@ const Settings = () => {
 							<strong>{fieldLabels[field] || field}:</strong>
 							<span className="old-value">
 								{values.old || "(empty)"}
-							</span>{" "}
-							→{" "}
-							<span className="new-value">
-								{values.new || "(empty)"}
-							</span>
+							</span> →{" "}
+							<span className="new-value">{values.new || "(empty)"}</span>
 						</li>
 					))}
 				</ul>
@@ -306,9 +328,7 @@ const Settings = () => {
 	if (isLoading) {
 		return (
 			<div className="settings-container">
-				<div className="loading-indicator">
-					Loading your settings...
-				</div>
+				<div className="loading-indicator">Loading your settings...</div>
 			</div>
 		);
 	}
@@ -338,10 +358,7 @@ const Settings = () => {
 									type="checkbox"
 									checked={settings.notifications}
 									onChange={(e) =>
-										handleToggleChange(
-											"notifications",
-											e.target.checked
-										)
+										handleToggleChange("notifications", e.target.checked)
 									}
 									aria-label="toggle notifications"
 								/>
@@ -358,10 +375,7 @@ const Settings = () => {
 									type="checkbox"
 									checked={settings.autofill}
 									onChange={(e) =>
-										handleToggleChange(
-											"autofill",
-											e.target.checked
-										)
+										handleToggleChange("autofill", e.target.checked)
 									}
 									aria-label="toggle autofill"
 								/>
@@ -578,9 +592,7 @@ const Settings = () => {
 						onClick={() => setIsConfirmOpen(true)}
 						className="settings-btn-submit"
 						disabled={
-							isLoading ||
-							isSaving ||
-							Object.keys(changedFields).length === 0
+							isLoading || isSaving || Object.keys(changedFields).length === 0
 						}
 					>
 						{isSaving ? "Saving..." : "Save Changes"}
