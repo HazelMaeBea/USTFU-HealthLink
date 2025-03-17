@@ -18,8 +18,8 @@ import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 // Add X icon for close button
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
-// Import autofill functionality with new name
-import { applyAutofill } from "../Autofill";
+// Update import to use .ts extension explicitly
+import { useAutofill } from "../Autofill.ts";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -411,18 +411,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		setShowClearConfirmation(false);
 	};
 
-	// Apply autofill on component mount - Update to use the renamed function
-	useEffect(() => {
-		const fetchAndApplyAutofill = async () => {
-			try {
-				await applyAutofill(setValue, setDateHired, setDateRetired);
-			} catch (error) {
-				console.error("Failed to apply autofill:", error);
-			}
-		};
-
-		fetchAndApplyAutofill();
-	}, [setValue]);
+	// Use the imported useAutofill hook
+	useAutofill(setValue, setDateHired, setDateRetired);
 
 	return (
 		<div className="form-body">

@@ -16,8 +16,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit";
 import "./FormBody.css";
-// Import autofill functionality with new name
-import { applyAutofill } from "../Autofill";
+// Update import to use the hook instead of the function
+import { useAutofill } from "../Autofill.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
@@ -176,18 +176,8 @@ const AdmissionForm = () => {
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-	// Apply autofill on component mount - Update to use the renamed function
-	useEffect(() => {
-		const fetchAndApplyAutofill = async () => {
-			try {
-				await applyAutofill(setValue, setDateHired, setDateRetired);
-			} catch (error) {
-				console.error("Failed to apply autofill:", error);
-			}
-		};
-
-		fetchAndApplyAutofill();
-	}, [setValue]);
+	// Use the hook directly instead of calling it within useEffect
+	useAutofill(setValue, setDateHired, setDateRetired);
 
 	// Add a handler to close the notification with animation
 	const closeNotification = () => {
@@ -380,6 +370,7 @@ const AdmissionForm = () => {
 								setDateHired={setDateHired}
 								dateRetired={dateRetired}
 								setDateRetired={setDateRetired}
+								setValue={setValue} // Add setValue prop here
 							/>
 							<FormUploadDisclaimer />
 							<FormMedicalFiles

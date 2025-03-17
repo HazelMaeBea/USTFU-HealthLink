@@ -1,6 +1,7 @@
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../config/firebase";
 import { FieldValues, UseFormSetValue } from "react-hook-form";
+import { Dispatch, SetStateAction } from "react";
 
 // Define interface for autofill data
 interface AutofillData {
@@ -11,8 +12,12 @@ interface AutofillData {
 	suffix?: string;
 	age?: number;
 	gender?: "Male" | "Female";
-	contact?: number;
+	contact?: number | string;
 	college?: string;
+	idNumber?: string;
+	numberID?: string; // Alternative field name
+	address?: string;
+	phoneNumber?: string; // Alternative field name
 
 	// Teaching Information
 	term?: string;
@@ -72,8 +77,15 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 		const userData = userDoc.data();
 		console.log("Autofill: User data retrieved:", userData);
 
-		// Check if autofill is enabled
-		if (userData.settings.autofill !== true) {
+		// Check if autofill is enabled (checking both possible locations)
+		const isAutofillEnabled =
+			userData.autofill !== undefined
+				? userData.autofill
+				: userData.settings?.autofill !== undefined
+				? userData.settings.autofill
+				: false;
+
+		if (!isAutofillEnabled) {
 			console.log("Autofill: Autofill is disabled for this user");
 			return null;
 		}
@@ -86,13 +98,8 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 			? calculateAge(personalInfo.birthdate)
 			: undefined;
 
-		// Format phone number - remove country code if present
-		let contactNumber: number | undefined;
-		if (personalInfo.phoneNumber) {
-			// Parse phone number, removing any non-digit characters
-			const phoneStr = personalInfo.phoneNumber.replace(/\D/g, "");
-			contactNumber = phoneStr ? parseInt(phoneStr) : undefined;
-		}
+		// Format phone number - keep as string to preserve formatting
+		let contactNumber = personalInfo.phoneNumber || undefined;
 
 		// Map the fields from your user document structure to the form fields
 		const result: AutofillData = {
@@ -103,7 +110,11 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 			age: age,
 			gender: (personalInfo.gender as "Male" | "Female") || undefined,
 			contact: contactNumber,
-			college: userData.college || "",
+			phoneNumber: contactNumber,
+			college: userData.college || personalInfo.college || "",
+			idNumber: personalInfo.idNumber || "",
+			numberID: personalInfo.idNumber || "", // Alternative field name
+			address: personalInfo.address || "",
 			term: personalInfo.term || "",
 			year: personalInfo.year || "",
 			load: personalInfo.load || "",
@@ -115,9 +126,8 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 				personalInfo.dateRetired && personalInfo.dateRetired !== ""
 					? new Date(personalInfo.dateRetired)
 					: null,
-			// Other fields could be added if they exist in your document
-			benefits: "", // Add if available in your data
-			hmo: "", // Add if available in your data
+			benefits: personalInfo.benefits || "",
+			hmo: personalInfo.hmo || "",
 		};
 
 		console.log("Autofill: Processed data for form:", result);
@@ -139,7 +149,7 @@ export const applyAutofill = <T extends FieldValues>(
 ): void => {
 	// Only apply values that exist in the data
 	Object.entries(data).forEach(([field, value]) => {
-		if (value !== undefined && value !== null) {
+		if (value !== undefined && value !== null && value !== "") {
 			console.log(`Autofill: Setting ${field} to:`, value);
 			try {
 				// Use type assertion to handle the generic type
@@ -159,15 +169,18 @@ export const applyAutofill = <T extends FieldValues>(
  */
 export const useAutofill = async <T extends FieldValues>(
 	setValue: UseFormSetValue<T>,
-	setDateHired?: React.Dispatch<React.SetStateAction<Date | null>>,
-	setDateRetired?: React.Dispatch<React.SetStateAction<Date | null>>
+	setDateHired?: Dispatch<SetStateAction<Date | null>>,
+	setDateRetired?: Dispatch<SetStateAction<Date | null>>
 ): Promise<void> => {
 	console.log("Autofill: Attempting to autofill form");
 	const autofillData = await getAutofillData();
 
 	if (autofillData) {
-		// Apply general form data
-		applyAutofill(setValue, autofillData);
+		// Create a copy of autofill data without the status field
+		const { status, ...autofillDataWithoutStatus } = autofillData;
+
+		// Apply form data without status to prevent interfering with radio button selection
+		applyAutofill(setValue, autofillDataWithoutStatus);
 
 		// Handle date fields if the form uses them and setters are provided
 		if (setDateHired && autofillData.dateHired) {
