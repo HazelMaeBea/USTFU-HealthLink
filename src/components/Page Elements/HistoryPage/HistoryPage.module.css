@@ -212,6 +212,14 @@
 	gap: 1rem;
 	align-items: center;
 	flex-wrap: wrap;
+	justify-content: space-between; /* Space between active filters and button group */
+}
+
+/* Add this to group the filter and export buttons */
+.filterButtonContainer {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem; /* Reduced gap between filter and export buttons */
 }
 
 .activeFilters {
@@ -885,15 +893,18 @@
 		padding: 1rem 1.25rem;
 		flex-direction: column;
 		align-items: flex-start;
+		gap: 1.25rem; /* Increased gap between control sections */
 	}
 
 	.historyContent {
 		padding: 0.75rem;
+		min-height: 400px; /* Add minimum height for mobile view */
 	}
 
 	.searchControls {
 		width: 100%;
-		margin-bottom: 1rem;
+		margin-bottom: 0; /* Remove margin since we're using gap */
+		justify-content: space-between; /* Space between search and form type */
 	}
 
 	.searchInputContainer {
@@ -902,7 +913,9 @@
 
 	.filterControls {
 		width: 100%;
-		justify-content: space-between;
+		flex-direction: column; /* Stack elements vertically */
+		align-items: flex-start;
+		gap: 0.5rem; /* Reduce gap to make filter controls more compact */
 	}
 
 	.activeFilters {
@@ -910,25 +923,79 @@
 		margin-bottom: 0.75rem;
 	}
 
+	.filterButtonContainer {
+		align-self: flex-start;
+	}
+
+	/* Container for filter and export buttons */
+	.filterButtonContainer {
+		display: flex;
+		gap: 0.75rem;
+	}
+
+	.activeFilters {
+		width: 100%;
+		margin-top: 0.5rem;
+		margin-bottom: 0;
+		gap: 0.3rem;
+		order: 1;
+	}
+
 	/* Fix for filter dropdown position on mobile */
 	.filterDropdownContainer {
-		position: relative; /* Change back to relative from static */
+		position: relative;
 	}
 
 	.filterOptionsDropdown {
-		position: absolute; /* Change back to absolute from fixed */
-		top: 100%; /* Position below the button */
-		left: 0; /* Reset left position */
-		right: auto; /* Align to right edge */
-		transform: none; /* Remove the centering transform */
-		width: 200px; /* Fixed width */
-		max-width: 90vw; /* Prevent overflow on very small screens */
-		max-height: 60vh; /* Limit height on mobile */
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: auto;
+		transform: none;
+		width: 200px;
+		max-width: 90vw;
+		max-height: 60vh;
 	}
 
 	/* Make filter options more touch-friendly while preserving dropdown behavior */
 	.filterOption {
 		padding: 0.75rem 1rem;
 		font-size: 0.95rem;
+	}
+
+	/* Make buttons more touch-friendly on mobile */
+	.addFilterBtn,
+	.exportBtn {
+		padding: 0.7rem 1rem;
+		min-width: 90px;
+	}
+
+	.filterTag {
+		padding: 0.3rem 0.6rem;
+		font-size: 0.8rem;
+	}
+
+	/* Make clear all button smaller */
+	.clearAllFiltersBtn {
+		padding: 0.3rem 0.6rem;
+		font-size: 0.8rem;
+	}
+
+	/* Fix display proportions */
+	.historyCard {
+		display: flex;
+		flex-direction: column;
+		min-height: 80vh;
+	}
+
+	/* Ensure table container takes appropriate space */
+	.tableContainer {
+		flex: 1;
+		min-height: 300px;
+	}
+
+	/* If there's no data, ensure the message is positioned properly */
+	.noDataMessage {
+		min-height: 200px;
 	}
 }

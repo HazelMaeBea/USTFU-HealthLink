@@ -825,50 +825,58 @@ const HospitalizationHistory = () => {
 							)}
 						</div>
 
-						{availableFilters.length > 0 && (
-							<div
-								className={styles.filterDropdownContainer}
-								ref={filterDropdownRef}
-							>
-								<button
-									className={styles.addFilterBtn}
-									onClick={() =>
-										setShowFilterOptions(!showFilterOptions)
-									}
+						<div className={styles.filterButtonContainer}>
+							{availableFilters.length > 0 && (
+								<div
+									className={styles.filterDropdownContainer}
+									ref={filterDropdownRef}
 								>
-									<FiPlus size={14} />
-									<span>Filter</span>
-								</button>
-
-								{showFilterOptions && (
-									<div
-										className={styles.filterOptionsDropdown}
+									<button
+										className={styles.addFilterBtn}
+										onClick={() =>
+											setShowFilterOptions(
+												!showFilterOptions
+											)
+										}
 									>
-										{availableFilters.map((filter) => (
-											<button
-												key={filter}
-												className={styles.filterOption}
-												onClick={() =>
-													handleAddFilter(filter)
-												}
-											>
-												{filter}
-											</button>
-										))}
-									</div>
-								)}
-							</div>
-						)}
+										<FiPlus size={14} />
+										<span>Filter</span>
+									</button>
 
-						<button
-							className={styles.exportBtn}
-							onClick={prepareExport}
-							disabled={filteredData.length === 0}
-							title="Export to CSV"
-						>
-							<FiDownload size={14} />
-							<span>Export</span>
-						</button>
+									{showFilterOptions && (
+										<div
+											className={
+												styles.filterOptionsDropdown
+											}
+										>
+											{availableFilters.map((filter) => (
+												<button
+													key={filter}
+													className={
+														styles.filterOption
+													}
+													onClick={() =>
+														handleAddFilter(filter)
+													}
+												>
+													{filter}
+												</button>
+											))}
+										</div>
+									)}
+								</div>
+							)}
+
+							<button
+								className={styles.exportBtn}
+								onClick={prepareExport}
+								disabled={filteredData.length === 0}
+								title="Export to CSV"
+							>
+								<FiDownload size={14} />
+								<span>Export</span>
+							</button>
+						</div>
 					</div>
 				</div>
 
