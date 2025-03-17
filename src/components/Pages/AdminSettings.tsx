@@ -162,7 +162,7 @@ const AdminSettings = () => {
 		<div className="admin-settings-container">
 			{/* Tabs & Search */}
 			<div className="row align-items-center">
-				<div className="col-md-6">
+				<div className="tab-cont col-md-6">
 					<button
 						className={`ustfu-as-btn tab-btn ${
 							activeTab === "userManagement" ? "active-tab" : ""
