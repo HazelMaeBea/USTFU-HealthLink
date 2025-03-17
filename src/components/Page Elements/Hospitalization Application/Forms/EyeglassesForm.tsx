@@ -46,6 +46,18 @@ const schema = z.object({
 			invalid_type_error: "Please enter your suffix",
 		})
 		.nullish(),
+	idNumber: z
+		.string({
+			required_error: "Please enter your ID number",
+			invalid_type_error: "ID number must be text",
+		})
+		.min(1, "Please enter your ID number"),
+	address: z
+		.string({
+			required_error: "Please enter your address",
+			invalid_type_error: "Address must be text",
+		})
+		.min(1, "Please enter your address"),
 	age: z.coerce
 		.number({
 			invalid_type_error: "Please enter a valid age",
@@ -203,6 +215,9 @@ const EyeglassesForm = () => {
 					lastname: data.lastname,
 					firstname: data.firstname,
 					middlename: data.middlename,
+					suffix: data.suffix,
+					idNumber: data.idNumber,
+					address: data.address,
 					age: data.age,
 					gender: data.gender,
 					contact: data.contact,
@@ -230,6 +245,7 @@ const EyeglassesForm = () => {
 				),
 				newDoc
 			);
+
 			console.log("Document written with ID: ", formIDString);
 
 			// Show success notification
@@ -269,6 +285,9 @@ const EyeglassesForm = () => {
 								register={register}
 								errors={errors}
 							/>
+
+							{/* Remove the separate fieldset for ID and Address */}
+
 							<FormInvoice register={register} errors={errors} />
 							<FormUploadDisclaimer />
 
@@ -480,8 +499,8 @@ const EyeglassesForm = () => {
 						{submissionStatus === "error" && (
 							<div className="success-action">
 								<button
-									onClick={closeNotification}
 									className="try-again-link"
+									onClick={closeNotification}
 								>
 									Close and try again
 								</button>
@@ -490,8 +509,8 @@ const EyeglassesForm = () => {
 					</div>
 					<button
 						className="success-close"
-						onClick={closeNotification}
 						aria-label="Close notification"
+						onClick={closeNotification}
 					>
 						<FiX size={18} />
 					</button>

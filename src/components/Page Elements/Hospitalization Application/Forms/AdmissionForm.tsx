@@ -17,6 +17,9 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit";
 import "./FormBody.css";
+import { useNavigate } from "react-router-dom";
+import Popout from "../../../Page Elements/Popout/Popout";
+import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 // Import autofill functionality
 import { useAutofill } from "../Autofill";
 
@@ -46,6 +49,18 @@ const schema = z.object({
 			invalid_type_error: "Suffix must be text",
 		})
 		.nullish(),
+	idNumber: z
+		.string({
+			required_error: "Please enter your ID number",
+			invalid_type_error: "ID number must be text",
+		})
+		.min(1, "Please enter your ID number"),
+	address: z
+		.string({
+			required_error: "Please enter your address",
+			invalid_type_error: "Address must be text",
+		})
+		.min(1, "Please enter your address"),
 	age: z.coerce
 		.number({
 			invalid_type_error: "Please enter a valid age",
@@ -67,7 +82,12 @@ const schema = z.object({
 			invalid_type_error: "Please make a valid selection",
 		})
 		.min(1, "Please select your college"),
-	load: z.string().nonempty("Please select your teaching load"),
+	load: z.coerce
+		.number({
+			required_error: "Please enter your teaching load",
+			invalid_type_error: "Teaching load must be a number",
+		})
+		.min(1, "Teaching load must be at least 1"),
 	status: z.string().nonempty("Please select your employment status"),
 	docRequest: z.any().refine((files) => files && files.length > 0, {
 		message: "File is required",
@@ -100,10 +120,26 @@ const schema = z.object({
 });
 
 const AdmissionForm = () => {
+	// Add state for dates
+	const [dateHired, setDateHired] = useState<Date | null>(null);
+	const [dateRetired, setDateRetired] = useState<Date | null>(null);
+	const [showSuccessNotification, setShowSuccessNotification] =
+		useState(false);
+	const [isNotificationHiding, setIsNotificationHiding] = useState(false);
+	const [showClearConfirmation, setShowClearConfirmation] =
+		useState<boolean>(false);
+	const [formIdString, setFormIdString] = useState<string>("");
+	const [submissionStatus, setSubmissionStatus] = useState<
+		"processing" | "success" | "error"
+	>("processing");
+	const [errorMessage, setErrorMessage] = useState<string>("");
+	const navigate = useNavigate();
+
 	const {
 		register,
 		handleSubmit,
 		setValue,
+		reset,
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
@@ -116,12 +152,42 @@ const AdmissionForm = () => {
 		applyAutoFill();
 	}, [setValue]);
 
+	// Add a handler to close the notification with animation
+	const closeNotification = () => {
+		setIsNotificationHiding(true);
+
+		// After animation completes, hide the notification
+		setTimeout(() => {
+			setShowSuccessNotification(false);
+			setIsNotificationHiding(false);
+		}, 300); // Animation duration
+	};
+
+	const handleTrackingClick = (e: React.MouseEvent) => {
+		e.preventDefault();
+		navigate("/tracking");
+	};
+
+	const handleClearConfirm = () => {
+		reset();
+		setShowClearConfirmation(false);
+	};
+
+	const handleClearCancel = () => {
+		setShowClearConfirmation(false);
+	};
+
 	const onSubmit = async (data: FieldValues) => {
+		// Show notification immediately with processing state
+		setSubmissionStatus("processing");
+		setShowSuccessNotification(true);
+
 		try {
 			const email = auth?.currentUser?.email;
 
 			const formID = await getFormID(true);
 			const formIDString = formID?.toString().padStart(6, "0") || "error";
+			setFormIdString(formIDString);
 			const currentYear: string = new Date().getFullYear().toString();
 
 			if (!formID) {
@@ -189,6 +255,9 @@ const AdmissionForm = () => {
 					lastname: data["lastname"],
 					firstname: data["firstname"],
 					middlename: data["middlename"],
+					suffix: data["suffix"],
+					idNumber: data["idNumber"],
+					address: data["address"],
 					age: data["age"],
 					gender: data["gender"],
 					contact: data["contact"],
@@ -232,8 +301,20 @@ const AdmissionForm = () => {
 				"Document written with ID: ",
 				currentYear + "-" + formIDString
 			);
+
+			// Show success notification
+			setSubmissionStatus("success");
+
+			// Reset form after successful submission
+			reset();
 		} catch (error) {
 			console.error(error);
+			setSubmissionStatus("error");
+			setErrorMessage(
+				error instanceof Error
+					? error.message
+					: "An unexpected error occurred"
+			);
 		}
 	};
 
@@ -258,9 +339,76 @@ const AdmissionForm = () => {
 								register={register}
 								errors={errors}
 							/>
+
+							{/* Add new fields: ID Number and Address */}
+							<fieldset className="form-group p-3">
+								<legend className="w-auto">
+									Personal Information
+								</legend>
+								<div className="row mb-3">
+									<div className="col-md-6">
+										<label
+											htmlFor="idNumber"
+											className="form-label"
+										>
+											ID Number*
+										</label>
+										<input
+											{...register("idNumber")}
+											id="idNumber"
+											type="text"
+											className={`form-control ${
+												errors.idNumber
+													? "is-invalid"
+													: ""
+											}`}
+										/>
+										{errors.idNumber && (
+											<div className="invalid-feedback">
+												{
+													errors.idNumber
+														.message as string
+												}
+											</div>
+										)}
+									</div>
+									<div className="col-md-6">
+										<label
+											htmlFor="address"
+											className="form-label"
+										>
+											Address*
+										</label>
+										<input
+											{...register("address")}
+											id="address"
+											type="text"
+											className={`form-control ${
+												errors.address
+													? "is-invalid"
+													: ""
+											}`}
+										/>
+										{errors.address && (
+											<div className="invalid-feedback">
+												{
+													errors.address
+														.message as string
+												}
+											</div>
+										)}
+									</div>
+								</div>
+							</fieldset>
+
 							<AdmissionTeachingInfo
 								register={register}
 								errors={errors}
+								dateHired={dateHired}
+								setDateHired={setDateHired}
+								dateRetired={dateRetired}
+								setDateRetired={setDateRetired}
+								setValue={setValue}
 							/>
 							<FormUploadDisclaimer />
 							<FormMedicalFiles
@@ -277,8 +425,11 @@ const AdmissionForm = () => {
 									Submit
 								</button>
 								<button
-									type="reset"
+									type="button"
 									className="btn btn-clear form-submit"
+									onClick={() =>
+										setShowClearConfirmation(true)
+									}
 								>
 									Clear
 								</button>
@@ -287,6 +438,85 @@ const AdmissionForm = () => {
 					</div>
 				</div>
 			</div>
+
+			{showSuccessNotification && (
+				<div
+					className={`success-notification ${
+						isNotificationHiding ? "hiding" : ""
+					} ${
+						submissionStatus === "error" ? "error-notification" : ""
+					}`}
+				>
+					<div className={`success-icon ${submissionStatus}`}>
+						{submissionStatus === "processing" ? (
+							<div className="spinner"></div>
+						) : submissionStatus === "success" ? (
+							<FiCheck size={18} />
+						) : (
+							<FiX size={18} />
+						)}
+					</div>
+					<div className="success-content">
+						<h4 className="success-title">
+							{submissionStatus === "processing"
+								? "Submitting Form..."
+								: submissionStatus === "success"
+								? "Form Submitted Successfully"
+								: "Submission Failed"}
+						</h4>
+						<p className="success-message">
+							{submissionStatus === "processing"
+								? "Please wait while we process your claim request..."
+								: submissionStatus === "success"
+								? `Your claim request has been submitted with ID: ${formIdString}`
+								: errorMessage ||
+								  "An error occurred during submission. Please try again."}
+						</p>
+						{submissionStatus === "success" && (
+							<div className="success-action">
+								<a
+									href="#"
+									onClick={handleTrackingClick}
+									className="success-link"
+								>
+									Track your request{" "}
+									<FiArrowRight
+										size={14}
+										className="success-link-icon"
+									/>
+								</a>
+							</div>
+						)}
+						{submissionStatus === "error" && (
+							<div className="success-action">
+								<button
+									onClick={closeNotification}
+									className="try-again-link"
+								>
+									Close and try again
+								</button>
+							</div>
+						)}
+					</div>
+					<button
+						className="success-close"
+						onClick={closeNotification}
+						aria-label="Close notification"
+					>
+						<FiX size={18} />
+					</button>
+				</div>
+			)}
+
+			{showClearConfirmation && (
+				<Popout
+					title="Confirm Clear Form"
+					message="Are you sure you want to clear the form? All entered data will be lost."
+					onConfirm={handleClearConfirm}
+					onCancel={handleClearCancel}
+					isOpen={showClearConfirmation}
+				/>
+			)}
 		</div>
 	);
 };

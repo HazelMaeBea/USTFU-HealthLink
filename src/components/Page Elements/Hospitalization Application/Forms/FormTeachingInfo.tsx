@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
+import { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
 import { FormData } from "./FormBody";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface FormTeachingInfoProps {
 	register: UseFormRegister<FormData>;
@@ -9,7 +11,7 @@ interface FormTeachingInfoProps {
 	setDateHired: React.Dispatch<React.SetStateAction<Date | null>>;
 	dateRetired: Date | null;
 	setDateRetired: React.Dispatch<React.SetStateAction<Date | null>>;
-	setValue: any; // Add setValue to the props
+	setValue: UseFormSetValue<FormData>;
 }
 
 // Removed commented-out termOptions and yearOptions as they're no longer needed
@@ -137,22 +139,17 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						</div>
 						<div className="mb-1 col-md-12">
 							<label htmlFor="load" className="form-label">
-								Teaching Load
+								Teaching Load (Units)*
 							</label>
-							<select
+							<input
 								{...register("load")}
 								id="load"
-								className="form-select"
-							>
-								<option value="" disabled selected hidden>
-									Select teaching load
-								</option>
-								{loadOptions.map((option, index) => (
-									<option key={index} value={option}>
-										{option}
-									</option>
-								))}
-							</select>
+								type="number"
+								min="1"
+								className={`form-control ${
+									errors.load ? "is-invalid" : ""
+								}`}
+							/>
 							{errors.load && (
 								<p className="text-danger">
 									{errors.load.message}
@@ -199,22 +196,18 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							<label htmlFor="dateHired" className="form-label">
 								If Tenure-Track, please input DATE HIRED:
 							</label>
-							<input
-								type="date"
-								{...register("dateHired")}
+							<DatePicker
 								id="dateHired"
+								selected={dateHired}
+								onChange={(date) => {
+									setDateHired(date);
+									setValue("dateHired", date?.toISOString());
+								}}
+								dateFormat="MM/dd/yyyy"
 								className={`form-control ${
 									errors.dateHired ? "is-invalid" : ""
 								}`}
-								onChange={(e) => {
-									const date = e.target.value
-										? new Date(e.target.value)
-										: null;
-									setDateHired(date);
-									// Trigger register onChange
-									register("dateHired").onChange(e);
-								}}
-								style={{ color: "black" }}
+								placeholderText="MM/DD/YYYY"
 							/>
 							{errors.dateHired && (
 								<p className="text-danger">
@@ -232,28 +225,21 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							<label htmlFor="dateRetired" className="form-label">
 								If Retiree, please input DATE RETIRED:
 							</label>
-							<input
-								type="date"
-								value={
-									dateRetired
-										? dateRetired
-												.toISOString()
-												.split("T")[0]
-										: ""
-								}
-								{...register("dateRetired")} // Remove the validation here
+							<DatePicker
 								id="dateRetired"
+								selected={dateRetired}
+								onChange={(date) => {
+									setDateRetired(date);
+									setValue(
+										"dateRetired",
+										date?.toISOString()
+									);
+								}}
+								dateFormat="MM/dd/yyyy"
 								className={`form-control ${
 									errors.dateRetired ? "is-invalid" : ""
 								}`}
-								onChange={(e) => {
-									const date = e.target.value
-										? new Date(e.target.value)
-										: null;
-									setDateRetired(date);
-									register("dateRetired").onChange(e);
-								}}
-								style={{ color: "black" }}
+								placeholderText="MM/DD/YYYY"
 							/>
 							{errors.dateRetired && (
 								<p className="text-danger">
