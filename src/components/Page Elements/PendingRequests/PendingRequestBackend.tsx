@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { collection, DocumentData, getDocs, onSnapshot, query, where } from "firebase/firestore";
+import { collection, doc, DocumentData, getDocs, onSnapshot, query, setDoc, where } from "firebase/firestore";
 import { db } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
+
+const reqCollection = collection(db, "FormRequests");
 
 // Interface for pagination metadata
 export interface PaginationInfo {
@@ -28,7 +30,6 @@ export const usePendingRequests = (
 
 	// Fetch all requests in real-time
 	useEffect(() => {
-		const reqCollection = collection(db, "FormRequests");
 		const unsubscribe = onSnapshot(reqCollection, (snapshot) => {
 			const requests = snapshot.docs.map((doc) => ({
 				transactionId: doc.id,
@@ -120,6 +121,21 @@ export async function getRemainingBenefits(inputRequester: string): Promise<numb
         console.error("Error fetching remainingBenefits:", error);
         throw error;
     }
+}
+
+export const updateDocument = async (transID: string, textArea: string, status: string) => {
+	try {
+		const userQuery = query(reqCollection, where("transactionId", "==", transID));
+		const querySnapshot = await getDocs(userQuery);
+		querySnapshot.forEach(async (document) => {
+            const docRef = doc(db, "FormRequests", document.id); // Get the document reference
+            await setDoc(docRef, { statusReason: textArea, status: status }, { merge: true }); // Update or set fields
+            console.log(`Document with ID ${document.id} has been updated.`);
+			// console.log(docRef);
+        });
+	} catch (error) {
+		console.error("Something happened I dunno paalala nalang to edit this");
+	}
 }
 
 export default PendingRequestBackend;

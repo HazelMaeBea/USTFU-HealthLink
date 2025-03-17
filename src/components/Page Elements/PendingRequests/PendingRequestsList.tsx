@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { PendingRequest } from "./types";
-import { getRemainingBenefits, usePendingRequests } from "./PendingRequestBackend"; // use the hook instead of mock data
+import { getRemainingBenefits, updateDocument, usePendingRequests } from "./PendingRequestBackend"; // use the hook instead of mock data
 import "./PendingRequests.css";
 import { RiArrowDownSFill, RiArrowRightSFill } from "react-icons/ri";
 import { FiCheck, FiEdit2 } from "react-icons/fi";
@@ -9,6 +9,7 @@ import Popout from "../Popout/Popout";
 import ViewFiles from "./ViewFiles";
 import HistoryPopout from "./HistoryPopout";
 import PageButtons from "../PageButtons/PageButtons"; // Import the PageButtons component
+import { updateDoc } from "firebase/firestore";
 
 const PendingRequestList = () => {
 	// Use the updated hook with pagination
@@ -27,7 +28,20 @@ const PendingRequestList = () => {
 	const [showPopout, setShowPopout] = useState<boolean>(false);
 	const [previewFile, setPreviewFile] = useState<any>(null);
 	const [showHistoryPopout, setShowHistoryPopout] = useState<boolean>(false);
+
+	// Hooks to access benefits
 	const [getBenefits, setBenefits] = useState<number>(0);
+	// Hooks to access submit fields
+	const [getText, setText] = useState<string | null>(null);
+	// Hooks to access transactionID
+	const [getTransID, setTransID] = useState<string | null>(null);
+	// Hooks to access document status
+	const [getStatus, setStatus] = useState<string | null>(null);
+
+	// Handle change on textArea
+	const handleTextArea = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setText(event.target.value); // Update state with textarea value
+    };
 
 	// Handle page change from the PageButtons component
 	const handlePageChange = (page: number) => {
@@ -43,21 +57,37 @@ const PendingRequestList = () => {
 
 		if (action === "rejection") {
 			setShowCommentBox("Reason for rejection...");
+			setStatus("rejected");
 		} else if (action === "for revision") {
 			setShowCommentBox("Reason for revision...");
+			setStatus("for revision");
 		} else {
 			setShowCommentBox("Additional Comments..."); // Hide comment box when approving
+			setStatus("approved");
 			// setShowPopout(true);
 		}
 	};
 
-	const handleSendClick = () => {
+	const handleSendClick = (transactionID: string) => {
 		if (!activeDecision) return; // Prevent sending if no action is selected
+		setTransID(transactionID);
+		console.log(getTransID + " " + getText + " " + getStatus);
 		setShowPopout(true); // Open confirmation popout
 	};
 
 	const handleConfirm = () => {
 		console.log(`Confirmed: ${activeDecision}`);
+
+		try {
+			const transID = getTransID || "empty";
+			const textArea = getText || "empty";
+			const updateStatus = getStatus || "pending";
+			updateDocument(transID, textArea, updateStatus);
+		} catch (error) {
+			console.error(error);
+		}
+
+		// console.log(getText);
 		setShowPopout(false); // Close the popout after confirmation
 		setShowCommentBox(null);
 	};
@@ -618,6 +648,7 @@ const PendingRequestList = () => {
 										<textarea
 											className="comment-box"
 											placeholder={showCommentBox}
+											onChange={handleTextArea}
 										/>
 									)}
 									{/* Send Button Section - Centered on small screens, bottom-right on large screens */}
@@ -631,7 +662,7 @@ const PendingRequestList = () => {
 											</p>
 											<button
 												className="send-btn"
-												onClick={handleSendClick}
+												onClick={() => {handleSendClick(request.transactionId)}}
 											>
 												SEND
 											</button>
