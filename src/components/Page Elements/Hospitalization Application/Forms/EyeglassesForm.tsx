@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,8 @@ import RemainingBenefit from "./RemainingBenefit.tsx";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
+// Import autofill functionality
+import { useAutofill } from "../Autofill";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -112,8 +114,18 @@ const EyeglassesForm = () => {
 		register,
 		handleSubmit,
 		reset,
+		setValue,
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
+
+	// Apply autofill on component mount
+	useEffect(() => {
+		const applyAutoFill = async () => {
+			await useAutofill(setValue);
+		};
+
+		applyAutoFill();
+	}, [setValue]);
 
 	// Add a handler to close the notification with animation
 	const closeNotification = () => {

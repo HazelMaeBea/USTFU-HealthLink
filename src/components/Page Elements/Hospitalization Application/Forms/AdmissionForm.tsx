@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +17,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit";
 import "./FormBody.css";
+// Import autofill functionality
+import { useAutofill } from "../Autofill";
 
 type FormData = z.infer<typeof schema>;
 
@@ -100,10 +103,18 @@ const AdmissionForm = () => {
 	const {
 		register,
 		handleSubmit,
+		setValue,
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-	// const formsCollectionRef = collection(db, "FormRequests");
+	// Apply autofill on component mount
+	useEffect(() => {
+		const applyAutoFill = async () => {
+			await useAutofill(setValue);
+		};
+
+		applyAutoFill();
+	}, [setValue]);
 
 	const onSubmit = async (data: FieldValues) => {
 		try {

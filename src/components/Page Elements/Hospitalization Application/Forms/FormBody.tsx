@@ -18,6 +18,8 @@ import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 // Add X icon for close button
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
+// Import autofill functionality
+import { useAutofill } from "../Autofill";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -402,6 +404,15 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	const handleClearCancel = () => {
 		setShowClearConfirmation(false);
 	};
+
+	// Apply autofill on component mount
+	useEffect(() => {
+		const applyAutoFill = async () => {
+			await useAutofill(setValue, setDateHired, setDateRetired);
+		};
+
+		applyAutoFill();
+	}, [setValue]);
 
 	return (
 		<div className="form-body">
