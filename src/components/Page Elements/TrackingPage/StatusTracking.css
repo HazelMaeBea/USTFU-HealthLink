@@ -373,3 +373,32 @@ button:disabled {
 .statusTracking-default-thumbnail::after {
 	content: attr(data-label);
 }
+
+
+@media screen and (max-width: 768px) {
+	.statusTracking-status-item {
+		width: 100%;
+		display: flex;
+		font-size: 1rem;
+	}
+
+	.statusTracking-transaction-header, .statusTracking-transaction-id {
+		font-size: 1rem;
+	}
+	
+	.statusTracking-status-text #dash {
+		display: none;
+	}
+
+	.statusTracking-form-container {
+		grid-template-columns: 4fr;
+	}
+
+	.statusTracking-form-container2 {
+		grid-template-columns: repeat(2,4fr);
+	}
+
+	.statusTracking-attachment-preview-container {
+		grid-template-columns: repeat(1, 1fr);
+	}
+}
