@@ -1,7 +1,7 @@
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../config/firebase";
 import { FieldValues, UseFormSetValue } from "react-hook-form";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 
 // Define interface for autofill data
 interface AutofillData {
@@ -99,7 +99,7 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 			: undefined;
 
 		// Format phone number - keep as string to preserve formatting
-		let contactNumber = personalInfo.phoneNumber || undefined;
+		const contactNumber = personalInfo.phoneNumber || undefined;
 
 		// Map the fields from your user document structure to the form fields
 		const result: AutofillData = {
@@ -111,23 +111,23 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 			gender: (personalInfo.gender as "Male" | "Female") || undefined,
 			contact: contactNumber,
 			phoneNumber: contactNumber,
-			college: userData.college || personalInfo.college || "",
+			college: personalInfo.college || "",
 			idNumber: personalInfo.idNumber || "",
 			numberID: personalInfo.idNumber || "", // Alternative field name
 			address: personalInfo.address || "",
 			term: personalInfo.term || "",
 			year: personalInfo.year || "",
 			load: personalInfo.load || "",
-			status: personalInfo.status || "",
-			dateHired: personalInfo.dateHired
-				? new Date(personalInfo.dateHired)
-				: null,
-			dateRetired:
-				personalInfo.dateRetired && personalInfo.dateRetired !== ""
-					? new Date(personalInfo.dateRetired)
-					: null,
-			benefits: personalInfo.benefits || "",
-			hmo: personalInfo.hmo || "",
+			// status: personalInfo.status || "",
+			// dateHired: personalInfo.dateHired
+			// 	? new Date(personalInfo.dateHired)
+			// 	: null,
+			// dateRetired:
+			// 	personalInfo.dateRetired && personalInfo.dateRetired !== ""
+			// 		? new Date(personalInfo.dateRetired)
+			// 		: null,
+			// benefits: personalInfo.benefits || "",
+			// hmo: personalInfo.hmo || "",
 		};
 
 		console.log("Autofill: Processed data for form:", result);
@@ -139,68 +139,66 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 };
 
 /**
- * Applies autofill data to any form
- * @param setValue - React Hook Form's setValue function
- * @param data - The data to fill into the form
- */
-export const applyAutofill = <T extends FieldValues>(
-	setValue: UseFormSetValue<T>,
-	data: AutofillData
-): void => {
-	// Only apply values that exist in the data
-	Object.entries(data).forEach(([field, value]) => {
-		if (value !== undefined && value !== null && value !== "") {
-			console.log(`Autofill: Setting ${field} to:`, value);
-			try {
-				// Use type assertion to handle the generic type
-				setValue(field as any, value as any);
-			} catch (error) {
-				console.error(`Error setting field ${field}:`, error);
-			}
-		}
-	});
-};
-
-/**
  * Updates form field values based on autofill settings
  * @param setValue - React Hook Form's setValue function
  * @param setDateHired - Optional state setter for dateHired (if form uses it)
  * @param setDateRetired - Optional state setter for dateRetired (if form uses it)
  */
-export const useAutofill = async <T extends FieldValues>(
-	setValue: UseFormSetValue<T>,
+export const useAutofill = (
+	setValue: UseFormSetValue<any>,
 	setDateHired?: Dispatch<SetStateAction<Date | null>>,
 	setDateRetired?: Dispatch<SetStateAction<Date | null>>
-): Promise<void> => {
+): void => {
 	console.log("Autofill: Attempting to autofill form");
-	const autofillData = await getAutofillData();
 
-	if (autofillData) {
-		// Create a copy of autofill data without the status field
-		const { status, ...autofillDataWithoutStatus } = autofillData;
+	// Use useEffect to run this once when component mounts
+	useEffect(() => {
+		const fillForm = async () => {
+			const autofillData = await getAutofillData();
 
-		// Apply form data without status to prevent interfering with radio button selection
-		applyAutofill(setValue, autofillDataWithoutStatus);
+			if (autofillData) {
+				// Apply form data - using shouldDirty:true to mark fields as editable
+				Object.entries(autofillData).forEach(([field, value]) => {
+					if (value !== undefined && value !== null && value !== "") {
+						console.log(`Autofill: Setting ${field} to:`, value);
+						try {
+							// Set the value while making sure it's marked as editable
+							setValue(field as any, value as any, {
+								shouldDirty: true, // Mark field as dirty so it's editable
+								shouldTouch: true, // Mark field as touched
+							});
+						} catch (error) {
+							console.error(
+								`Error setting field ${field}:`,
+								error
+							);
+						}
+					}
+				});
 
-		// Handle date fields if the form uses them and setters are provided
-		if (setDateHired && autofillData.dateHired) {
-			console.log(
-				"Autofill: Setting dateHired to",
-				autofillData.dateHired
-			);
-			setDateHired(autofillData.dateHired);
-		}
+				// Handle date fields if the form uses them and setters are provided
+				if (setDateHired && autofillData.dateHired) {
+					console.log(
+						"Autofill: Setting dateHired to",
+						autofillData.dateHired
+					);
+					setDateHired(autofillData.dateHired);
+				}
 
-		if (setDateRetired && autofillData.dateRetired) {
-			console.log(
-				"Autofill: Setting dateRetired to",
-				autofillData.dateRetired
-			);
-			setDateRetired(autofillData.dateRetired);
-		}
+				if (setDateRetired && autofillData.dateRetired) {
+					console.log(
+						"Autofill: Setting dateRetired to",
+						autofillData.dateRetired
+					);
+					setDateRetired(autofillData.dateRetired);
+				}
 
-		console.log("Autofill: Complete");
-	} else {
-		console.log("Autofill: No data available or autofill disabled");
-	}
+				console.log("Autofill: Complete");
+			} else {
+				console.log("Autofill: No data available or autofill disabled");
+			}
+		};
+
+		fillForm();
+	}, [setValue, setDateHired, setDateRetired]); // Dependencies for useEffect
 };
