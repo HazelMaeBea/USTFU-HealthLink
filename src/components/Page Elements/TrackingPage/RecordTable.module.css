@@ -136,7 +136,7 @@
 }
 
 /* Responsive Adjustments */
-@media screen and (max-width: 1080px) {
+@media screen and (max-width: 432px) {
 	.table-component-container {
 		padding: 0.2rem;
 		font-size: small;
@@ -172,3 +172,41 @@
 		margin-left: 0;
 	}
 }
+
+@media screen and (max-width: 768px) {
+	.table-component-container {
+		padding: 1rem;
+		font-size: 1.2rem;
+	}
+
+	.record-content {
+		-webkit-flex-direction: row;
+		flex-direction: row;
+	}
+
+	.details-container {
+		margin-left: 0.5rem;
+		-webkit-flex-direction: column;
+		flex-direction: column;
+		width: 65%;
+		gap: 0.1rem;
+	}
+
+	.button-container {
+		width: 20%;
+		align-self: center;
+
+	}
+
+	.record-dateTime,
+	.record-transactionID,
+	.record-typeOfForm,
+	.record-status {
+		width: 100%;
+	}
+
+	.record-dateTime {
+		margin-left: 0;
+	}
+}
+

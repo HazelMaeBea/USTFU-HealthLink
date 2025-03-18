@@ -6,6 +6,9 @@ import PageButtons from "../PageButtons/PageButtons";
 import {
 	collection,
 	onSnapshot,
+	doc,
+	updateDoc,
+	deleteDoc,
 } from "firebase/firestore";
 import { db, auth } from "../../../config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -42,9 +45,10 @@ const VerificationPage = () => {
 						const filteredUsers = snapshot.docs
 							.map((doc) => {
 								const data = doc.data();
+								const personalInfo = data.personalInfo || {};
 								return {
-									id: data.idNumber || "Unknown",
-									name: data.displayName || "Unknown",
+									id: personalInfo.idNumber || "Unknown",
+									name: data.fullName || "Unknown",
 									email: data.email || "Unknown",
 									role: data.role || "Member",
 									selected: false,
@@ -110,6 +114,26 @@ const VerificationPage = () => {
 		const actualIndex = (currentPage - 1) * requestsPerPage + index;
 		newRequests[actualIndex].role = newRole;
 		setRequests(newRequests);
+	};
+
+	const handleApprove = async (request: VerificationRequest) => {
+		try {
+			const userDoc = doc(db, "users", request.id);
+			await updateDoc(userDoc, { verified: true });
+			console.log("Approved:", request.name);
+		} catch (error) {
+			console.error("Error approving request:", error);
+		}
+	};
+
+	const handleDeny = async (request: VerificationRequest) => {
+		try {
+			const userDoc = doc(db, "users", request.id);
+			await deleteDoc(userDoc);
+			console.log("Denied:", request.name);
+		} catch (error) {
+			console.error("Error denying request:", error);
+		}
 	};
 
 	// Bulk Actions
@@ -245,12 +269,9 @@ const VerificationPage = () => {
 												setPopoutMessage(
 													`Are you sure you want to approve ${request.name}?`
 												);
-												setPendingAction(() => () => {
-													console.log(
-														"Approve:",
-														request.name
-													);
-												});
+												setPendingAction(() => () =>
+													handleApprove(request)
+												);
 												setPopoutOpen(true);
 											}}
 										>
@@ -266,12 +287,9 @@ const VerificationPage = () => {
 												setPopoutMessage(
 													`Are you sure you want to deny ${request.name}?`
 												);
-												setPendingAction(() => () => {
-													console.log(
-														"Deny:",
-														request.name
-													);
-												});
+												setPendingAction(() => () =>
+													handleDeny(request)
+												);
 												setPopoutOpen(true);
 											}}
 										>
