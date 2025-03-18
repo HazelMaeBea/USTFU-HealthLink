@@ -3,8 +3,15 @@ import "./VerificationPage.css";
 import { useState, useEffect, useRef } from "react";
 import Popout from "../Popout/Popout";
 import PageButtons from "../PageButtons/PageButtons";
+import {
+	collection,
+	onSnapshot,
+} from "firebase/firestore";
+import { db, auth } from "../../../config/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 interface VerificationRequest {
+	id: string;
 	name: string;
 	email: string;
 	role: string;
@@ -12,19 +19,7 @@ interface VerificationRequest {
 }
 
 const VerificationPage = () => {
-	// Generate sample data
-	const generateSampleData = () => {
-		return Array.from({ length: 25 }, (_, i) => ({
-			name: `Doe, Jane Jacquxvious ${i + 1}`,
-			email: `janejacquxvious.doe${i + 1}@ust.edu.ph`,
-			role: "member",
-			selected: false,
-		}));
-	};
-
-	const [requests, setRequests] = useState<VerificationRequest[]>(
-		generateSampleData()
-	);
+	const [requests, setRequests] = useState<VerificationRequest[]>([]);
 	const [selectAll, setSelectAll] = useState(false);
 	const [isIndeterminate, setIsIndeterminate] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
@@ -37,6 +32,39 @@ const VerificationPage = () => {
 	const [popoutTitle, setPopoutTitle] = useState("");
 	const [popoutMessage, setPopoutMessage] = useState("");
 	const [pendingAction, setPendingAction] = useState<() => void>(() => {});
+
+	useEffect(() => {
+		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+			if (currentUser) {
+				const unsubscribeUsers = onSnapshot(
+					collection(db, "users"),
+					(snapshot) => {
+						const filteredUsers = snapshot.docs
+							.map((doc) => {
+								const data = doc.data();
+								return {
+									id: data.idNumber || "Unknown",
+									name: data.displayName || "Unknown",
+									email: data.email || "Unknown",
+									role: data.role || "Member",
+									selected: false,
+									verified: data.verified || false,
+								};
+							})
+							.filter((user) => !user.verified)
+							.sort((a, b) =>
+								a.name.localeCompare(b.name)
+							) as VerificationRequest[];
+						setRequests(filteredUsers);
+					}
+				);
+				return () => unsubscribeUsers();
+			} else {
+				setRequests([]);
+			}
+		});
+		return () => unsubscribeAuth();
+	}, []);
 
 	// Update indeterminate state when requests change
 	useEffect(() => {
@@ -154,6 +182,7 @@ const VerificationPage = () => {
 									<span className="checkmark"></span>
 								</label>
 							</th>
+							<th className="verification-header">UST ID</th>
 							<th className="verification-header">Name</th>
 							<th className="verification-header">
 								Email Address
@@ -175,6 +204,9 @@ const VerificationPage = () => {
 										/>
 										<span className="checkmark"></span>
 									</label>
+								</td>
+								<td className="verfication-td">
+									{request.id}
 								</td>
 								<td className="verfication-td">
 									{request.name}

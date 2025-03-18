@@ -21,7 +21,7 @@ import UserAuditLogs from "../Page Elements/AdminSettings/UserAuditLogs";
 import AuditLogsPopout from "../Page Elements/AdminSettings/AuditLogsPopout";
 
 interface User {
-	id: number;
+	id: string;
 	name: string;
 	email: string;
 	college: string;
@@ -65,13 +65,14 @@ const AdminSettings = () => {
 						const sortedUsers = snapshot.docs
 							.map((doc) => {
 								const data = doc.data();
+								const personalInfo = data.personalInfo || {};
 								return {
-									id: data.idNumber || "Unknown",
-									name: data.displayName || "Unknown",
+									id: personalInfo.idNumber || "Unknown",
+									name: data.fullName || "Unknown",
 									email: data.email || "Unknown",
-									college: data.college || "UNAFFILIATED",
-									birthdate: data.birthdate || "Unknown",
-									phoneNumber: data.phoneNumber || "Unknown",
+									college: personalInfo.college || "UNAFFILIATED",
+									birthdate: personalInfo.birthdate || "Unknown",
+									phoneNumber: personalInfo.phoneNumber || "Unknown",
 									role: data.role || "Member",
 									status: data.status || "INACTIVE",
 									document: doc.id,
