@@ -83,13 +83,14 @@ const PendingRequestList = () => {
 	const handleSendClick = (transactionID: string) => {
 		if (!activeDecision) return; // Prevent sending if no action is selected
 		setTransID(transactionID);
-		console.log(getTransID + " " + getText + " " + getStatus);
-		console.log(getEditBenefits)
+		// console.log(getTransID + " " + getText + " " + getStatus);
+		// console.log(getEditBenefits)
+		// console.log(getCurrentUser);
 		setShowPopout(true); // Open confirmation popout
 	};
 
 	const handleConfirm = () => {
-		console.log(`Confirmed: ${activeDecision}`);
+		// console.log(`Confirmed: ${activeDecision}`);
 
 		try {
 			const transID = getTransID || "empty";
