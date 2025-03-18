@@ -496,8 +496,8 @@ const PendingRequestList = () => {
 												<input
 													aria-label="amount left"
 													type="text"
-													value={getBenefits}
-													disabled
+													defaultValue={getBenefits}
+													// disabled
 													className="amount-input"
 												/>
 											</div>
@@ -536,7 +536,8 @@ const PendingRequestList = () => {
 												onClick={handleRemoveSignature}
 												title="Remove signature"
 											>
-												<HiOutlineX size={16} />
+												{/* <HiOutlineX color="red" /> */}
+												x
 											</button>
 										</div>
 									) : (
