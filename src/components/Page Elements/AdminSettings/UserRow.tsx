@@ -12,7 +12,7 @@ import { FiEdit2, FiUsers, FiToggleLeft } from "react-icons/fi";
 import { createPortal } from "react-dom";
 
 interface User {
-	id: number;
+	id: string;
 	name: string;
 	email: string;
 	college: string;

@@ -139,7 +139,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		);
 	}
 
-	if (selectedRole === "operations handler" || selectedRole === "admin") {
+	if (selectedRole === "operations handler") {
 		menuItems.unshift(
 			{
 				name: "HOSPITALIZATION HISTORY",
@@ -155,10 +155,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 				name: "ADMIN SETTINGS",
 				icon: <MdOutlineAdminPanelSettings size={20} />,
 				path: "/adminsettings",
+			} //remove this later
+		);
+	}
+
+	if (selectedRole === "admin") {
+		menuItems.unshift(
+			{
+				name: "HOSPITALIZATION HISTORY",
+				icon: <FaRegFolderOpen size={20} />,
+				path: "/history",
+			},
+			{
+				name: "ADMIN SETTINGS",
+				icon: <MdOutlineAdminPanelSettings size={20} />,
+				path: "/adminsettings",
 			}
 		);
 	}
 
+	
 	return (
 		<>
 			<div
