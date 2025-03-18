@@ -116,19 +116,20 @@ export async function getRemainingBenefits(
 		const usersCollection = collection(db, "users");
 		const userQuery = query(
 			usersCollection,
-			where("displayName", "==", inputRequester)
+			where("fullName", "==", inputRequester)
 		);
 		const querySnapshot = await getDocs(userQuery);
+		console.log(inputRequester);
 
 		if (querySnapshot.empty) {
 			console.log("No matching documents found.");
-			return 0;
+			return 1;
 		}
 
 		let remainingBenefits: number = 0;
 
 		querySnapshot.forEach((doc: DocumentData) => {
-			remainingBenefits = doc.data().remainingBenefits;
+			remainingBenefits = doc.data().personalInfo.remainingBenefits;
 			// console.log(doc.data().remainingBenefits);
 		});
 
