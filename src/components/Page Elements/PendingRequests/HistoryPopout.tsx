@@ -112,11 +112,6 @@ const HistoryPopout: React.FC<HistoryPopoutProps> = ({
 						</>
 					)}
 				</div>
-				<div className="history-popout-footer">
-					<button className="close-btn" onClick={onClose}>
-						Close
-					</button>
-				</div>
 			</div>
 		</div>
 	);
