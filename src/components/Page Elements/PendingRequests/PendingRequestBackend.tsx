@@ -13,8 +13,10 @@ import {
 } from "firebase/firestore";
 import { db } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
+import RemainingBenefit from "../Hospitalization Application/Forms/RemainingBenefit.tsx";
 
 const reqCollection = collection(db, "FormRequests");
+const usersCollection = collection(db, "users");
 
 // Interface for pagination metadata
 export interface PaginationInfo {
@@ -113,7 +115,6 @@ export async function getRemainingBenefits(
 	inputRequester: string
 ): Promise<number> {
 	try {
-		const usersCollection = collection(db, "users");
 		const userQuery = query(
 			usersCollection,
 			where("fullName", "==", inputRequester)
@@ -198,5 +199,29 @@ export const updateDocument = async (
 		console.error("Error updating document:", error);
 	}
 };
+
+export const updateBenefits = async (newValue: number, userName: string | null) => {
+	try {
+		const userQuery = query(
+			usersCollection,
+			where("fullName", "==", userName)
+		);
+
+		const querySnapshot = await getDocs(userQuery);
+		querySnapshot.forEach(async (document) => {
+			const docRef = doc(db, "users", document.id); // Get the document reference
+
+			await setDoc(
+				docRef,
+				{
+					personalInfo: {remainingBenefits: newValue}
+				},
+				{ merge: true }
+			);
+		})
+	} catch (error) {
+		console.error(error)
+	}
+}
 
 export default PendingRequestBackend;

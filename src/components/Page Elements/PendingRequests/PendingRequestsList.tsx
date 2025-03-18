@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import type { PendingRequest } from "./types";
 import {
 	getRemainingBenefits,
+	updateBenefits,
 	updateDocument,
 	usePendingRequests,
 } from "./PendingRequestBackend"; // use the hook instead of mock data
@@ -40,12 +41,14 @@ const PendingRequestList = () => {
 
 	// Hooks to access benefits
 	const [getBenefits, setBenefits] = useState<number>(0);
+	const [getEditBenefits, setEditBenefits] = useState<number>(1);
 	// Hooks to access submit fields
 	const [getText, setText] = useState<string | null>(null);
 	// Hooks to access transactionID
 	const [getTransID, setTransID] = useState<string | null>(null);
 	// Hooks to access document status
 	const [getStatus, setStatus] = useState<string | null>(null);
+	const [getCurrentUser, setCurrentUser] = useState<string | null>(null)
 
 	// Handle change on textArea
 	const handleTextArea = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -81,6 +84,7 @@ const PendingRequestList = () => {
 		if (!activeDecision) return; // Prevent sending if no action is selected
 		setTransID(transactionID);
 		console.log(getTransID + " " + getText + " " + getStatus);
+		console.log(getEditBenefits)
 		setShowPopout(true); // Open confirmation popout
 	};
 
@@ -92,6 +96,9 @@ const PendingRequestList = () => {
 			const textArea = getText || "empty";
 			const updateStatus = getStatus || "pending";
 			updateDocument(transID, textArea, updateStatus);
+			if (getBenefits != getEditBenefits)
+				updateBenefits(getEditBenefits, getCurrentUser)
+
 		} catch (error) {
 			console.error(error);
 		}
@@ -499,6 +506,7 @@ const PendingRequestList = () => {
 													defaultValue={getBenefits}
 													// disabled
 													className="amount-input"
+													onChange={(e) => {setEditBenefits(parseInt(e.target.value))}}
 												/>
 											</div>
 											<span className="amount-label">
@@ -591,13 +599,15 @@ const PendingRequestList = () => {
 								? "expanded"
 								: ""
 						}`}
-						onClick={() =>
+						onClick={() => {
 							setExpandedId(
 								expandedId === request.transactionId
 									? null
 									: request.transactionId
 							)
-						}
+							setEditBenefits(getBenefits);
+							setCurrentUser(request.requester)
+						}}
 					>
 						<div className="header-content">
 							<div>
