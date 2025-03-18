@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { PendingRequest } from "./types";
 import {
 	getRemainingBenefits,
@@ -32,6 +32,11 @@ const PendingRequestList = () => {
 	const [showPopout, setShowPopout] = useState<boolean>(false);
 	const [previewFile, setPreviewFile] = useState<any>(null);
 	const [showHistoryPopout, setShowHistoryPopout] = useState<boolean>(false);
+	const [currentRequester, setCurrentRequester] = useState<string | null>(
+		null
+	);
+	const [signatureImage, setSignatureImage] = useState<string | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	// Hooks to access benefits
 	const [getBenefits, setBenefits] = useState<number>(0);
@@ -54,7 +59,9 @@ const PendingRequestList = () => {
 		setExpandedId(null);
 	};
 
-	const handleAction = (action: "approval" | "rejection" | "for revision") => {
+	const handleAction = (
+		action: "approval" | "rejection" | "for revision"
+	) => {
 		setActiveDecision(action); // Store the decision type
 
 		if (action === "rejection") {
@@ -102,12 +109,39 @@ const PendingRequestList = () => {
 		setPreviewFile(null);
 	};
 
-	const handleCheckHistory = () => {
+	const handleCheckHistory = (requester: string) => {
+		setCurrentRequester(requester);
 		setShowHistoryPopout(true); // Open history popout
 	};
 
 	const handleCloseHistory = () => {
 		setShowHistoryPopout(false); // Close history popout
+	};
+
+	const handleUploadClick = () => {
+		// Trigger the hidden file input click
+		if (fileInputRef.current) {
+			fileInputRef.current.click();
+		}
+	};
+
+	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				setSignatureImage(e.target?.result as string);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	const handleRemoveSignature = () => {
+		setSignatureImage(null);
+		// Clear the file input
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
 	};
 
 	// Helper function to convert camelCase to Title Case with spaces
@@ -181,19 +215,27 @@ const PendingRequestList = () => {
 						<div className="form-grid">
 							<div className="form-group">
 								<label>Hospital</label>
-								<p className="field-value">{formData.hospital}</p>
+								<p className="field-value">
+									{formData.hospital}
+								</p>
 							</div>
 							<div className="form-group">
 								<label>Nature of Illness</label>
-								<p className="field-value">{formData.illness}</p>
+								<p className="field-value">
+									{formData.illness}
+								</p>
 							</div>
 							<div className="form-group">
 								<label>Physician</label>
-								<p className="field-value">{formData.physician}</p>
+								<p className="field-value">
+									{formData.physician}
+								</p>
 							</div>
 							<div className="form-group">
 								<label>Procedure</label>
-								<p className="field-value">{formData.procedures}</p>
+								<p className="field-value">
+									{formData.procedures}
+								</p>
 							</div>
 						</div>
 						<hr></hr>
@@ -212,13 +254,17 @@ const PendingRequestList = () => {
 							</div>
 							<div className="form-group">
 								<label>Status</label>
-								<p className="field-value">{formData.status || "-"}</p>
+								<p className="field-value">
+									{formData.status || "-"}
+								</p>
 							</div>
 							<div className="form-group">
 								<label>Date Hired:</label>
 								<p className="field-value">
 									{formData.dateHired
-										? new Date(formData.dateHired).toLocaleDateString()
+										? new Date(
+												formData.dateHired
+										  ).toLocaleDateString()
 										: "-"}
 								</p>
 							</div>
@@ -226,13 +272,17 @@ const PendingRequestList = () => {
 								<label>Date Retired:</label>
 								<p className="field-value">
 									{formData.dateRetired
-										? new Date(formData.dateRetired).toLocaleDateString()
+										? new Date(
+												formData.dateRetired
+										  ).toLocaleDateString()
 										: "-"}
 								</p>
 							</div>
 							<div className="form-group">
 								<label>Health Benefits</label>
-								<p className="field-value">{formData.benefits}</p>
+								<p className="field-value">
+									{formData.benefits}
+								</p>
 							</div>
 							<div className="form-group">
 								<label>If HMO, please specify:</label>
@@ -252,19 +302,25 @@ const PendingRequestList = () => {
 							<div className="form-group">
 								<label>OR Number</label>
 								<p className="field-value">
-									{formData.ORNumber ? formData.ORNumber : "-"}
+									{formData.ORNumber
+										? formData.ORNumber
+										: "-"}
 								</p>
 							</div>
 							<div className="form-group">
 								<label>Issued By</label>
 								<p className="field-value">
-									{formData.issuedBy ? formData.issuedBy : "-"}
+									{formData.issuedBy
+										? formData.issuedBy
+										: "-"}
 								</p>
 							</div>
 							<div className="form-group">
 								<label>Amount Paid</label>
 								<p className="field-value">
-									{formData.amountPaid ? formData.amountPaid : "-"}
+									{formData.amountPaid
+										? formData.amountPaid
+										: "-"}
 								</p>
 							</div>
 						</div>
@@ -328,11 +384,17 @@ const PendingRequestList = () => {
 					/>
 				);
 			} else if (ext === "pdf") {
-				return <div className="default-thumbnail" data-label="PDF"></div>;
+				return (
+					<div className="default-thumbnail" data-label="PDF"></div>
+				);
 			} else if (ext === "docx") {
-				return <div className="default-thumbnail" data-label="DOCX"></div>;
+				return (
+					<div className="default-thumbnail" data-label="DOCX"></div>
+				);
 			} else {
-				return <div className="default-thumbnail" data-label="FILE"></div>;
+				return (
+					<div className="default-thumbnail" data-label="FILE"></div>
+				);
 			}
 		};
 
@@ -356,7 +418,9 @@ const PendingRequestList = () => {
 									<p className="document-type">
 										{formatDocumentType(item.type)}
 									</p>
-									<p className="file-name">{item.data.filename}</p>
+									<p className="file-name">
+										{item.data.filename}
+									</p>
 								</div>
 							</div>
 						))}
@@ -383,20 +447,30 @@ const PendingRequestList = () => {
 					<div className="hospital-certification row flex-column flex-md-row">
 						{/* Left Section */}
 						<div className="col-12 col-md-8">
-							<div className="certification-header">To UST HOSPITAL:</div>
+							<div className="certification-header">
+								To UST HOSPITAL:
+							</div>
 							<div className="certification-content">
 								<p>
-									This certifies that the above named faculty is entitled to the
-									following benefit on his/her total charges (procedure,
-									supplies, drugs and reader's fee) but not to exceed his/her
-									remaining benefit subject to final verification:
+									This certifies that the above named faculty
+									is entitled to the following benefit on
+									his/her total charges (procedure, supplies,
+									drugs and reader's fee) but not to exceed
+									his/her remaining benefit subject to final
+									verification:
 								</p>
 								<div className="row justify-content-center align-content-center">
 									<div className="col-12 col-md-4">
 										<div className="benefit-options">
 											<label className="radio-option">
-												<input type="radio" name="benefit" value="50" />
-												<span>50% of net hospital bill</span>
+												<input
+													type="radio"
+													name="benefit"
+													value="50"
+												/>
+												<span>
+													50% of net hospital bill
+												</span>
 											</label>
 											<label className="radio-option">
 												<input
@@ -406,12 +480,16 @@ const PendingRequestList = () => {
 													checked
 													readOnly
 												/>
-												<span>100% of net hospital bill</span>
+												<span>
+													100% of net hospital bill
+												</span>
 											</label>
 										</div>
 									</div>
 									<div className="amount col-12 col-md-8 d-flex flex-column align-items-center text-center">
-										<span className="mb-2">but not to exceed:</span>
+										<span className="mb-2">
+											but not to exceed:
+										</span>
 										<div className="amount-container p-3 rounded shadow">
 											<div className="amount-input-wrapper d-flex align-items-center">
 												<span className="currency"></span>
@@ -423,11 +501,17 @@ const PendingRequestList = () => {
 													className="amount-input"
 												/>
 											</div>
-											<span className="amount-label">(Remaining benefit)</span>
+											<span className="amount-label">
+												(Remaining benefit)
+											</span>
 										</div>
 										<button
 											className="check-history-btn mt-3"
-											onClick={handleCheckHistory}
+											onClick={() =>
+												handleCheckHistory(
+													request.requester
+												)
+											}
 										>
 											CHECK HISTORY
 										</button>
@@ -440,8 +524,39 @@ const PendingRequestList = () => {
 						<div className="signature col-12 col-md-4 d-flex flex-column justify-content-center align-items-center">
 							<div className="signature-section row text-center">
 								<div className="upload-box">
-									<p>Please attach signature here.</p>
-									<button className="upload-btn">UPLOAD</button>
+									{signatureImage ? (
+										<div className="signature-preview">
+											<img
+												src={signatureImage}
+												alt="Signature"
+												className="uploaded-signature"
+											/>
+											<button
+												className="remove-signature-btn"
+												onClick={handleRemoveSignature}
+												title="Remove signature"
+											>
+												<HiOutlineX size={16} />
+											</button>
+										</div>
+									) : (
+										<>
+											<p>Please attach signature here.</p>
+											<button
+												className="upload-btn"
+												onClick={handleUploadClick}
+											>
+												UPLOAD
+											</button>
+											<input
+												type="file"
+												ref={fileInputRef}
+												className="hidden-file-input"
+												accept="image/*"
+												onChange={handleFileChange}
+											/>
+										</>
+									)}
 								</div>
 								<div className="signature-details col">
 									<input
@@ -450,7 +565,9 @@ const PendingRequestList = () => {
 										defaultValue="Emerito C. Gonzales"
 										aria-label="USTFU President"
 									/>
-									<p className="signature-title">USTFU PRESIDENT</p>
+									<p className="signature-title">
+										USTFU PRESIDENT
+									</p>
 									<p className="signature-subtitle">
 										OR AUTHORIZED REPRESENTATIVE
 									</p>
@@ -469,7 +586,9 @@ const PendingRequestList = () => {
 				<div key={request.transactionId} className="pending-request">
 					<div
 						className={`request-header ${
-							expandedId === request.transactionId ? "expanded" : ""
+							expandedId === request.transactionId
+								? "expanded"
+								: ""
 						}`}
 						onClick={() =>
 							setExpandedId(
@@ -481,11 +600,15 @@ const PendingRequestList = () => {
 					>
 						<div className="header-content">
 							<div>
-								<span className="header-details">TRANSACTION ID: </span>
+								<span className="header-details">
+									TRANSACTION ID:{" "}
+								</span>
 								{request.transactionId}
 							</div>
 							<div>
-								<span className="header-details">REQUESTER: </span>
+								<span className="header-details">
+									REQUESTER:{" "}
+								</span>
 								{request.requester}
 							</div>
 							<div>
@@ -525,11 +648,13 @@ const PendingRequestList = () => {
 											/* Case 3: Mixed case - show both with parentheses */
 											<>
 												{request.formData.origFormType.toUpperCase()}
-												{request.formData.hospitalStatus && (
+												{request.formData
+													.hospitalStatus && (
 													<>
 														{" "}
 														(DONE AS{" "}
-														{request.formData.hospitalStatus.toUpperCase()})
+														{request.formData.hospitalStatus.toUpperCase()}
+														)
 													</>
 												)}
 											</>
@@ -548,31 +673,43 @@ const PendingRequestList = () => {
 
 							<hr></hr>
 							<div className="approval-section">
-								<h4 className="text-center text-md-start">APPROVAL STEP</h4>
+								<h4 className="text-center text-md-start">
+									APPROVAL STEP
+								</h4>
 
 								{/* Action Buttons - Centered on small screens, inline on larger screens */}
 								<div className="approval-actions-container">
 									<div className="approval-actions">
 										<button
 											className="approve-btn d-flex align-items-center justify-content-center"
-											onClick={() => handleAction("approval")}
+											onClick={() =>
+												handleAction("approval")
+											}
 										>
 											<FiCheck size={25} />
-											<span className="ms-2">Approve</span>
+											<span className="ms-2">
+												Approve
+											</span>
 										</button>
 										<button
 											className="reject-btn d-flex align-items-center justify-content-center"
-											onClick={() => handleAction("rejection")}
+											onClick={() =>
+												handleAction("rejection")
+											}
 										>
 											<HiOutlineX size={25} />
 											<span className="ms-2">Reject</span>
 										</button>
 										<button
 											className="revise-btn d-flex align-items-center justify-content-center"
-											onClick={() => handleAction("for revision")}
+											onClick={() =>
+												handleAction("for revision")
+											}
 										>
 											<FiEdit2 size={23} />
-											<span className="ms-2">To Revise</span>
+											<span className="ms-2">
+												To Revise
+											</span>
 										</button>
 									</div>
 
@@ -587,13 +724,17 @@ const PendingRequestList = () => {
 									<div className="send-section">
 										<div className="send-box">
 											<p className="send-note">
-												** Clicking the send button will finalize the decision
-												and notify the requester. This action is irreversible.
+												** Clicking the send button will
+												finalize the decision and notify
+												the requester. This action is
+												irreversible.
 											</p>
 											<button
 												className="send-btn"
 												onClick={() => {
-													handleSendClick(request.transactionId);
+													handleSendClick(
+														request.transactionId
+													);
 												}}
 											>
 												SEND
@@ -629,7 +770,10 @@ const PendingRequestList = () => {
 				<ViewFiles file={previewFile} onClose={handleClosePreview} />
 			)}
 			{showHistoryPopout && (
-				<HistoryPopout onClose={handleCloseHistory} /> // Render the history popout
+				<HistoryPopout
+					onClose={handleCloseHistory}
+					requester={currentRequester || ""}
+				/>
 			)}
 		</div>
 	);
