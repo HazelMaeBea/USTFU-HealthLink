@@ -78,10 +78,16 @@ const TrackingPage = () => {
 										width: "100%",
 										display: "flex",
 										justifyContent: "center",
-										marginTop: "1rem",
+										marginTop: "1.5rem",
 									}}
 								>
-									<div style={{ display: "inline-block" }}>
+									<div
+										style={{
+											display: "inline-block",
+											padding: "0 20px",
+											transform: "scale(1.1)",
+										}}
+									>
 										<PageButtons
 											currentPage={pendingCurrentPage}
 											totalPages={pendingTotalPages}
@@ -115,10 +121,16 @@ const TrackingPage = () => {
 										width: "100%",
 										display: "flex",
 										justifyContent: "center",
-										marginTop: "1rem",
+										marginTop: "1.5rem",
 									}}
 								>
-									<div style={{ display: "inline-block" }}>
+									<div
+										style={{
+											display: "inline-block",
+											padding: "0 20px",
+											transform: "scale(1.1)",
+										}}
+									>
 										<PageButtons
 											currentPage={previousCurrentPage}
 											totalPages={previousTotalPages}
