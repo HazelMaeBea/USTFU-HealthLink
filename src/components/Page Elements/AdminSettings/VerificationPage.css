@@ -51,7 +51,7 @@
 	overflow-wrap: break-word;
 	white-space: normal;
 	word-break: break-word;
-	border: 1px solid hsl(220, 13%, 91%); /* temporary to see the lines */
+	/* border: 1px solid hsl(220, 13%, 91%); temporary to see the lines */
 }
 
 .verification-table .verfication-td {

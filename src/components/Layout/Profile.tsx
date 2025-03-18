@@ -1,6 +1,7 @@
 import React from "react";
 import "./Profile.css";
 import { useUser } from "../../contexts/userContext";
+import blankprofile from "../../assets/blankprofile.png";
 
 interface ProfileProps {
   isCollapsed: boolean;
@@ -24,7 +25,7 @@ const Profile: React.FC<ProfileProps> = ({ isCollapsed }) => {
   return (
     <div className={`profile-section ${isCollapsed ? "collapsed" : ""}`}>
       <div className="profile-image">
-        <img src={photoURL || ""} alt="Profile" />
+        <img src={photoURL || blankprofile} alt="Profile" />
       </div>
       {!isCollapsed && (
         <div className="profile-name">
