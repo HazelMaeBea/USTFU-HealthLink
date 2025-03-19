@@ -173,8 +173,19 @@ const VerificationPage = () => {
 				? `Are you sure you want to approve ${selectedRequests.length} selected request(s)?`
 				: `No requests are selected. Approve all (${requests.length}) requests?`
 		);
-		setPendingAction(() => () => {
-			console.log("Approved bulk:", target);
+		setPendingAction(() => async () => {
+			// console.log("Approved bulk:", target);
+			const namesArray = target.map((req) => req.name); // Extract 'name' field from each item
+            // console.log("Approved bulk:", target);
+            // console.log("Names array:", namesArray); // Log the array of names
+			const queryRef = query(collection(db, "users"), where("fullName", "in", namesArray))
+			const querySnapshot = await getDocs(queryRef);
+
+			querySnapshot.forEach( async (doc) => {
+				await updateDoc(doc.ref, {
+					verified: true,
+				})
+			});
 		});
 		setPopoutOpen(true);
 	};
@@ -189,8 +200,18 @@ const VerificationPage = () => {
 				? `Are you sure you want to deny ${selectedRequests.length} selected request(s)?`
 				: `No requests are selected. Deny all (${requests.length}) requests?`
 		);
-		setPendingAction(() => () => {
-			console.log("Denied bulk:", target);
+		setPendingAction(() => async () => {
+			// console.log("Approved bulk:", target);
+			const namesArray = target.map((req) => req.name); // Extract 'name' field from each item
+            // console.log("Approved bulk:", target);
+            // console.log("Names array:", namesArray); // Log the array of names
+			const queryRef = query(collection(db, "users"), where("fullName", "in", namesArray))
+			const querySnapshot = await getDocs(queryRef);
+
+			querySnapshot.forEach( async (doc) => {
+				// await deleteDoc(doc.ref);
+				console.log("Rejected the following docs", doc.data());
+			});
 		});
 		setPopoutOpen(true);
 	};
