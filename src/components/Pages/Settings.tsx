@@ -500,11 +500,6 @@ const Settings = () => {
 
 	if (isLoading) {
 		return (
-<<<<<<< HEAD
-			<div className={styles.settingsContainer}>
-				<div className={styles.loadingIndicator}>
-					Loading your settings...
-=======
 			<div className="settings-container">
 				<div className="loading-container">
 					{/* Preferences Section */}
@@ -585,7 +580,6 @@ const Settings = () => {
 							<div className="loading-spinner"></div>
 						</div>
 					</div>
->>>>>>> main
 				</div>
 			</div>
 		);
