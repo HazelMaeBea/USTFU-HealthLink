@@ -9,6 +9,9 @@ import {
 	doc,
 	updateDoc,
 	deleteDoc,
+	query,
+	where,
+	getDocs,
 } from "firebase/firestore";
 import { db, auth } from "../../../config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -118,9 +121,20 @@ const VerificationPage = () => {
 
 	const handleApprove = async (request: VerificationRequest) => {
 		try {
-			const userDoc = doc(db, "users", request.id);
-			await updateDoc(userDoc, { verified: true });
-			console.log("Approved:", request.name);
+			const userQuery = query(
+				collection(db, "users"), 
+				where("fullName", "==", request.name)
+			);
+	
+			const querySnapshot = await getDocs(userQuery);
+			if (!querySnapshot.empty) {
+				const userDoc = querySnapshot.docs[0].ref;
+	
+				await updateDoc(userDoc, { verified: true });
+				console.log("Approved:", request.name);
+			} else {
+				console.log("No user found with the given fullName:", request.name);
+			}
 		} catch (error) {
 			console.error("Error approving request:", error);
 		}
@@ -128,9 +142,21 @@ const VerificationPage = () => {
 
 	const handleDeny = async (request: VerificationRequest) => {
 		try {
-			const userDoc = doc(db, "users", request.id);
-			await deleteDoc(userDoc);
-			console.log("Denied:", request.name);
+			const userQuery = query(
+				collection(db, "users"), 
+				where("fullName", "==", request.name)
+			);
+	
+			const querySnapshot = await getDocs(userQuery);
+			if (!querySnapshot.empty) {
+				const userDoc = querySnapshot.docs[0].ref;
+	
+				//await deleteDoc(userDoc);
+				console.log("To delete", userDoc)
+				console.log("Denied:", request.name);
+			} else {
+				console.log("No user found with the given fullName:", request.name);
+			}
 		} catch (error) {
 			console.error("Error denying request:", error);
 		}
@@ -147,8 +173,16 @@ const VerificationPage = () => {
 				? `Are you sure you want to approve ${selectedRequests.length} selected request(s)?`
 				: `No requests are selected. Approve all (${requests.length}) requests?`
 		);
-		setPendingAction(() => () => {
-			console.log("Approved bulk:", target);
+		setPendingAction(() => async () => {
+			const namesArray = target.map((req) => req.name); // Extract 'name' field from each item
+			const queryRef = query(collection(db, "users"), where("fullName", "in", namesArray))
+			const querySnapshot = await getDocs(queryRef);
+
+			querySnapshot.forEach( async (doc) => {
+				await updateDoc(doc.ref, {
+					verified: true,
+				})
+			});
 		});
 		setPopoutOpen(true);
 	};
@@ -163,8 +197,15 @@ const VerificationPage = () => {
 				? `Are you sure you want to deny ${selectedRequests.length} selected request(s)?`
 				: `No requests are selected. Deny all (${requests.length}) requests?`
 		);
-		setPendingAction(() => () => {
-			console.log("Denied bulk:", target);
+		setPendingAction(() => async () => {
+			const namesArray = target.map((req) => req.name); // Extract 'name' field from each item
+			const queryRef = query(collection(db, "users"), where("fullName", "in", namesArray))
+			const querySnapshot = await getDocs(queryRef);
+
+			querySnapshot.forEach( async (doc) => {
+				// await deleteDoc(doc.ref);
+				console.log("Rejected the following docs", doc.data());
+			});
 		});
 		setPopoutOpen(true);
 	};
