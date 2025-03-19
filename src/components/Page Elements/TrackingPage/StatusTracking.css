@@ -373,3 +373,69 @@ button:disabled {
 .statusTracking-default-thumbnail::after {
 	content: attr(data-label);
 }
+
+
+@media screen and (max-width: 431px) {
+	.statusTracking-status-item {
+		width: 100%;
+		display: flex;
+		font-size: 1rem;
+	}
+
+	.statusTracking-transaction-header, 
+	.statusTracking-transaction-id {
+		font-size: 1rem;
+	}
+	
+	.statusTracking-status-text #dash {
+		display: none;
+	}
+
+	/* Ensure form fields take full width */
+	.statusTracking-form-container,
+	.statusTracking-form-container2 {
+		grid-template-columns: 1fr;
+		gap: 0.8rem;
+	}
+
+	.st-age,
+	.st-gender,
+	.st-contact,
+	.st-college {
+		grid-column: span 1;
+		width: 100%;
+	}
+
+	.statusTracking-attachment-preview-container {
+		grid-template-columns: repeat(1, 1fr);
+	}
+
+	.statusTracking-attachment-item {
+		flex-wrap: wrap;
+		text-align: center;
+		justify-content: center;
+	}
+}
+
+@media screen and (min-width: 432px) and (max-width: 768px) {
+	.statusTracking-status-item {
+		width: 100%;
+		display: flex;
+		font-size: 1rem;
+	}
+
+	.statusTracking-transaction-header, 
+	.statusTracking-transaction-id {
+		font-size: 1rem;
+	}
+	
+	.statusTracking-status-text #dash {
+		display: none;
+	}
+
+	.statusTracking-form-container, .statusTracking-form-container2{
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1rem;
+		margin: 0;
+	}
+}

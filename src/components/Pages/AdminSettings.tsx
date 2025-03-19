@@ -7,6 +7,8 @@ import {
 	doc,
 	setDoc,
 	Timestamp,
+	query,
+	where,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "../../config/firebase";
@@ -59,8 +61,10 @@ const AdminSettings = () => {
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
 			if (currentUser) {
+				const collectionRef = collection(db, "users");
+				const queryCollection = query(collectionRef, where("verified", "==", true))
 				const unsubscribeUsers = onSnapshot(
-					collection(db, "users"),
+					queryCollection,
 					(snapshot) => {
 						const sortedUsers = snapshot.docs
 							.map((doc) => {

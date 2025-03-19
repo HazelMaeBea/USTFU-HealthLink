@@ -431,7 +431,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 							)}
 							<div className="statusTracking-status-text">
 								<span>{update.label}</span>
-								<span>-</span>
+								<span id="dash">-</span>
 								<span className="statusTracking-timestamp">
 									{status === "Pending" &&
 									(update.key === "reviewed" || update.key === "processing")
