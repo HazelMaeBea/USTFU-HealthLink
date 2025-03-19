@@ -523,21 +523,18 @@ const Settings = () => {
 		<div className={styles.settingsContainer}>
 			<div className={styles.settingsSection}>
 				<h3>Personal Preferences</h3>
-				 {/* Revert toggle button markup to original styling */}
+				{/* Updated toggle button markup using CSS modules */}
 				<div className={styles.toggleGroup}>
 					<div className={styles.toggleRow}>
 						<p>Email Notifications:</p>
 						<div className="form-check">
-							<label className="form-check-label form-check-toggle">
+							<label className={`${styles["form-check-label"]} ${styles.formCheckToggle}`}>
 								<input
-									className="form-check-input"
+									className={styles.formCheckInput}
 									type="checkbox"
 									checked={settings.notification}
 									onChange={(e) =>
-										handleToggleChange(
-											"notification",
-											e.target.checked
-										)
+										handleToggleChange("notification", e.target.checked)
 									}
 									aria-label="toggle notifications"
 								/>
@@ -548,16 +545,13 @@ const Settings = () => {
 					<div className={styles.toggleRow}>
 						<p>Auto-fill Information:</p>
 						<div className="form-check">
-							<label className="form-check-label form-check-toggle">
+							<label className={`${styles["form-check-label"]} ${styles.formCheckToggle}`}>
 								<input
-									className="form-check-input"
+									className={styles.formCheckInput}
 									type="checkbox"
 									checked={settings.autofill}
 									onChange={(e) =>
-										handleToggleChange(
-											"autofill",
-											e.target.checked
-										)
+										handleToggleChange("autofill", e.target.checked)
 									}
 									aria-label="toggle autofill"
 								/>
@@ -642,7 +636,7 @@ const Settings = () => {
 					</div>
 					<div className={styles.formGroupXs}>
 						<label>Age</label>
-						<div className="settings-field-value non-editable">
+						<div className={`${styles.settingsFieldValue} ${styles.nonEditable}`}>
 							{calculatedAge || "N/A"}
 						</div>
 					</div>
@@ -693,13 +687,13 @@ const Settings = () => {
 				<div className={styles.formRow}>
 					<div className={styles.formGroupXs}>
 						<label>Term</label>
-						<div className="form-control settings-field-value non-editable">
+						<div className={`${styles.settingsFieldValue} ${styles.nonEditable}`}>
 							{currentTerm}
 						</div>
 					</div>
 					<div className={styles.formGroupSm}>
 						<label>Year</label>
-						<div className="form-control settings-field-value non-editable">
+						<div className={`${styles.settingsFieldValue} ${styles.nonEditable}`}>
 							{currentAcademicYear}
 						</div>
 					</div>
