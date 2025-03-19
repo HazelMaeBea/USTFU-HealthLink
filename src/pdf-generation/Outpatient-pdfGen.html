@@ -305,32 +305,48 @@
 					am personally liable to pay directly to UST Hospital.
 				</div>
 
-				<div style="text-align: right; margin-top: 0px">
-					<!-- signature: map {
-					 		 url: string
-							 filename: string
-					 	 }
-					-->
-					<input type="file" style="margin: 0" />
-				</div>
-
+				<!-- First signature instance - applicant signature -->
 				<div
 					style="
 						text-align: right;
 						margin-top: 0px;
-						margin-right: 30px;
+						position: relative;
 					"
 				>
-					<!-- dateApproved: string -->
-					<input
-						class="outpatient-text-input"
-						type="text"
-						id="date"
-						style="width: 200px; text-align: center; height: 15px"
-					/>
-				</div>
-				<div style="text-align: right; margin-right: 55px">
-					<label>Applicant's Signature / Date</label>
+					<!-- Applicant Signature -->
+					<div
+						style="
+							position: relative;
+							margin-right: 30px;
+							text-align: right;
+						"
+					>
+						<img
+							src="./images-pdfGen/Reyes_sig_w name.png"
+							alt=""
+							class="uploaded-signature"
+							style="
+								bottom: 5px;
+								left: auto;
+								right: 0;
+								transform: none;
+							"
+						/>
+						<input
+							class="outpatient-text-input"
+							type="text"
+							id="date"
+							style="
+								width: 200px;
+								text-align: center;
+								height: 15px;
+								margin-top: 20px;
+							"
+						/>
+					</div>
+					<div style="text-align: right; margin-right: 55px">
+						<label>Applicant's Signature / Date</label>
+					</div>
 				</div>
 			</div>
 
@@ -408,21 +424,46 @@
 							>
 						</div>
 
-						<div style="margin-top: 8px; text-align: right">
-							<input type="file" class="" />
-							<input
-								type="text"
-								class="outpatient-text-input"
+						<!-- Second signature instance - representative signature -->
+						<div
+							style="
+								margin-top: 8px;
+								text-align: right;
+								position: relative;
+							"
+						>
+							<div
 								style="
-									width: 200px;
+									position: relative;
 									margin-right: 25px;
-									font-size: 13px;
-									text-align: center;
+									text-align: right;
 								"
-								placeholder="EMERITO C. GONZALES"
-							/>
-
-							<p style="font-size: 9px; margin-right: 10px">
+							>
+								<img
+									src="./images-pdfGen/Reyes_sig_w name.png"
+									alt=""
+									class="uploaded-signature shift-more-left"
+									style="
+										bottom: 5px;
+										left: auto;
+										right: 0;
+										transform: none;
+									"
+								/>
+								<input
+									type="text"
+									class="outpatient-text-input"
+									style="
+										width: 200px;
+										margin-right: 25px;
+										font-size: 13px;
+										text-align: center;
+										margin-top: 20px;
+									"
+									placeholder="EMERITO C. GONZALES"
+								/>
+							</div>
+							<p style="font-size: 9px; margin-right: 30px">
 								USTFU President or Authorized Representative
 								(Blue ink)
 							</p>

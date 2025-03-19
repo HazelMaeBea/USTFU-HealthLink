@@ -10,15 +10,14 @@ import FormInvoice from "./FormInvoice";
 import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormCertify from "./FormCertify";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db, getFormID, storage } from "../../../../config/firebase.ts";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, db, getFormID } from "../../../../config/firebase.ts";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit.tsx";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
-// Update import to use .ts extension explicitly and use the correct function name
 import { useAutofill } from "../Autofill.ts";
+import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -132,18 +131,15 @@ const EyeglassesForm = () => {
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-	// Use the useAutofill hook correctly at the component level
 	useAutofill(setValue, setDateHired);
 
-	// Add a handler to close the notification with animation
 	const closeNotification = () => {
 		setIsNotificationHiding(true);
 
-		// After animation completes, hide the notification
 		setTimeout(() => {
 			setShowSuccessNotification(false);
 			setIsNotificationHiding(false);
-		}, 300); // Animation duration
+		}, 300);
 	};
 
 	const handleTrackingClick = (e: React.MouseEvent) => {
@@ -173,23 +169,16 @@ const EyeglassesForm = () => {
 			setFormIdString(formIDString);
 			const currentYear: string = new Date().getFullYear().toString();
 
-			// Upload and get download URL for applicantSignature
-			let imageRef = ref(
-				storage,
-				`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.applicantSignature[0].name}`
-			);
-			await uploadBytes(imageRef, data.applicantSignature[0]);
-			const applicantSignatureDownloadUrl = await getDownloadURL(
-				imageRef
-			);
+			const filesToUpload = {
+				applicantSignature: data.applicantSignature,
+				employeeID: data.employeeID,
+			};
 
-			// Upload and get download URL for employeeID
-			imageRef = ref(
-				storage,
-				`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.employeeID[0].name}`
+			const fileUploadResults = await uploadFilesAndGetURLs(
+				email,
+				formIDString,
+				filesToUpload
 			);
-			await uploadBytes(imageRef, data.employeeID[0]);
-			const employeeIDDownloadUrl = await getDownloadURL(imageRef);
 
 			// Build new document structure with download URLs
 			const newDoc = {
@@ -220,14 +209,8 @@ const EyeglassesForm = () => {
 					amountPaid: data.amountPaid,
 					load: data.load,
 					dateHired: data.dateHired,
-					employeeID: {
-						url: employeeIDDownloadUrl,
-						filename: data.employeeID[0].name,
-					},
-					applicantSignature: {
-						url: applicantSignatureDownloadUrl,
-						filename: data.applicantSignature[0].name,
-					},
+					employeeID: fileUploadResults.employeeID,
+					applicantSignature: fileUploadResults.applicantSignature,
 					claimRequestCount: data.claimRequestCount,
 				},
 			};

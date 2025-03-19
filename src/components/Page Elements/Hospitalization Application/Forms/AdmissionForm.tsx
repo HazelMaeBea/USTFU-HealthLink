@@ -11,16 +11,15 @@ import FormMedicalFiles from "./FormMedicalFiles";
 import FormCertify from "./FormCertify";
 import AdmissionTeachingInfo from "./AdmissionTeachingInfo";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db, storage, getFormID } from "../../../../config/firebase.ts";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, db, getFormID } from "../../../../config/firebase.ts";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit";
 import "./FormBody.css";
-// Update import to use the hook instead of the function
 import { useAutofill } from "../Autofill.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
+import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -176,18 +175,15 @@ const AdmissionForm = () => {
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
-	// Use the hook directly instead of calling it within useEffect
 	useAutofill(setValue, setDateHired, setDateRetired);
 
-	// Add a handler to close the notification with animation
 	const closeNotification = () => {
 		setIsNotificationHiding(true);
 
-		// After animation completes, hide the notification
 		setTimeout(() => {
 			setShowSuccessNotification(false);
 			setIsNotificationHiding(false);
-		}, 300); // Animation duration
+		}, 300);
 	};
 
 	const handleTrackingClick = (e: React.MouseEvent) => {
@@ -205,7 +201,6 @@ const AdmissionForm = () => {
 	};
 
 	const onSubmit = async (data: FieldValues) => {
-		// Show notification immediately with processing state
 		setSubmissionStatus("processing");
 		setShowSuccessNotification(true);
 
@@ -214,50 +209,22 @@ const AdmissionForm = () => {
 
 			const formID = await getFormID(true);
 			const formIDString = formID?.toString().padStart(6, "0") || "error";
-			setFormIdString(formIDString); // Make sure to set this state for the notification
+			setFormIdString(formIDString);
 			const currentYear: string = new Date().getFullYear().toString();
 
-			// Upload and get download URL for applicantSignature
-			let imageRef = ref(
-				storage,
-				`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.applicantSignature[0].name}`
-			);
-			await uploadBytes(imageRef, data.applicantSignature[0]);
-			const applicantSignatureDownloadUrl = await getDownloadURL(
-				imageRef
-			);
+			const filesToUpload = {
+				applicantSignature: data.applicantSignature,
+				docRequest: data.docRequest,
+				employeeID: data.employeeID,
+				hospitalInvoice: data.hospitalInvoice,
+				labInvoice: data.labInvoice,
+			};
 
-			// Upload and get download URL for docRequest
-			imageRef = ref(
-				storage,
-				`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.docRequest[0].name}`
+			const fileUploadResults = await uploadFilesAndGetURLs(
+				email,
+				formIDString,
+				filesToUpload
 			);
-			await uploadBytes(imageRef, data.docRequest[0]);
-			const docRequestDownloadUrl = await getDownloadURL(imageRef);
-
-			// Upload and get download URL for employeeID
-			imageRef = ref(
-				storage,
-				`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.employeeID[0].name}`
-			);
-			await uploadBytes(imageRef, data.employeeID[0]);
-			const employeeIDDownloadUrl = await getDownloadURL(imageRef);
-
-			// Upload and get download URL for hospitalInvoice
-			imageRef = ref(
-				storage,
-				`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.hospitalInvoice[0].name}`
-			);
-			await uploadBytes(imageRef, data.hospitalInvoice[0]);
-			const hospitalInvoiceDownloadUrl = await getDownloadURL(imageRef);
-
-			// Upload and get download URL for labInvoice
-			imageRef = ref(
-				storage,
-				`FormRequests/${email}/${currentYear}-${formIDString}-O/${data.labInvoice[0].name}`
-			);
-			await uploadBytes(imageRef, data.labInvoice[0]);
-			const labInvoiceDownloadUrl = await getDownloadURL(imageRef);
 
 			const pendingRequestData = {
 				transactionId: "TRN" + Date.now(),
@@ -288,26 +255,11 @@ const AdmissionForm = () => {
 					status: data["status"],
 					dateHired: data.dateHired,
 					dateRetired: data.dateRetired,
-					docRequest: {
-						url: docRequestDownloadUrl,
-						filename: data.docRequest[0].name,
-					},
-					hospitalInvoice: {
-						url: hospitalInvoiceDownloadUrl,
-						filename: data.hospitalInvoice[0].name,
-					},
-					labInvoice: {
-						url: labInvoiceDownloadUrl,
-						filename: data.labInvoice[0].name,
-					},
-					employeeID: {
-						url: employeeIDDownloadUrl,
-						filename: data.employeeID[0].name,
-					},
-					applicantSignature: {
-						url: applicantSignatureDownloadUrl,
-						filename: data.applicantSignature[0].name,
-					},
+					docRequest: fileUploadResults.docRequest,
+					hospitalInvoice: fileUploadResults.hospitalInvoice,
+					labInvoice: fileUploadResults.labInvoice,
+					employeeID: fileUploadResults.employeeID,
+					applicantSignature: fileUploadResults.applicantSignature,
 					claimRequestCount: data["claimRequestCount"],
 				},
 			};

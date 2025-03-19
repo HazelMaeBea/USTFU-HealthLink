@@ -226,11 +226,47 @@ const HospitalizationHistory = () => {
 				filters.every((filter) => {
 					const [filterType, filterValue] = filter.split(": ");
 					if (filterType === "Date") {
-						const [startDate, endDate] = filterValue.split(" - ");
-						return (
-							row.dateApproved >= startDate &&
-							row.dateApproved <= endDate
-						);
+						const [startDateStr, endDateStr] =
+							filterValue.split(" - ");
+
+						// Parse the date strings to get month, day, year
+						const startParts = startDateStr.split("/");
+						const endParts = endDateStr.split("/");
+
+						if (startParts.length === 3 && endParts.length === 3) {
+							// Create Date objects with time set to beginning and end of day
+							const startDate = new Date(
+								parseInt(startParts[2]), // year
+								parseInt(startParts[0]) - 1, // month (0-indexed)
+								parseInt(startParts[1]), // day
+								0,
+								0,
+								0,
+								0 // time set to 00:00:00.000
+							);
+
+							const endDate = new Date(
+								parseInt(endParts[2]), // year
+								parseInt(endParts[0]) - 1, // month (0-indexed)
+								parseInt(endParts[1]), // day
+								23,
+								59,
+								59,
+								999 // time set to 23:59:59.999
+							);
+
+							// Parse the row's date
+							const rowDate =
+								row.dateApproved !== "-"
+									? new Date(row.dateApproved)
+									: null;
+
+							if (!rowDate) return false;
+
+							// Compare using proper Date objects
+							return rowDate >= startDate && rowDate <= endDate;
+						}
+						return false;
 					} else if (filterType === "College") {
 						return filterValue.split(", ").includes(row.college);
 					} else if (filterType === "Term") {
@@ -658,7 +694,8 @@ const HospitalizationHistory = () => {
 				);
 				const formatDate = (date: string) => {
 					const [year, month, day] = date.split("-");
-					return `${month}/${day}/${year}`;
+					// Ensure month is 1-2 digits without leading zero for consistency
+					return `${parseInt(month)}/${parseInt(day)}/${year}`;
 				};
 				const dateFilterValue = `Date: ${formatDate(
 					dateRange.start

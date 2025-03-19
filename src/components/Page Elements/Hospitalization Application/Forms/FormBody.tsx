@@ -12,14 +12,12 @@ import FormMedicalFiles from "./FormMedicalFiles";
 import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db, getFormID, storage } from "../../../../config/firebase.ts";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, db, getFormID } from "../../../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
-// Add X icon for close button
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
-// Update import to use .ts extension explicitly
 import { useAutofill } from "../Autofill.ts";
+import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -206,6 +204,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		"processing" | "success" | "error"
 	>("processing");
 	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [uploadProgress, setUploadProgress] =
+		useState<string>("Preparing files...");
 	const navigate = useNavigate();
 
 	const {
@@ -240,77 +240,27 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			setFormIdString(formIDString);
 			const currentYear: string = new Date().getFullYear().toString();
 
-			// Prepare file storage paths
-			const applicantSignatureUrl =
-				"FormRequests/" +
-				email +
-				"/" +
-				currentYear +
-				"-" +
-				formIDString +
-				"-O/" +
-				data.applicantSignature[0].name;
-			const docRequestUrl =
-				"FormRequests/" +
-				email +
-				"/" +
-				currentYear +
-				"-" +
-				formIDString +
-				"-O/" +
-				data.docRequest[0].name;
-			const employeeIDUrl =
-				"FormRequests/" +
-				email +
-				"/" +
-				currentYear +
-				"-" +
-				formIDString +
-				"-O/" +
-				data.employeeID[0].name;
-			const hospitalInvoiceUrl =
-				"FormRequests/" +
-				email +
-				"/" +
-				currentYear +
-				"-" +
-				formIDString +
-				"-O/" +
-				data.hospitalInvoice[0].name;
-			const labInvoiceUrl =
-				"FormRequests/" +
-				email +
-				"/" +
-				currentYear +
-				"-" +
-				formIDString +
-				"-O/" +
-				data.labInvoice[0].name;
+			// Extract all files to upload into a single object
+			const filesToUpload = {
+				applicantSignature: data.applicantSignature,
+				docRequest: data.docRequest,
+				employeeID: data.employeeID,
+				hospitalInvoice: data.hospitalInvoice,
+				labInvoice: data.labInvoice,
+			};
 
-			// Upload and get download URL for applicantSignature
-			let imageRef = ref(storage, applicantSignatureUrl);
-			await uploadBytes(imageRef, data.applicantSignature[0]);
-			const applicantSignatureDownloadUrl = await getDownloadURL(
-				imageRef
+			// Pre-process and optimize files before upload
+			setUploadProgress("Optimizing files...");
+
+			// Use the new utility to upload all files and get URLs in one operation
+			setUploadProgress("Uploading files (this may take a moment)...");
+			const fileUploadResults = await uploadFilesAndGetURLs(
+				email,
+				formIDString,
+				filesToUpload
 			);
 
-			// Repeat for other files: docRequest, employeeID, hospitalInvoice, labInvoice
-			imageRef = ref(storage, docRequestUrl);
-			await uploadBytes(imageRef, data.docRequest[0]);
-			const docRequestDownloadUrl = await getDownloadURL(imageRef);
-
-			imageRef = ref(storage, employeeIDUrl);
-			await uploadBytes(imageRef, data.employeeID[0]);
-			const employeeIDDownloadUrl = await getDownloadURL(imageRef);
-
-			imageRef = ref(storage, hospitalInvoiceUrl);
-			await uploadBytes(imageRef, data.hospitalInvoice[0]);
-			const hospitalInvoiceDownloadUrl = await getDownloadURL(imageRef);
-
-			imageRef = ref(storage, labInvoiceUrl);
-			await uploadBytes(imageRef, data.labInvoice[0]);
-			const labInvoiceDownloadUrl = await getDownloadURL(imageRef);
-
+			setUploadProgress("Creating document...");
 			// Build new document structure using download URLs
 			const newDoc = {
 				transactionId: "TRN" + Date.now(),
@@ -346,32 +296,17 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					status: data.status,
 					benefits: data.benefits,
 					hmo: data.hmo,
-					docRequest: {
-						url: docRequestDownloadUrl,
-						filename: data.docRequest[0].name,
-					},
-					hospitalInvoice: {
-						url: hospitalInvoiceDownloadUrl,
-						filename: data.hospitalInvoice[0].name,
-					},
-					labInvoice: {
-						url: labInvoiceDownloadUrl,
-						filename: data.labInvoice[0].name,
-					},
-					employeeID: {
-						url: employeeIDDownloadUrl,
-						filename: data.employeeID[0].name,
-					},
-					applicantSignature: {
-						url: applicantSignatureDownloadUrl,
-						filename: data.applicantSignature[0].name,
-					},
+					docRequest: fileUploadResults.docRequest,
+					hospitalInvoice: fileUploadResults.hospitalInvoice,
+					labInvoice: fileUploadResults.labInvoice,
+					employeeID: fileUploadResults.employeeID,
+					applicantSignature: fileUploadResults.applicantSignature,
 					hospitalStatus: data.hospitalStatus,
 					claimRequestCount: data.claimRequestCount,
 				},
 			};
 
-			// await addDoc(formsCollectionRef, newDoc);
+			setUploadProgress("Saving to database...");
 			await setDoc(
 				doc(
 					db,
@@ -481,7 +416,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 						</h4>
 						<p className="success-message">
 							{submissionStatus === "processing"
-								? "Please wait while we process your claim request..."
+								? uploadProgress
 								: submissionStatus === "success"
 								? `Your claim request has been submitted with ID: ${formIdString}`
 								: errorMessage ||

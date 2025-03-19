@@ -500,9 +500,92 @@ const Settings = () => {
 
 	if (isLoading) {
 		return (
+<<<<<<< HEAD
 			<div className={styles.settingsContainer}>
 				<div className={styles.loadingIndicator}>
 					Loading your settings...
+=======
+			<div className="settings-container">
+				<div className="loading-container">
+					{/* Preferences Section */}
+					<div className="loading-section">
+						<div className="loading-header skeleton"></div>
+						<div className="loading-toggle-row">
+							<div className="loading-toggle-label skeleton"></div>
+							<div className="loading-toggle skeleton"></div>
+						</div>
+						<div className="loading-toggle-row">
+							<div className="loading-toggle-label skeleton"></div>
+							<div className="loading-toggle skeleton"></div>
+						</div>
+					</div>
+
+					{/* Personal Information Section */}
+					<div className="loading-section">
+						<div className="loading-header skeleton"></div>
+
+						{/* Name Fields */}
+						<div className="loading-form-row">
+							{["lg", "lg", "lg", "xs"].map((size, index) => (
+								<div
+									key={index}
+									className={`loading-form-group loading-${size}`}
+								>
+									<div className="loading-label skeleton"></div>
+									<div className="loading-field skeleton"></div>
+								</div>
+							))}
+						</div>
+
+						{/* Personal Details */}
+						<div className="loading-form-row">
+							{["md", "xs", "sm", "md", "flex"].map(
+								(size, index) => (
+									<div
+										key={index}
+										className={`loading-form-group loading-${size}`}
+									>
+										<div className="loading-label skeleton"></div>
+										<div className="loading-field skeleton"></div>
+									</div>
+								)
+							)}
+						</div>
+
+						{/* Work Details */}
+						<div className="loading-form-row">
+							{["xs", "sm", "xs", "md", "md", "flex"].map(
+								(size, index) => (
+									<div
+										key={index}
+										className={`loading-form-group loading-${size}`}
+									>
+										<div className="loading-label skeleton"></div>
+										<div className="loading-field skeleton"></div>
+									</div>
+								)
+							)}
+						</div>
+
+						{/* College and Address */}
+						<div className="loading-form-row">
+							{["half", "half"].map((size, index) => (
+								<div
+									key={index}
+									className={`loading-form-group loading-${size}`}
+								>
+									<div className="loading-label skeleton"></div>
+									<div className="loading-field skeleton"></div>
+								</div>
+							))}
+						</div>
+
+						{/* Loading Spinner */}
+						<div className="loading-spinner-container">
+							<div className="loading-spinner"></div>
+						</div>
+					</div>
+>>>>>>> main
 				</div>
 			</div>
 		);

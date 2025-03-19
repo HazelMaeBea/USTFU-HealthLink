@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { PendingRequest } from "./types";
 import {
 	getRemainingBenefits,
+	updateBenefits,
 	updateDocument,
 	usePendingRequests,
 } from "./PendingRequestBackend"; // use the hook instead of mock data
@@ -14,14 +15,18 @@ import ViewFiles from "./ViewFiles";
 import HistoryPopout from "./HistoryPopout";
 import PageButtons from "../PageButtons/PageButtons"; // Import the PageButtons component
 import { updateDoc } from "firebase/firestore";
+import PendingRequestsLoadingSkeleton from "./PendingRequestsLoadingSkeleton";
 
 const PendingRequestList = () => {
-	// Use the updated hook with pagination
+	// Use the updated hook with pagination and get loading/error states
 	const {
 		requests: pendingRequests,
 		pagination,
 		setCurrentPage,
+		isLoading,
+		error,
 	} = usePendingRequests(1, 7);
+
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 	const [showCommentBox, setShowCommentBox] = useState<string | null>(
 		"Additional Comments"
@@ -40,12 +45,14 @@ const PendingRequestList = () => {
 
 	// Hooks to access benefits
 	const [getBenefits, setBenefits] = useState<number>(0);
+	const [getEditBenefits, setEditBenefits] = useState<number>(1);
 	// Hooks to access submit fields
 	const [getText, setText] = useState<string | null>(null);
 	// Hooks to access transactionID
 	const [getTransID, setTransID] = useState<string | null>(null);
 	// Hooks to access document status
 	const [getStatus, setStatus] = useState<string | null>(null);
+	const [getCurrentUser, setCurrentUser] = useState<string | null>(null);
 
 	// Handle change on textArea
 	const handleTextArea = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -58,6 +65,13 @@ const PendingRequestList = () => {
 		// Reset expanded state when changing pages
 		setExpandedId(null);
 	};
+
+	// Reset expanded state when loading new data
+	useEffect(() => {
+		if (isLoading) {
+			setExpandedId(null);
+		}
+	}, [isLoading]);
 
 	const handleAction = (
 		action: "approval" | "rejection" | "for revision"
@@ -80,18 +94,22 @@ const PendingRequestList = () => {
 	const handleSendClick = (transactionID: string) => {
 		if (!activeDecision) return; // Prevent sending if no action is selected
 		setTransID(transactionID);
-		console.log(getTransID + " " + getText + " " + getStatus);
+		// console.log(getTransID + " " + getText + " " + getStatus);
+		// console.log(getEditBenefits)
+		// console.log(getCurrentUser);
 		setShowPopout(true); // Open confirmation popout
 	};
 
 	const handleConfirm = () => {
-		console.log(`Confirmed: ${activeDecision}`);
+		// console.log(`Confirmed: ${activeDecision}`);
 
 		try {
 			const transID = getTransID || "empty";
 			const textArea = getText || "empty";
 			const updateStatus = getStatus || "pending";
 			updateDocument(transID, textArea, updateStatus);
+			if (getBenefits != getEditBenefits)
+				updateBenefits(getEditBenefits, getCurrentUser);
 		} catch (error) {
 			console.error(error);
 		}
@@ -499,6 +517,13 @@ const PendingRequestList = () => {
 													defaultValue={getBenefits}
 													// disabled
 													className="amount-input"
+													onChange={(e) => {
+														setEditBenefits(
+															parseInt(
+																e.target.value
+															)
+														);
+													}}
 												/>
 											</div>
 											<span className="amount-label">
@@ -581,6 +606,38 @@ const PendingRequestList = () => {
 		);
 	};
 
+	// Show loading skeleton when data is loading
+	if (isLoading) {
+		return <PendingRequestsLoadingSkeleton />;
+	}
+
+	// Show error message if there was a problem loading the data
+	if (error) {
+		return (
+			<div className="pending-requests">
+				<div className="error-message">
+					<p>{error}</p>
+					<button onClick={() => setCurrentPage(1)}>Retry</button>
+				</div>
+			</div>
+		);
+	}
+
+	// Check if there are no pending requests
+	if (!pendingRequests || pendingRequests.length === 0) {
+		return (
+			<div className="pending-requests">
+				<div className="empty-state">
+					<h3>No pending requests</h3>
+					<p>
+						There are no requests waiting for your approval at this
+						time.
+					</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="pending-requests">
 			{pendingRequests.map((request) => (
@@ -591,13 +648,15 @@ const PendingRequestList = () => {
 								? "expanded"
 								: ""
 						}`}
-						onClick={() =>
+						onClick={() => {
 							setExpandedId(
 								expandedId === request.transactionId
 									? null
 									: request.transactionId
-							)
-						}
+							);
+							setEditBenefits(getBenefits);
+							setCurrentUser(request.requester);
+						}}
 					>
 						<div className="header-content">
 							<div>
@@ -682,7 +741,11 @@ const PendingRequestList = () => {
 								<div className="approval-actions-container">
 									<div className="approval-actions">
 										<button
-											className="approve-btn d-flex align-items-center justify-content-center"
+											className={`approve-btn d-flex align-items-center justify-content-center ${
+												activeDecision === "approval"
+													? "selected"
+													: ""
+											}`}
 											onClick={() =>
 												handleAction("approval")
 											}
@@ -693,7 +756,11 @@ const PendingRequestList = () => {
 											</span>
 										</button>
 										<button
-											className="reject-btn d-flex align-items-center justify-content-center"
+											className={`reject-btn d-flex align-items-center justify-content-center ${
+												activeDecision === "rejection"
+													? "selected"
+													: ""
+											}`}
 											onClick={() =>
 												handleAction("rejection")
 											}
@@ -702,7 +769,12 @@ const PendingRequestList = () => {
 											<span className="ms-2">Reject</span>
 										</button>
 										<button
-											className="revise-btn d-flex align-items-center justify-content-center"
+											className={`revise-btn d-flex align-items-center justify-content-center ${
+												activeDecision ===
+												"for revision"
+													? "selected"
+													: ""
+											}`}
 											onClick={() =>
 												handleAction("for revision")
 											}

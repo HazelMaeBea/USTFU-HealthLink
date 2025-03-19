@@ -150,6 +150,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 					</tr>
 				</tbody>
 			</table>
+
 			<div className="claim-request-container">
 				<div className="claim-request">
 					<div>

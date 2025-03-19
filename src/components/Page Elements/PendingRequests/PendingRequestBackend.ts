@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
 	collection,
 	doc,
@@ -15,6 +15,7 @@ import { db } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
 
 const reqCollection = collection(db, "FormRequests");
+const usersCollection = collection(db, "users");
 
 // Interface for pagination metadata
 export interface PaginationInfo {
@@ -29,6 +30,8 @@ export interface PaginatedRequests {
 	requests: PendingRequest[];
 	pagination: PaginationInfo;
 	setCurrentPage: (page: number) => void;
+	isLoading: boolean;
+	error: string | null;
 }
 
 // Export a hook to retrieve paginated pending requests in real-time
@@ -38,26 +41,49 @@ export const usePendingRequests = (
 ): PaginatedRequests => {
 	const [allRequests, setAllRequests] = useState<PendingRequest[]>([]);
 	const [currentPage, setCurrentPage] = useState<number>(initialPage);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [error, setError] = useState<string | null>(null);
 
 	// Fetch all requests in real-time
 	useEffect(() => {
-		const unsubscribe = onSnapshot(reqCollection, (snapshot) => {
-			const requests = snapshot.docs.map((doc) => ({
-				transactionId: doc.id,
-				...doc.data(),
-			})) as PendingRequest[];
+		setIsLoading(true);
+		setError(null);
 
-			// Sort by date if needed (assuming dateSubmitted is a string in format MM/DD/YYYY)
-			const sortedRequests = requests.sort((a, b) => {
-				return (
-					new Date(a.dateSubmitted).getTime() -
-					new Date(b.dateSubmitted).getTime()
-				);
-			});
+		try {
+			const unsubscribe = onSnapshot(
+				reqCollection,
+				(snapshot) => {
+					const requests = snapshot.docs.map((doc) => ({
+						transactionId: doc.id,
+						...doc.data(),
+					})) as PendingRequest[];
 
-			setAllRequests(sortedRequests);
-		});
-		return () => unsubscribe();
+					// Sort by date if needed (assuming dateSubmitted is a string in format MM/DD/YYYY)
+					const sortedRequests = requests.sort((a, b) => {
+						return (
+							new Date(a.dateSubmitted).getTime() -
+							new Date(b.dateSubmitted).getTime()
+						);
+					});
+
+					setAllRequests(sortedRequests);
+					setIsLoading(false);
+				},
+				(err) => {
+					console.error("Error in snapshot listener:", err);
+					setError(
+						"Failed to load requests. Please try again later."
+					);
+					setIsLoading(false);
+				}
+			);
+
+			return () => unsubscribe();
+		} catch (err) {
+			console.error("Error setting up requests listener:", err);
+			setError("Failed to load requests. Please try again later.");
+			setIsLoading(false);
+		}
 	}, []);
 
 	// Calculate pagination info
@@ -90,30 +116,15 @@ export const usePendingRequests = (
 		requests: paginatedRequests,
 		pagination,
 		setCurrentPage,
+		isLoading,
+		error,
 	};
-};
-
-const PendingRequestBackend = () => {
-	const { requests: pendingRequests } = usePendingRequests();
-
-	return (
-		<div>
-			{pendingRequests.map((request) => (
-				<div key={request.transactionId}>
-					<p>
-						{request.transactionId} - {request.requester}
-					</p>
-				</div>
-			))}
-		</div>
-	);
 };
 
 export async function getRemainingBenefits(
 	inputRequester: string
 ): Promise<number> {
 	try {
-		const usersCollection = collection(db, "users");
 		const userQuery = query(
 			usersCollection,
 			where("fullName", "==", inputRequester)
@@ -130,7 +141,6 @@ export async function getRemainingBenefits(
 
 		querySnapshot.forEach((doc: DocumentData) => {
 			remainingBenefits = doc.data().personalInfo.remainingBenefits;
-			// console.log(doc.data().remainingBenefits);
 		});
 
 		return remainingBenefits;
@@ -152,7 +162,7 @@ export const updateDocument = async (
 		);
 		const querySnapshot = await getDocs(userQuery);
 		querySnapshot.forEach(async (document) => {
-			const docRef = doc(db, "FormRequests", document.id); // Get the document reference
+			const docRef = doc(db, "FormRequests", document.id);
 			const docData = document.data();
 
 			const decisionTimestamp = Timestamp.now();
@@ -165,9 +175,8 @@ export const updateDocument = async (
 					DateDecided: decisionTimestamp,
 				},
 				{ merge: true }
-			); // Update or set fields
+			);
 			console.log(`Document with ID ${document.id} has been updated.`);
-			// console.log(docRef);
 
 			let newCollection = "";
 			if (["approved", "rejected"].includes(status)) {
@@ -184,7 +193,7 @@ export const updateDocument = async (
 					...docData,
 					status,
 					statusReason: textArea,
-					DateDecided: decisionTimestamp, // Add DateDecided here as well
+					DateDecided: decisionTimestamp,
 				});
 
 				// Delete from the original collection
@@ -199,4 +208,29 @@ export const updateDocument = async (
 	}
 };
 
-export default PendingRequestBackend;
+export const updateBenefits = async (
+	newValue: number,
+	userName: string | null
+) => {
+	try {
+		const userQuery = query(
+			usersCollection,
+			where("fullName", "==", userName)
+		);
+
+		const querySnapshot = await getDocs(userQuery);
+		querySnapshot.forEach(async (document) => {
+			const docRef = doc(db, "users", document.id);
+
+			await setDoc(
+				docRef,
+				{
+					personalInfo: { remainingBenefits: newValue },
+				},
+				{ merge: true }
+			);
+		});
+	} catch (error) {
+		console.error(error);
+	}
+};
