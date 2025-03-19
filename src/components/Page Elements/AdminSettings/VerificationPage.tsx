@@ -9,6 +9,9 @@ import {
 	doc,
 	updateDoc,
 	deleteDoc,
+	query,
+	where,
+	getDocs,
 } from "firebase/firestore";
 import { db, auth } from "../../../config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -118,9 +121,20 @@ const VerificationPage = () => {
 
 	const handleApprove = async (request: VerificationRequest) => {
 		try {
-			const userDoc = doc(db, "users", request.id);
-			await updateDoc(userDoc, { verified: true });
-			console.log("Approved:", request.name);
+			const userQuery = query(
+				collection(db, "users"), 
+				where("fullName", "==", request.name)
+			);
+	
+			const querySnapshot = await getDocs(userQuery);
+			if (!querySnapshot.empty) {
+				const userDoc = querySnapshot.docs[0].ref;
+	
+				await updateDoc(userDoc, { verified: true });
+				console.log("Approved:", request.name);
+			} else {
+				console.log("No user found with the given fullName:", request.name);
+			}
 		} catch (error) {
 			console.error("Error approving request:", error);
 		}
@@ -128,9 +142,21 @@ const VerificationPage = () => {
 
 	const handleDeny = async (request: VerificationRequest) => {
 		try {
-			const userDoc = doc(db, "users", request.id);
-			await deleteDoc(userDoc);
-			console.log("Denied:", request.name);
+			const userQuery = query(
+				collection(db, "users"), 
+				where("fullName", "==", request.name)
+			);
+	
+			const querySnapshot = await getDocs(userQuery);
+			if (!querySnapshot.empty) {
+				const userDoc = querySnapshot.docs[0].ref;
+	
+				//await deleteDoc(userDoc);
+				console.log("To delete", userDoc)
+				console.log("Denied:", request.name);
+			} else {
+				console.log("No user found with the given fullName:", request.name);
+			}
 		} catch (error) {
 			console.error("Error denying request:", error);
 		}
