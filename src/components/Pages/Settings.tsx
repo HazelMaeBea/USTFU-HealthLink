@@ -1,8 +1,51 @@
 import React, { useState, useEffect } from "react";
-import "./Settings.css";
+import styles from "./Settings.module.css";
 import Popout from "../Page Elements/Popout/Popout";
 import { useFirebase } from "../../contexts/firebaseContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+
+const suffixOptions = ["", "Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"];
+const genderOptions = ["Male", "Female", "Other"];
+const collegeOptions = [
+	"College of Accountancy",
+	"College of Architecture",
+	"Faculty of Arts and Letters",
+	"Faculty of Civil Law",
+	"College of Commerce and Business Administration",
+	"College of Education",
+	"Faculty of Engineering",
+	"College of Fine Arts and Design",
+	"Graduate School",
+	"Graduate School of Law",
+	"College of Information and Computing Sciences",
+	"Faculty of Medicine and Surgery",
+	"Conservatory of Music",
+	"College of Nursing",
+	"Faculty of Pharmacy",
+	"Institute of Physical Education and Athletics",
+	"College of Rehabilitation Sciences",
+	"College of Science",
+	"College of Tourism and Hospitality Management",
+];
+
+const statusOptions = [
+	"Tenured",
+	"Tenured-Track",
+	"Lecturer Before 2001",
+	"Extendee",
+	"Retiree",
+];
+
+const termOptions = ["1st", "2nd", "Su"];
+const currentAcademicYear = `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`;
+const currentTerm = termOptions[new Date().getMonth() >= 7 ? 0 : new Date().getMonth() <= 4 ? 1 : 2];
+
+const getAcademicYears = () => {
+	const currentYear = new Date().getFullYear();
+	return [`${currentYear - 1}-${currentYear}`, `${currentYear}-${currentYear + 1}`];
+};
+
+getAcademicYears();
 
 // Helper function to calculate age based on birthdate string (format: MM/DD/YYYY)
 const calculateAge = (birthdateStr: string): string => {
@@ -34,6 +77,72 @@ const calculateAge = (birthdateStr: string): string => {
 
 	return age.toString();
 };
+
+// Updated auto-format function to ensure valid date values for mm/dd/yyyy format
+const formatDateInput = (value: string): string => {
+	const cleaned = value.replace(/\D/g, '');
+	let formatted = '';
+	if (cleaned.length > 0) {
+		let month = parseInt(cleaned.substring(0, 2), 10);
+		if (isNaN(month) || month < 1) month = 1;
+		if (month > 12) month = 12;
+		formatted += month < 10 ? "0" + month : month.toString();
+	}
+	if (cleaned.length >= 3) {
+		let day = parseInt(cleaned.substring(2, 4), 10);
+		if (isNaN(day) || day < 1) day = 1;
+		if (day > 31) day = 31;
+		formatted += '/' + (day < 10 ? "0" + day : day.toString());
+	}
+	if (cleaned.length >= 5) {
+		let year = cleaned.substring(4, 8);
+		formatted += '/' + year;
+	}
+	return formatted;
+};
+
+// Updated processDateField to only clamp when the date is complete (mm/dd/yyyy)
+const processDateField = (value: string): string => {
+	const formatted = formatDateInput(value);
+	// Only process when date is complete (10 characters: mm/dd/yyyy)
+	if (formatted.length === 10) {
+		const parts = formatted.split('/');
+		const month = parseInt(parts[0], 10);
+		const day = parseInt(parts[1], 10);
+		const year = parseInt(parts[2], 10);
+		const inputDate = new Date(year, month - 1, day);
+		const today = new Date();
+		// If the input date is in the future, clamp it to today's date.
+		if (inputDate > today) {
+			const m = today.getMonth() + 1;
+			const d = today.getDate();
+			const y = today.getFullYear();
+			const mm = m < 10 ? "0" + m : m.toString();
+			const dd = d < 10 ? "0" + d : d.toString();
+			return mm + '/' + dd + '/' + y;
+		}
+	}
+	return formatted;
+};
+
+// >>> Added formatting helper functions (based on your RegistrationPage)
+const formatBirthdate = (value: string): string => {
+	const digits = value.replace(/\D/g, "").slice(0, 8);
+	return digits.length >= 5
+		? `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+		: digits;
+};
+
+const formatIDNumber = (value: string): string => {
+	const digits = value.replace(/\D/g, "").slice(0, 10);
+	return digits.length > 4 ? `${digits.slice(0, 4)}-${digits.slice(4)}` : digits;
+};
+
+// >>> Updated phone number formatting helper (remove auto-prepend)
+const formatPhoneNumber = (value: string): string => {
+  return value.replace(/\D/g, "").slice(0, 12);
+};
+// <<< End updated phone number formatting helper
 
 const Settings = () => {
 	const [settings, setSettings] = useState({
@@ -209,6 +318,26 @@ const Settings = () => {
 		setSettings({ ...settings, [field]: checked });
 	};
 
+	const handleFieldChange = (field: string, value: string) => {
+		// Track the change for the summary popup
+		if (value !== (originalSettings as any)[field]) {
+			setChangedFields((prev) => ({
+				...prev,
+				[field]: {
+					old: (originalSettings as any)[field] || "",
+					new: value,
+				},
+			}));
+		} else {
+			// Remove from changed fields if it matches original
+			const updatedChanges = { ...changedFields };
+			delete updatedChanges[field];
+			setChangedFields(updatedChanges);
+		}
+		// Update the settings state
+		setSettings({ ...settings, [field]: value });
+	};
+
 	// Generate a summary of changes for the popup
 	const generateChangeSummary = () => {
 		if (Object.keys(changedFields).length === 0) {
@@ -238,17 +367,17 @@ const Settings = () => {
 		};
 
 		return (
-			<div className="changes-summary">
+			<div className={styles.changesSummary}>
 				<p>You've made the following changes:</p>
 				<ul>
 					{Object.entries(changedFields).map(([field, values]) => (
 						<li key={field}>
 							<strong>{fieldLabels[field] || field}:</strong>
-							<span className="old-value">
+							<span className={styles.oldValue}>
 								{values.old || "(empty)"}
 							</span>{" "}
 							→{" "}
-							<span className="new-value">
+							<span className={styles.newValue}>
 								{values.new || "(empty)"}
 							</span>
 						</li>
@@ -259,6 +388,12 @@ const Settings = () => {
 	};
 
 	const handleConfirmSave = async () => {
+		// >>> Added phone number validation on submit
+		if (!settings.phoneNumber.startsWith("639")) {
+			setError("Phone number must start with 639");
+			return;
+		}
+		// <<< End phone number validation on submit
 		if (!uid) {
 			setError("You must be logged in to save changes.");
 			setIsConfirmOpen(false);
@@ -365,8 +500,8 @@ const Settings = () => {
 
 	if (isLoading) {
 		return (
-			<div className="settings-container">
-				<div className="loading-indicator">
+			<div className={styles.settingsContainer}>
+				<div className={styles.loadingIndicator}>
 					Loading your settings...
 				</div>
 			</div>
@@ -375,8 +510,8 @@ const Settings = () => {
 
 	if (error) {
 		return (
-			<div className="settings-container">
-				<div className="error-message">
+			<div className={styles.settingsContainer}>
+				<div className={styles.errorMessage}>
 					<p>{error}</p>
 					<button onClick={() => setError(null)}>Dismiss</button>
 				</div>
@@ -385,11 +520,12 @@ const Settings = () => {
 	}
 
 	return (
-		<div className="settings-container">
-			<div className="settings-section">
+		<div className={styles.settingsContainer}>
+			<div className={styles.settingsSection}>
 				<h3>Personal Preferences</h3>
-				<div className="toggle-group">
-					<div className="toggle-row">
+				 {/* Revert toggle button markup to original styling */}
+				<div className={styles.toggleGroup}>
+					<div className={styles.toggleRow}>
 						<p>Email Notifications:</p>
 						<div className="form-check">
 							<label className="form-check-label form-check-toggle">
@@ -409,7 +545,7 @@ const Settings = () => {
 							</label>
 						</div>
 					</div>
-					<div className="toggle-row">
+					<div className={styles.toggleRow}>
 						<p>Auto-fill Information:</p>
 						<div className="form-check">
 							<label className="form-check-label form-check-toggle">
@@ -432,211 +568,235 @@ const Settings = () => {
 				</div>
 			</div>
 
-			<div className="settings-section">
+			<div className={styles.settingsSection}>
 				<h3>Personal Information</h3>
 
 				{/* Row 1: Name fields */}
-				<div className="form-row">
-					<div className="form-group form-group-lg">
+				<div className={styles.formRow}>
+					<div className={styles.formGroupLg}>
 						<label>First Name</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("firstname", e)}
-						>
-							{settings.firstname}
-						</div>
+						<input
+							type="text"
+							className="form-control settings-field-value"
+							value={settings.firstname}
+							onChange={(e) =>
+								handleFieldChange("firstname", e.target.value)
+							}
+						/>
 					</div>
-					<div className="form-group form-group-lg">
+					<div className={styles.formGroupLg}>
 						<label>Last Name</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("lastname", e)}
-						>
-							{settings.lastname}
-						</div>
+						<input
+							type="text"
+							className="form-control settings-field-value"
+							value={settings.lastname}
+							onChange={(e) =>
+								handleFieldChange("lastname", e.target.value)
+							}
+						/>
 					</div>
-					<div className="form-group form-group-lg">
+					<div className={styles.formGroupLg}>
 						<label>Middle Name</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("middlename", e)}
-						>
-							{settings.middlename}
-						</div>
+						<input
+							type="text"
+							className="form-control settings-field-value"
+							value={settings.middlename}
+							onChange={(e) =>
+								handleFieldChange("middlename", e.target.value)
+							}
+						/>
 					</div>
-					<div className="form-group form-group-xs">
+					<div className={styles.formGroupXs}>
 						<label>Suffix</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("suffix", e)}
+						<select
+							className="form-select settings-field-value"
+							value={settings.suffix}
+							onChange={(e) =>
+								handleFieldChange("suffix", e.target.value)
+							}
 						>
-							{settings.suffix}
-						</div>
+							<option value="" disabled hidden>
+								Select suffix
+							</option>
+							{suffixOptions.map((option, index) => (
+								<option key={index} value={option}>
+									{option}
+								</option>
+							))}
+						</select>
 					</div>
 				</div>
 
 				{/* Row 2: Personal details */}
-				<div className="form-row">
-					<div className="form-group form-group-md">
+				<div className={styles.formRow}>
+					<div className={styles.formGroupMd}>
 						<label>Birthdate</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("birthdate", e)}
-						>
-							{settings.birthdate}
-						</div>
+						<input
+							type="text"
+							className="form-control settings-field-value"
+							value={settings.birthdate}
+							onChange={(e) =>
+								handleFieldChange("birthdate", formatBirthdate(e.target.value))
+							}
+						/>
 					</div>
-					<div className="form-group form-group-xs">
+					<div className={styles.formGroupXs}>
 						<label>Age</label>
 						<div className="settings-field-value non-editable">
 							{calculatedAge || "N/A"}
 						</div>
 					</div>
-					<div className="form-group form-group-sm">
+					<div className={styles.formGroupSm}>
 						<label>Gender</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("gender", e)}
+						<select
+							className="form-select settings-field-value"
+							value={settings.gender}
+							onChange={(e) =>
+								handleFieldChange("gender", e.target.value)
+							}
 						>
-							{settings.gender}
-						</div>
+							<option value="" disabled hidden>
+								Select gender
+							</option>
+							{genderOptions.map((option, index) => (
+								<option key={index} value={option}>
+									{option}
+								</option>
+							))}
+						</select>
 					</div>
-					<div className="form-group form-group-md">
+					<div className={styles.formGroupMd}>
 						<label>Phone Number</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("phoneNumber", e)}
-						>
-							{settings.phoneNumber}
-						</div>
+						<input
+							type="text"
+							className="form-control settings-field-value"
+							value={settings.phoneNumber}
+							onChange={(e) =>
+								handleFieldChange("phoneNumber", formatPhoneNumber(e.target.value))
+							}
+						/>
 					</div>
-					<div className="form-group form-group-flex">
+					<div className={styles.formGroupFlex}>
 						<label>ID Number</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("numberID", e)}
-						>
-							{settings.numberID}
-						</div>
+						<input
+							type="text"
+							className="form-control settings-field-value"
+							value={settings.numberID}
+							onChange={(e) =>
+								handleFieldChange("numberID", formatIDNumber(e.target.value))
+							}
+						/>
 					</div>
 				</div>
 
 				{/* Row 3: Work details */}
-				<div className="form-row">
-					<div className="form-group form-group-xs">
+				<div className={styles.formRow}>
+					<div className={styles.formGroupXs}>
 						<label>Term</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("term", e)}
-						>
-							{settings.term}
+						<div className="form-control settings-field-value non-editable">
+							{currentTerm}
 						</div>
 					</div>
-					<div className="form-group form-group-sm">
+					<div className={styles.formGroupSm}>
 						<label>Year</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("year", e)}
-						>
-							{settings.year}
+						<div className="form-control settings-field-value non-editable">
+							{currentAcademicYear}
 						</div>
 					</div>
-					<div className="form-group form-group-xs">
+					<div className={styles.formGroupXs}>
 						<label>Load</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("load", e)}
-						>
-							{settings.load}
-						</div>
+						<input
+							type="text"
+							className="form-control settings-field-value"
+							value={settings.load}
+							onChange={(e) =>
+								handleFieldChange("load", e.target.value)
+							}
+						/>
 					</div>
-					<div className="form-group form-group-md">
+					<div className={styles.formGroupMd}>
 						<label>Status</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("status", e)}
+						<select
+							className="form-select settings-field-value"
+							value={settings.status}
+							onChange={(e) =>
+								handleFieldChange("status", e.target.value)
+							}
 						>
-							{settings.status}
-						</div>
+							<option value="" disabled hidden>
+								Select status
+							</option>
+							{statusOptions.map((option, index) => (
+								<option key={index} value={option}>
+									{option}
+								</option>
+							))}
+						</select>
 					</div>
-					<div className="form-group form-group-md">
+					<div className={styles.formGroupMd}>
 						<label>Date Hired</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("dateHired", e)}
-						>
-							{settings.dateHired}
-						</div>
+						<input
+							type="text"
+							placeholder="mm/dd/yyyy"
+							className="form-control settings-field-value"
+							value={settings.dateHired}
+							onChange={(e) =>
+								handleFieldChange("dateHired", formatBirthdate(e.target.value))
+							}
+						/>
 					</div>
-					<div className="form-group form-group-flex">
+					<div className={styles.formGroupFlex}>
 						<label>Date Retired</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("dateRetired", e)}
-						>
-							{settings.dateRetired || "N/A"}
-						</div>
+						<input
+							type="text"
+							placeholder="mm/dd/yyyy"
+							className="form-control settings-field-value"
+							value={settings.dateRetired}
+							onChange={(e) =>
+								handleFieldChange("dateRetired", formatBirthdate(e.target.value))
+							}
+						/>
 					</div>
 				</div>
 
 				{/* Row 4: College and address */}
-				<div className="form-row">
-					<div className="form-group form-group-half">
+				<div className={styles.formRow}>
+					<div className={styles.formGroupHalf}>
 						<label>College</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("college", e)}
+						<select
+							className="form-select settings-field-value"
+							value={settings.college}
+							onChange={(e) =>
+								handleFieldChange("college", e.target.value)
+							}
 						>
-							{settings.college}
-						</div>
+							<option value="" disabled hidden>
+								Select college affiliation
+							</option>
+							{collegeOptions.map((option, index) => (
+								<option key={index} value={option}>
+									{option}
+								</option>
+							))}
+						</select>
 					</div>
-					<div className="form-group form-group-half">
+					<div className={styles.formGroupHalf}>
 						<label>Address</label>
-						<div
-							className="editable settings-field-value"
-							contentEditable
-							suppressContentEditableWarning
-							onBlur={(e) => handleFieldBlur("address", e)}
-						>
-							{settings.address}
-						</div>
+						<input
+							type="text"
+							className="form-control settings-field-value"
+							value={settings.address}
+							onChange={(e) =>
+								handleFieldChange("address", e.target.value)
+							}
+						/>
 					</div>
 				</div>
 
-				<div className="buttonDiv">
+				<div className={styles.buttonDiv}>
 					<button
 						onClick={() => setIsConfirmOpen(true)}
-						className="settings-btn-submit"
+						className={styles.settingsBtnSubmit}
 						disabled={
 							isLoading ||
 							isSaving ||

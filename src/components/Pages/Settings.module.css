@@ -1,0 +1,922 @@
+/* General body styling */
+body {
+	max-width: 100%;
+	box-sizing: border-box;
+	overflow-x: hidden !important; /* Prevent horizontal scroll */
+	background-color: #eef5f9;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Container styling */
+.settingsContainer {
+	padding: 40px;
+	min-height: calc(100vh - 60px); /* Adjust for your header height */
+	background: #f5f7f9;
+	max-width: 1400px;
+	margin: 0 auto;
+}
+
+/* Settings layout */
+.settingsContent {
+	flex: 1;
+	padding: 40px;
+	margin-left: 280px;
+}
+
+/* Section styling */
+.settingsSection {
+	background: #fff;
+	border-radius: 12px;
+	padding: 30px;
+	margin-bottom: 24px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Updated grid layout */
+.fieldsGrid {
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	gap: 20px;
+	margin: 0;
+	padding: 0;
+}
+
+/* Field item base styling */
+.fieldItem {
+	position: relative;
+	margin-bottom: 5px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+.fieldItem.name {
+	grid-column: span 4; /* Equal width for name fields */
+}
+
+.fieldItem.small {
+	grid-column: span 3; /* For suffix, age, term, load */
+}
+
+.fieldItem.medium {
+	grid-column: span 6; /* For status, ID, dates */
+}
+
+.fieldItem.large {
+	grid-column: span 12; /* Full width for address */
+}
+
+/* Add field grouping */
+.fieldItem:nth-child(-n + 3) {
+	/* First 3 items (names) */
+	margin-bottom: 8px;
+}
+
+.fieldItem:focus-within {
+	border-color: hsl(45, 100%, 51%);
+	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.2);
+}
+
+/* Floating label refinements */
+.fieldItem label {
+	display: block;
+	position: static;
+	transform: none;
+	font-size: 0.85rem;
+	color: #666;
+	margin-bottom: 6px;
+	font-weight: 500;
+}
+
+/* Editable fields styling */
+.fieldRow {
+	display: flex;
+	align-items: center;
+	margin: 10px 0;
+}
+.fieldRow label {
+	width: 150px;
+	font-weight: 600;
+	color: #555;
+}
+/* Modern input styling */
+.editable {
+	width: 100%;
+	padding: 8px 12px;
+	background: #f8f9fa;
+	border: 1px solid #e5e9ed;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	color: #333;
+	transition: all 0.2s;
+	min-height: 38px;
+}
+
+/* Label animation when field has content or is focused */
+.editable:not(:empty) + label,
+.editable:focus + label {
+	top: 0;
+	transform: translateY(-50%) scale(0.8);
+	background: #fff;
+	color: hsl(45, 100%, 51%);
+	font-weight: 500;
+	font-size: 0.75rem;
+}
+
+/* Focus styles */
+.editable:focus {
+	background: #fff;
+	border-color: hsl(45, 100%, 51%);
+	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.1);
+	outline: none;
+}
+
+/* Toggle row and group styling */
+.toggleGroup {
+	border: none;
+	padding: 0;
+	margin: 0 0 20px 0;
+}
+.toggleRow {
+	display: flex;
+	align-items: center;
+	padding: 12px 16px;
+	background: #f8f9fa;
+	border-radius: 8px;
+	margin-bottom: 10px;
+}
+.toggleRow p {
+	margin: 0;
+	font-size: 0.9rem;
+	color: #444;
+	flex: 1;
+}
+
+/* Styling for form check elements */
+.formCheck {
+	position: relative;
+	display: block;
+}
+
+/* Toggle switch styling */
+.formCheckToggle {
+	position: relative;
+	padding-left: 0;
+	line-height: 30px;
+}
+
+/* Hide the default checkbox input */
+.formCheckToggle input {
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 0%;
+	height: 0%;
+	margin: 0;
+	cursor: pointer;
+	opacity: 0;
+	filter: alpha(opacity=0);
+}
+
+/* Style the span element that represents the toggle switch */
+.formCheckToggle input + span {
+	cursor: pointer;
+	-webkit-user-select: none;
+	user-select: none;
+	height: 30px;
+	margin-left: 70px;
+	display: block;
+}
+
+/* Styles for the background of the toggle switch in its 'off' state. */
+.formCheckToggle input + span:before {
+	content: "";
+	position: absolute;
+	left: 0;
+	display: inline-block;
+	height: 24px;
+	width: 44px;
+	background: #e0e0e0;
+	border: 1px solid #e0e0e0;
+	transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
+	border-radius: 15px;
+}
+
+/* Horizontal rule styling */
+hr {
+	background-color: #f4bb00;
+	height: 5px;
+	border: none !important;
+}
+
+/* Styles for the toggle knob in its "off" state */
+.formCheckToggle input + span:after {
+	width: 20px;
+	height: 20px;
+	margin-top: 2px;
+	margin-left: 2px;
+	border-radius: 50%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	display: block;
+	background: #fff;
+	transition: margin-left 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+	text-align: center;
+	font-weight: bold;
+	content: "";
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.2), 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Styles for the toggle knob in its "on" state */
+.formCheckToggle input:checked + span:after {
+	content: "";
+	margin-left: 22px;
+	box-shadow: none;
+}
+
+/* Styles for the toggle background in its "on" state */
+.formCheckToggle input:checked + span:before {
+	background-color: hsl(45, 100%, 51%);
+	border-color: hsl(45, 100%, 51%);
+	transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+/* Form styling */
+.settingsForm {
+	margin-top: 50px !important;
+}
+
+/* Button container styling */
+.buttonDiv {
+	margin-top: 30px;
+	display: flex;
+	justify-content: center; /* Center the button */
+}
+
+.settingsBtnSubmit {
+	background-color: #000000;
+	color: white;
+	padding: 10px 20px;
+	border-radius: 5px;
+	font-size: 1em;
+	font-weight: 500;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+/* Hover effect only when button is not disabled */
+.settingsBtnSubmit:not([disabled]):hover {
+	background-color: hsl(45, 100%, 68%) !important;
+	color: white;
+	border: none;
+}
+
+/* Additional styling for disabled button to make it visually clear it's disabled */
+.settingsBtnSubmit[disabled] {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* New form layout styles */
+.formRow {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 15px;
+	gap: 15px;
+	width: 100%;
+	justify-content: space-between;
+}
+
+.formGroup {
+	margin-bottom: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Extra small for very minimal content (suffix, single value fields) */
+.formGroupXs {
+	flex: 0 0 calc(8% - 8px);
+}
+
+/* Small for minimal content (age, term, load) */
+.formGroupSm {
+	flex: 0 0 calc(12% - 10px);
+}
+
+/* Medium for standard fields */
+.formGroupMd {
+	flex: 0 0 calc(24% - 12px);
+}
+
+/* Half-width fields (for college and address in same row) */
+.formGroupHalf {
+	flex: 0 0 calc(50% - 8px);
+}
+
+/* Large for fields that need more space */
+.formGroupLg {
+	flex: 0 0 calc(32% - 30px);
+}
+
+/* Fill remaining space in a flexible way */
+.formGroupFlex {
+	flex: 1;
+}
+
+/* Modern input styling - renamed from editable to settings-field-value */
+.editable.settingsFieldValue {
+	width: 100%;
+	padding: 8px 12px;
+	background: #f8f9fa;
+	border: 1px solid #e5e9ed;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	color: black;
+	transition: all 0.2s;
+	min-height: 38px;
+}
+
+/* Revert non-editable fields styling */
+.non-editable.settingsFieldValue {
+	width: 100%;
+	padding: 8px 12px;
+	background: #f0f0f0;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	color: #555;
+	min-height: 38px;
+}
+
+/* Focus styles */
+.editable.settingsFieldValue:focus {
+	background: #fff;
+	border-color: hsl(45, 100%, 51%);
+	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.1);
+	outline: none;
+}
+
+.nonEditable {
+	width: 100%;
+	padding: 8px 12px;
+	background: #f0f0f0;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	color: #555;
+	min-height: 38px;
+}
+
+/* Changes summary styling */
+.changesSummary ul {
+	max-height: 300px;
+	overflow-y: auto;
+	list-style-type: none;
+	padding: 10px;
+	margin: 10px 0;
+	background: #f8f9fa;
+	border-radius: 8px;
+	border: 1px solid #e5e9ed;
+}
+
+.changesSummary li {
+	padding: 5px 0;
+	border-bottom: 1px dashed #e5e9ed;
+}
+
+.changesSummary li:last-child {
+	border-bottom: none;
+}
+
+.changesSummary .oldValue {
+	color: #d32f2f;
+	text-decoration: line-through;
+	margin: 0 5px;
+}
+
+.changesSummary .newValue {
+	color: #388e3c;
+	margin: 0 5px;
+	font-weight: 500;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 1200px) {
+	.settingsContainer {
+		padding: 30px;
+	}
+	.fieldsGrid {
+		grid-template-columns: repeat(8, 1fr);
+		gap: 16px;
+	}
+
+	.fieldItem.name {
+		grid-column: span 4;
+	}
+
+	.fieldItem.small {
+		grid-column: span 4;
+	}
+
+	.fieldItem.medium {
+		grid-column: span 4;
+	}
+
+	.fieldItem.large {
+		grid-column: span 8;
+	}
+
+	.formGroupXs {
+		flex: 0 0 calc(10% - 8px);
+	}
+
+	.formGroupSm {
+		flex: 0 0 calc(15% - 10px);
+	}
+
+	.formGroupMd {
+		flex: 0 0 calc(27% - 10px);
+	}
+
+	.formGroupHalf {
+		flex: 0 0 calc(49% - 8px);
+	}
+}
+
+@media (max-width: 1024px) {
+	.settingsContent {
+		margin-left: 220px;
+	}
+	.fieldsGrid {
+		grid-template-columns: repeat(6, 1fr);
+	}
+	.fieldItem.name,
+	.fieldItem.medium {
+		grid-column: span 3;
+	}
+	.fieldItem.small {
+		grid-column: span 2;
+	}
+	.fieldItem.large {
+		grid-column: span 6;
+	}
+}
+
+@media (max-width: 992px) {
+	.formRow {
+		flex-direction: column;
+	}
+	.formGroupSm,
+	.formGroupMd,
+	.formGroupLg,
+	.formGroupHalf {
+		flex: 1 0 100%;
+	}
+}
+
+@media (max-width: 768px) {
+	.settingsContainer {
+		padding: 20px;
+	}
+	.fieldsGrid {
+		grid-template-columns: repeat(4, 1fr);
+		gap: 12px;
+	}
+
+	.fieldItem.name {
+		grid-column: span 4;
+	}
+
+	.fieldItem.small {
+		grid-column: span 2;
+	}
+
+	.fieldItem.medium,
+	.fieldItem.large {
+		grid-column: span 4;
+	}
+
+	.toggleRow {
+		gap: 12px;
+	}
+
+	.settingsContent {
+		margin-left: 0;
+		padding: 20px;
+	}
+
+	.settingsSection {
+		padding: 20px;
+	}
+}
+
+/* Form control styling */
+.formControl,
+.formSelect {
+	background-color: white !important;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding: 0.75rem;
+	transition: all 0.2s ease-in-out;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.formControl:focus,
+.formSelect:focus {
+	border-color: hsl(45, 100%, 51%);
+	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.2);
+	outline: none;
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder {
+	font-style: italic !important;
+	color: hsl(0, 0%, 76%) !important;
+}
+
+/* Options Placeholder styling */
+.optionPlaceholder {
+	font-style: italic !important;
+	color: hsl(0, 0%, 82%) !important;
+}
+
+/* Remove number input arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Responsive styling for smaller screens */
+@media screen and (max-width: 1080px) {
+	.formBody {
+		padding: 1rem;
+		font-size: 14px;
+	}
+
+	.buttonDiv .btnSubmit,
+	.buttonDiv .btnClear {
+		width: 40%;
+		flex-direction: column;
+	}
+}
+
+/* Placeholder styling for select elements */
+.formSelect {
+	color: hsl(0, 0%, 82%) !important;
+	font-style: italic;
+}
+
+/* Style for selected option */
+.formSelect:has(option:checked:not([value=""])) {
+	color: black !important;
+	font-style: normal;
+}
+
+/* Style for options in dropdown */
+.formSelect option:not([value=""]) {
+	color: black;
+	font-style: normal;
+}
+
+/* Style for placeholder option */
+.formSelect option[value=""],
+.formSelect option[disabled] {
+	color: hsl(0, 0%, 82%);
+	font-style: italic;
+}
+
+/* Remove fieldset border */
+.fieldsetNoLine {
+	border: none !important;
+}
+
+/* Table styling */
+table {
+	background-color: transparent !important;
+	width: 100%;
+}
+
+/* Upload note styling */
+.uploadNote {
+	font-size: 1.1rem;
+	font-weight: bold;
+}
+
+/* File types label styling */
+.fileTypes {
+	color: #424141;
+}
+
+/* Claim request title styling */
+.claimRequest {
+	background-color: #f8f9fa;
+	padding: 1rem;
+	border-radius: 8px;
+	margin: 1rem 0;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+/* Claim example styling */
+.claimExample {
+	font-weight: 450 !important;
+	font-style: italic;
+}
+
+/* Claim input container styling */
+.claimInput {
+	margin-top: 5px;
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	width: 100%;
+}
+
+.claimText {
+	margin-left: 6px;
+}
+
+/* Claim request container alignment */
+.claimRequestContainer {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Hospital status label styling */
+.hospitalStatusLabel {
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+/* File upload styling */
+.formControl[type="file"] {
+	padding: 0.5rem;
+	background-color: #f8f9fa;
+	border: 2px dashed #dee2e6;
+	cursor: pointer;
+}
+
+.formControl[type="file"]:hover {
+	border-color: hsl(45, 100%, 51%);
+	background-color: hsla(45, 100%, 51%, 0.05);
+}
+
+/* Checkbox and Radio button styling */
+.formCheckInput {
+	cursor: pointer;
+	border-color: #dee2e6;
+}
+
+.formCheckInput:checked {
+	background-color: hsl(45, 100%, 51%);
+	border-color: hsl(45, 100%, 51%);
+}
+
+/* Override default radio button color */
+.formCheckInput[type="radio"]:checked {
+	background-color: hsl(45, 100%, 51%);
+	border-color: hsl(45, 100%, 51%);
+}
+
+.formCheckInput[type="radio"]:focus {
+	box-shadow: 0 0 0 0.25rem hsla(45, 100%, 51%, 0.25);
+}
+
+/* Section separator styling */
+.sectionSeparator {
+	border: 0;
+	height: 1px;
+	background: linear-gradient(
+		to right,
+		transparent,
+		hsl(45, 100%, 51%),
+		transparent
+	);
+	margin: 1rem 0;
+	opacity: 1;
+}
+
+/* Document upload section styling */
+.uploadSection {
+	background-color: #f8f9fa;
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin: 1rem 0;
+}
+
+.uploadSectionTitle {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #2c2c2c;
+	margin-bottom: 1rem;
+}
+
+.fileTypesInfo {
+	background-color: white;
+	border-left: 4px solid hsl(45, 100%, 51%);
+	padding: 0.75rem 1rem;
+	margin: 1rem 0;
+	border-radius: 0 8px 8px 0;
+}
+
+.fileTypesLabel {
+	font-weight: 500;
+	color: #666;
+	font-size: 0.9rem;
+	margin-bottom: 0.25rem;
+}
+
+.fileTypesList {
+	color: #888;
+	font-size: 0.85rem;
+	font-style: italic;
+}
+
+/* Document input container */
+.documentInputContainer {
+	background-color: white;
+	border-radius: 8px;
+	padding: 1rem;
+	margin-top: 1rem;
+}
+
+/* Updated Success Notification with close button */
+.successNotification {
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+	display: flex;
+	align-items: center;
+	background-color: #ffffff;
+	border-left: 4px solid hsl(45, 100%, 51%);
+	border-radius: 8px;
+	padding: 12px 20px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	z-index: 1050;
+	animation: slideIn 0.3s ease-out forwards;
+	max-width: 400px;
+}
+
+.successNotification.hiding {
+	animation: slideOut 0.3s ease-in forwards;
+}
+
+/* Add style for close button */
+.successClose {
+	background: transparent;
+	border: none;
+	color: #999;
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: all 0.2s ease;
+	margin-left: 8px;
+}
+
+.successClose:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+	color: #666;
+}
+
+.successIcon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background-color: hsl(45, 100%, 51%);
+	color: white;
+	margin-right: 12px;
+	flex-shrink: 0;
+}
+
+.successContent {
+	flex-grow: 1;
+}
+
+.successTitle {
+	font-weight: 600;
+	margin: 0;
+	color: #333;
+}
+
+.successMessage {
+	margin: 4px 0 0;
+	color: #666;
+	font-size: 14px;
+}
+
+.successAction {
+	display: flex;
+	margin-top: 8px;
+}
+
+.successLink {
+	color: hsl(45, 100%, 51%);
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+}
+
+.successLink:hover {
+	text-decoration: underline;
+}
+
+.successLinkIcon {
+	margin-left: 4px;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes slideOut {
+	from {
+		transform: translateX(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+}
+
+/* Remove old popup styling */
+.popupOverlay {
+	display: none; /* Hide old popup */
+}
+
+/* Updated Success Notification with status styles */
+.successNotification.errorNotification {
+	border-left-color: #dc3545;
+}
+
+/* Spinner for processing state */
+.spinner {
+	width: 18px;
+	height: 18px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-radius: 50%;
+	border-top-color: #fff;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Status-specific styles for the icon */
+.successIcon.processing {
+	background-color: #6c757d;
+}
+
+.successIcon.success {
+	background-color: hsl(45, 100%, 51%);
+}
+
+.successIcon.error {
+	background-color: #dc3545;
+}
+
+/* Try again link styling */
+.tryAgainLink {
+	color: #dc3545;
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+	background: transparent;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	margin-top: 8px;
+}
+
+.tryAgainLink:hover {
+	text-decoration: underline;
+}

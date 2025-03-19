@@ -515,3 +515,408 @@ hr {
 		padding: 20px;
 	}
 }
+
+/* Form control styling */
+.form-control,
+.form-select {
+	background-color: white !important;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding: 0.75rem;
+	transition: all 0.2s ease-in-out;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.form-control:focus,
+.form-select:focus {
+	border-color: hsl(45, 100%, 51%);
+	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.2);
+	outline: none;
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder {
+	font-style: italic !important;
+	color: hsl(0, 0%, 76%) !important;
+}
+
+/* Options Placeholder styling */
+.option-placeholder {
+	font-style: italic !important;
+	color: hsl(0, 0%, 82%) !important;
+}
+
+/* Remove number input arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Responsive styling for smaller screens */
+@media screen and (max-width: 1080px) {
+	.form-body {
+		padding: 1rem;
+		font-size: 14px;
+	}
+
+	.buttonDiv .btn-submit,
+	.buttonDiv .btn-clear {
+		width: 40%;
+		flex-direction: column;
+	}
+}
+
+/* Placeholder styling for select elements */
+.form-select {
+	color: hsl(0, 0%, 82%) !important;
+	font-style: italic;
+}
+
+/* Style for selected option */
+.form-select:has(option:checked:not([value=""])) {
+	color: black !important;
+	font-style: normal;
+}
+
+/* Style for options in dropdown */
+.form-select option:not([value=""]) {
+	color: black;
+	font-style: normal;
+}
+
+/* Style for placeholder option */
+.form-select option[value=""],
+.form-select option[disabled] {
+	color: hsl(0, 0%, 82%);
+	font-style: italic;
+}
+
+/* Remove fieldset border */
+.fieldset-no-line {
+	border: none !important;
+}
+
+/* Table styling */
+table {
+	background-color: transparent !important;
+	width: 100%;
+}
+
+/* Upload note styling */
+.upload-note {
+	font-size: 1.1rem;
+	font-weight: bold;
+}
+
+/* File types label styling */
+.file-types {
+	color: #424141;
+}
+
+/* Claim request title styling */
+.claim-request {
+	background-color: #f8f9fa;
+	padding: 1rem;
+	border-radius: 8px;
+	margin: 1rem 0;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+/* Claim example styling */
+.claim-example {
+	font-weight: 450 !important;
+	font-style: italic;
+}
+
+/* Claim input container styling */
+.claim-input {
+	margin-top: 5px;
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	width: 100%;
+}
+
+.claim-text {
+	margin-left: 6px;
+}
+
+/* Claim request container alignment */
+.claim-request-container {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Hospital status label styling */
+.hospital-status-label {
+	font-weight: bold;
+	margin-right: 10px;
+}
+
+/* File upload styling */
+.form-control[type="file"] {
+	padding: 0.5rem;
+	background-color: #f8f9fa;
+	border: 2px dashed #dee2e6;
+	cursor: pointer;
+}
+
+.form-control[type="file"]:hover {
+	border-color: hsl(45, 100%, 51%);
+	background-color: hsla(45, 100%, 51%, 0.05);
+}
+
+/* Checkbox and Radio button styling */
+.form-check-input {
+	cursor: pointer;
+	border-color: #dee2e6;
+}
+
+.form-check-input:checked {
+	background-color: hsl(45, 100%, 51%);
+	border-color: hsl(45, 100%, 51%);
+}
+
+/* Override default radio button color */
+.form-check-input[type="radio"]:checked {
+	background-color: hsl(45, 100%, 51%);
+	border-color: hsl(45, 100%, 51%);
+}
+
+.form-check-input[type="radio"]:focus {
+	box-shadow: 0 0 0 0.25rem hsla(45, 100%, 51%, 0.25);
+}
+
+/* Section separator styling */
+.section-separator {
+	border: 0;
+	height: 1px;
+	background: linear-gradient(
+		to right,
+		transparent,
+		hsl(45, 100%, 51%),
+		transparent
+	);
+	margin: 1rem 0;
+	opacity: 1;
+}
+
+/* Document upload section styling */
+.upload-section {
+	background-color: #f8f9fa;
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin: 1rem 0;
+}
+
+.upload-section-title {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #2c2c2c;
+	margin-bottom: 1rem;
+}
+
+.file-types-info {
+	background-color: white;
+	border-left: 4px solid hsl(45, 100%, 51%);
+	padding: 0.75rem 1rem;
+	margin: 1rem 0;
+	border-radius: 0 8px 8px 0;
+}
+
+.file-types-label {
+	font-weight: 500;
+	color: #666;
+	font-size: 0.9rem;
+	margin-bottom: 0.25rem;
+}
+
+.file-types-list {
+	color: #888;
+	font-size: 0.85rem;
+	font-style: italic;
+}
+
+/* Document input container */
+.document-input-container {
+	background-color: white;
+	border-radius: 8px;
+	padding: 1rem;
+	margin-top: 1rem;
+}
+
+/* Updated Success Notification with close button */
+.success-notification {
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+	display: flex;
+	align-items: center;
+	background-color: #ffffff;
+	border-left: 4px solid hsl(45, 100%, 51%);
+	border-radius: 8px;
+	padding: 12px 20px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	z-index: 1050;
+	animation: slideIn 0.3s ease-out forwards;
+	max-width: 400px;
+}
+
+.success-notification.hiding {
+	animation: slideOut 0.3s ease-in forwards;
+}
+
+/* Add style for close button */
+.success-close {
+	background: transparent;
+	border: none;
+	color: #999;
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: all 0.2s ease;
+	margin-left: 8px;
+}
+
+.success-close:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+	color: #666;
+}
+
+.success-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background-color: hsl(45, 100%, 51%);
+	color: white;
+	margin-right: 12px;
+	flex-shrink: 0;
+}
+
+.success-content {
+	flex-grow: 1;
+}
+
+.success-title {
+	font-weight: 600;
+	margin: 0;
+	color: #333;
+}
+
+.success-message {
+	margin: 4px 0 0;
+	color: #666;
+	font-size: 14px;
+}
+
+.success-action {
+	display: flex;
+	margin-top: 8px;
+}
+
+.success-link {
+	color: hsl(45, 100%, 51%);
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+}
+
+.success-link:hover {
+	text-decoration: underline;
+}
+
+.success-link-icon {
+	margin-left: 4px;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes slideOut {
+	from {
+		transform: translateX(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+}
+
+/* Remove old popup styling */
+.popup-overlay {
+	display: none; /* Hide old popup */
+}
+
+/* Updated Success Notification with status styles */
+.success-notification.error-notification {
+	border-left-color: #dc3545;
+}
+
+/* Spinner for processing state */
+.spinner {
+	width: 18px;
+	height: 18px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-radius: 50%;
+	border-top-color: #fff;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Status-specific styles for the icon */
+.success-icon.processing {
+	background-color: #6c757d;
+}
+
+.success-icon.success {
+	background-color: hsl(45, 100%, 51%);
+}
+
+.success-icon.error {
+	background-color: #dc3545;
+}
+
+/* Try again link styling */
+.try-again-link {
+	color: #dc3545;
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+	background: transparent;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	margin-top: 8px;
+}
+
+.try-again-link:hover {
+	text-decoration: underline;
+}
