@@ -146,6 +146,7 @@ body {
 
 .admission-signature-block {
 	text-align: center;
+	position: relative; /* Create positioning context for absolute elements */
 }
 
 .admission-footer-note {
@@ -153,4 +154,21 @@ body {
 	font-size: 12px;
 	font-weight: bold;
 	text-align: center;
+}
+
+/* Added styling for signature image */
+.admission-file {
+	max-width: 200px;
+	max-height: 40px;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	display: block;
+	background-color: transparent;
+	position: absolute;
+	bottom: 20px; /* Position just above the signature line */
+	left: 50%;
+	transform: translateX(-50%); /* Center horizontally */
+	z-index: 5; /* Ensure it appears on top */
+	mix-blend-mode: multiply; /* Better blending with background */
 }
