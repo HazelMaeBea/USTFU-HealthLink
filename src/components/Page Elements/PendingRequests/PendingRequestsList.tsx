@@ -48,7 +48,7 @@ const PendingRequestList = () => {
 	const [getTransID, setTransID] = useState<string | null>(null);
 	// Hooks to access document status
 	const [getStatus, setStatus] = useState<string | null>(null);
-	const [getCurrentUser, setCurrentUser] = useState<string | null>(null)
+	const [getCurrentUser, setCurrentUser] = useState<string | null>(null);
 
 	// Handle change on textArea
 	const handleTextArea = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -98,8 +98,7 @@ const PendingRequestList = () => {
 			const updateStatus = getStatus || "pending";
 			updateDocument(transID, textArea, updateStatus);
 			if (getBenefits != getEditBenefits)
-				updateBenefits(getEditBenefits, getCurrentUser)
-
+				updateBenefits(getEditBenefits, getCurrentUser);
 		} catch (error) {
 			console.error(error);
 		}
@@ -507,7 +506,13 @@ const PendingRequestList = () => {
 													defaultValue={getBenefits}
 													// disabled
 													className="amount-input"
-													onChange={(e) => {setEditBenefits(parseInt(e.target.value))}}
+													onChange={(e) => {
+														setEditBenefits(
+															parseInt(
+																e.target.value
+															)
+														);
+													}}
 												/>
 											</div>
 											<span className="amount-label">
@@ -605,9 +610,9 @@ const PendingRequestList = () => {
 								expandedId === request.transactionId
 									? null
 									: request.transactionId
-							)
+							);
 							setEditBenefits(getBenefits);
-							setCurrentUser(request.requester)
+							setCurrentUser(request.requester);
 						}}
 					>
 						<div className="header-content">
@@ -693,7 +698,11 @@ const PendingRequestList = () => {
 								<div className="approval-actions-container">
 									<div className="approval-actions">
 										<button
-											className="approve-btn d-flex align-items-center justify-content-center"
+											className={`approve-btn d-flex align-items-center justify-content-center ${
+												activeDecision === "approval"
+													? "selected"
+													: ""
+											}`}
 											onClick={() =>
 												handleAction("approval")
 											}
@@ -704,7 +713,11 @@ const PendingRequestList = () => {
 											</span>
 										</button>
 										<button
-											className="reject-btn d-flex align-items-center justify-content-center"
+											className={`reject-btn d-flex align-items-center justify-content-center ${
+												activeDecision === "rejection"
+													? "selected"
+													: ""
+											}`}
 											onClick={() =>
 												handleAction("rejection")
 											}
@@ -713,7 +726,12 @@ const PendingRequestList = () => {
 											<span className="ms-2">Reject</span>
 										</button>
 										<button
-											className="revise-btn d-flex align-items-center justify-content-center"
+											className={`revise-btn d-flex align-items-center justify-content-center ${
+												activeDecision ===
+												"for revision"
+													? "selected"
+													: ""
+											}`}
 											onClick={() =>
 												handleAction("for revision")
 											}

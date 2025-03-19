@@ -19,12 +19,17 @@
 	top: 10px; /* Increased from 0.5rem */
 	right: 10px; /* Increased from 0.5rem */
 	background-color: #dc3545;
-	color: #fff;
+	color: white !important;
 	border: none;
 	padding: 0.5rem 1rem;
 	border-radius: 5px;
 	cursor: pointer;
 	z-index: 1001; /* Ensure button is above other elements */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+	font-weight: bold;
 }
 
 /* Renamed from full-file-preview to full-size-image */
@@ -41,6 +46,7 @@
 	max-width: 95%; /* Allow image to take up most of container */
 	object-fit: contain; /* Preserve aspect ratio */
 	border-radius: 4px;
+	transition: transform 0.3s ease;
 }
 
 .file-details {
@@ -84,6 +90,9 @@
 	overflow: hidden;
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 	animation: slideDown 0.3s ease;
+	display: flex;
+	flex-direction: column;
+	position: relative;
 }
 
 /* Slide-down animation */
@@ -98,7 +107,7 @@
 	}
 }
 
-/* Header with title and close button */
+/* Header with title and close button - improved for long filenames */
 .view-file-header {
 	display: flex;
 	justify-content: space-between;
@@ -106,24 +115,42 @@
 	background-color: #343a40;
 	color: #fff;
 	padding: 0.75rem 1rem;
-	position: relative; /* Ensure positioning context for close button */
+	position: sticky;
+	top: 0;
+	z-index: 10; /* Ensure header stays on top */
+	min-height: 50px; /* Ensure consistent height */
 }
 
 .view-file-title {
 	margin: 0;
 	font-size: 1.25rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: calc(100% - 80px); /* Leave space for the close button */
+	flex: 1; /* Allow title to take available space */
+	padding-right: 15px; /* Add some spacing between title and button */
 }
 
-/* Replace close-button with consistent styling from view-file-close-button */
+/* Fixed styling for close button to ensure it's always visible */
 .close-button {
 	background-color: #dc3545;
-	color: #fff;
+	color: white !important;
 	border: none;
 	padding: 0.3rem 0.8rem;
 	border-radius: 5px;
 	cursor: pointer;
 	font-size: 1rem;
-	position: static; /* Remove absolute positioning from this variant */
+	min-width: 40px; /* Ensure button has a minimum width */
+	flex-shrink: 0; /* Prevent button from shrinking */
+	z-index: 20; /* Ensure button stays on top */
+	margin-left: auto; /* Push button to the right edge */
+	margin-top: 8px;
+}
+
+.close-button:hover {
+	color: white;
+	font-weight: bold;
 }
 
 /* Content area */
@@ -138,6 +165,7 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	position: relative;
 }
 
 /* Fallback container */
@@ -158,10 +186,56 @@
 /* Added new class for enhanced image viewing */
 .image-preview-container {
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	min-height: 60vh;
 	width: 100%;
 	padding: 20px; /* Increased padding */
 	box-sizing: border-box; /* Ensure padding doesn't add to width */
+	position: relative;
+	overflow: hidden;
+}
+
+/* New wrapper for image to handle zoom overflow */
+.image-wrapper {
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* Zoom controls */
+.zoom-controls {
+	position: absolute;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: rgba(0, 0, 0, 0.6);
+	padding: 5px 10px;
+	border-radius: 20px;
+	display: flex;
+	gap: 10px;
+	z-index: 5;
+}
+
+.zoom-button {
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1rem;
+}
+
+.zoom-button:hover {
+	background-color: #0056b3;
 }
