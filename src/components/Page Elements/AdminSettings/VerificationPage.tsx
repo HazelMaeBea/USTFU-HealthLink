@@ -131,7 +131,7 @@ const VerificationPage = () => {
 			if (!querySnapshot.empty) {
 				const userDoc = querySnapshot.docs[0].ref;
 	
-				await updateDoc(userDoc, { verified: true });
+				await updateDoc(userDoc, { verified: true, role: request.role });
 				console.log("Approved:", request.name);
 			} else {
 				console.log("No user found with the given fullName:", request.name);
@@ -176,13 +176,19 @@ const VerificationPage = () => {
 		);
 		setPendingAction(() => async () => {
 			const namesArray = target.map((req) => req.name); // Extract 'name' field from each item
+			const rolesArray = target.reduce((acc: { [key: string]: string }, req) => {
+				acc[req.name] = req.role; // Set index as req.name and value as req.role
+				return acc;
+			}, {});			
 			const queryRef = query(collection(db, "users"), where("fullName", "in", namesArray))
 			const querySnapshot = await getDocs(queryRef);
 
 			querySnapshot.forEach( async (doc) => {
 				await updateDoc(doc.ref, {
 					verified: true,
+					role: rolesArray[doc.data().fullName]
 				})
+				// console.log(rolesArray[doc.data().fullName]);
 			});
 		});
 		setPopoutOpen(true);
@@ -292,11 +298,11 @@ const VerificationPage = () => {
 										}
 										aria-label="Select Role"
 									>
-										<option value="MEMBER">member</option>
-										<option value="OPERATIONS HANDLER">
+										<option value="member">member</option>
+										<option value="operations handler">
 											operations handler
 										</option>
-										<option value="RETIREE">retiree</option>
+										<option value="retiree">retiree</option>
 										{/* Add more options as needed */}
 									</select>
 								</td>
