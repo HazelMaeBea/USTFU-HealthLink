@@ -1013,12 +1013,61 @@
 	margin-top: 0.5rem;
 }
 
-.approve-btn:active,
-.reject-btn:active,
-.revise-btn:active,
-send-btn:active {
-	transform: translateY(1px);
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Button selected states */
+.approve-btn.selected {
+	background-color: hsl(134, 61%, 85%);
+	color: black;
+	outline: 2px solid hsl(134, 61%, 85%);
+	box-shadow: 0 6px 12px hsla(0, 0%, 0%, 0.25);
+}
+
+.reject-btn.selected {
+	background-color: hsl(354, 98%, 75%);
+	color: black;
+	outline: 2px solid hsl(354, 61%, 85%);
+	box-shadow: 0 6px 12px hsla(0, 0%, 0%, 0.25);
+}
+
+.revise-btn.selected {
+	background-color: hsl(45, 100%, 79%);
+	color: black;
+	outline: 2px solid hsl(45, 61%, 85%);
+	box-shadow: 0 6px 12px hsla(0, 0%, 0%, 0.25);
+}
+
+/* Button active states - replace your existing active styles */
+.approve-btn:active {
+	transform: translateY(2px);
+	background-color: hsl(122, 39%, 40%) !important;
+	color: white !important;
+	outline: none;
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+	border: 1px solid hsl(122, 39%, 30%);
+}
+
+.reject-btn:active {
+	transform: translateY(2px);
+	background-color: hsl(354, 70%, 45%) !important;
+	color: white !important;
+	outline: none;
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+	border: 1px solid hsl(354, 70%, 35%);
+}
+
+.revise-btn:active {
+	transform: translateY(2px);
+	background-color: hsl(45, 100%, 45%) !important;
+	color: white !important;
+	outline: none;
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+	border: 1px solid hsl(45, 100%, 35%);
+}
+
+.send-btn:active {
+	transform: translateY(2px);
+	background-color: #212529 !important;
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.3);
+	border: 1px solid #000;
 }
 
 /* Adding pagination container styles */
