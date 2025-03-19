@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { PendingRequest } from "./types";
 import {
 	getRemainingBenefits,
@@ -15,14 +15,18 @@ import ViewFiles from "./ViewFiles";
 import HistoryPopout from "./HistoryPopout";
 import PageButtons from "../PageButtons/PageButtons"; // Import the PageButtons component
 import { updateDoc } from "firebase/firestore";
+import PendingRequestsLoadingSkeleton from "./PendingRequestsLoadingSkeleton";
 
 const PendingRequestList = () => {
-	// Use the updated hook with pagination
+	// Use the updated hook with pagination and get loading/error states
 	const {
 		requests: pendingRequests,
 		pagination,
 		setCurrentPage,
+		isLoading,
+		error,
 	} = usePendingRequests(1, 7);
+
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 	const [showCommentBox, setShowCommentBox] = useState<string | null>(
 		"Additional Comments"
@@ -61,6 +65,13 @@ const PendingRequestList = () => {
 		// Reset expanded state when changing pages
 		setExpandedId(null);
 	};
+
+	// Reset expanded state when loading new data
+	useEffect(() => {
+		if (isLoading) {
+			setExpandedId(null);
+		}
+	}, [isLoading]);
 
 	const handleAction = (
 		action: "approval" | "rejection" | "for revision"
@@ -594,6 +605,38 @@ const PendingRequestList = () => {
 			</>
 		);
 	};
+
+	// Show loading skeleton when data is loading
+	if (isLoading) {
+		return <PendingRequestsLoadingSkeleton />;
+	}
+
+	// Show error message if there was a problem loading the data
+	if (error) {
+		return (
+			<div className="pending-requests">
+				<div className="error-message">
+					<p>{error}</p>
+					<button onClick={() => setCurrentPage(1)}>Retry</button>
+				</div>
+			</div>
+		);
+	}
+
+	// Check if there are no pending requests
+	if (!pendingRequests || pendingRequests.length === 0) {
+		return (
+			<div className="pending-requests">
+				<div className="empty-state">
+					<h3>No pending requests</h3>
+					<p>
+						There are no requests waiting for your approval at this
+						time.
+					</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="pending-requests">
