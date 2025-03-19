@@ -42,8 +42,10 @@ const VerificationPage = () => {
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
 			if (currentUser) {
-				const unsubscribeUsers = onSnapshot(
-					collection(db, "users"),
+				const usersRef = collection(db, "users");
+                const unverifiedUsersQuery = query(usersRef, where("verified", "==", false));
+                const unsubscribeUsers = onSnapshot(
+					unverifiedUsersQuery,
 					(snapshot) => {
 						const filteredUsers = snapshot.docs
 							.map((doc) => {
@@ -58,7 +60,6 @@ const VerificationPage = () => {
 									verified: data.verified || false,
 								};
 							})
-							.filter((user) => !user.verified)
 							.sort((a, b) =>
 								a.name.localeCompare(b.name)
 							) as VerificationRequest[];
