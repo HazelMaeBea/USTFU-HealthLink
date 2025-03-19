@@ -243,6 +243,28 @@
 	margin-top: 20px;
 }
 
+/* Add positioning for signature images */
+.uploaded-signature {
+	max-width: 200px;
+	max-height: 40px;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	display: block;
+	background-color: transparent;
+	position: absolute;
+	bottom: 25px; /* Position just above the input field */
+	right: 0; /* Align to the right */
+	transform: none; /* Remove the centering transform */
+	z-index: 5; /* Ensure it appears on top */
+	mix-blend-mode: multiply; /* Better blending with background */
+	margin-right: 40px;
+}
+
+.shift-more-left {
+	margin-right: 60px;
+}
+
 .outpatient-form-container .outpatient-radio-circle {
 	display: inline-block;
 	width: 14px;
