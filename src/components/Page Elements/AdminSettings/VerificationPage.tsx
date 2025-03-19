@@ -174,10 +174,7 @@ const VerificationPage = () => {
 				: `No requests are selected. Approve all (${requests.length}) requests?`
 		);
 		setPendingAction(() => async () => {
-			// console.log("Approved bulk:", target);
 			const namesArray = target.map((req) => req.name); // Extract 'name' field from each item
-            // console.log("Approved bulk:", target);
-            // console.log("Names array:", namesArray); // Log the array of names
 			const queryRef = query(collection(db, "users"), where("fullName", "in", namesArray))
 			const querySnapshot = await getDocs(queryRef);
 
@@ -201,10 +198,7 @@ const VerificationPage = () => {
 				: `No requests are selected. Deny all (${requests.length}) requests?`
 		);
 		setPendingAction(() => async () => {
-			// console.log("Approved bulk:", target);
 			const namesArray = target.map((req) => req.name); // Extract 'name' field from each item
-            // console.log("Approved bulk:", target);
-            // console.log("Names array:", namesArray); // Log the array of names
 			const queryRef = query(collection(db, "users"), where("fullName", "in", namesArray))
 			const querySnapshot = await getDocs(queryRef);
 
