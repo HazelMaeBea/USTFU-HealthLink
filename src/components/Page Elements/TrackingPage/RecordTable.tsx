@@ -26,23 +26,41 @@ const RecordTable: React.FC<RecordTableProps> = ({
 						<div
 							key={index}
 							className={`${styles["record-box"]} ${
-								record.status === "Pending" ? styles.pending : ""
-							} ${record.status === "Approved" ? styles.approved : ""} ${
-								record.status === "Rejected" ? styles.rejected : ""
+								record.status === "Pending"
+									? styles.pending
+									: ""
+							} ${
+								record.status === "Approved"
+									? styles.approved
+									: ""
+							} ${
+								record.status === "Rejected"
+									? styles.rejected
+									: ""
 							}`}
 						>
 							<div className={styles["record-content"]}>
 								<div className={styles["details-container"]}>
 									<div className={styles["record-dateTime"]}>
-										{isValidDate ? date.toLocaleString() : "Invalid Date"}
+										{isValidDate
+											? date.toLocaleString()
+											: "Invalid Date"}
 									</div>
-									<div className={styles["record-transactionID"]}>
+									<div
+										className={
+											styles["record-transactionID"]
+										}
+									>
 										{record.transactionID}
 									</div>
-									<div className={styles["record-typeOfForm"]}>
-										{record.typeOfForm}
+									<div
+										className={styles["record-typeOfForm"]}
+									>
+										{record.formData.origFormType}
 									</div>
-									<div className={styles["record-status"]}>{record.status}</div>
+									<div className={styles["record-status"]}>
+										{record.status}
+									</div>
 								</div>
 								<div className={styles["button-container"]}>
 									<button
