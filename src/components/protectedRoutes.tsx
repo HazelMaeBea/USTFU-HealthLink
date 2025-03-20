@@ -35,7 +35,7 @@ const ProtectedRoute: React.FC = () => {
 
 	useEffect(() => {
 		if (!isLoading) {
-			setTimeout(() => setGracePeriod(false), 2000); // 2s delay to allow Firebase state updates
+			setTimeout(() => setGracePeriod(false), 60000); // 2s delay to allow Firebase state updates
 		}
 	}, [isLoading]);
 

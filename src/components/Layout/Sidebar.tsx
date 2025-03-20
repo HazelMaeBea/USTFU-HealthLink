@@ -22,14 +22,42 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	const [isCollapsed, setIsCollapsed] = useState(false);
-	const [activeItem, setActiveItem] = useState("HOSPITALIZATION APPLICATION");
+	const [activeItem, setActiveItem] = useState<string>(() => {
+		// Retrieve active item from localStorage or set a default
+		return localStorage.getItem("activePage") || "HOSPITALIZATION APPLICATION";
+	});
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
-	const { selectedRole } = useUser();
+	const { setSelectedRole } = useUser();
+	const [role, setRole] = useState<string>(() => {
+		return localStorage.getItem("selectedRole") || "operations handler";
+	});
 	// Simulation: pending request badge state
 	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(true);
 	const navigate = useNavigate();
 
 	const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	useEffect(() => {
+		const storedRole =
+			localStorage.getItem("selectedRole") || "operations handler";
+		setRole(storedRole);
+		setSelectedRole(storedRole);
+
+		// Route correction logic
+		const validRoutesByRole: Record<string, string[]> = {
+			member: ["/home", "/tracking"],
+			"operations handler": ["/pendingrequests", "/history", "/adminsettings"],
+			admin: ["/pendingrequests", "/history", "/adminsettings"],
+		};
+
+		const validRoutes = validRoutesByRole[storedRole];
+
+		// If the current route doesn't match the role, redirect
+		if (!validRoutes.includes(location.pathname)) {
+			const fallbackRoute = validRoutes[0]; // Redirect to the first valid route for the role
+			navigate(fallbackRoute);
+		}
+	}, [location.pathname, navigate, setSelectedRole]);
 
 	const handleMouseEnter = () => {
 		if (hoverTimeoutRef.current) {
@@ -44,6 +72,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	};
 
 	useEffect(() => {
+		// Sync the role with localStorage on mount
+		localStorage.setItem("selectedRole", role);
+		setSelectedRole(role);
+	}, [role, setSelectedRole]);
+
+	useEffect(() => {
 		const sidebarElement = document.querySelector(".sidebar-wrapper");
 		if (sidebarElement) {
 			sidebarElement.addEventListener("mouseenter", handleMouseEnter);
@@ -51,17 +85,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		}
 		return () => {
 			if (sidebarElement) {
-				sidebarElement.removeEventListener(
-					"mouseenter",
-					handleMouseEnter
-				);
-				sidebarElement.removeEventListener(
-					"mouseleave",
-					handleMouseLeave
-				);
+				sidebarElement.removeEventListener("mouseenter", handleMouseEnter);
+				sidebarElement.removeEventListener("mouseleave", handleMouseLeave);
 			}
 		};
 	}, []);
+
+	useEffect(() => {
+		// Update active item based on URL path on refresh
+		const currentPath = location.pathname;
+		const matchingItem = menuItems.find((item) => item.path === currentPath);
+		if (matchingItem) {
+			setActiveItem(matchingItem.name);
+			localStorage.setItem("activePage", matchingItem.name);
+		}
+	}, [location.pathname]);
 
 	useEffect(() => {
 		const formRequestRef = collection(db, "FormRequest");
@@ -69,8 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 			const hasUpdate = snapshot
 				.docChanges()
 				.some(
-					(change) =>
-						change.type === "added" || change.type === "modified"
+					(change) => change.type === "added" || change.type === "modified"
 				);
 			setHasNewPendingRequest(hasUpdate);
 		});
@@ -94,10 +131,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
 	const handleMenuClick = (name: string, action?: () => void) => {
 		setActiveItem(name);
+		localStorage.setItem("activePage", name); // Store active menu item
 		if (name === "PENDING REQUESTS") setHasNewPendingRequest(false);
 		if (action) action();
 	};
 
+	const handleRoleChange = (newRole: string) => {
+		setRole(newRole);
+		localStorage.setItem("selectedRole", newRole); // Store new role in localStorage
+	};
 	// const handleRoleSwitch = () => {
 	//     if (selectedRole === "operations handler") {
 	//         switchRole("member");
@@ -124,7 +166,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		},
 	];
 
-	if (selectedRole === "member") {
+	if (role === "member") {
 		menuItems.unshift(
 			{
 				name: "HOSPITALIZATION APPLICATION",
@@ -139,17 +181,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		);
 	}
 
-	if (selectedRole === "operations handler") {
+	if (role === "operations handler") {
 		menuItems.unshift(
-			{
-				name: "HOSPITALIZATION HISTORY",
-				icon: <FaRegFolderOpen size={20} />,
-				path: "/history",
-			},
 			{
 				name: "PENDING REQUESTS",
 				icon: <AiOutlineFileDone size={20} />,
 				path: "/pendingrequests",
+			},
+			{
+				name: "HOSPITALIZATION HISTORY",
+				icon: <FaRegFolderOpen size={20} />,
+				path: "/history",
 			},
 			{
 				name: "ADMIN SETTINGS",
@@ -159,8 +201,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		);
 	}
 
-	if (selectedRole === "admin") {
+	if (role === "admin") {
 		menuItems.unshift(
+			{
+				name: "PENDING REQUESTS",
+				icon: <AiOutlineFileDone size={20} />,
+				path: "/pendingrequests",
+			},
 			{
 				name: "HOSPITALIZATION HISTORY",
 				icon: <FaRegFolderOpen size={20} />,
@@ -174,7 +221,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		);
 	}
 
-	
 	return (
 		<>
 			<div
@@ -190,7 +236,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 					<MdOutlineMenu size={20} />
 				</button>
 				<aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
-					<Profile isCollapsed={isCollapsed} />
+					<Profile
+						isCollapsed={isCollapsed}
+						onRoleChange={handleRoleChange} // ✅ Pass the function
+						currentRole={role}
+					/>
 					<nav className="SidebarMenu">
 						{menuItems.map((item) => (
 							<div
@@ -202,38 +252,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 								{item.path ? (
 									<Link
 										to={item.path}
-										onClick={() =>
-											handleMenuClick(item.name)
-										}
+										onClick={() => handleMenuClick(item.name)}
 									>
 										{item.name === "PENDING REQUESTS" ? (
-											<NotifBadge
-												show={hasNewPendingRequest}
-											>
+											<NotifBadge show={hasNewPendingRequest}>
 												{item.icon}
 											</NotifBadge>
 										) : (
 											item.icon
 										)}
-										<span className="menu-text">
-											{item.name}
-										</span>
+										<span className="menu-text">{item.name}</span>
 									</Link>
 								) : (
 									<Link
 										to="#"
 										className="logout-item"
-										onClick={() =>
-											handleMenuClick(
-												item.name,
-												item.action
-											)
-										}
+										onClick={() => handleMenuClick(item.name, item.action)}
 									>
-										{item.icon}{" "}
-										<span className="menu-text">
-											{item.name}
-										</span>
+										{item.icon} <span className="menu-text">{item.name}</span>
 									</Link>
 								)}
 							</div>
