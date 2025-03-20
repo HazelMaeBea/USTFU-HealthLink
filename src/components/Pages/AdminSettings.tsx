@@ -62,7 +62,10 @@ const AdminSettings = () => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
 			if (currentUser) {
 				const collectionRef = collection(db, "users");
-				const queryCollection = query(collectionRef, where("verified", "==", true))
+				const queryCollection = query(
+					collectionRef,
+					where("verified", "==", true)
+				);
 				const unsubscribeUsers = onSnapshot(
 					queryCollection,
 					(snapshot) => {
@@ -74,9 +77,12 @@ const AdminSettings = () => {
 									id: personalInfo.idNumber || "Unknown",
 									name: data.fullName || "Unknown",
 									email: data.email || "Unknown",
-									college: personalInfo.college || "UNAFFILIATED",
-									birthdate: personalInfo.birthdate || "Unknown",
-									phoneNumber: personalInfo.phoneNumber || "Unknown",
+									college:
+										personalInfo.college || "UNAFFILIATED",
+									birthdate:
+										personalInfo.birthdate || "Unknown",
+									phoneNumber:
+										personalInfo.phoneNumber || "Unknown",
 									role: data.role || "Member",
 									status: data.status || "INACTIVE",
 									document: doc.id,
@@ -161,7 +167,60 @@ const AdminSettings = () => {
 	const indexOfFirstUser = indexOfLastUser - usersPerPage;
 	const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 	const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-	if (loading) return <div>Loading...</div>;
+	if (loading)
+		return (
+			<div className="admin-settings-container">
+				<div className="admin-loading-container">
+					{/* Skeleton for tabs and search */}
+					<div className="row align-items-center">
+						<div className="tab-cont col-md-6">
+							<div className="admin-loading-tabs">
+								<div className="admin-loading-tab admin-skeleton"></div>
+								<div className="admin-loading-tab admin-skeleton"></div>
+							</div>
+						</div>
+						<div className="col-md-6">
+							<div className="admin-loading-search admin-skeleton"></div>
+						</div>
+					</div>
+
+					<div className="admin-loading-hr admin-skeleton"></div>
+
+					{/* Skeleton for table */}
+					<div className="admin-loading-table">
+						<div className="admin-loading-thead admin-skeleton"></div>
+						<div className="admin-loading-tbody">
+							{[...Array(7)].map((_, index) => (
+								<div key={index} className="admin-loading-tr">
+									<div className="admin-loading-td admin-loading-col-xs admin-skeleton"></div>
+									<div className="admin-loading-td admin-loading-col-md admin-skeleton"></div>
+									<div className="admin-loading-td admin-loading-col-lg admin-skeleton"></div>
+									<div className="admin-loading-td admin-loading-col-lg admin-skeleton"></div>
+									<div className="admin-loading-td admin-loading-col-sm admin-skeleton"></div>
+									<div className="admin-loading-td admin-loading-col-sm admin-skeleton"></div>
+									<div className="admin-loading-td admin-loading-col-xs admin-skeleton"></div>
+									<div className="admin-loading-td admin-loading-col-xs admin-skeleton"></div>
+									<div className="admin-loading-td admin-loading-col-xs admin-skeleton"></div>
+								</div>
+							))}
+						</div>
+					</div>
+
+					{/* Skeleton for pagination */}
+					<div className="admin-loading-controls">
+						<div className="admin-loading-pagination">
+							{[...Array(3)].map((_, index) => (
+								<div
+									key={index}
+									className="admin-loading-page admin-skeleton"
+								></div>
+							))}
+						</div>
+						<div className="admin-loading-button admin-skeleton"></div>
+					</div>
+				</div>
+			</div>
+		);
 
 	return (
 		<div className="admin-settings-container">

@@ -404,7 +404,6 @@ p {
 .admin-settings-container .edit-options-menu button {
 	/* These will inherit from the non-namespaced selectors above */
 
-
 #edit_status,
 #edit_role {
 	width: 20%;
@@ -452,9 +451,6 @@ p {
 		padding: 0.25rem;
 	}
 }
-
-
-
 
 /* Better Controls Layout */
 .admin-settings-container .controls-container {
@@ -521,8 +517,253 @@ p {
 		width: 100%;
 		justify-content: center;
 	}
-	
+
 	.admin-settings-container .user-mngmnt-table {
 		-webkit-overflow-scrolling: touch;
+	}
+}
+
+/* Admin skeleton loading styles */
+.admin-loading-container {
+	padding: 1.5rem;
+	animation: admin-pulse 1.5s infinite;
+}
+
+.admin-skeleton {
+	background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+	background-size: 200% 100%;
+	animation: admin-loading 1.5s infinite;
+	border-radius: 4px;
+}
+
+/* Skeleton tabs */
+.admin-loading-tabs {
+	display: flex;
+	margin-bottom: 1rem;
+}
+
+.admin-loading-tab {
+	height: 40px;
+	width: 180px;
+	margin-right: 10px;
+	border-radius: 6px;
+}
+
+/* Skeleton search */
+.admin-loading-search {
+	height: 40px;
+	width: 100%;
+	border-radius: 50px;
+	margin-bottom: 16px;
+}
+
+/* Skeleton horizontal rule */
+.admin-loading-hr {
+	height: 2px;
+	width: 100%;
+	margin: 1rem 0;
+}
+
+/* Skeleton table */
+.admin-loading-table {
+	width: 100%;
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid #f0f0f0;
+}
+
+.admin-loading-thead {
+	width: 100%;
+	height: 45px;
+	display: block;
+}
+
+.admin-loading-tbody {
+	display: block;
+}
+
+.admin-loading-tr {
+	display: flex;
+	align-items: center;
+	padding: 12px 16px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-loading-th {
+	height: 20px;
+	border-radius: 4px;
+	margin-right: 10px;
+}
+
+.admin-loading-td {
+	height: 18px;
+	border-radius: 4px;
+	margin-right: 10px;
+}
+
+/* Columns with different widths */
+.admin-loading-col-xs {
+	width: 8%;
+}
+
+.admin-loading-col-sm {
+	width: 10%;
+}
+
+.admin-loading-col-md {
+	width: 15%;
+}
+
+.admin-loading-col-lg {
+	width: 20%;
+}
+
+/* Skeleton pagination */
+.admin-loading-controls {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 20px;
+}
+
+.admin-loading-pagination {
+	display: flex;
+}
+
+.admin-loading-page {
+	height: 36px;
+	width: 36px;
+	margin-right: 8px;
+	border-radius: 4px;
+}
+
+.admin-loading-button {
+	height: 36px;
+	width: 160px;
+	border-radius: 8px;
+}
+
+@keyframes admin-loading {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+@keyframes admin-pulse {
+	0% {
+		opacity: 0.6;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.6;
+	}
+}
+
+/* Responsive loading styles for tablets */
+@media (max-width: 1024px) {
+	.admin-loading-container {
+		padding: 1rem;
+	}
+
+	.admin-loading-tabs {
+		flex-direction: column;
+	}
+
+	.admin-loading-tab {
+		width: 50%;
+		margin-bottom: 10px;
+	}
+
+	.admin-loading-search {
+		height: 36px;
+	}
+
+	.admin-loading-tr {
+		padding: 10px 12px;
+	}
+
+	.admin-loading-td,
+	.admin-loading-th {
+		height: 16px;
+	}
+}
+
+/* Responsive loading styles for mobile */
+@media (max-width: 768px) {
+	.admin-loading-container {
+		padding: 12px;
+	}
+
+	.admin-loading-tab {
+		width: 100%;
+		height: 36px;
+	}
+
+	.admin-loading-search {
+		height: 32px;
+	}
+
+	.admin-loading-tr {
+		padding: 8px 10px;
+	}
+
+	.admin-loading-controls {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.admin-loading-pagination {
+		margin-bottom: 15px;
+		width: 100%;
+		justify-content: center;
+	}
+
+	.admin-loading-button {
+		width: 100%;
+		margin-top: 10px;
+	}
+
+	/* Hide some columns on mobile */
+	.admin-loading-col-xs,
+	.admin-loading-col-sm {
+		display: none;
+	}
+
+	.admin-loading-col-md {
+		width: 25%;
+	}
+
+	.admin-loading-col-lg {
+		width: 40%;
+	}
+}
+
+/* For very small mobile screens */
+@media (max-width: 480px) {
+	.admin-loading-container {
+		padding: 8px;
+	}
+
+	.admin-loading-td,
+	.admin-loading-th {
+		height: 14px;
+	}
+
+	.admin-loading-col-md {
+		width: 35%;
+	}
+
+	.admin-loading-col-lg {
+		width: 65%;
+	}
+
+	.admin-loading-page {
+		height: 30px;
+		width: 30px;
 	}
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Settings.module.css";
+import "./Settings.css"; // Add this import for the loading skeleton styles
 import Popout from "../Page Elements/Popout/Popout";
 import { useFirebase } from "../../contexts/firebaseContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -37,12 +38,20 @@ const statusOptions = [
 ];
 
 const termOptions = ["1st", "2nd", "Su"];
-const currentAcademicYear = `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`;
-const currentTerm = termOptions[new Date().getMonth() >= 7 ? 0 : new Date().getMonth() <= 4 ? 1 : 2];
+const currentAcademicYear = `${
+	new Date().getFullYear() - 1
+}-${new Date().getFullYear()}`;
+const currentTerm =
+	termOptions[
+		new Date().getMonth() >= 7 ? 0 : new Date().getMonth() <= 4 ? 1 : 2
+	];
 
 const getAcademicYears = () => {
 	const currentYear = new Date().getFullYear();
-	return [`${currentYear - 1}-${currentYear}`, `${currentYear}-${currentYear + 1}`];
+	return [
+		`${currentYear - 1}-${currentYear}`,
+		`${currentYear}-${currentYear + 1}`,
+	];
 };
 
 getAcademicYears();
@@ -80,8 +89,8 @@ const calculateAge = (birthdateStr: string): string => {
 
 // Updated auto-format function to ensure valid date values for mm/dd/yyyy format
 const formatDateInput = (value: string): string => {
-	const cleaned = value.replace(/\D/g, '');
-	let formatted = '';
+	const cleaned = value.replace(/\D/g, "");
+	let formatted = "";
 	if (cleaned.length > 0) {
 		let month = parseInt(cleaned.substring(0, 2), 10);
 		if (isNaN(month) || month < 1) month = 1;
@@ -92,11 +101,11 @@ const formatDateInput = (value: string): string => {
 		let day = parseInt(cleaned.substring(2, 4), 10);
 		if (isNaN(day) || day < 1) day = 1;
 		if (day > 31) day = 31;
-		formatted += '/' + (day < 10 ? "0" + day : day.toString());
+		formatted += "/" + (day < 10 ? "0" + day : day.toString());
 	}
 	if (cleaned.length >= 5) {
-		let year = cleaned.substring(4, 8);
-		formatted += '/' + year;
+		const year = cleaned.substring(4, 8);
+		formatted += "/" + year;
 	}
 	return formatted;
 };
@@ -106,7 +115,7 @@ const processDateField = (value: string): string => {
 	const formatted = formatDateInput(value);
 	// Only process when date is complete (10 characters: mm/dd/yyyy)
 	if (formatted.length === 10) {
-		const parts = formatted.split('/');
+		const parts = formatted.split("/");
 		const month = parseInt(parts[0], 10);
 		const day = parseInt(parts[1], 10);
 		const year = parseInt(parts[2], 10);
@@ -119,7 +128,7 @@ const processDateField = (value: string): string => {
 			const y = today.getFullYear();
 			const mm = m < 10 ? "0" + m : m.toString();
 			const dd = d < 10 ? "0" + d : d.toString();
-			return mm + '/' + dd + '/' + y;
+			return mm + "/" + dd + "/" + y;
 		}
 	}
 	return formatted;
@@ -135,12 +144,14 @@ const formatBirthdate = (value: string): string => {
 
 const formatIDNumber = (value: string): string => {
 	const digits = value.replace(/\D/g, "").slice(0, 10);
-	return digits.length > 4 ? `${digits.slice(0, 4)}-${digits.slice(4)}` : digits;
+	return digits.length > 4
+		? `${digits.slice(0, 4)}-${digits.slice(4)}`
+		: digits;
 };
 
 // >>> Updated phone number formatting helper (remove auto-prepend)
 const formatPhoneNumber = (value: string): string => {
-  return value.replace(/\D/g, "").slice(0, 12);
+	return value.replace(/\D/g, "").slice(0, 12);
 };
 // <<< End updated phone number formatting helper
 
@@ -500,7 +511,7 @@ const Settings = () => {
 
 	if (isLoading) {
 		return (
-			<div className="settings-container">
+			<div className={styles.settingsContainer}>
 				<div className="loading-container">
 					{/* Preferences Section */}
 					<div className="loading-section">
@@ -605,13 +616,18 @@ const Settings = () => {
 					<div className={styles.toggleRow}>
 						<p>Email Notifications:</p>
 						<div className="form-check">
-							<label className={`${styles["form-check-label"]} ${styles.formCheckToggle}`}>
+							<label
+								className={`${styles["form-check-label"]} ${styles.formCheckToggle}`}
+							>
 								<input
 									className={styles.formCheckInput}
 									type="checkbox"
 									checked={settings.notification}
 									onChange={(e) =>
-										handleToggleChange("notification", e.target.checked)
+										handleToggleChange(
+											"notification",
+											e.target.checked
+										)
 									}
 									aria-label="toggle notifications"
 								/>
@@ -622,13 +638,18 @@ const Settings = () => {
 					<div className={styles.toggleRow}>
 						<p>Auto-fill Information:</p>
 						<div className="form-check">
-							<label className={`${styles["form-check-label"]} ${styles.formCheckToggle}`}>
+							<label
+								className={`${styles["form-check-label"]} ${styles.formCheckToggle}`}
+							>
 								<input
 									className={styles.formCheckInput}
 									type="checkbox"
 									checked={settings.autofill}
 									onChange={(e) =>
-										handleToggleChange("autofill", e.target.checked)
+										handleToggleChange(
+											"autofill",
+											e.target.checked
+										)
 									}
 									aria-label="toggle autofill"
 								/>
@@ -653,6 +674,7 @@ const Settings = () => {
 							onChange={(e) =>
 								handleFieldChange("firstname", e.target.value)
 							}
+							aria-label="First Name"
 						/>
 					</div>
 					<div className={styles.formGroupLg}>
@@ -664,6 +686,7 @@ const Settings = () => {
 							onChange={(e) =>
 								handleFieldChange("lastname", e.target.value)
 							}
+							aria-label="Last-Name"
 						/>
 					</div>
 					<div className={styles.formGroupLg}>
@@ -675,6 +698,7 @@ const Settings = () => {
 							onChange={(e) =>
 								handleFieldChange("middlename", e.target.value)
 							}
+							aria-label="Middle Name"
 						/>
 					</div>
 					<div className={styles.formGroupXs}>
@@ -685,6 +709,7 @@ const Settings = () => {
 							onChange={(e) =>
 								handleFieldChange("suffix", e.target.value)
 							}
+							aria-label="Suffix"
 						>
 							<option value="" disabled hidden>
 								Select suffix
@@ -707,13 +732,19 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.birthdate}
 							onChange={(e) =>
-								handleFieldChange("birthdate", formatBirthdate(e.target.value))
+								handleFieldChange(
+									"birthdate",
+									formatBirthdate(e.target.value)
+								)
 							}
+							aria-label="Birthdate"
 						/>
 					</div>
 					<div className={styles.formGroupXs}>
 						<label>Age</label>
-						<div className={`${styles.settingsFieldValue} ${styles.nonEditable}`}>
+						<div
+							className={`${styles.settingsFieldValue} ${styles.nonEditable}`}
+						>
 							{calculatedAge || "N/A"}
 						</div>
 					</div>
@@ -725,6 +756,7 @@ const Settings = () => {
 							onChange={(e) =>
 								handleFieldChange("gender", e.target.value)
 							}
+							aria-label="Gender"
 						>
 							<option value="" disabled hidden>
 								Select gender
@@ -743,8 +775,12 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.phoneNumber}
 							onChange={(e) =>
-								handleFieldChange("phoneNumber", formatPhoneNumber(e.target.value))
+								handleFieldChange(
+									"phoneNumber",
+									formatPhoneNumber(e.target.value)
+								)
 							}
+							aria-label="Phone Number"
 						/>
 					</div>
 					<div className={styles.formGroupFlex}>
@@ -754,8 +790,12 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.numberID}
 							onChange={(e) =>
-								handleFieldChange("numberID", formatIDNumber(e.target.value))
+								handleFieldChange(
+									"numberID",
+									formatIDNumber(e.target.value)
+								)
 							}
+							aria-label="ID Number"
 						/>
 					</div>
 				</div>
@@ -764,13 +804,17 @@ const Settings = () => {
 				<div className={styles.formRow}>
 					<div className={styles.formGroupXs}>
 						<label>Term</label>
-						<div className={`${styles.settingsFieldValue} ${styles.nonEditable}`}>
+						<div
+							className={`${styles.settingsFieldValue} ${styles.nonEditable}`}
+						>
 							{currentTerm}
 						</div>
 					</div>
 					<div className={styles.formGroupSm}>
 						<label>Year</label>
-						<div className={`${styles.settingsFieldValue} ${styles.nonEditable}`}>
+						<div
+							className={`${styles.settingsFieldValue} ${styles.nonEditable}`}
+						>
 							{currentAcademicYear}
 						</div>
 					</div>
@@ -783,6 +827,7 @@ const Settings = () => {
 							onChange={(e) =>
 								handleFieldChange("load", e.target.value)
 							}
+							aria-label="Load (Units)"
 						/>
 					</div>
 					<div className={styles.formGroupMd}>
@@ -793,6 +838,7 @@ const Settings = () => {
 							onChange={(e) =>
 								handleFieldChange("status", e.target.value)
 							}
+							aria-label="Status"
 						>
 							<option value="" disabled hidden>
 								Select status
@@ -812,7 +858,10 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.dateHired}
 							onChange={(e) =>
-								handleFieldChange("dateHired", formatBirthdate(e.target.value))
+								handleFieldChange(
+									"dateHired",
+									formatBirthdate(e.target.value)
+								)
 							}
 						/>
 					</div>
@@ -824,7 +873,10 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.dateRetired}
 							onChange={(e) =>
-								handleFieldChange("dateRetired", formatBirthdate(e.target.value))
+								handleFieldChange(
+									"dateRetired",
+									formatBirthdate(e.target.value)
+								)
 							}
 						/>
 					</div>
@@ -840,6 +892,7 @@ const Settings = () => {
 							onChange={(e) =>
 								handleFieldChange("college", e.target.value)
 							}
+							aria-label="College Affiliation"
 						>
 							<option value="" disabled hidden>
 								Select college affiliation
@@ -860,6 +913,7 @@ const Settings = () => {
 							onChange={(e) =>
 								handleFieldChange("address", e.target.value)
 							}
+							aria-label="Home Address"
 						/>
 					</div>
 				</div>
