@@ -920,3 +920,259 @@ table {
 .try-again-link:hover {
 	text-decoration: underline;
 }
+
+/* Loading skeleton styles */
+.loading-container {
+	padding: 20px;
+	animation: pulse 1.5s infinite;
+}
+
+.loading-section {
+	background: #fff;
+	border-radius: 12px;
+	padding: 25px;
+	margin-bottom: 24px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.loading-header {
+	height: 28px;
+	width: 180px;
+	margin-bottom: 24px;
+	border-radius: 4px;
+}
+
+.loading-toggle-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px;
+	background: #f8f9fa;
+	border-radius: 8px;
+	margin-bottom: 12px;
+}
+
+.loading-toggle-label {
+	height: 16px;
+	width: 140px;
+	border-radius: 4px;
+}
+
+.loading-toggle {
+	height: 24px;
+	width: 44px;
+	border-radius: 12px;
+}
+
+.loading-form-row {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 20px;
+	gap: 15px;
+}
+
+.loading-form-group {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 5px;
+}
+
+.loading-label {
+	height: 16px;
+	width: 80px;
+	margin-bottom: 8px;
+	border-radius: 4px;
+}
+
+.loading-field {
+	height: 38px;
+	border-radius: 8px;
+}
+
+/* Loading form group sizes */
+.loading-xs {
+	flex: 0 0 calc(10% - 8px);
+}
+
+.loading-sm {
+	flex: 0 0 calc(15% - 10px);
+}
+
+.loading-md {
+	flex: 0 0 calc(24% - 10px);
+}
+
+.loading-lg {
+	flex: 0 0 calc(32% - 10px);
+}
+
+.loading-half {
+	flex: 0 0 calc(50% - 8px);
+}
+
+.loading-flex {
+	flex: 1;
+}
+
+.loading-spinner-container {
+	display: flex;
+	justify-content: center;
+	margin-top: 30px;
+}
+
+.loading-spinner {
+	width: 40px;
+	height: 40px;
+	border: 3px solid rgba(0, 0, 0, 0.1);
+	border-radius: 50%;
+	border-top-color: hsl(45, 100%, 51%);
+	animation: spin 1s ease-in-out infinite;
+}
+
+.skeleton {
+	background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+	background-size: 200% 100%;
+	animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 0.6;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.6;
+	}
+}
+
+/* Responsive loading styles for tablets */
+@media (max-width: 1024px) {
+	.loading-container {
+		padding: 15px;
+	}
+
+	.loading-section {
+		padding: 20px;
+	}
+
+	.loading-form-row {
+		gap: 12px;
+	}
+
+	.loading-xs {
+		flex: 0 0 calc(15% - 8px);
+	}
+
+	.loading-sm {
+		flex: 0 0 calc(20% - 8px);
+	}
+
+	.loading-md {
+		flex: 0 0 calc(30% - 8px);
+	}
+
+	.loading-lg {
+		flex: 0 0 calc(45% - 8px);
+	}
+}
+
+/* Responsive loading styles for mobile */
+@media (max-width: 768px) {
+	.loading-container {
+		padding: 10px;
+	}
+
+	.loading-section {
+		padding: 15px;
+		margin-bottom: 15px;
+	}
+
+	.loading-header {
+		width: 150px;
+		height: 24px;
+		margin-bottom: 18px;
+	}
+
+	.loading-toggle-row {
+		padding: 10px;
+	}
+
+	.loading-toggle-label {
+		width: 120px;
+	}
+
+	.loading-form-row {
+		flex-direction: column;
+		gap: 10px;
+		margin-bottom: 15px;
+	}
+
+	.loading-xs,
+	.loading-sm,
+	.loading-md,
+	.loading-lg,
+	.loading-half,
+	.loading-flex {
+		flex: 1 0 100%;
+		width: 100%;
+	}
+
+	.loading-label {
+		width: 100px;
+		margin-bottom: 6px;
+	}
+
+	.loading-field {
+		height: 36px;
+	}
+
+	.loading-spinner {
+		width: 32px;
+		height: 32px;
+	}
+}
+
+/* For very small mobile screens */
+@media (max-width: 480px) {
+	.loading-container {
+		padding: 8px;
+	}
+
+	.loading-section {
+		padding: 12px;
+		margin-bottom: 12px;
+	}
+
+	.loading-header {
+		width: 120px;
+		height: 20px;
+	}
+
+	.loading-toggle-row {
+		padding: 8px;
+	}
+
+	.loading-toggle-label {
+		width: 100px;
+	}
+
+	.loading-label {
+		width: 80px;
+		height: 14px;
+	}
+
+	.loading-field {
+		height: 34px;
+	}
+}
