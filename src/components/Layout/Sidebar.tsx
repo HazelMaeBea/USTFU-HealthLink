@@ -45,7 +45,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
 		// Route correction logic
 		const validRoutesByRole: Record<string, string[]> = {
-			member: ["/home", "/tracking"],
+			member: [
+				"/home",
+				"/home/inpatient",
+				"/home/admission",
+				"/home/outpatient",
+				"/home/eyeglasses",
+				"/tracking",
+			],
 			"operations handler": ["/pendingrequests", "/history", "/adminsettings"],
 			admin: ["/pendingrequests", "/history", "/adminsettings"],
 		};
