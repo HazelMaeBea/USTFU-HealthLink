@@ -1,6 +1,7 @@
 import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormData } from "./EyeglassesForm";
+import "./FormInvoice.css";
 
 interface FormInvoiceProps {
 	register: UseFormRegister<FormData>;
@@ -11,7 +12,7 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({ register, errors }) => {
 	return (
 		<>
 			<fieldset className="InvoiceInfo">
-				<div className="row">
+				<div className="row align-items-center">
 					<div className="mb-1 col-md-3">
 						<label htmlFor="ORNumber" className="form-label">
 							OR Number
@@ -24,9 +25,7 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({ register, errors }) => {
 							placeholder="eg. OR-2025-00001"
 						/>
 						{errors.ORNumber && (
-							<p className="text-danger">
-								{errors.ORNumber.message}
-							</p>
+							<p className="text-danger">{errors.ORNumber.message}</p>
 						)}
 					</div>
 
@@ -42,9 +41,7 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({ register, errors }) => {
 							placeholder="eg. Metro Optical"
 						/>
 						{errors.issuedBy && (
-							<p className="text-danger">
-								{errors.issuedBy.message}
-							</p>
+							<p className="text-danger">{errors.issuedBy.message}</p>
 						)}
 					</div>
 
@@ -52,17 +49,18 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({ register, errors }) => {
 						<label htmlFor="amountPaid" className="form-label">
 							Amount Paid
 						</label>
-						<input
-							{...register("amountPaid", { valueAsNumber: true })}
-							id="amountPaid"
-							type="number"
-							className="form-control"
-							placeholder="eg. 5000"
-						/>
+						<div className="amount-container">
+							<span className="currency-symbol">₱</span>
+							<input
+								{...register("amountPaid", { valueAsNumber: true })}
+								id="amountPaid"
+								type="number"
+								className="form-control custom-input"
+								placeholder="eg. 5000"
+							/>
+						</div>
 						{errors.amountPaid && (
-							<p className="text-danger">
-								{errors.amountPaid.message}
-							</p>
+							<p className="text-danger">{errors.amountPaid.message}</p>
 						)}
 					</div>
 				</div>
