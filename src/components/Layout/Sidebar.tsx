@@ -24,7 +24,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const [activeItem, setActiveItem] = useState<string>(() => {
 		// Retrieve active item from localStorage or set a default
-		return localStorage.getItem("activePage") || "HOSPITALIZATION APPLICATION";
+		return (
+			localStorage.getItem("activePage") || "HOSPITALIZATION APPLICATION"
+		);
 	});
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
 	const { setSelectedRole } = useUser();
@@ -52,9 +54,23 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 				"/home/outpatient",
 				"/home/eyeglasses",
 				"/tracking",
+				"/settings",
+				"/faqs",
 			],
-			"operations handler": ["/pendingrequests", "/history", "/adminsettings"],
-			admin: ["/pendingrequests", "/history", "/adminsettings"],
+			"operations handler": [
+				"/pendingrequests",
+				"/history",
+				"/adminsettings",
+				"/settings",
+				"/faqs",
+			],
+			admin: [
+				"/pendingrequests",
+				"/history",
+				"/adminsettings",
+				"/settings",
+				"/faqs",
+			],
 		};
 
 		const validRoutes = validRoutesByRole[storedRole];
@@ -92,8 +108,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		}
 		return () => {
 			if (sidebarElement) {
-				sidebarElement.removeEventListener("mouseenter", handleMouseEnter);
-				sidebarElement.removeEventListener("mouseleave", handleMouseLeave);
+				sidebarElement.removeEventListener(
+					"mouseenter",
+					handleMouseEnter
+				);
+				sidebarElement.removeEventListener(
+					"mouseleave",
+					handleMouseLeave
+				);
 			}
 		};
 	}, []);
@@ -101,7 +123,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	useEffect(() => {
 		// Update active item based on URL path on refresh
 		const currentPath = location.pathname;
-		const matchingItem = menuItems.find((item) => item.path === currentPath);
+		const matchingItem = menuItems.find(
+			(item) => item.path === currentPath
+		);
 		if (matchingItem) {
 			setActiveItem(matchingItem.name);
 			localStorage.setItem("activePage", matchingItem.name);
@@ -114,7 +138,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 			const hasUpdate = snapshot
 				.docChanges()
 				.some(
-					(change) => change.type === "added" || change.type === "modified"
+					(change) =>
+						change.type === "added" || change.type === "modified"
 				);
 			setHasNewPendingRequest(hasUpdate);
 		});
@@ -259,24 +284,38 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 								{item.path ? (
 									<Link
 										to={item.path}
-										onClick={() => handleMenuClick(item.name)}
+										onClick={() =>
+											handleMenuClick(item.name)
+										}
 									>
 										{item.name === "PENDING REQUESTS" ? (
-											<NotifBadge show={hasNewPendingRequest}>
+											<NotifBadge
+												show={hasNewPendingRequest}
+											>
 												{item.icon}
 											</NotifBadge>
 										) : (
 											item.icon
 										)}
-										<span className="menu-text">{item.name}</span>
+										<span className="menu-text">
+											{item.name}
+										</span>
 									</Link>
 								) : (
 									<Link
 										to="#"
 										className="logout-item"
-										onClick={() => handleMenuClick(item.name, item.action)}
+										onClick={() =>
+											handleMenuClick(
+												item.name,
+												item.action
+											)
+										}
 									>
-										{item.icon} <span className="menu-text">{item.name}</span>
+										{item.icon}{" "}
+										<span className="menu-text">
+											{item.name}
+										</span>
 									</Link>
 								)}
 							</div>
