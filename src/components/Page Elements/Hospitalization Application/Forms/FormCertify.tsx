@@ -24,7 +24,7 @@ const FormCertify: React.FC<FormCertifyProps> = ({ register, errors }) => {
             and CORRECT and any misrepresentation of facts shall be 
             sufficient cause for denial of this benefit. For any amount in
             excess of my maximum medical & hospitalization benefit, I 
-            am personally liable to pay directly to UST Hospital
+            am personally liable to pay directly to UST Hospital. <span className="required-asterisk">*</span>
           </p>
         </label>
       </div>

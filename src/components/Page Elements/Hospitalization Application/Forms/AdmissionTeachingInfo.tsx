@@ -41,7 +41,7 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 			<div className="row mb-3">
 				<div className="col-md-12">
 					<label htmlFor="address" className="form-label">
-						Home Address
+						Home Address <span className="required-asterisk">*</span>
 					</label>
 					<input
 						id="address"
@@ -62,7 +62,7 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 			<div className="row mb-3">
 				<div className="col-md-3">
 					<label htmlFor="idNumber" className="form-label">
-						Employee ID Number
+						Employee ID Number <span className="required-asterisk">*</span>
 					</label>
 					<input
 						id="idNumber"
@@ -82,7 +82,7 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 
 				<div className="col-md-2">
 					<label htmlFor="load" className="form-label">
-						Load (Units){" "}
+						Load (Units){" "} <span className="required-asterisk">*</span>
 					</label>
 					<input
 						id="load"

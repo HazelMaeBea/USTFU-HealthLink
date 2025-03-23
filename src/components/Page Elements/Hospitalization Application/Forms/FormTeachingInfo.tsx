@@ -100,7 +100,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						<div className="row">
 							<div className="mb-1 col-md-6">
 								<label htmlFor="term" className="form-label">
-									Academic Term
+									Academic Term <span className="required-asterisk">*</span>
 								</label>
 								<input
 									{...register("term")}
@@ -118,7 +118,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							</div>
 							<div className="mb-1 col-md-6">
 								<label htmlFor="year" className="form-label">
-									Academic Year
+									Academic Year <span className="required-asterisk">*</span>
 								</label>
 								<input
 									{...register("year")}
@@ -137,7 +137,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						</div>
 						<div className="mb-1 col-md-5">
 							<label htmlFor="load" className="form-label">
-								Load (Units){" "}
+								Load (Units){" "} <span className="required-asterisk">*</span>
 							</label>
 							<input
 								id="load"
@@ -159,7 +159,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						</div>
 					</div>
 					<div className="mb-1 col-md-2">
-						<label className="form-label">Status</label>
+						<label className="form-label">Status <span className="required-asterisk">*</span></label>
 						{statusOptions.map((option, index) => (
 							<div key={index} className="form-check">
 								<input
@@ -195,7 +195,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							}}
 						>
 							<label htmlFor="dateHired" className="form-label">
-								If Tenure-Track, please input DATE HIRED:
+								If Tenure-Track, please input DATE HIRED: 
 							</label>
 							<input
 								type="date"
@@ -294,7 +294,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							}}
 						>
 							<label htmlFor="hmo" className="form-label">
-								If HMO, please specify:
+								If HMO, please specify: <span className="required-asterisk">*</span>
 							</label>
 							<input
 								{...register("hmo")}
