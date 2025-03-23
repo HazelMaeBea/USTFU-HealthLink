@@ -18,7 +18,7 @@ const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 			<hr className="section-separator" />
 			<fieldset className="hospitalStatusFieldset">
 				<label className="form-label hospital-status-label">
-					Hospital Status:{" "}
+					Hospital Status:{" "} <span className="required-asterisk">*</span>
 				</label>
 				<div className="hospital-status-options-container row">
 					{hospitalStatusOptions.map((option, index) => (

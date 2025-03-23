@@ -24,7 +24,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 				</thead>
 				<tbody>
 					<tr>
-						<td>Doctor's Note or Request</td>
+						<td>Doctor's Note or Request <span className="required-asterisk">*</span></td>
 						<td className="d-flex justify-content-center">
 							<label
 								htmlFor="docRequest"
@@ -48,7 +48,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 						</td>
 					</tr>
 					<tr>
-						<td>Hospital Receipt/Invoice</td>
+						<td>Hospital Receipt/Invoice <span className="required-asterisk">*</span></td>
 						<td className="d-flex justify-content-center">
 							<label
 								htmlFor="hospitalInvoice"
@@ -72,7 +72,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 						</td>
 					</tr>
 					<tr>
-						<td>Laboratory Receipt/Invoice</td>
+						<td>Laboratory Receipt/Invoice <span className="required-asterisk">*</span></td>
 						<td className="d-flex justify-content-center">
 							<label
 								htmlFor="labInvoice"
@@ -120,7 +120,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 						</td>
 					</tr>
 					<tr>
-						<td>Applicant's Signature</td>
+						<td>Applicant's Signature <span className="required-asterisk">*</span></td>
 						<td className="d-flex justify-content-center">
 							<label
 								htmlFor="applicantSignature"
@@ -155,7 +155,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 				<div className="claim-request">
 					<div>
 						<label htmlFor="claimRequestCount"> </label>
-						How many claims do you want to request?
+						How many claims do you want to request? <span className="required-asterisk">*</span>
 						<br />
 						<span className="claim-example">
 							(e.g. Multiple Therapy Visits for 3 weeks, Scheduled

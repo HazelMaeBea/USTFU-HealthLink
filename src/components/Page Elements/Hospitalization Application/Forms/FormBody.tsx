@@ -136,9 +136,10 @@ const schema = z
 		labInvoice: z.any().refine((files) => files && files.length > 0, {
 			message: "Please upload the laboratory invoice",
 		}),
-		employeeID: z.any().refine((files) => files && files.length > 0, {
-			message: "Please upload a copy of your employee ID",
-		}),
+		employeeID: z.any().nullable().optional(),
+		// employeeID: z.any().refine((files) => files && files.length > 0, {
+		// 	message: "Please upload a copy of your employee ID",
+		// }),
 		applicantSignature: z
 			.any()
 			.refine((files) => files && files.length > 0, {

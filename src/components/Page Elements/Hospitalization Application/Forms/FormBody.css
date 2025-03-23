@@ -407,7 +407,10 @@ table {
 	color: hsl(0, 0%, 82%);
 	font-style: italic;
 }
-
+.required-asterisk {
+	color: red;
+	margin-left: 2px;
+}
 .button-container {
 	display: flex;
 	justify-content: space-between;
