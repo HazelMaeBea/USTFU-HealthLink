@@ -194,7 +194,7 @@ export const updateDocument = async (
 					status,
 					statusReason: textArea,
 					DateDecided: decisionTimestamp,
-					...(newCollection === "AccomplishedRequests" && status === "approved" ? { formProcessed: false } : {})
+					...(newCollection === "AccomplishedRequests" && status === "approved" ? { pdfProcessed: false } : {})
 				});
 
 				// Delete from the original collection
