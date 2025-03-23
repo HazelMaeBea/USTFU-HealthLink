@@ -336,18 +336,16 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 
 	const getAttachments = (request: RecordType) => {
 		const { formData } = request;
-		const attachments = [
-			formData.employeeID,
-			formData.applicantSignature,
-			...("docRequest" in formData ? [formData.docRequest] : []),
-			...("hospitalInvoice" in formData ? [formData.hospitalInvoice] : []),
-			...("labInvoice" in formData ? [formData.labInvoice] : []),
-		].filter((attachment) => attachment && attachment.filename);
+		// Build attachments with type labels based on what was uploaded
+		const attachmentsWithLabels = [
+			{ type: "Employee ID", data: formData.employeeID },
+			{ type: "Applicant Signature", data: formData.applicantSignature },
+			...("docRequest" in formData ? [{ type: "Doc Request", data: formData.docRequest }] : []),
+			...("hospitalInvoice" in formData ? [{ type: "Hospital Invoice", data: formData.hospitalInvoice }] : []),
+			...("labInvoice" in formData ? [{ type: "Lab Invoice", data: formData.labInvoice }] : [])
+		].filter(item => item.data && item.data.filename);
 
-		const renderThumbnail = (attachment: {
-			url?: string;
-			filename: string;
-		}) => {
+		const renderThumbnail = (attachment: { url?: string; filename: string }) => {
 			const ext = attachment.filename.split(".").pop()?.toLowerCase();
 			const imageTypes = ["png", "jpg", "jpeg", "gif", "svg"];
 			if (ext && imageTypes.includes(ext) && attachment.url) {
@@ -388,17 +386,24 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 				<div className="statusTracking-attachments-section">
 					<h4>UPLOADED ATTACHMENTS</h4>
 					<div className="statusTracking-attachment-preview-container">
-						{attachments.map((attachment, index) => (
+						{attachmentsWithLabels.map((item, index) => (
 							<div
 								key={index}
 								className="statusTracking-attachment-preview"
-								onClick={() => setPreviewFile(attachment)}
-								title={attachment.filename}
+								onClick={() => setPreviewFile(item.data)}
+								title={item.data.filename}
 							>
-								{renderThumbnail(attachment)}
-								<p className="statusTracking-file-name">
-									{attachment.filename}
-								</p>
+								<div className="thumbnail-container">
+									{renderThumbnail(item.data)}
+								</div>
+								<div className="file-info">
+									<p className="document-type">
+										{item.type}
+									</p>
+									<p className="statusTracking-file-name">
+										{item.data.filename}
+									</p>
+								</div>
 							</div>
 						))}
 					</div>
@@ -448,7 +453,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 						onClick={() => window.print()}
 						disabled={status === "Pending"}
 					>
-						🖨 PRINT
+						 PRINT
 					</button>
 				</div>
 				<div className="statusTracking-submission-info-container">
