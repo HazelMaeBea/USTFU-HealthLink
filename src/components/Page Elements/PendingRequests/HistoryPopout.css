@@ -154,6 +154,14 @@
 	background-color: #23272b;
 }
 
+.total-amount {
+  margin-top: 15px;
+  text-align: right;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
 @media (max-width: 768px) {
 	.history-popout-content {
 		width: 95%;

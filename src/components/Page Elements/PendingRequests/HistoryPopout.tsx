@@ -18,6 +18,7 @@ const HistoryPopout: React.FC<HistoryPopoutProps> = ({
 }) => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
     // Fetch history data for the requester
@@ -49,7 +50,13 @@ const HistoryPopout: React.FC<HistoryPopoutProps> = ({
           },
         ];
 
+        const totalAmount = mockHistory.reduce(
+          (sum, item) => sum + item.amount,
+          0
+        ); // Compute total amount
+
         setHistory(mockHistory);
+        setTotalAmount(totalAmount);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching history:", error);
@@ -77,33 +84,50 @@ const HistoryPopout: React.FC<HistoryPopoutProps> = ({
           </div>
 
           {loading ? (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <div className="loading-text">Loading history data...</div>
-      </div>
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <div className="loading-text">Loading history data...</div>
+            </div>
           ) : (
             <>
               {history.length > 0 ? (
-                <table className="history-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Description</th>
-                      <th>Amount (PHP)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {history.map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.date}</td>
-                        <td>{item.description}</td>
-                        <td className="amount-column">
-                          ₱{item.amount.toLocaleString()}
+                <>
+                  <table className="history-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Amount (PHP)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {history.map((item, index) => (
+                        <tr key={index}>
+                          <td>{item.date}</td>
+                          <td>{item.description}</td>
+                          <td className="amount-column">
+                            ₱{item.amount.toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td
+                          colSpan={2}
+                          style={{ textAlign: "right", fontWeight: "bold" }}
+                        >
+                          TOTAL:
+                        </td>
+                        <td
+                          className="amount-column"
+                          style={{ fontWeight: "bold" }}
+                        >
+                          ₱{totalAmount.toLocaleString()}
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+
+                </>
               ) : (
                 <div className="no-history-message">
                   No history records found for this user.
