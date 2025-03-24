@@ -1,10 +1,19 @@
-import React from "react";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { FormData } from "./FormBody";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
+import {
+	UseFormRegister,
+	FieldErrors,
+	UseFormSetValue,
+	UseFormWatch,
+} from "react-hook-form";
+import { FormData } from "./EyeglassesForm";
 
 interface FormPersonalInfoProps {
 	register: UseFormRegister<FormData>;
 	errors: FieldErrors<FormData>;
+	setValue: UseFormSetValue<FormData>;
+	watch: UseFormWatch<FormData>;
+	phoneInputValue?: string;
+	setPhoneInputValue?: Dispatch<SetStateAction<string>>;
 }
 
 const suffixOptions = ["Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"];
@@ -34,7 +43,134 @@ const collegeOptions = [
 const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 	register,
 	errors,
+	setValue,
+	watch,
+	phoneInputValue: externalPhoneValue,
+	setPhoneInputValue: externalSetPhoneValue,
 }) => {
+	const [localPhoneInputValue, setLocalPhoneInputValue] =
+		useState<string>("+63");
+	const [isPhoneFocused, setIsPhoneFocused] = useState<boolean>(false);
+
+	const phoneInputValue = externalPhoneValue || localPhoneInputValue;
+	const setPhoneInputValue = externalSetPhoneValue || setLocalPhoneInputValue;
+
+	const contactValue = watch("contact");
+
+	useEffect(() => {
+		if (contactValue && !isPhoneFocused) {
+			formatPhoneNumberDisplay(contactValue.toString());
+		}
+	}, [contactValue, isPhoneFocused]);
+
+	const formatPhoneNumberDisplay = (value: string) => {
+		if (value.startsWith("+63+63")) {
+			value = "+63" + value.substring(6);
+		} else if (!value.startsWith("+63")) {
+			value = "+63" + value.replace(/^63/, "");
+		}
+
+		let formattedValue = value;
+
+		if (value.length > 3) {
+			const mainNumber = value.substring(3);
+			const formatted = mainNumber.replace(
+				/(\d{3})(\d{3})(\d+)/,
+				"$1-$2-$3"
+			);
+			formattedValue = "+63-" + formatted;
+		}
+
+		setPhoneInputValue(formattedValue);
+	};
+
+	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		let value = e.target.value;
+		const previousValue = phoneInputValue;
+		const selectionStart = e.target.selectionStart;
+
+		const isBackspace =
+			value.length < previousValue.length &&
+			selectionStart !== null &&
+			selectionStart <= previousValue.length;
+
+		if (isBackspace && selectionStart !== null && selectionStart <= 4) {
+			if (value.length < 3 || !value.startsWith("+")) {
+				setPhoneInputValue("+63");
+				return;
+			}
+		}
+
+		if (!value.startsWith("+63")) {
+			if (value.startsWith("+")) {
+				value = "+63" + value.substring(1).replace(/^63/, "");
+			} else {
+				value = "+63" + value.replace(/^63/, "");
+			}
+		}
+
+		while (value.includes("+63+63")) {
+			value = value.replace("+63+63", "+63");
+		}
+
+		const digitsOnly = "+" + value.substring(1).replace(/\D/g, "");
+
+		setPhoneInputValue(digitsOnly);
+
+		if (digitsOnly.length > 3) {
+			const numericValue = parseInt(digitsOnly.substring(3), 10);
+			setValue("contact", numericValue, { shouldValidate: true });
+		} else {
+			setValue("contact", undefined as any, { shouldValidate: true });
+		}
+
+		if (!isBackspace && e.target.selectionStart !== null) {
+			setTimeout(() => {
+				if (e.target) {
+					const newPosition = Math.min(
+						Math.max(selectionStart || 0, 3),
+						digitsOnly.length
+					);
+					e.target.setSelectionRange(newPosition, newPosition);
+				}
+			}, 0);
+		}
+	};
+
+	const handlePhoneFocus = () => {
+		setIsPhoneFocused(true);
+		if (contactValue) {
+			let rawValue = contactValue.toString();
+			if (!rawValue.startsWith("+63") && !rawValue.startsWith("63")) {
+				rawValue = "+63" + rawValue;
+			} else if (rawValue.startsWith("63")) {
+				rawValue = "+" + rawValue;
+			}
+			setPhoneInputValue(rawValue);
+		} else {
+			setPhoneInputValue("+63");
+		}
+	};
+
+	const handlePhoneBlur = () => {
+		setIsPhoneFocused(false);
+
+		if (phoneInputValue.length > 3) {
+			const numericPart = phoneInputValue.substring(3).replace(/\D/g, "");
+			if (numericPart) {
+				formatPhoneNumberDisplay("+63" + numericPart);
+			}
+		}
+	};
+
+	const {
+		name: contactName,
+		ref: contactRef,
+		onChange: contactOnChange,
+		onBlur: contactOnBlur,
+		...contactRest
+	} = register("contact");
+
 	return (
 		<fieldset className="PersonalInfo">
 			<div className="row">
@@ -53,6 +189,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						<p className="text-danger">{errors.lastname.message}</p>
 					)}
 				</div>
+
 				<div className="mb-1 col-md-3">
 					<label htmlFor="firstname" className="form-label">
 						First Name <span className="required-asterisk">*</span>
@@ -70,6 +207,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						</p>
 					)}
 				</div>
+
 				<div className="mb-1 col-md-3">
 					<label htmlFor="middlename" className="form-label">
 						Middle Name <span className="required-asterisk">*</span>
@@ -87,6 +225,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						</p>
 					)}
 				</div>
+
 				<div className="mb-1 col-md-3">
 					<label htmlFor="suffix" className="form-label">
 						Suffix
@@ -113,6 +252,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 					</select>
 				</div>
 			</div>
+
 			<div className="row">
 				<div className="mb-1 col-md-1">
 					<label htmlFor="age" className="form-label">
@@ -129,6 +269,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						<p className="text-danger">{errors.age.message}</p>
 					)}
 				</div>
+
 				<div className="mb-1 col-md-2">
 					<label htmlFor="gender" className="form-label">
 						Gender <span className="required-asterisk">*</span>
@@ -157,9 +298,11 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						<p className="text-danger">{errors.gender.message}</p>
 					)}
 				</div>
+
 				<div className="mb-1 col-md-6">
 					<label htmlFor="college" className="form-label">
-						College Affiliation <span className="required-asterisk">*</span>
+						College Affiliation{" "}
+						<span className="required-asterisk">*</span>
 					</label>
 					<select
 						{...register("college")}
@@ -179,16 +322,32 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						<p className="text-danger">{errors.college.message}</p>
 					)}
 				</div>
+
 				<div className="mb-1 col-md-3">
 					<label htmlFor="contact" className="form-label">
-						Phone Number <span className="required-asterisk">*</span>
+						Phone Number{" "}
+						<span className="required-asterisk">*</span>
 					</label>
 					<input
-						{...register("contact", { valueAsNumber: true })}
 						id="contact"
-						type="number"
-						className="form-control"
-						placeholder="e.g. +639-xxx-xxx-xxx..."
+						name={contactName}
+						ref={contactRef}
+						type="text"
+						className={`form-control ${
+							errors.contact ? "is-invalid" : ""
+						}`}
+						placeholder="e.g. +63-XXX-XXX-XXXX"
+						value={phoneInputValue}
+						onChange={(e) => {
+							handlePhoneChange(e);
+							contactOnChange(e);
+						}}
+						onFocus={handlePhoneFocus}
+						onBlur={(e) => {
+							handlePhoneBlur();
+							if (contactOnBlur) contactOnBlur(e);
+						}}
+						{...contactRest}
 					/>
 					{errors.contact && (
 						<p className="text-danger">{errors.contact.message}</p>

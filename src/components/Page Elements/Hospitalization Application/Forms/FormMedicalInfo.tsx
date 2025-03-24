@@ -28,7 +28,8 @@ const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 			<div className="row">
 				<div className="mb-1 col-md-3">
 					<label htmlFor="hospital" className="form-label">
-						Hospital Name <span className="required-asterisk">*</span>
+						Hospital Name{" "}
+						<span className="required-asterisk">*</span>
 					</label>
 					<input
 						{...register("hospital")}
@@ -43,7 +44,8 @@ const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 				</div>
 				<div className="mb-1 col-md-6">
 					<label htmlFor="illness" className="form-label">
-						Nature of Illness <span className="required-asterisk">*</span>
+						Nature of Illness{" "}
+						<span className="required-asterisk">*</span>
 					</label>
 					<input
 						{...register("illness")}
@@ -102,7 +104,8 @@ const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 				</div>
 				<div className="col-md-6">
 					<label htmlFor="procedureSpecify" className="form-label">
-						Specify Procedure: <span className="required-asterisk">*</span>
+						Specify Procedure:{" "}
+						<span className="required-asterisk">*</span>
 					</label>
 					<input
 						{...register("procedureSpecify", {

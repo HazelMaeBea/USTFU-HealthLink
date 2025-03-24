@@ -1,15 +1,27 @@
-import React, { useState, Dispatch, SetStateAction } from "react";
-import { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
-import { FormData } from "./AdmissionForm"; // Update import to use AdmissionForm's FormData type
+import React, {
+	useEffect,
+	useState,
+	Dispatch,
+	SetStateAction,
+	useRef,
+} from "react";
+import {
+	UseFormRegister,
+	FieldErrors,
+	UseFormSetValue,
+	UseFormWatch,
+} from "react-hook-form";
+import { FormData } from "./AdmissionForm";
 
 interface AdmissionTeachingInfoProps {
-	register: UseFormRegister<FormData>; // Use FormData type
-	errors: FieldErrors<FormData>; // Use FormData type
+	register: UseFormRegister<FormData>;
+	errors: FieldErrors<FormData>;
 	dateHired: Date | null;
 	setDateHired: Dispatch<SetStateAction<Date | null>>;
 	dateRetired: Date | null;
 	setDateRetired: Dispatch<SetStateAction<Date | null>>;
-	setValue?: UseFormSetValue<FormData>; // Make setValue optional
+	setValue?: UseFormSetValue<FormData>;
+	watch?: UseFormWatch<FormData>;
 }
 
 // Status options matching the FormTeachingInfo component
@@ -28,11 +40,27 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 	setDateHired,
 	dateRetired,
 	setDateRetired,
-	setValue, // Accept setValue but make it optional
+	setValue,
+	watch,
 }) => {
 	const [status, setStatus] = useState("");
 
+	// Get current status from form
+	const formStatus = watch ? watch("status") : "";
+
+	// Add a ref to track whether the user has interacted with the status field
+	const userInteractedRef = useRef(false);
+
+	// Sync local status with form status (for autofill), but give precedence to user selection
+	useEffect(() => {
+		// Only update on initial autofill, not on subsequent changes
+		if (formStatus && formStatus !== status && !userInteractedRef.current) {
+			setStatus(formStatus);
+		}
+	}, [formStatus, status]);
+
 	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		userInteractedRef.current = true; // Mark that user has interacted
 		setStatus(event.target.value);
 	};
 
@@ -41,7 +69,8 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 			<div className="row mb-3">
 				<div className="col-md-12">
 					<label htmlFor="address" className="form-label">
-						Home Address <span className="required-asterisk">*</span>
+						Home Address{" "}
+						<span className="required-asterisk">*</span>
 					</label>
 					<input
 						id="address"
@@ -62,7 +91,8 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 			<div className="row mb-3">
 				<div className="col-md-3">
 					<label htmlFor="idNumber" className="form-label">
-						Employee ID Number <span className="required-asterisk">*</span>
+						Employee ID Number{" "}
+						<span className="required-asterisk">*</span>
 					</label>
 					<input
 						id="idNumber"
@@ -82,7 +112,8 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 
 				<div className="col-md-2">
 					<label htmlFor="load" className="form-label">
-						Load (Units){" "} <span className="required-asterisk">*</span>
+						Load (Units){" "}
+						<span className="required-asterisk">*</span>
 					</label>
 					<input
 						id="load"
@@ -105,8 +136,10 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 
 				<div className="col-md-3">
 					<label className="form-label">
-						Employment Status <span className="required">*</span>
+						Employment Status{" "}
+						<span className="required-asterisk">*</span>
 					</label>
+					{/* Replace select with radio buttons */}
 					{statusOptions.map((option, index) => (
 						<div key={index} className="form-check">
 							<input
@@ -116,6 +149,7 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 								value={option}
 								className="form-check-input"
 								onChange={handleStatusChange}
+								checked={status === option}
 							/>
 							<label
 								htmlFor={`status-${index}`}
@@ -132,15 +166,12 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 					)}
 				</div>
 
-				{/* Adjust the column width to accommodate the ID field */}
-				<div className="col-md-3">
-					{/* Date fields in the same row */}
+				<div className="col-md-4">
+					{/* Date fields */}
 					<div
-						className="date-hired-container"
 						style={{
 							display:
 								status === "Tenured-Track" ? "block" : "none",
-							marginBottom: "15px",
 						}}
 					>
 						<label htmlFor="dateHired" className="form-label">
@@ -170,10 +201,13 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 					</div>
 
 					<div
-						className="date-retired-container"
 						style={{
 							display: status === "Retiree" ? "block" : "none",
-							marginBottom: "15px",
+							marginTop:
+								status === "Retiree" &&
+								status === "Tenured-Track"
+									? "1rem"
+									: "0",
 						}}
 					>
 						<label htmlFor="dateRetired" className="form-label">

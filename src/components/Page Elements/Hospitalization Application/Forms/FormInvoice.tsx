@@ -1,72 +1,185 @@
-import React from "react";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
+import React, { useState, useEffect } from "react";
+import {
+	UseFormRegister,
+	FieldErrors,
+	UseFormSetValue,
+	UseFormWatch,
+} from "react-hook-form";
 import { FormData } from "./EyeglassesForm";
 import "./FormInvoice.css";
 
 interface FormInvoiceProps {
-  register: UseFormRegister<FormData>;
-  errors: FieldErrors<FormData>;
+	register: UseFormRegister<FormData>;
+	errors: FieldErrors<FormData>;
+	setValue: UseFormSetValue<FormData>;
+	watch: UseFormWatch<FormData>;
 }
 
-const FormInvoice: React.FC<FormInvoiceProps> = ({ register, errors }) => {
-  return (
-    <>
-      <fieldset className="InvoiceInfo">
-        <div className="row align-items-center">
-          <div className="mb-1 col-md-3">
-            <label htmlFor="ORNumber" className="form-label">
-              OR Number <span className="required-asterisk">*</span>
-            </label>
-            <input
-              {...register("ORNumber")}
-              id="ORNumber"
-              type="text"
-              className="form-control"
-              placeholder="eg. OR-2025-00001"
-            />
-            {errors.ORNumber && (
-              <p className="text-danger">{errors.ORNumber.message}</p>
-            )}
-          </div>
+const FormInvoice: React.FC<FormInvoiceProps> = ({
+	register,
+	errors,
+	setValue,
+	watch,
+}) => {
+	const [inputValue, setInputValue] = useState<string>("");
+	const [isFocused, setIsFocused] = useState<boolean>(false);
 
-          <div className="mb-1 col-md-3">
-            <label htmlFor="issuedBy" className="form-label">
-              Issued by <span className="required-asterisk">*</span>
-            </label>
-            <input
-              {...register("issuedBy")}
-              id="issuedBy"
-              type="text"
-              className="form-control"
-              placeholder="eg. Metro Optical"
-            />
-            {errors.issuedBy && (
-              <p className="text-danger">{errors.issuedBy.message}</p>
-            )}
-          </div>
+	const amountPaid = watch("amountPaid");
 
-          <div className="mb-1 col-md-3">
-            <label htmlFor="amountPaid" className="form-label">
-              Amount Paid <span className="required-asterisk">*</span>
-            </label>
-            <div className="amount-container">
-              <span className="currency-symbol">₱</span>
-              <input
-                {...register("amountPaid", { valueAsNumber: true })}
-                id="amountPaid"
-                type="number"
-                className="form-control custom-input"
-                placeholder="eg. 5000"
-              />
-            </div>
-            {errors.amountPaid && (
-              <p className="text-danger">{errors.amountPaid.message}</p>
-            )}
-          </div>
-        </div>
-      </fieldset>
-    </>
-  );
+	// Format number with commas and decimal places
+	const formatWithCommas = (value: number): string => {
+		return value.toLocaleString("en-US", {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+		});
+	};
+
+	useEffect(() => {
+		if (amountPaid) {
+			if (isFocused) {
+				const plainValue = amountPaid.toString();
+				setInputValue(
+					plainValue.includes(".") && plainValue.endsWith(".0")
+						? plainValue.replace(/\.0+$/, "")
+						: plainValue
+				);
+			} else {
+				// Format with commas and 2 decimal places
+				setInputValue(formatWithCommas(Number(amountPaid)));
+			}
+		}
+	}, [amountPaid, isFocused]);
+
+	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+
+		// Only allow digits and decimal point (remove any commas during input)
+		const cleanValue = value.replace(/,/g, "");
+
+		if (cleanValue === "" || /^\d*\.?\d*$/.test(cleanValue)) {
+			setInputValue(cleanValue);
+
+			if (cleanValue && !isNaN(Number(cleanValue))) {
+				let numValue = parseFloat(cleanValue);
+				setValue("amountPaid", numValue);
+			} else if (cleanValue === "") {
+				setValue("amountPaid", undefined as any);
+			}
+		}
+	};
+
+	const handleFocus = () => {
+		setIsFocused(true);
+		if (amountPaid) {
+			// When focusing, strip formatting for easier editing
+			const plainValue = amountPaid.toString();
+			setInputValue(
+				plainValue.includes(".") && plainValue.endsWith(".0")
+					? plainValue.replace(/\.0+$/, "")
+					: plainValue
+			);
+		}
+	};
+
+	const handleBlur = () => {
+		setIsFocused(false);
+		if (inputValue && !isNaN(parseFloat(inputValue))) {
+			const numValue = parseFloat(inputValue);
+			// Format with commas and 2 decimal places
+			setInputValue(formatWithCommas(numValue));
+			setValue("amountPaid", numValue);
+		}
+	};
+
+	const {
+		name,
+		ref,
+		onChange: registerOnChange,
+		onBlur: registerOnBlur,
+		...rest
+	} = register("amountPaid");
+
+	return (
+		<>
+			<fieldset className="InvoiceInfo">
+				<div className="row align-items-center">
+					<div className="mb-1 col-md-3">
+						<label htmlFor="ORNumber" className="form-label">
+							OR Number{" "}
+							<span className="required-asterisk">*</span>
+						</label>
+						<input
+							{...register("ORNumber")}
+							id="ORNumber"
+							type="text"
+							className="form-control"
+							placeholder="eg. OR-2025-00001"
+						/>
+						{errors.ORNumber && (
+							<p className="text-danger">
+								{errors.ORNumber.message}
+							</p>
+						)}
+					</div>
+
+					<div className="mb-1 col-md-3">
+						<label htmlFor="issuedBy" className="form-label">
+							Issued by{" "}
+							<span className="required-asterisk">*</span>
+						</label>
+						<input
+							{...register("issuedBy")}
+							id="issuedBy"
+							type="text"
+							className="form-control"
+							placeholder="eg. Metro Optical"
+						/>
+						{errors.issuedBy && (
+							<p className="text-danger">
+								{errors.issuedBy.message}
+							</p>
+						)}
+					</div>
+
+					<div className="mb-1 col-md-3">
+						<label htmlFor="amountPaid" className="form-label">
+							Amount Paid (Max ₱2,500)
+							<span className="required-asterisk">*</span>
+						</label>
+						<div className="amount-container">
+							<span className="currency-symbol">₱</span>
+							<input
+								id="amountPaid"
+								name={name}
+								ref={ref}
+								type="text"
+								className={`form-control custom-input ${
+									errors.amountPaid ? "is-invalid" : ""
+								}`}
+								placeholder="eg. 2500.00"
+								value={inputValue}
+								onChange={(e) => {
+									handleAmountChange(e);
+									registerOnChange(e);
+								}}
+								onFocus={handleFocus}
+								onBlur={(e) => {
+									handleBlur();
+									if (registerOnBlur) registerOnBlur(e);
+								}}
+								{...rest}
+							/>
+						</div>
+						{errors.amountPaid && (
+							<p className="text-danger">
+								{errors.amountPaid.message as string}
+							</p>
+						)}
+					</div>
+				</div>
+			</fieldset>
+		</>
+	);
 };
 
 export default FormInvoice;

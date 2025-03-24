@@ -149,12 +149,6 @@ const formatIDNumber = (value: string): string => {
 		: digits;
 };
 
-// >>> Updated phone number formatting helper (remove auto-prepend)
-const formatPhoneNumber = (value: string): string => {
-	return value.replace(/\D/g, "").slice(0, 12);
-};
-// <<< End updated phone number formatting helper
-
 const Settings = () => {
 	const [settings, setSettings] = useState({
 		// User profile fields with safe defaults
@@ -194,6 +188,8 @@ const Settings = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
+	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
+	const [isPhoneFocused, setIsPhoneFocused] = useState<boolean>(false);
 
 	// Get Firebase context
 	const { db, currentUser, uid } = useFirebase();
@@ -399,12 +395,11 @@ const Settings = () => {
 	};
 
 	const handleConfirmSave = async () => {
-		// >>> Added phone number validation on submit
-		if (!settings.phoneNumber.startsWith("639")) {
-			setError("Phone number must start with 639");
+		// Update phone validation to check for proper length, not prefix
+		if (settings.phoneNumber.length < 10) {
+			setError("Please enter a valid phone number");
 			return;
 		}
-		// <<< End phone number validation on submit
 		if (!uid) {
 			setError("You must be logged in to save changes.");
 			setIsConfirmOpen(false);
@@ -508,6 +503,86 @@ const Settings = () => {
 			setIsConfirmOpen(false);
 		}
 	};
+
+	// Add these phone formatting functions
+	const formatPhoneNumberDisplay = (value: string) => {
+		// Make sure value starts with +63
+		if (!value.startsWith("+63")) {
+			value = "+63" + value;
+		}
+
+		// Format for display (e.g., +63-XXX-XXX-XXXX)
+		let formattedValue = value;
+
+		// If more than +63 is present, format with hyphens
+		if (value.length > 3) {
+			const mainNumber = value.substring(3); // get everything after +63
+
+			let formatted = mainNumber.replace(
+				/(\d{3})(\d{3})(\d+)/,
+				"$1-$2-$3"
+			);
+			formattedValue = "+63-" + formatted;
+		}
+
+		setPhoneInputValue(formattedValue);
+	};
+
+	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		let value = e.target.value;
+
+		// Ensure it always starts with +63
+		if (!value.startsWith("+63")) {
+			if (value.startsWith("+")) {
+				value = "+63" + value.substring(1);
+			} else {
+				value = "+63" + value;
+			}
+		}
+
+		// Remove non-digit characters (except the leading +)
+		const digitsOnly = "+" + value.substring(1).replace(/\D/g, "");
+
+		setPhoneInputValue(digitsOnly);
+
+		// Update the form value with just the numeric part for backend storage
+		if (digitsOnly.length > 3) {
+			const phoneWithoutPrefix = digitsOnly.substring(3);
+			handleFieldChange("phoneNumber", phoneWithoutPrefix);
+		} else {
+			handleFieldChange("phoneNumber", "");
+		}
+	};
+
+	const handlePhoneFocus = () => {
+		setIsPhoneFocused(true);
+		// Remove formatting when focused, but keep +63
+		if (settings.phoneNumber) {
+			let rawValue = "+63" + settings.phoneNumber;
+			setPhoneInputValue(rawValue);
+		} else {
+			setPhoneInputValue("+63");
+		}
+	};
+
+	const handlePhoneBlur = () => {
+		setIsPhoneFocused(false);
+
+		// Reapply formatting
+		if (phoneInputValue.length > 3) {
+			const numericPart = phoneInputValue.substring(3).replace(/\D/g, "");
+			if (numericPart) {
+				formatPhoneNumberDisplay("+63" + numericPart);
+			}
+		}
+	};
+
+	// Initialize phone input value when data loads
+	useEffect(() => {
+		if (settings.phoneNumber) {
+			formatPhoneNumberDisplay("+63" + settings.phoneNumber);
+		}
+	}, [settings.phoneNumber]);
 
 	if (isLoading) {
 		return (
@@ -773,13 +848,10 @@ const Settings = () => {
 						<input
 							type="text"
 							className="form-control settings-field-value"
-							value={settings.phoneNumber}
-							onChange={(e) =>
-								handleFieldChange(
-									"phoneNumber",
-									formatPhoneNumber(e.target.value)
-								)
-							}
+							value={phoneInputValue}
+							onChange={handlePhoneChange}
+							onFocus={handlePhoneFocus}
+							onBlur={handlePhoneBlur}
 							aria-label="Phone Number"
 						/>
 					</div>
