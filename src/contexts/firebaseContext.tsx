@@ -25,6 +25,7 @@ import {
 	storage,
 	storageRef,
 	callFunction,
+	getFormID,
 } from "../config/firebase";
 import { User, onAuthStateChanged, getIdTokenResult } from "firebase/auth";
 import { login, logout } from "../services/auth";
@@ -56,6 +57,7 @@ interface FirebaseContextType {
 	email: string | null;
 	uid: string | null;
 	fullName: string | null;
+	getFormID: (increment: boolean) => Promise<number | null>;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | undefined>(
@@ -152,6 +154,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 		email,
 		uid,
 		fullName,
+		getFormID,
 	};
 
 	return (
