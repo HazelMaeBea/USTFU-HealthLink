@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, getDoc, doc, updateDoc } from "firebase/firestore";
+import { getFirestore, getDoc, doc, updateDoc, onSnapshot, increment } from "firebase/firestore";
 import { getStorage, ref } from "firebase/storage";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
@@ -36,24 +36,25 @@ interface GlobalVariables {
 
 const globalDoc = doc(db, 'globals', 'globalVariables');
 
-export const getFormID = async (increment: boolean): Promise<number | null> => {
+export const getFormID = async (
+  incrementValue: boolean,
+  incrementAmount: number = 1 // Default increment value
+): Promise<number | null> => {
   try {
-    const docSnap = await getDoc(globalDoc);
+    const docSnap = await getDoc(globalDoc); // Ensure globalDoc is properly initialized
+
     if (docSnap.exists()) {
       const data = docSnap.data() as GlobalVariables;
       let formID = data.FormID;
 
-      if (increment) {
+      if (incrementValue) {
         if (formID >= 999999) {
-          await updateDoc(globalDoc, {
-            FormID: 1,
-          });
+          await updateDoc(globalDoc, { FormID: 1 }); // Reset to 1
           return 1;
         } else {
-          formID += 1;
-          await updateDoc(globalDoc, {
-            FormID: formID,
-          });
+          // Use the atomic `increment` function with the specified increment amount
+          await updateDoc(globalDoc, { FormID: increment(incrementAmount) });
+          formID += incrementAmount; // Locally reflect the increment for the return
         }
       }
 
