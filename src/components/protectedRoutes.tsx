@@ -30,12 +30,13 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useFirebase } from "../contexts/firebaseContext";
 
 const ProtectedRoute: React.FC = () => {
-	const { isLoading, isAuthenticated, isVerified, userStatus } = useFirebase();
+	const { isLoading, isAuthenticated, isVerified, userStatus } =
+		useFirebase();
 	const [gracePeriod, setGracePeriod] = useState(true);
 
 	useEffect(() => {
 		if (!isLoading) {
-			setTimeout(() => setGracePeriod(false), 2000); // 2s delay to allow Firebase state updates
+			setTimeout(() => setGracePeriod(false), 500); // 2s delay to allow Firebase state updates
 		}
 	}, [isLoading]);
 

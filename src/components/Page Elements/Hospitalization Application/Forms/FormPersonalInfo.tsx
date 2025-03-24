@@ -40,7 +40,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 			<div className="row">
 				<div className="mb-1 col-md-3">
 					<label htmlFor="lastname" className="form-label">
-						Last Name
+						Last Name <span className="required-asterisk">*</span>
 					</label>
 					<input
 						{...register("lastname")}
@@ -55,7 +55,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 				</div>
 				<div className="mb-1 col-md-3">
 					<label htmlFor="firstname" className="form-label">
-						First Name
+						First Name <span className="required-asterisk">*</span>
 					</label>
 					<input
 						{...register("firstname")}
@@ -72,7 +72,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 				</div>
 				<div className="mb-1 col-md-3">
 					<label htmlFor="middlename" className="form-label">
-						Middle Name
+						Middle Name <span className="required-asterisk">*</span>
 					</label>
 					<input
 						{...register("middlename")}
@@ -116,7 +116,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 			<div className="row">
 				<div className="mb-1 col-md-1">
 					<label htmlFor="age" className="form-label">
-						Age
+						Age <span className="required-asterisk">*</span>
 					</label>
 					<input
 						{...register("age", { valueAsNumber: true })}
@@ -131,7 +131,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 				</div>
 				<div className="mb-1 col-md-2">
 					<label htmlFor="gender" className="form-label">
-						Gender
+						Gender <span className="required-asterisk">*</span>
 					</label>
 					<select
 						{...register("gender")}
@@ -159,7 +159,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 				</div>
 				<div className="mb-1 col-md-6">
 					<label htmlFor="college" className="form-label">
-						College Affiliation
+						College Affiliation <span className="required-asterisk">*</span>
 					</label>
 					<select
 						{...register("college")}
@@ -181,7 +181,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 				</div>
 				<div className="mb-1 col-md-3">
 					<label htmlFor="contact" className="form-label">
-						Phone Number
+						Phone Number <span className="required-asterisk">*</span>
 					</label>
 					<input
 						{...register("contact", { valueAsNumber: true })}

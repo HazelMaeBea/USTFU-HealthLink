@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, ReactNode } from "react";
 import styles from "./Popout.module.css";
 import ReactDOM from "react-dom";
 
 interface PopoutProps {
 	title: string;
-	message: string;
+	message: string | ReactNode; // Changed from just string to support JSX content
 	onConfirm: () => void;
 	onCancel: () => void;
 	isOpen: boolean;
