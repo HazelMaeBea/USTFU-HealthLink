@@ -14,7 +14,6 @@ import { doc, setDoc } from "firebase/firestore";
 import { auth, db, getFormID } from "../../../../config/firebase.ts";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit";
-import "./FormBody.css";
 import { useAutofill } from "../Autofill.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
@@ -74,7 +73,7 @@ const schema = z
 				invalid_type_error: "Please enter a valid contact number",
 				required_error: "Contact number is required",
 			})
-			.min(21, "Please provide a valid contact number"),
+			.min(10, "Please provide a valid contact number"),
 		college: z
 			.string({
 				required_error: "Please select your college",
@@ -175,6 +174,7 @@ const AdmissionForm = () => {
 		reset,
 		setValue,
 		watch,
+		setError,
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
@@ -286,6 +286,9 @@ const AdmissionForm = () => {
 
 			// Reset form after successful submission
 			reset();
+			setDateHired(null);
+			setDateRetired(null);
+			setPhoneInputValue("+63");
 		} catch (error) {
 			console.error(error);
 			setSubmissionStatus("error");
@@ -336,6 +339,7 @@ const AdmissionForm = () => {
 							<FormMedicalFiles
 								register={register}
 								errors={errors}
+								setError={setError}
 							/>
 							<FormCertify register={register} errors={errors} />
 

@@ -17,7 +17,10 @@ import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 import { useAutofill } from "../Autofill.ts";
-import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
+import {
+	uploadFilesAndGetURLs,
+	validateFileListSize,
+} from "../../../../utils/fileUpload.ts";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -128,6 +131,7 @@ const EyeglassesForm = () => {
 	const [dateHired, setDateHired] = useState<Date | null>(null);
 	// Add a state for phone input value at the form level
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
+	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 	const navigate = useNavigate();
 
 	const {
@@ -136,6 +140,7 @@ const EyeglassesForm = () => {
 		reset,
 		setValue,
 		watch,
+		setError,
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
 
@@ -164,6 +169,36 @@ const EyeglassesForm = () => {
 	const handleClearCancel = () => {
 		setShowClearConfirmation(false);
 	};
+
+	// Handler for file input changes
+	const handleFileChange =
+		(fieldName: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+			const files = e.target.files;
+			const result = validateFileListSize(files);
+
+			if (!result.valid) {
+				// Set custom file error
+				setFileErrors((prev) => ({
+					...prev,
+					[fieldName]: result.errorMessage,
+				}));
+
+				// Clear the input
+				e.target.value = "";
+
+				// Set form error
+				setError(fieldName as any, {
+					type: "manual",
+					message: result.errorMessage,
+				});
+			} else {
+				// Clear error if file is valid
+				setFileErrors((prev) => ({
+					...prev,
+					[fieldName]: "",
+				}));
+			}
+		};
 
 	const onSubmit = async (data: FieldValues) => {
 		// Show notification immediately with processing state
@@ -388,19 +423,28 @@ const EyeglassesForm = () => {
 													type="file"
 													accept=".pdf, .png, .jpg, .jpeg"
 													className={`form-control ${
-														errors.employeeID
+														errors.employeeID ||
+														fileErrors.employeeID
 															? "is-invalid"
 															: ""
 													}`}
 													{...register("employeeID")}
 													name="employeeID"
+													onChange={(e) => {
+														register(
+															"employeeID"
+														).onChange(e);
+														handleFileChange(
+															"employeeID"
+														)(e);
+													}}
 												/>
-												{errors.employeeID && (
+												{(errors.employeeID ||
+													fileErrors.employeeID) && (
 													<p className="invalid-feedback">
-														{
-															errors.employeeID
-																?.message as string
-														}
+														{fileErrors.employeeID ||
+															(errors.employeeID
+																?.message as string)}
 													</p>
 												)}
 											</td>
@@ -422,7 +466,8 @@ const EyeglassesForm = () => {
 													type="file"
 													accept=".pdf, .png, .jpg, .jpeg"
 													className={`form-control ${
-														errors.eyeglassesReceipt
+														errors.eyeglassesReceipt ||
+														fileErrors.eyeglassesReceipt
 															? "is-invalid"
 															: ""
 													}`}
@@ -430,14 +475,22 @@ const EyeglassesForm = () => {
 														"eyeglassesReceipt"
 													)}
 													name="eyeglassesReceipt"
+													onChange={(e) => {
+														register(
+															"eyeglassesReceipt"
+														).onChange(e);
+														handleFileChange(
+															"eyeglassesReceipt"
+														)(e);
+													}}
 												/>
-												{errors.eyeglassesReceipt && (
+												{(errors.eyeglassesReceipt ||
+													fileErrors.eyeglassesReceipt) && (
 													<p className="invalid-feedback">
-														{
-															errors
+														{fileErrors.eyeglassesReceipt ||
+															(errors
 																.eyeglassesReceipt
-																?.message as string
-														}
+																?.message as string)}
 													</p>
 												)}
 											</td>
@@ -459,7 +512,8 @@ const EyeglassesForm = () => {
 													type="file"
 													accept=".pdf, .png, .jpg, .jpeg"
 													className={`form-control ${
-														errors.applicantSignature
+														errors.applicantSignature ||
+														fileErrors.applicantSignature
 															? "is-invalid"
 															: ""
 													}`}
@@ -467,14 +521,22 @@ const EyeglassesForm = () => {
 														"applicantSignature"
 													)}
 													name="applicantSignature"
+													onChange={(e) => {
+														register(
+															"applicantSignature"
+														).onChange(e);
+														handleFileChange(
+															"applicantSignature"
+														)(e);
+													}}
 												/>
-												{errors.applicantSignature && (
+												{(errors.applicantSignature ||
+													fileErrors.applicantSignature) && (
 													<p className="invalid-feedback">
-														{
-															errors
+														{fileErrors.applicantSignature ||
+															(errors
 																.applicantSignature
-																?.message as string
-														}
+																?.message as string)}
 													</p>
 												)}
 											</td>

@@ -13,6 +13,53 @@ interface FileUploadMap {
 
 // Maximum file size in MB
 const MAX_FILE_SIZE_MB = 5;
+// Maximum file size in bytes (5MB)
+export const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+/**
+ * Checks if a file is within the acceptable size limit
+ * @param file The file to check
+ * @returns An object with the validation result and error message if any
+ */
+export const validateFileSize = (
+	file: File | null | undefined
+): { valid: boolean; errorMessage: string } => {
+	if (!file) {
+		return { valid: true, errorMessage: "" };
+	}
+
+	if (file.size > MAX_FILE_SIZE) {
+		const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+		return {
+			valid: false,
+			errorMessage: `File is too large (${fileSizeMB}MB). Maximum file size is ${MAX_FILE_SIZE_MB}MB.`,
+		};
+	}
+
+	return { valid: true, errorMessage: "" };
+};
+
+/**
+ * Validates a FileList to ensure all files are within size limits
+ * @param fileList The FileList to check
+ * @returns An object with the validation result and error message if any
+ */
+export const validateFileListSize = (
+	fileList: FileList | null | undefined
+): { valid: boolean; errorMessage: string } => {
+	if (!fileList || fileList.length === 0) {
+		return { valid: true, errorMessage: "" };
+	}
+
+	for (let i = 0; i < fileList.length; i++) {
+		const result = validateFileSize(fileList[i]);
+		if (!result.valid) {
+			return result;
+		}
+	}
+
+	return { valid: true, errorMessage: "" };
+};
 
 /**
  * Optimize image files before upload (if they are images)
@@ -63,8 +110,9 @@ const optimizeImageIfNeeded = async (file) => {
 
 /**
  * Check if file size exceeds the limit
+ * @deprecated Use validateFileSize instead for more detailed error messages
  */
-const validateFileSize = (file: File): boolean => {
+const validateFileSizeLegacy = (file: File): boolean => {
 	const fileSizeMB = file.size / (1024 * 1024);
 	if (fileSizeMB > MAX_FILE_SIZE_MB) {
 		alert(
@@ -101,7 +149,7 @@ export const uploadFilesAndGetURLs = async (
 	for (const [field, fileList] of Object.entries(files)) {
 		if (fileList && fileList.length > 0) {
 			const file = fileList[0];
-			if (validateFileSize(file)) {
+			if (validateFileSizeLegacy(file)) {
 				validFiles.push({ field, file });
 			} else {
 				// Skip this file but provide a placeholder

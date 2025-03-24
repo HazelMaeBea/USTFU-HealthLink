@@ -216,6 +216,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		reset,
 		setValue,
 		watch,
+		setError,
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -379,7 +380,11 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					watch={watch} // Pass watch to the component
 				/>
 				<FormUploadDisclaimer />
-				<FormMedicalFiles register={register} errors={errors} />
+				<FormMedicalFiles
+					register={register}
+					errors={errors}
+					setError={setError}
+				/>
 				<FormHospitalStatus register={register} errors={errors} />
 				<FormCertify register={register} errors={errors} />
 
