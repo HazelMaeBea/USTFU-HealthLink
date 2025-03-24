@@ -14,7 +14,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { auth, db, getFormID } from "../../../../config/firebase.ts";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit";
-import { useAutofill } from "../Autofill.ts";
+import { useAutofill, applyAutofill } from "../Autofill.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
@@ -166,6 +166,7 @@ const AdmissionForm = () => {
 	>("processing");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
+	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
 	const navigate = useNavigate();
 
 	const {
@@ -176,9 +177,38 @@ const AdmissionForm = () => {
 		watch,
 		setError,
 		formState: { errors, isSubmitted },
-	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
+	} = useForm<FormData>({
+		resolver: zodResolver(schema),
+		mode: "onChange",
+		defaultValues: {
+			gender: undefined,
+			college: "",
+			status: "",
+		},
+	});
 
+	// Apply autofill when component loads
 	useAutofill(setValue, setDateHired, setDateRetired, setPhoneInputValue);
+
+	// Re-apply autofill after form is cleared
+	useEffect(() => {
+		if (shouldReapplyAutofill) {
+			// Use applyAutofill function directly, not the hook
+			applyAutofill(
+				setValue,
+				setDateHired,
+				setDateRetired,
+				setPhoneInputValue
+			);
+			setShouldReapplyAutofill(false);
+		}
+	}, [
+		shouldReapplyAutofill,
+		setValue,
+		setDateHired,
+		setDateRetired,
+		setPhoneInputValue,
+	]);
 
 	const closeNotification = () => {
 		setIsNotificationHiding(true);
@@ -195,7 +225,14 @@ const AdmissionForm = () => {
 	};
 
 	const handleClearConfirm = () => {
-		reset();
+		// Reset form with empty select values
+		reset({
+			gender: undefined,
+			college: "",
+			status: "",
+		});
+
+		setShouldReapplyAutofill(true);
 		setShowClearConfirmation(false);
 	};
 

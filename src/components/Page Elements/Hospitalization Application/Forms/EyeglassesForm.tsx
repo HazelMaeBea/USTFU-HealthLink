@@ -16,7 +16,7 @@ import RemainingBenefit from "./RemainingBenefit.tsx";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
-import { useAutofill } from "../Autofill.ts";
+import { useAutofill, applyAutofill } from "../Autofill.ts";
 import {
 	uploadFilesAndGetURLs,
 	validateFileListSize,
@@ -132,6 +132,7 @@ const EyeglassesForm = () => {
 	// Add a state for phone input value at the form level
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
 	const navigate = useNavigate();
 
 	const {
@@ -142,10 +143,31 @@ const EyeglassesForm = () => {
 		watch,
 		setError,
 		formState: { errors, isSubmitted },
-	} = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
+	} = useForm<FormData>({
+		resolver: zodResolver(schema),
+		mode: "onChange",
+		defaultValues: {
+			gender: undefined,
+			college: "",
+		},
+	});
 
-	// Pass setPhoneInputValue to the useAutofill hook
+	// Apply autofill when component loads
 	useAutofill(setValue, setDateHired, undefined, setPhoneInputValue);
+
+	// Re-apply autofill after form is cleared
+	useEffect(() => {
+		if (shouldReapplyAutofill) {
+			// Use applyAutofill function directly, not the hook
+			applyAutofill(
+				setValue,
+				setDateHired,
+				undefined,
+				setPhoneInputValue
+			);
+			setShouldReapplyAutofill(false);
+		}
+	}, [shouldReapplyAutofill, setValue, setDateHired, setPhoneInputValue]);
 
 	const closeNotification = () => {
 		setIsNotificationHiding(true);
@@ -162,7 +184,17 @@ const EyeglassesForm = () => {
 	};
 
 	const handleClearConfirm = () => {
-		reset();
+		// Reset form with empty select values
+		reset({
+			gender: undefined,
+			college: "",
+		});
+
+		// Set flag to reapply autofill
+		setShouldReapplyAutofill(true);
+
+		// Clear file errors
+		setFileErrors({});
 		setShowClearConfirmation(false);
 	};
 
