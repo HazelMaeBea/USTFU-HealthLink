@@ -837,6 +837,22 @@
 	cursor: not-allowed;
 }
 
+.addRangeBtn {
+	background-color: var(--primary-yellow);
+	color: #333;
+	border: 1px solid var(--dark-yellow);
+	border-radius: 6px;
+	padding: 0 1rem; /* Adjusted padding to remove vertical padding */
+	font-size: 0.9rem;
+	cursor: pointer;
+	height: 1.8rem !important;
+	transition: all 0.15s ease;
+	height: calc(2.5rem + 2px); /* Matches the height of the input field */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 /* Improved scrollbar */
 .tableContainer::-webkit-scrollbar {
 	height: 7px;
@@ -998,4 +1014,20 @@
 	.noDataMessage {
 		min-height: 200px;
 	}
+}
+
+.numberInput {
+	width: 25%; /* Adjusted width to make the input box smaller */
+}
+
+.rangeArrow {
+	margin: 0 0.5rem;
+	font-size: 1.2rem;
+	color: #333;
+}
+
+.numberInputOption {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem; /* Add spacing between elements */
 }
