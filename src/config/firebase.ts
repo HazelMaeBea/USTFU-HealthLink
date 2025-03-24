@@ -48,9 +48,9 @@ export const getFormID = async (
       let formID = data.FormID;
 
       if (incrementValue) {
-        if (formID >= 999999) {
-          await updateDoc(globalDoc, { FormID: 1 }); // Reset to 1
-          return 1;
+        if (formID + incrementAmount >= 999999) {
+          await updateDoc(globalDoc, { FormID: incrementAmount }); // Reset to whatever the amount of incrementAmount is
+          return incrementAmount;
         } else {
           // Use the atomic `increment` function with the specified increment amount
           await updateDoc(globalDoc, { FormID: increment(incrementAmount) });
