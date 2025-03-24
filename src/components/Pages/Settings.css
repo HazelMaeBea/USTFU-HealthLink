@@ -588,7 +588,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* Style for placeholder option */
 .form-select option[value=""],
-.form-select option[disabled] {
+form-select option[disabled] {
 	color: hsl(0, 0%, 82%);
 	font-style: italic;
 }
@@ -921,258 +921,239 @@ table {
 	text-decoration: underline;
 }
 
-/* Loading skeleton styles */
-.loading-container {
-	padding: 20px;
-	animation: pulse 1.5s infinite;
+/* Loading skeleton styles - Complete replacement with namespace */
+@keyframes settings-shimmer {
+	0% {
+		background-position: -1000px 0;
+	}
+	100% {
+		background-position: 1000px 0;
+	}
 }
 
-.loading-section {
+/* Namespaced skeleton class to avoid conflicts */
+.settings-skeleton {
+	background: linear-gradient(to right, #f0f0f0 8%, #e0e0e0 18%, #f0f0f0 33%);
+	background-size: 1000px 100%;
+	animation: settings-shimmer 2s infinite linear;
+}
+
+.settings-loading-container {
+	box-sizing: border-box;
+	padding: 40px;
+	max-width: 1400px;
+	margin: 0 auto;
+	background: #f5f7f9;
+	min-height: calc(100vh - 60px);
+}
+
+.settings-loading-section {
 	background: #fff;
 	border-radius: 12px;
-	padding: 25px;
+	padding: 30px;
 	margin-bottom: 24px;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	overflow: hidden;
 }
 
-.loading-header {
+.settings-loading-header {
 	height: 28px;
-	width: 180px;
+	width: 220px;
 	margin-bottom: 24px;
 	border-radius: 4px;
 }
 
-.loading-toggle-row {
+.settings-loading-toggle-group {
+	margin-bottom: 20px;
+}
+
+.settings-loading-toggle-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 12px;
+	padding: 12px 16px;
 	background: #f8f9fa;
 	border-radius: 8px;
-	margin-bottom: 12px;
+	margin-bottom: 10px;
 }
 
-.loading-toggle-label {
+.settings-loading-toggle-label {
 	height: 16px;
-	width: 140px;
+	width: 180px;
 	border-radius: 4px;
 }
 
-.loading-toggle {
+.settings-loading-toggle {
 	height: 24px;
 	width: 44px;
 	border-radius: 12px;
 }
 
-.loading-form-row {
+.settings-loading-form-row {
 	display: flex;
 	flex-wrap: wrap;
-	margin-bottom: 20px;
 	gap: 15px;
+	margin-bottom: 20px;
+	width: 100%;
 }
 
-.loading-form-group {
+.settings-loading-form-group {
 	display: flex;
 	flex-direction: column;
 	margin-bottom: 5px;
 }
 
-.loading-label {
+.settings-loading-label {
 	height: 16px;
-	width: 80px;
+	width: 80%;
+	max-width: 120px;
 	margin-bottom: 8px;
 	border-radius: 4px;
 }
 
-.loading-field {
+.settings-loading-field {
 	height: 38px;
 	border-radius: 8px;
+	width: 100%;
 }
 
 /* Loading form group sizes */
-.loading-xs {
-	flex: 0 0 calc(10% - 8px);
+.settings-loading-xs {
+	flex: 0 0 calc(8% - 8px);
 }
 
-.loading-sm {
-	flex: 0 0 calc(15% - 10px);
+.settings-loading-sm {
+	flex: 0 0 calc(12% - 10px);
 }
 
-.loading-md {
-	flex: 0 0 calc(24% - 10px);
+.settings-loading-md {
+	flex: 0 0 calc(24% - 12px);
 }
 
-.loading-lg {
-	flex: 0 0 calc(32% - 10px);
+.settings-loading-lg {
+	flex: 0 0 calc(32% - 12px);
 }
 
-.loading-half {
+.settings-loading-half {
 	flex: 0 0 calc(50% - 8px);
 }
 
-.loading-flex {
+.settings-loading-flex {
 	flex: 1;
+	min-width: 100px;
 }
 
-.loading-spinner-container {
-	display: flex;
-	justify-content: center;
+.settings-loading-button {
+	height: 40px;
+	width: 120px;
+	border-radius: 5px;
+	margin: 0 auto;
 	margin-top: 30px;
 }
 
-.loading-spinner {
-	width: 40px;
-	height: 40px;
-	border: 3px solid rgba(0, 0, 0, 0.1);
-	border-radius: 50%;
-	border-top-color: hsl(45, 100%, 51%);
-	animation: spin 1s ease-in-out infinite;
-}
+/* Responsive loading styles */
+@media (max-width: 1200px) {
+	.settings-loading-container {
+		padding: 30px;
+	}
 
-.skeleton {
-	background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-	background-size: 200% 100%;
-	animation: loading 1.5s infinite;
-}
+	.settings-loading-xs {
+		flex: 0 0 calc(10% - 8px);
+	}
 
-@keyframes loading {
-	0% {
-		background-position: 200% 0;
+	.settings-loading-sm {
+		flex: 0 0 calc(15% - 10px);
 	}
-	100% {
-		background-position: -200% 0;
-	}
-}
 
-@keyframes pulse {
-	0% {
-		opacity: 0.6;
+	.settings-loading-md {
+		flex: 0 0 calc(27% - 12px);
 	}
-	50% {
-		opacity: 1;
+
+	.settings-loading-lg {
+		flex: 0 0 calc(30% - 12px);
 	}
-	100% {
-		opacity: 0.6;
+
+	.settings-loading-half {
+		flex: 0 0 calc(49% - 8px);
 	}
 }
 
-/* Responsive loading styles for tablets */
 @media (max-width: 1024px) {
-	.loading-container {
-		padding: 15px;
-	}
-
-	.loading-section {
+	.settings-loading-container {
 		padding: 20px;
 	}
 
-	.loading-form-row {
+	.settings-loading-section {
+		padding: 20px;
+	}
+
+	.settings-loading-form-row {
 		gap: 12px;
-	}
-
-	.loading-xs {
-		flex: 0 0 calc(15% - 8px);
-	}
-
-	.loading-sm {
-		flex: 0 0 calc(20% - 8px);
-	}
-
-	.loading-md {
-		flex: 0 0 calc(30% - 8px);
-	}
-
-	.loading-lg {
-		flex: 0 0 calc(45% - 8px);
 	}
 }
 
-/* Responsive loading styles for mobile */
-@media (max-width: 768px) {
-	.loading-container {
-		padding: 10px;
+@media (max-width: 992px) {
+	.settings-loading-form-row {
+		flex-direction: column;
+		gap: 10px;
 	}
 
-	.loading-section {
+	.settings-loading-xs,
+	.settings-loading-sm,
+	.settings-loading-md,
+	.settings-loading-lg,
+	.settings-loading-half,
+	.settings-loading-flex {
+		flex: 1 0 100%;
+		width: 100%;
+	}
+}
+
+@media (max-width: 768px) {
+	.settings-loading-container {
+		padding: 15px;
+	}
+
+	.settings-loading-section {
 		padding: 15px;
 		margin-bottom: 15px;
 	}
 
-	.loading-header {
+	.settings-loading-header {
 		width: 150px;
 		height: 24px;
 		margin-bottom: 18px;
 	}
 
-	.loading-toggle-row {
+	.settings-loading-toggle-row {
 		padding: 10px;
 	}
 
-	.loading-toggle-label {
+	.settings-loading-toggle-label {
 		width: 120px;
-	}
-
-	.loading-form-row {
-		flex-direction: column;
-		gap: 10px;
-		margin-bottom: 15px;
-	}
-
-	.loading-xs,
-	.loading-sm,
-	.loading-md,
-	.loading-lg,
-	.loading-half,
-	.loading-flex {
-		flex: 1 0 100%;
-		width: 100%;
-	}
-
-	.loading-label {
-		width: 100px;
-		margin-bottom: 6px;
-	}
-
-	.loading-field {
-		height: 36px;
-	}
-
-	.loading-spinner {
-		width: 32px;
-		height: 32px;
 	}
 }
 
-/* For very small mobile screens */
 @media (max-width: 480px) {
-	.loading-container {
-		padding: 8px;
+	.settings-loading-container {
+		padding: 10px;
 	}
 
-	.loading-section {
-		padding: 12px;
+	.settings-loading-section {
+		padding: 15px;
 		margin-bottom: 12px;
 	}
 
-	.loading-header {
+	.settings-loading-header {
 		width: 120px;
 		height: 20px;
 	}
 
-	.loading-toggle-row {
+	.settings-loading-toggle-row {
 		padding: 8px;
 	}
 
-	.loading-toggle-label {
+	.settings-loading-toggle-label {
 		width: 100px;
-	}
-
-	.loading-label {
-		width: 80px;
-		height: 14px;
-	}
-
-	.loading-field {
-		height: 34px;
 	}
 }

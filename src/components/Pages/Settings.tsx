@@ -518,7 +518,7 @@ const Settings = () => {
 		if (value.length > 3) {
 			const mainNumber = value.substring(3); // get everything after +63
 
-			let formatted = mainNumber.replace(
+			const formatted = mainNumber.replace(
 				/(\d{3})(\d{3})(\d+)/,
 				"$1-$2-$3"
 			);
@@ -558,7 +558,7 @@ const Settings = () => {
 		setIsPhoneFocused(true);
 		// Remove formatting when focused, but keep +63
 		if (settings.phoneNumber) {
-			let rawValue = "+63" + settings.phoneNumber;
+			const rawValue = "+63" + settings.phoneNumber;
 			setPhoneInputValue(rawValue);
 		} else {
 			setPhoneInputValue("+63");
@@ -586,86 +586,112 @@ const Settings = () => {
 
 	if (isLoading) {
 		return (
-			<div className={styles.settingsContainer}>
-				<div className="loading-container">
-					{/* Preferences Section */}
-					<div className="loading-section">
-						<div className="loading-header skeleton"></div>
-						<div className="loading-toggle-row">
-							<div className="loading-toggle-label skeleton"></div>
-							<div className="loading-toggle skeleton"></div>
+			<div className="settings-loading-container">
+				{/* Preferences Section */}
+				<div className="settings-loading-section">
+					<div className="settings-loading-header settings-skeleton"></div>
+					<div className="settings-loading-toggle-group">
+						<div className="settings-loading-toggle-row">
+							<div className="settings-loading-toggle-label settings-skeleton"></div>
+							<div className="settings-loading-toggle settings-skeleton"></div>
 						</div>
-						<div className="loading-toggle-row">
-							<div className="loading-toggle-label skeleton"></div>
-							<div className="loading-toggle skeleton"></div>
+						<div className="settings-loading-toggle-row">
+							<div className="settings-loading-toggle-label settings-skeleton"></div>
+							<div className="settings-loading-toggle settings-skeleton"></div>
+						</div>
+					</div>
+				</div>
+
+				{/* Personal Information Section */}
+				<div className="settings-loading-section">
+					<div className="settings-loading-header settings-skeleton"></div>
+
+					{/* Name Fields */}
+					<div className="settings-loading-form-row">
+						<div className="settings-loading-form-group settings-loading-lg">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-lg">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-lg">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-xs">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
 					</div>
 
-					{/* Personal Information Section */}
-					<div className="loading-section">
-						<div className="loading-header skeleton"></div>
-
-						{/* Name Fields */}
-						<div className="loading-form-row">
-							{["lg", "lg", "lg", "xs"].map((size, index) => (
-								<div
-									key={index}
-									className={`loading-form-group loading-${size}`}
-								>
-									<div className="loading-label skeleton"></div>
-									<div className="loading-field skeleton"></div>
-								</div>
-							))}
+					{/* Personal Details */}
+					<div className="settings-loading-form-row">
+						<div className="settings-loading-form-group settings-loading-md">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
-
-						{/* Personal Details */}
-						<div className="loading-form-row">
-							{["md", "xs", "sm", "md", "flex"].map(
-								(size, index) => (
-									<div
-										key={index}
-										className={`loading-form-group loading-${size}`}
-									>
-										<div className="loading-label skeleton"></div>
-										<div className="loading-field skeleton"></div>
-									</div>
-								)
-							)}
+						<div className="settings-loading-form-group settings-loading-xs">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
-
-						{/* Work Details */}
-						<div className="loading-form-row">
-							{["xs", "sm", "xs", "md", "md", "flex"].map(
-								(size, index) => (
-									<div
-										key={index}
-										className={`loading-form-group loading-${size}`}
-									>
-										<div className="loading-label skeleton"></div>
-										<div className="loading-field skeleton"></div>
-									</div>
-								)
-							)}
+						<div className="settings-loading-form-group settings-loading-sm">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
-
-						{/* College and Address */}
-						<div className="loading-form-row">
-							{["half", "half"].map((size, index) => (
-								<div
-									key={index}
-									className={`loading-form-group loading-${size}`}
-								>
-									<div className="loading-label skeleton"></div>
-									<div className="loading-field skeleton"></div>
-								</div>
-							))}
+						<div className="settings-loading-form-group settings-loading-md">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
-
-						{/* Loading Spinner */}
-						<div className="loading-spinner-container">
-							<div className="loading-spinner"></div>
+						<div className="settings-loading-form-group settings-loading-flex">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
 					</div>
+
+					{/* Work Details */}
+					<div className="settings-loading-form-row">
+						<div className="settings-loading-form-group settings-loading-xs">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-sm">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-xs">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-md">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-md">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-flex">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+					</div>
+
+					{/* College and Address */}
+					<div className="settings-loading-form-row">
+						<div className="settings-loading-form-group settings-loading-half">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-half">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+					</div>
+
+					{/* Button */}
+					<div className="settings-loading-button settings-skeleton"></div>
 				</div>
 			</div>
 		);
