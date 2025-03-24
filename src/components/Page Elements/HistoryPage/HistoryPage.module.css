@@ -868,6 +868,128 @@
 	border-radius: 4px;
 }
 
+/* Improved styling for the Load filter UI */
+.numberInputOption {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	padding: 0.5rem 0;
+	width: 100%;
+	gap: 0.4rem; /* Reduced gap between elements */
+}
+
+.numberInputLabel {
+	font-size: 0.9rem;
+	color: #374151;
+	margin-bottom: 0.5rem;
+	display: block;
+	width: 100%;
+}
+
+.numberInput {
+	width: 45%; /* Slightly wider inputs */
+	min-width: 80px;
+	padding: 0.55rem 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 4px;
+	font-size: 0.9rem;
+	color: #333;
+	transition: border-color 0.15s ease;
+	background-color: white;
+}
+
+.numberInput:focus {
+	border-color: var(--primary-yellow);
+	outline: none;
+	box-shadow: 0 0 0 2px var(--yellow-shadow);
+}
+
+.rangeArrow {
+	margin: 0 0.2rem; /* Reduced margin */
+	font-size: 0.9rem; /* Smaller font size */
+	color: #6b7280;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+}
+
+.addRangeBtn {
+	background-color: var(--light-yellow);
+	color: #333;
+	border: 1px solid var(--primary-yellow);
+	border-radius: 4px;
+	padding: 0.55rem 0.75rem;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	white-space: nowrap;
+	margin-left: auto;
+}
+
+.addRangeBtn:hover {
+	background-color: var(--hover-yellow);
+}
+
+/* When in range mode, adjust layout */
+.numberInputOption.rangeMode {
+	justify-content: flex-start;
+}
+
+/* Filter mode selector (exact vs range) */
+.filterModeSelector {
+	display: flex;
+	margin-bottom: 0.75rem;
+	gap: 1rem;
+}
+
+.radioOption {
+	display: flex;
+	align-items: center;
+}
+
+.radioInput {
+	margin-right: 0.5rem;
+	accent-color: var(--primary-yellow);
+}
+
+.radioLabel {
+	font-size: 0.85rem;
+	color: #374151;
+}
+
+/* Container for inputs */
+.inputsContainer {
+	width: 100%;
+}
+
+/* Range inputs styling */
+.rangeInputs {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	width: 100%;
+}
+
+.numberInput {
+	padding: 0.55rem 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 4px;
+	font-size: 0.9rem;
+	color: #333;
+	transition: border-color 0.15s ease;
+	background-color: white;
+}
+
+/* Width adjustments */
+.rangeInputs .numberInput {
+	width: calc(50% - 1rem);
+}
+
+.inputsContainer > .numberInput {
+	width: 100%;
+}
+
 /* Animations */
 @keyframes fadeIn {
 	from {
@@ -1014,20 +1136,4 @@
 	.noDataMessage {
 		min-height: 200px;
 	}
-}
-
-.numberInput {
-	width: 25%; /* Adjusted width to make the input box smaller */
-}
-
-.rangeArrow {
-	margin: 0 0.5rem;
-	font-size: 1.2rem;
-	color: #333;
-}
-
-.numberInputOption {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem; /* Add spacing between elements */
 }
