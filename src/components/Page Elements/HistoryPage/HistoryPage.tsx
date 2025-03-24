@@ -197,7 +197,8 @@ const HospitalizationHistory = () => {
 	];
 	const academicYearOptions = ["2022-2023", "2023-2024"];
 	const loadOptions = ["Full", "Part-time"];
-	const statusOptions = ["Approved", "Pending", "Denied"];
+	const statusOptions = ["Tenured", "Tenured-Track", "Lecturer Before 2001", "Extendee", "Retiree"];
+
 
 	const removeFilter = (filterToRemove: string) => {
 		setFilters((prev) =>
