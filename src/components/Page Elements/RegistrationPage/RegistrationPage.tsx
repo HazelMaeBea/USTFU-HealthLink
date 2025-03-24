@@ -8,9 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFirebase } from "../../../contexts/firebaseContext";
 import styles from "./RegistrationPage.module.css";
 import ConfirmationMessage from "./ConfirmationMessage";
-import USTFULogo from "../../../images/USTFULogo.png"; // Adjust the path as necessary
+import USTFULogo from "../../../images/USTFULogo.png";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../../../config/firebase"; // Adjust based on your Firebase config import
+import { db } from "../../../config/firebase";
 
 const schema = z.object({
 	firstName: z.string().min(1, { message: "First name is required" }),
@@ -21,8 +21,8 @@ const schema = z.object({
 		message: "ID Number must be in the format YYYY-XXXXXX",
 	}),
 	birthdate: z.string().min(1, { message: "Birthdate is required" }),
-	phoneNumber: z.string().regex(/^63\d{10}$/, {
-		message: "Phone number must start with 63 and be 12 digits long",
+	phoneNumber: z.string().min(10, {
+		message: "Phone number must be at least 10 digits after +63",
 	}),
 	term: z.string().min(1, { message: "Term is required" }),
 	year: z.string().min(1, { message: "Year is required" }),
@@ -71,12 +71,9 @@ const collegeOptions = [
 const calculateAcademicYear = (): string => {
 	const currentDate = new Date();
 	const currentYear = currentDate.getFullYear();
-	const currentMonth = currentDate.getMonth(); // 0-indexed (0 = January, 11 = December)
+	const currentMonth = currentDate.getMonth();
 
-	// If we're in June-December, the academic year is currentYear-(currentYear+1)
-	// If we're in January-May, the academic year is (currentYear-1)-currentYear
 	if (currentMonth >= 5) {
-		// June and onwards
 		return `${currentYear}-${currentYear + 1}`;
 	} else {
 		return `${currentYear - 1}-${currentYear}`;
@@ -85,20 +82,14 @@ const calculateAcademicYear = (): string => {
 
 const calculateTerm = (): string => {
 	const currentDate = new Date();
-	const currentMonth = currentDate.getMonth(); // 0-indexed (0 = January, 11 = December)
+	const currentMonth = currentDate.getMonth();
 
-	// 1st term: August-December (months 7-11)
-	// 2nd term: January-May (months 0-4)
-	// June-July might be considered summer term or special term
 	if (currentMonth >= 7 || currentMonth === 0) {
-		// August-December, January
 		return "1st";
 	} else if (currentMonth >= 1 && currentMonth <= 4) {
-		// February-May
 		return "2nd";
 	} else {
-		// June-July and special cases
-		return "1st"; // Default to 1st term
+		return "1st";
 	}
 };
 
@@ -106,26 +97,28 @@ const RegistrationPage: React.FC = () => {
 	const [submitted, setSubmitted] = useState(false);
 	const [currentTerm, setCurrentTerm] = useState<string>("");
 	const [currentYear, setCurrentYear] = useState<string>("");
-	const { displayName, photoURL, email, currentUser } = useFirebase(); // Ensure `useFirebase` provides user info
+	const { displayName, photoURL, email, currentUser } = useFirebase();
 	const {
 		register,
 		handleSubmit,
 		setValue,
 		formState: { errors },
+		watch,
 	} = useForm<FormData>({
 		resolver: zodResolver(schema),
 		mode: "onChange",
 	});
 
+	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
+	const [isPhoneFocused, setIsPhoneFocused] = useState<boolean>(false);
+
 	useEffect(() => {
-		// Calculate and set the current academic year and term
 		const year = calculateAcademicYear();
 		const term = calculateTerm();
 
 		setCurrentYear(year);
 		setCurrentTerm(term);
 
-		// Set default values for the form
 		setValue("year", year);
 		setValue("term", term);
 	}, [setValue]);
@@ -148,7 +141,6 @@ const RegistrationPage: React.FC = () => {
 			setSubmitted(true);
 		} catch (error) {
 			console.error("Error during registration:", error);
-			// Using a proper error handling approach
 			if (error instanceof Error) {
 				console.error(error.message);
 			} else {
@@ -177,6 +169,109 @@ const RegistrationPage: React.FC = () => {
 				? `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`
 				: value;
 		e.target.value = formattedValue;
+	};
+
+	const formatPhoneNumberDisplay = (value: string) => {
+		if (value.startsWith("+63+63")) {
+			value = "+63" + value.substring(6);
+		} else if (!value.startsWith("+63")) {
+			value = "+63" + value.replace(/^63/, "");
+		}
+
+		let formattedValue = value;
+
+		if (value.length > 3) {
+			const mainNumber = value.substring(3);
+			let formatted = mainNumber.replace(
+				/(\d{3})(\d{3})(\d+)/,
+				"$1-$2-$3"
+			);
+			formattedValue = "+63-" + formatted;
+		}
+
+		setPhoneInputValue(formattedValue);
+	};
+
+	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		let value = e.target.value;
+		const previousValue = phoneInputValue;
+		const selectionStart = e.target.selectionStart;
+
+		const isBackspace =
+			value.length < previousValue.length &&
+			selectionStart !== null &&
+			selectionStart <= previousValue.length;
+
+		if (isBackspace && selectionStart !== null && selectionStart <= 4) {
+			if (value.length < 3 || !value.startsWith("+")) {
+				setPhoneInputValue("+63");
+				return;
+			}
+		}
+
+		if (!value.startsWith("+63")) {
+			if (value.startsWith("+")) {
+				value = "+63" + value.substring(1).replace(/^63/, "");
+			} else {
+				value = "+63" + value.replace(/^63/, "");
+			}
+		}
+
+		while (value.includes("+63+63")) {
+			value = value.replace("+63+63", "+63");
+		}
+
+		const digitsOnly = "+" + value.substring(1).replace(/\D/g, "");
+
+		setPhoneInputValue(digitsOnly);
+
+		if (digitsOnly.length > 3) {
+			const numericValue = digitsOnly.substring(3);
+			setValue("phoneNumber", "63" + numericValue);
+		} else {
+			setValue("phoneNumber", "");
+		}
+
+		if (!isBackspace && e.target.selectionStart !== null) {
+			setTimeout(() => {
+				if (e.target) {
+					const newPosition = Math.min(
+						Math.max(selectionStart || 0, 3),
+						digitsOnly.length
+					);
+					e.target.setSelectionRange(newPosition, newPosition);
+				}
+			}, 0);
+		}
+	};
+
+	const handlePhoneFocus = () => {
+		setIsPhoneFocused(true);
+		const currentValue = watch("phoneNumber");
+		if (currentValue) {
+			if (currentValue.startsWith("6363")) {
+				const cleanValue = currentValue.replace(/^6363/, "63");
+				setValue("phoneNumber", cleanValue);
+				setPhoneInputValue("+" + cleanValue);
+			} else if (currentValue.startsWith("63")) {
+				setPhoneInputValue("+" + currentValue);
+			} else {
+				setPhoneInputValue("+63" + currentValue);
+			}
+		} else {
+			setPhoneInputValue("+63");
+		}
+	};
+
+	const handlePhoneBlur = () => {
+		setIsPhoneFocused(false);
+
+		if (phoneInputValue.length > 3) {
+			const numericPart = phoneInputValue.substring(3).replace(/\D/g, "");
+			if (numericPart) {
+				formatPhoneNumberDisplay("+63" + numericPart);
+			}
+		}
 	};
 
 	if (submitted) {
@@ -390,9 +485,12 @@ const RegistrationPage: React.FC = () => {
 								className={`form-control ${
 									errors.phoneNumber ? "is-invalid" : ""
 								}`}
-								{...register("phoneNumber")}
-								placeholder="63XXXXXXXXX"
-								maxLength={12}
+								placeholder="e.g. +63-XXX-XXX-XXXX"
+								value={phoneInputValue}
+								onChange={handlePhoneChange}
+								onFocus={handlePhoneFocus}
+								onBlur={handlePhoneBlur}
+								aria-label="Phone Number"
 							/>
 							{errors.phoneNumber && (
 								<p className="invalid-feedback">
@@ -579,8 +677,6 @@ const RegistrationPage: React.FC = () => {
 
 export default RegistrationPage;
 
-// Replace the previous setError function with this:
 function setError(message: string) {
 	console.error(message);
-	// You would implement proper error handling here
 }

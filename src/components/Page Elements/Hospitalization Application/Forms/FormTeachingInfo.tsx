@@ -1,5 +1,16 @@
-import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
-import { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
+import React, {
+	useEffect,
+	useState,
+	Dispatch,
+	SetStateAction,
+	useRef,
+} from "react";
+import {
+	UseFormRegister,
+	FieldErrors,
+	UseFormSetValue,
+	UseFormWatch,
+} from "react-hook-form";
 import { FormData } from "./FormBody";
 
 interface FormTeachingInfoProps {
@@ -9,7 +20,8 @@ interface FormTeachingInfoProps {
 	setDateHired: Dispatch<SetStateAction<Date | null>>;
 	dateRetired: Date | null;
 	setDateRetired: Dispatch<SetStateAction<Date | null>>;
-	setValue?: UseFormSetValue<FormData>; // Make setValue optional
+	setValue?: UseFormSetValue<FormData>;
+	watch?: UseFormWatch<FormData>; // Add watch function to props
 }
 
 // Removed commented-out termOptions and yearOptions as they're no longer needed
@@ -65,12 +77,53 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	setDateHired,
 	dateRetired,
 	setDateRetired,
-	setValue, // Accept setValue but make it optional
+	setValue,
+	watch, // Get watch from props
 }) => {
 	const [status, setStatus] = useState("");
 	const [benefit, setBenefit] = useState("");
 	const currentAcademicYear = getCurrentAcademicYear();
 	const currentTerm = getCurrentTerm();
+
+	// Get the current status value from the form
+	const formStatus = watch ? watch("status") : "";
+
+	// Add a ref to track whether the user has interacted with the status field
+	const userInteractedRef = useRef(false);
+
+	// Update local status state when form status changes (handles autofill)
+	// but only if the user hasn't interacted with the field
+	useEffect(() => {
+		if (formStatus && formStatus !== status && !userInteractedRef.current) {
+			setStatus(formStatus);
+		}
+	}, [formStatus, status]);
+
+	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		userInteractedRef.current = true; // Mark that user has interacted
+		setStatus(event.target.value);
+	};
+
+	// Similarly for benefit options
+	const formBenefit = watch ? watch("benefits") : "";
+	const benefitInteractedRef = useRef(false);
+
+	useEffect(() => {
+		if (
+			formBenefit &&
+			formBenefit !== benefit &&
+			!benefitInteractedRef.current
+		) {
+			setBenefit(formBenefit);
+		}
+	}, [formBenefit, benefit]);
+
+	const handleBenefitChange = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		benefitInteractedRef.current = true; // Mark that user has interacted
+		setBenefit(event.target.value);
+	};
 
 	//set initial values when component mounts
 	useEffect(() => {
@@ -81,16 +134,6 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 		setValue?.("term", currentTerm);
 	}, [setValue, currentAcademicYear, currentTerm]);
 
-	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setStatus(event.target.value);
-	};
-
-	const handleBenefitChange = (
-		event: React.ChangeEvent<HTMLInputElement>
-	) => {
-		setBenefit(event.target.value);
-	};
-
 	return (
 		<>
 			<hr className="section-separator" />
@@ -100,7 +143,8 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						<div className="row">
 							<div className="mb-1 col-md-6">
 								<label htmlFor="term" className="form-label">
-									Academic Term <span className="required-asterisk">*</span>
+									Academic Term{" "}
+									<span className="required-asterisk">*</span>
 								</label>
 								<input
 									{...register("term")}
@@ -118,7 +162,8 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							</div>
 							<div className="mb-1 col-md-6">
 								<label htmlFor="year" className="form-label">
-									Academic Year <span className="required-asterisk">*</span>
+									Academic Year{" "}
+									<span className="required-asterisk">*</span>
 								</label>
 								<input
 									{...register("year")}
@@ -137,7 +182,8 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						</div>
 						<div className="mb-1 col-md-5">
 							<label htmlFor="load" className="form-label">
-								Load (Units){" "} <span className="required-asterisk">*</span>
+								Load (Units){" "}
+								<span className="required-asterisk">*</span>
 							</label>
 							<input
 								id="load"
@@ -159,7 +205,9 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						</div>
 					</div>
 					<div className="mb-1 col-md-2">
-						<label className="form-label">Status <span className="required-asterisk">*</span></label>
+						<label className="form-label">
+							Status <span className="required-asterisk">*</span>
+						</label>
 						{statusOptions.map((option, index) => (
 							<div key={index} className="form-check">
 								<input
@@ -169,6 +217,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 									value={option}
 									className="form-check-input"
 									onChange={handleStatusChange}
+									checked={status === option} // Make sure checked state reflects current status
 								/>
 								<label
 									htmlFor={`status-${index}`}
@@ -195,7 +244,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							}}
 						>
 							<label htmlFor="dateHired" className="form-label">
-								If Tenure-Track, please input DATE HIRED: 
+								If Tenure-Track, please input DATE HIRED:
 							</label>
 							<input
 								type="date"
@@ -294,7 +343,8 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							}}
 						>
 							<label htmlFor="hmo" className="form-label">
-								If HMO, please specify: <span className="required-asterisk">*</span>
+								If HMO, please specify:{" "}
+								<span className="required-asterisk">*</span>
 							</label>
 							<input
 								{...register("hmo")}

@@ -208,12 +208,14 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [uploadProgress, setUploadProgress] =
 		useState<string>("Preparing files...");
 	const navigate = useNavigate();
+	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 
 	const {
 		register,
 		handleSubmit,
 		reset,
-		setValue, // Make sure setValue is destructured here
+		setValue,
+		watch,
 		formState: { errors, isSubmitted },
 	} = useForm<FormData>({ resolver: zodResolver(schema) });
 
@@ -348,7 +350,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	};
 
 	// Use the imported useAutofill hook
-	useAutofill(setValue, setDateHired, setDateRetired);
+	useAutofill(setValue, setDateHired, setDateRetired, setPhoneInputValue);
 
 	return (
 		<div className="form-body">
@@ -357,7 +359,14 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					<p className="note">Please fill out the following boxes</p>
 				)}
 
-				<FormPersonalInfo register={register} errors={errors} />
+				<FormPersonalInfo
+					register={register}
+					errors={errors}
+					setValue={setValue}
+					watch={watch}
+					phoneInputValue={phoneInputValue}
+					setPhoneInputValue={setPhoneInputValue}
+				/>
 				<FormMedicalInfo register={register} errors={errors} />
 				<FormTeachingInfo
 					register={register}
@@ -366,7 +375,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					setDateHired={setDateHired}
 					dateRetired={dateRetired}
 					setDateRetired={setDateRetired}
-					setValue={setValue} // Pass setValue to the component
+					setValue={setValue}
+					watch={watch} // Pass watch to the component
 				/>
 				<FormUploadDisclaimer />
 				<FormMedicalFiles register={register} errors={errors} />
