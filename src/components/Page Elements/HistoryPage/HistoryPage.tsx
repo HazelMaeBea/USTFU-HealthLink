@@ -13,7 +13,7 @@ import {
 } from "react-icons/fi";
 import PageButtons from "../PageButtons/PageButtons";
 
-const HospitalizationHistory = () => {
+const HistoryPage = () => {
 	const [selectedType, setSelectedType] = useState("All");
 	const [filters, setFilters] = useState<string[]>([]);
 	const [showFilterOptions, setShowFilterOptions] = useState(false);
@@ -1459,4 +1459,4 @@ const HospitalizationHistory = () => {
 	);
 };
 
-export default HospitalizationHistory;
+export default HistoryPage;
