@@ -10,6 +10,8 @@ import {
 	where,
 	deleteDoc,
 	Timestamp,
+	orderBy,
+	limit,
 } from "firebase/firestore";
 import { db } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
@@ -34,91 +36,67 @@ export interface PaginatedRequests {
 	error: string | null;
 }
 
-// Export a hook to retrieve paginated pending requests in real-time
-export const usePendingRequests = (
-	initialPage = 1,
-	pageSize = 6
-): PaginatedRequests => {
-	const [allRequests, setAllRequests] = useState<PendingRequest[]>([]);
-	const [currentPage, setCurrentPage] = useState<number>(initialPage);
-	const [isLoading, setIsLoading] = useState<boolean>(true);
+// Fixed usePendingRequests hook
+export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
+	const [requests, setRequests] = useState<PendingRequest[]>([]);
+	const [pagination, setPagination] = useState({
+		currentPage: initialPage,
+		totalPages: 1,
+		totalRecords: 0,
+	});
+	const [currentPage, setCurrentPage] = useState(initialPage);
+	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	// Fetch all requests in real-time
 	useEffect(() => {
-		setIsLoading(true);
-		setError(null);
+		const fetchData = async () => {
+			setIsLoading(true);
+			try {
+				// FIXED: Use FormRequests collection instead of pendingRequests
+				const formRequestsRef = collection(db, "FormRequests");
 
-		try {
-			const unsubscribe = onSnapshot(
-				reqCollection,
-				(snapshot) => {
-					const requests = snapshot.docs.map((doc) => ({
-						transactionId: doc.id,
-						...doc.data(),
-					})) as PendingRequest[];
+				// Create a query to get pending requests
+				// FIXED: Simplified query to avoid potential index issues
+				const q = query(
+					formRequestsRef,
+					where("status", "==", "pending")
+				);
 
-					// Sort by date if needed (assuming dateSubmitted is a string in format MM/DD/YYYY)
-					const sortedRequests = requests.sort((a, b) => {
-						return (
-							new Date(a.dateSubmitted).getTime() -
-							new Date(b.dateSubmitted).getTime()
-						);
+				console.log("Fetching pending requests...");
+				const querySnapshot = await getDocs(q);
+				console.log(`Found ${querySnapshot.size} pending requests`);
+
+				// Process the results
+				const results: PendingRequest[] = [];
+				querySnapshot.forEach((doc) => {
+					console.log(`Processing document: ${doc.id}`);
+					const data = doc.data() as PendingRequest;
+					results.push({
+						...data,
+						id: doc.id,
 					});
+				});
 
-					setAllRequests(sortedRequests);
-					setIsLoading(false);
-				},
-				(err) => {
-					console.error("Error in snapshot listener:", err);
-					setError(
-						"Failed to load requests. Please try again later."
-					);
-					setIsLoading(false);
-				}
-			);
+				// Set the requests and update pagination info
+				setRequests(results);
+				setPagination({
+					currentPage,
+					totalPages: Math.ceil(results.length / pageSize) || 1,
+					totalRecords: results.length,
+				});
+				setError(null);
+			} catch (err) {
+				console.error("Error fetching pending requests:", err);
+				setError("Failed to load pending requests. Please try again.");
+			} finally {
+				setIsLoading(false);
+			}
+		};
 
-			return () => unsubscribe();
-		} catch (err) {
-			console.error("Error setting up requests listener:", err);
-			setError("Failed to load requests. Please try again later.");
-			setIsLoading(false);
-		}
-	}, []);
+		fetchData();
+	}, [currentPage, pageSize]);
 
-	// Calculate pagination info
-	const totalItems = allRequests.length;
-	const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-
-	// Ensure currentPage is valid
-	useEffect(() => {
-		if (currentPage > totalPages && totalPages > 0) {
-			setCurrentPage(totalPages);
-		}
-	}, [currentPage, totalPages]);
-
-	// Get paginated data
-	const startIndex = (currentPage - 1) * pageSize;
-	const paginatedRequests = allRequests.slice(
-		startIndex,
-		startIndex + pageSize
-	);
-
-	// Create pagination info object
-	const pagination: PaginationInfo = {
-		currentPage,
-		totalPages,
-		pageSize,
-		totalItems,
-	};
-
-	return {
-		requests: paginatedRequests,
-		pagination,
-		setCurrentPage,
-		isLoading,
-		error,
-	};
+	return { requests, pagination, setCurrentPage, isLoading, error };
 };
 
 export async function getRemainingBenefits(
@@ -150,10 +128,12 @@ export async function getRemainingBenefits(
 	}
 }
 
+// Update the updateDocument function to include validUntil
 export const updateDocument = async (
 	transID: string,
 	textArea: string,
-	status: string
+	status: string,
+	validUntil?: string // Add optional validUntil parameter
 ) => {
 	try {
 		const userQuery = query(
@@ -167,15 +147,19 @@ export const updateDocument = async (
 
 			const decisionTimestamp = Timestamp.now();
 
-			await setDoc(
-				docRef,
-				{
-					statusReason: textArea,
-					status: status,
-					DateDecided: decisionTimestamp,
-				},
-				{ merge: true }
-			);
+			// Create update object with optional validUntil field
+			const updateData: any = {
+				statusReason: textArea,
+				status: status,
+				DateDecided: decisionTimestamp,
+			};
+
+			// Add validUntil if it's provided
+			if (validUntil) {
+				updateData.validUntil = validUntil;
+			}
+
+			await setDoc(docRef, updateData, { merge: true });
 			console.log(`Document with ID ${document.id} has been updated.`);
 
 			let newCollection = "";
@@ -188,14 +172,21 @@ export const updateDocument = async (
 			if (newCollection) {
 				const newDocRef = doc(db, newCollection, document.id);
 
-				// Copy document to the new collection with DateDecided
-				await setDoc(newDocRef, {
+				// Create new document data with all fields
+				const newDocData = {
 					...docData,
 					status,
 					statusReason: textArea,
 					DateDecided: decisionTimestamp,
-					...(newCollection === "AccomplishedRequests" && status === "approved" ? { pdfProcessed: false } : {})
-				});
+					...(validUntil ? { validUntil } : {}), // Include validUntil if available
+					...(newCollection === "AccomplishedRequests" &&
+					status === "approved"
+						? { pdfProcessed: false }
+						: {}),
+				};
+
+				// Copy document to the new collection
+				await setDoc(newDocRef, newDocData);
 
 				// Delete from the original collection
 				await deleteDoc(docRef);

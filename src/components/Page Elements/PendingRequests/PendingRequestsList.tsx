@@ -14,18 +14,31 @@ import Popout from "../Popout/Popout";
 import ViewFiles from "./ViewFiles";
 import HistoryPopout from "./HistoryPopout";
 import PageButtons from "../PageButtons/PageButtons"; // Import the PageButtons component
-import { updateDoc } from "firebase/firestore";
 import PendingRequestsLoadingSkeleton from "./PendingRequestsLoadingSkeleton";
 
-const PendingRequestList = () => {
-	// Use the updated hook with pagination and get loading/error states
+interface PendingRequestListProps {
+	searchQuery?: string;
+	selectedType?: string;
+	filters?: string[];
+}
+
+const PendingRequestList: React.FC<PendingRequestListProps> = ({
+	searchQuery = "",
+	selectedType = "All",
+	filters = [],
+}) => {
+	// Increase the page size to fetch ALL items at once
 	const {
 		requests: pendingRequests,
 		pagination,
 		setCurrentPage,
 		isLoading,
 		error,
-	} = usePendingRequests(1, 7);
+	} = usePendingRequests(1, 1000); // Fetch up to 1000 items to ensure we get all
+
+	// Add state for client-side pagination
+	const [clientCurrentPage, setClientCurrentPage] = useState(1);
+	const recordsPerPage = 7; // Number of records to display per page
 
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 	const [showCommentBox, setShowCommentBox] = useState<string | null>(
@@ -53,6 +66,8 @@ const PendingRequestList = () => {
 	// Hooks to access document status
 	const [getStatus, setStatus] = useState<string | null>(null);
 	const [getCurrentUser, setCurrentUser] = useState<string | null>(null);
+	// Add validUntil state
+	const [validUntil, setValidUntil] = useState<string>("");
 
 	// Handle change on textArea
 	const handleTextArea = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -61,9 +76,12 @@ const PendingRequestList = () => {
 
 	// Handle page change from the PageButtons component
 	const handlePageChange = (page: number) => {
-		setCurrentPage(page);
+		setClientCurrentPage(page);
 		// Reset expanded state when changing pages
 		setExpandedId(null);
+
+		// DO NOT call backend pagination as we're handling it client-side
+		// We want to keep all the records loaded and just show different pages
 	};
 
 	// Reset expanded state when loading new data
@@ -72,6 +90,14 @@ const PendingRequestList = () => {
 			setExpandedId(null);
 		}
 	}, [isLoading]);
+
+	// Reset to page 1 when search query or filters change
+	useEffect(() => {
+		// Only reset if we're not already on page 1
+		if (pagination.currentPage !== 1) {
+			setCurrentPage(1);
+		}
+	}, [searchQuery, selectedType, filters]);
 
 	const handleAction = (
 		action: "approval" | "rejection" | "for revision"
@@ -94,9 +120,7 @@ const PendingRequestList = () => {
 	const handleSendClick = (transactionID: string) => {
 		if (!activeDecision) return; // Prevent sending if no action is selected
 		setTransID(transactionID);
-		// console.log(getTransID + " " + getText + " " + getStatus);
-		// console.log(getEditBenefits)
-		// console.log(getCurrentUser);
+		// Include validUntil in the data to be sent
 		setShowPopout(true); // Open confirmation popout
 	};
 
@@ -107,7 +131,8 @@ const PendingRequestList = () => {
 			const transID = getTransID || "empty";
 			const textArea = getText || "empty";
 			const updateStatus = getStatus || "pending";
-			updateDocument(transID, textArea, updateStatus);
+			// Include validUntil when updating the document
+			updateDocument(transID, textArea, updateStatus, validUntil);
 			if (getBenefits != getEditBenefits)
 				updateBenefits(getEditBenefits, getCurrentUser);
 		} catch (error) {
@@ -212,7 +237,11 @@ const PendingRequestList = () => {
 				<div className={styles["form-second-row-grid"]}>
 					<div className={styles["form-group"]}>
 						<label>Age</label>
-						<p className={styles["field-value"]}>{formData.age}</p>
+						<p
+							className={`${styles["field-value"]} ${styles["field-numeric"]}`}
+						>
+							{formData.age}
+						</p>
 					</div>
 					<div
 						className={`${styles["form-group"]} ${styles["pending-request-gender-field"]}`}
@@ -290,7 +319,9 @@ const PendingRequestList = () => {
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Teaching Load</label>
-								<p className={styles["field-value"]}>
+								<p
+									className={`${styles["field-value"]} ${styles["field-numeric"]}`}
+								>
 									{formData.load}
 								</p>
 							</div>
@@ -302,7 +333,9 @@ const PendingRequestList = () => {
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Date Hired:</label>
-								<p className={styles["field-value"]}>
+								<p
+									className={`${styles["field-value"]} ${styles["field-date"]}`}
+								>
 									{formData.dateHired
 										? new Date(
 												formData.dateHired
@@ -312,7 +345,9 @@ const PendingRequestList = () => {
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Date Retired:</label>
-								<p className={styles["field-value"]}>
+								<p
+									className={`${styles["field-value"]} ${styles["field-date"]}`}
+								>
 									{formData.dateRetired
 										? new Date(
 												formData.dateRetired
@@ -359,7 +394,9 @@ const PendingRequestList = () => {
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Amount Paid</label>
-								<p className={styles["field-value"]}>
+								<p
+									className={`${styles["field-value"]} ${styles["field-currency"]}`}
+								>
 									{formData.amountPaid
 										? formData.amountPaid
 										: "-"}
@@ -376,7 +413,9 @@ const PendingRequestList = () => {
 						<div className={styles["form-admission-row-grid"]}>
 							<div className={styles["form-group"]}>
 								<label>Load</label>
-								<p className={styles["field-value"]}>
+								<p
+									className={`${styles["field-value"]} ${styles["field-numeric"]}`}
+								>
 									{formData.load ? formData.load : "-"}
 								</p>
 							</div>
@@ -494,188 +533,183 @@ const PendingRequestList = () => {
 		return (
 			<>
 				<hr></hr>
-				<div className="d-flex flex-column align-items-center">
-					<div
-						className={`${styles["hospital-certification"]} row flex-column flex-md-row`}
-					>
-						{/* Left Section */}
-						<div className="col-12 col-md-8">
-							<div className={styles["certification-header"]}>
-								To UST HOSPITAL:
-							</div>
-							<div className={styles["certification-content"]}>
-								<p>
-									This certifies that the above named faculty
-									is entitled to the following benefit on
-									his/her total charges (procedure, supplies,
-									drugs and reader's fee) but not to exceed
-									his/her remaining benefit subject to final
-									verification:
-								</p>
-								<div className="row justify-content-center align-content-center">
-									<div className="col-12 col-md-4">
-										<div
-											className={
-												styles["benefit-options"]
-											}
-										>
-											<label
-												className={
-													styles["radio-option"]
-												}
-											>
-												<input
-													type="radio"
-													name="benefit"
-													value="50"
-												/>
-												<span>
-													50% of net hospital bill
-												</span>
-											</label>
-											<label
-												className={
-													styles["radio-option"]
-												}
-											>
-												<input
-													type="radio"
-													name="benefit"
-													value="100"
-													checked
-													readOnly
-												/>
-												<span>
-													100% of net hospital bill
-												</span>
-											</label>
-										</div>
-									</div>
-									<div
-										className={`${styles.amount} col-12 col-md-8 d-flex flex-column align-items-center text-center`}
-									>
-										<span className="mb-2">
-											but not to exceed:
-										</span>
-										<div
-											className={`${styles["amount-container"]} p-3 rounded shadow`}
-										>
-											<div
-												className={`${styles["amount-input-wrapper"]} d-flex align-items-center`}
-											>
-												<span
-													className={styles.currency}
-												></span>
-												<input
-													aria-label="amount left"
-													type="text"
-													defaultValue={getBenefits}
-													className={
-														styles["amount-input"]
-													}
-													onChange={(e) => {
-														setEditBenefits(
-															parseInt(
-																e.target.value
-															)
-														);
-													}}
-												/>
-											</div>
-											<span
-												className={
-													styles["amount-label"]
-												}
-											>
-												(Remaining benefit)
-											</span>
-										</div>
-										<button
-											className={`${styles["check-history-btn"]} mt-3`}
-											onClick={() =>
-												handleCheckHistory(
-													request.requester
-												)
-											}
-										>
-											CHECK HISTORY
-										</button>
-									</div>
-								</div>
-							</div>
+				<div className={styles["hospital-certification"]}>
+					<h4 className={styles["section-header"]}>
+						To UST HOSPITAL
+					</h4>
+					<div className={styles["certification-content"]}>
+						<p className="text-center">
+							This certifies that the above named faculty is
+							entitled to the following benefit on his/her total
+							charges (procedure, supplies, drugs and reader's
+							fee) but not to exceed his/her remaining benefit
+							subject to final verification:
+						</p>
+
+						{/* Valid Until Date Field */}
+						<div className={styles["valid-until-container"]}>
+							<label htmlFor="valid-until">Valid Until:</label>
+							<input
+								type="date"
+								id="valid-until"
+								className={styles["valid-until-input"]}
+								value={validUntil}
+								onChange={(e) => setValidUntil(e.target.value)}
+							/>
 						</div>
 
-						{/* Right Section (Signature Upload) */}
-						<div
-							className={`${styles.signature} col-12 col-md-4 d-flex flex-column justify-content-center align-items-center`}
-						>
+						<div className={styles["hospital-certification-grid"]}>
+							{/* Benefit Options */}
 							<div
-								className={`${styles["signature-section"]} row text-center`}
+								className={styles["benefit-options-container"]}
 							>
-								<div className={styles["upload-box"]}>
-									{signatureImage ? (
-										<div
+								<div className={styles["benefit-options"]}>
+									<label className={styles["radio-option"]}>
+										<input
+											type="radio"
+											name="benefit"
+											value="50"
+										/>
+										<span>50% of net hospital bill</span>
+									</label>
+									<label className={styles["radio-option"]}>
+										<input
+											type="radio"
+											name="benefit"
+											value="100"
+											checked
+											readOnly
+										/>
+										<span>100% of net hospital bill</span>
+									</label>
+								</div>
+							</div>
+
+							{/* Amount section */}
+							<div className={styles["amount-section"]}>
+								<span className="mb-2">but not to exceed:</span>
+								<div
+									className={`${styles["amount-container"]} p-3 rounded shadow`}
+								>
+									<div
+										className={`${styles["amount-input-wrapper"]} d-flex align-items-center`}
+									>
+										<span
+											className={styles.currency}
+										></span>
+										<input
+											aria-label="amount left"
+											type="text"
+											defaultValue={getBenefits}
+											className={styles["amount-input"]}
+											onChange={(e) => {
+												setEditBenefits(
+													parseInt(e.target.value)
+												);
+											}}
+										/>
+									</div>
+									<span className={styles["amount-label"]}>
+										(Remaining benefit)
+									</span>
+								</div>
+								<button
+									className={`${styles["check-history-btn"]} mt-3`}
+									onClick={() =>
+										handleCheckHistory(request.requester)
+									}
+								>
+									CHECK HISTORY
+								</button>
+							</div>
+
+							{/* Signature Upload */}
+							<div className={styles["signature-container"]}>
+								<div className={styles["signature-section"]}>
+									<div className={styles["upload-box"]}>
+										{signatureImage ? (
+											<div
+												className={
+													styles["signature-preview"]
+												}
+											>
+												<img
+													src={signatureImage}
+													alt="Signature"
+													className={
+														styles[
+															"uploaded-signature"
+														]
+													}
+												/>
+												<button
+													className={
+														styles[
+															"remove-signature-btn"
+														]
+													}
+													onClick={
+														handleRemoveSignature
+													}
+													title="Remove signature"
+												>
+													x
+												</button>
+											</div>
+										) : (
+											<>
+												<p>
+													Please attach signature
+													here.
+												</p>
+												<button
+													className={
+														styles["upload-btn"]
+													}
+													onClick={handleUploadClick}
+												>
+													UPLOAD
+												</button>
+												<input
+													type="file"
+													ref={fileInputRef}
+													className={
+														styles[
+															"hidden-file-input"
+														]
+													}
+													accept="image/*"
+													onChange={handleFileChange}
+												/>
+											</>
+										)}
+									</div>
+									<div
+										className={styles["signature-details"]}
+									>
+										<input
+											type="text"
 											className={
-												styles["signature-preview"]
+												styles["signature-name-input"]
+											}
+											defaultValue="Emerito C. Gonzales"
+											aria-label="USTFU President"
+										/>
+										<p
+											className={
+												styles["signature-title"]
 											}
 										>
-											<img
-												src={signatureImage}
-												alt="Signature"
-												className={
-													styles["uploaded-signature"]
-												}
-											/>
-											<button
-												className={
-													styles[
-														"remove-signature-btn"
-													]
-												}
-												onClick={handleRemoveSignature}
-												title="Remove signature"
-											>
-												x
-											</button>
-										</div>
-									) : (
-										<>
-											<p>Please attach signature here.</p>
-											<button
-												className={styles["upload-btn"]}
-												onClick={handleUploadClick}
-											>
-												UPLOAD
-											</button>
-											<input
-												type="file"
-												ref={fileInputRef}
-												className={
-													styles["hidden-file-input"]
-												}
-												accept="image/*"
-												onChange={handleFileChange}
-											/>
-										</>
-									)}
-								</div>
-								<div
-									className={`${styles["signature-details"]} col`}
-								>
-									<input
-										type="text"
-										className={
-											styles["signature-name-input"]
-										}
-										defaultValue="Emerito C. Gonzales"
-										aria-label="USTFU President"
-									/>
-									<p className={styles["signature-title"]}>
-										USTFU PRESIDENT
-									</p>
-									<p className={styles["signature-subtitle"]}>
-										OR AUTHORIZED REPRESENTATIVE
-									</p>
+											USTFU PRESIDENT
+										</p>
+										<p
+											className={
+												styles["signature-subtitle"]
+											}
+										>
+											OR AUTHORIZED REPRESENTATIVE
+										</p>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -684,6 +718,132 @@ const PendingRequestList = () => {
 			</>
 		);
 	};
+
+	// Apply all filters to the requests
+	const applyFilters = (requests: PendingRequest[]) => {
+		return requests.filter((request) => {
+			if (!request) return false;
+
+			// Type filter (form type)
+			// Fix: Check formType instead of origFormType and handle hospital forms correctly
+			const matchesType =
+				selectedType === "All" ||
+				request.formData?.formType?.toLowerCase() === selectedType ||
+				// For hospital forms, check if it's inpatient or outpatient
+				(selectedType === "hospital" &&
+					request.formData?.formType === "hospital") ||
+				// For specific hospital types
+				(request.formData?.formType === "hospital" &&
+					((selectedType === "inpatient" &&
+						request.formData?.hospitalStatus
+							?.toLowerCase()
+							?.includes("in-patient")) ||
+						(selectedType === "outpatient" &&
+							request.formData?.hospitalStatus
+								?.toLowerCase()
+								?.includes("out-patient"))));
+
+			// Search query (unchanged)
+			const matchesSearch =
+				!searchQuery.trim() ||
+				request.name
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				request.status
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.studentId
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.requester
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.transactionId
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.formData?.firstname
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.formData?.lastname
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.formData?.middlename
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase());
+
+			// Other filters (unchanged)
+			const matchesFilters = filters.every((filter) => {
+				const [filterType, filterValue] = filter.split(": ");
+
+				if (filterType === "College") {
+					return filterValue
+						.split(", ")
+						.includes(request.formData?.college);
+				} else if (filterType === "Status") {
+					return filterValue
+						.split(", ")
+						.includes(request.formData?.status);
+				} else if (filterType === "Date") {
+					// Handle date filter
+					const [startDateStr, endDateStr] = filterValue.split(" - ");
+					const [startMonth, startDay, startYear] =
+						startDateStr.split("/");
+					const [endMonth, endDay, endYear] = endDateStr.split("/");
+
+					const startDate = new Date(
+						parseInt(startYear),
+						parseInt(startMonth) - 1,
+						parseInt(startDay)
+					);
+
+					const endDate = new Date(
+						parseInt(endYear),
+						parseInt(endMonth) - 1,
+						parseInt(endDay),
+						23,
+						59,
+						59
+					);
+
+					const requestDate = request.dateSubmitted
+						? new Date(request.dateSubmitted)
+						: null;
+					return requestDate
+						? requestDate >= startDate && requestDate <= endDate
+						: false;
+				}
+				return true;
+			});
+
+			return matchesType && matchesSearch && matchesFilters;
+		});
+	};
+
+	// Apply filters to get filtered requests
+	const filteredRequests = applyFilters(pendingRequests);
+
+	// Calculate pagination for filtered results
+	const totalFilteredPages = Math.max(
+		1,
+		Math.ceil(filteredRequests.length / recordsPerPage)
+	);
+
+	// Get current page's records for display
+	const indexOfLastRecord = clientCurrentPage * recordsPerPage;
+	const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+	const currentFilteredRecords = filteredRequests.slice(
+		indexOfFirstRecord,
+		indexOfLastRecord
+	);
+
+	// For debugging - let's see what data we're getting
+	console.log("Original requests count:", pendingRequests.length);
+	console.log("Filtered requests count:", filteredRequests.length);
+	console.log("Records per page:", recordsPerPage);
+	console.log("Total filtered pages:", totalFilteredPages);
+	console.log("Current page:", clientCurrentPage);
+	console.log("Current records:", currentFilteredRecords.length);
 
 	// Show loading skeleton when data is loading
 	if (isLoading) {
@@ -703,7 +863,7 @@ const PendingRequestList = () => {
 	}
 
 	// Check if there are no pending requests
-	if (!pendingRequests || pendingRequests.length === 0) {
+	if (!filteredRequests || filteredRequests.length === 0) {
 		return (
 			<div className={styles["pending-requests"]}>
 				<div className={styles["empty-state"]}>
@@ -719,209 +879,259 @@ const PendingRequestList = () => {
 
 	return (
 		<div className={styles["pending-requests"]}>
-			{pendingRequests.map((request) => (
-				<div
-					key={request.transactionId}
-					className={styles["pending-request"]}
-				>
+			{filteredRequests.length > 0 ? (
+				// Map through the current page of filtered records
+				currentFilteredRecords.map((request) => (
 					<div
-						className={`${styles["request-header"]} ${
-							expandedId === request.transactionId
-								? styles.expanded
-								: ""
-						}`}
-						onClick={() => {
-							setExpandedId(
-								expandedId === request.transactionId
-									? null
-									: request.transactionId
-							);
-							setEditBenefits(getBenefits);
-							setCurrentUser(request.requester);
-						}}
+						key={request.transactionId}
+						className={styles["pending-request"]}
 					>
-						<div className={styles["header-content"]}>
-							<div>
-								<span className={styles["header-details"]}>
-									TRANSACTION ID:{" "}
-								</span>
-								{request.transactionId}
-							</div>
-							<div>
-								<span className={styles["header-details"]}>
-									REQUESTER:{" "}
-								</span>
-								{request.requester}
-							</div>
-							<div>
-								<span className={styles["header-details"]}>
-									DATE:{" "}
-								</span>
-								{request.dateSubmitted}
-							</div>
-							<span className={styles.arrow}>
-								{expandedId === request.transactionId ? (
-									<RiArrowDownSFill size={30} />
-								) : (
-									<RiArrowRightSFill size={30} />
-								)}
-							</span>
-						</div>
-					</div>
+						<div
+							className={`${styles["request-header"]} ${
+								expandedId === request.transactionId
+									? styles.expanded
+									: ""
+							}`}
+							onClick={() => {
+								setExpandedId(
+									expandedId === request.transactionId
+										? null
+										: request.transactionId
+								);
+								setEditBenefits(getBenefits);
+								setCurrentUser(request.requester);
+							}}
+						>
+							<div className={styles["header-content"]}>
+								<div className={styles["header-item"]}>
+									<span className={styles["request-type"]}>
+										{request.formData.formType ===
+										"hospital"
+											? "Hospital"
+											: request.formData.formType}
+									</span>
+								</div>
 
-					{expandedId === request.transactionId && (
-						<div className={styles["request-content"]}>
-							<h3>
-								{/* Form Type with conditional layout based on origFormType and hospitalStatus */}
-								{request.formData.formType === "hospital" &&
-								request.formData.origFormType ? (
-									<>
-										{/* Case 1: origFormType and hospitalStatus both match "inpatient" */}
-										{request.formData.origFormType.toLowerCase() ===
-											"inpatient" &&
-										request.formData.hospitalStatus?.toLowerCase() ===
-											"in-patient" ? (
-											"INPATIENT"
-										) : /* Case 2: origFormType and hospitalStatus both match "outpatient" */
-										request.formData.origFormType.toLowerCase() ===
-												"outpatient" &&
-										  request.formData.hospitalStatus?.toLowerCase() ===
-												"out-patient" ? (
-											"OUTPATIENT"
-										) : (
-											/* Case 3: Mixed case - show both with parentheses */
-											<>
-												{request.formData.origFormType.toUpperCase()}
-												{request.formData
-													.hospitalStatus && (
-													<>
-														{" "}
-														(DONE AS{" "}
-														{request.formData.hospitalStatus.toUpperCase()}
-														)
-													</>
-												)}
-											</>
-										)}
-									</>
-								) : (
-									/* Default case: just use formType if origFormType is missing */
-									request.formData.formType.toUpperCase()
-								)}{" "}
-								SUBMITTED FORM DETAILS
-							</h3>
+								{/* Date */}
+								<div className={styles["header-item"]}>
+									<span className={styles["header-label"]}>
+										Date
+									</span>
+									<span className={styles["header-value"]}>
+										{request.dateSubmitted}
+									</span>
+								</div>
 
-							{renderFormFields(request)}
-							{renderAttachments(request)}
-							{renderHospitalCertification(request)}
+								{/* Requester */}
+								<div className={styles["header-item"]}>
+									<span className={styles["header-label"]}>
+										Requester
+									</span>
+									<span className={styles["header-value"]}>
+										{request.requester}
+									</span>
+								</div>
 
-							<hr></hr>
-							<div className={styles["approval-section"]}>
-								<h4 className="text-center text-md-start">
-									APPROVAL STEP
-								</h4>
+								{/* Transaction ID */}
+								<div className={styles["header-item"]}>
+									<span className={styles["header-label"]}>
+										Transaction ID
+									</span>
+									<span className={styles["header-value"]}>
+										{request.transactionId}
+									</span>
+								</div>
 
-								{/* Action Buttons - Centered on small screens, inline on larger screens */}
-								<div
-									className={
-										styles["approval-actions-container"]
-									}
-								>
-									<div className={styles["approval-actions"]}>
-										<button
-											className={`${
-												styles["approve-btn"]
-											} d-flex align-items-center justify-content-center ${
-												activeDecision === "approval"
-													? styles.selected
-													: ""
-											}`}
-											onClick={() =>
-												handleAction("approval")
-											}
-										>
-											<FiCheck size={25} />
-											<span className="ms-2">
-												Approve
-											</span>
-										</button>
-										<button
-											className={`${
-												styles["reject-btn"]
-											} d-flex align-items-center justify-content-center ${
-												activeDecision === "rejection"
-													? styles.selected
-													: ""
-											}`}
-											onClick={() =>
-												handleAction("rejection")
-											}
-										>
-											<HiOutlineX size={25} />
-											<span className="ms-2">Reject</span>
-										</button>
-										<button
-											className={`${
-												styles["revise-btn"]
-											} d-flex align-items-center justify-content-center ${
-												activeDecision ===
-												"for revision"
-													? styles.selected
-													: ""
-											}`}
-											onClick={() =>
-												handleAction("for revision")
-											}
-										>
-											<FiEdit2 size={23} />
-											<span className="ms-2">
-												To Revise
-											</span>
-										</button>
-									</div>
-
-									{showCommentBox && (
-										<textarea
-											className={styles["comment-box"]}
-											placeholder={showCommentBox}
-											onChange={handleTextArea}
-										/>
+								{/* Arrow moved to the end */}
+								<span className={styles.arrow}>
+									{expandedId === request.transactionId ? (
+										<RiArrowDownSFill size={24} />
+									) : (
+										<RiArrowRightSFill size={24} />
 									)}
-									{/* Send Button Section - Centered on small screens, bottom-right on large screens */}
-									<div className={styles["send-section"]}>
-										<div className={styles["send-box"]}>
-											<p className={styles["send-note"]}>
-												** Clicking the send button will
-												finalize the decision and notify
-												the requester. This action is
-												irreversible.
-											</p>
+								</span>
+							</div>
+						</div>
+
+						{expandedId === request.transactionId && (
+							<div className={styles["request-content"]}>
+								{/* Move "done as" to appear under the main title */}
+								<h3>
+									{request.formData.formType ===
+									"hospital" ? (
+										<>
+											{request.formData.hospitalStatus?.toLowerCase() ===
+											"in-patient"
+												? "INPATIENT"
+												: request.formData.hospitalStatus?.toLowerCase() ===
+												  "out-patient"
+												? "OUTPATIENT"
+												: "HOSPITAL"}{" "}
+											SUBMITTED FORM DETAILS
+											{request.formData
+												.hospitalStatus && (
+												<span
+													className={
+														styles[
+															"done-as-subtitle"
+														]
+													}
+												>
+													(done as{" "}
+													{
+														request.formData
+															.hospitalStatus
+													}
+													)
+												</span>
+											)}
+										</>
+									) : (
+										request.formData.formType.toUpperCase()
+									)}
+								</h3>
+
+								{renderFormFields(request)}
+								{renderAttachments(request)}
+								{renderHospitalCertification(request)}
+
+								<hr></hr>
+								<div className={styles["approval-section"]}>
+									<h4 className={styles["section-header"]}>
+										APPROVAL STEP
+									</h4>
+
+									<div
+										className={
+											styles["approval-actions-container"]
+										}
+									>
+										<div
+											className={
+												styles["approval-actions"]
+											}
+										>
 											<button
-												className={styles["send-btn"]}
-												onClick={() => {
-													handleSendClick(
-														request.transactionId
-													);
-												}}
+												className={`${
+													styles["approve-btn"]
+												} d-flex align-items-center justify-content-center ${
+													activeDecision ===
+													"approval"
+														? styles.selected
+														: ""
+												}`}
+												onClick={() =>
+													handleAction("approval")
+												}
 											>
-												SEND
+												<FiCheck size={25} />
+												<span className="ms-2">
+													Approve
+												</span>
 											</button>
+											<button
+												className={`${
+													styles["reject-btn"]
+												} d-flex align-items-center justify-content-center ${
+													activeDecision ===
+													"rejection"
+														? styles.selected
+														: ""
+												}`}
+												onClick={() =>
+													handleAction("rejection")
+												}
+											>
+												<HiOutlineX size={25} />
+												<span className="ms-2">
+													Reject
+												</span>
+											</button>
+											<button
+												className={`${
+													styles["revise-btn"]
+												} d-flex align-items-center justify-content-center ${
+													activeDecision ===
+													"for revision"
+														? styles.selected
+														: ""
+												}`}
+												onClick={() =>
+													handleAction("for revision")
+												}
+											>
+												<FiEdit2 size={23} />
+												<span className="ms-2">
+													To Revise
+												</span>
+											</button>
+										</div>
+
+										{showCommentBox && (
+											<textarea
+												className={
+													styles["comment-box"]
+												}
+												placeholder={showCommentBox}
+												onChange={handleTextArea}
+											/>
+										)}
+
+										<div className={styles["send-section"]}>
+											<div className={styles["send-box"]}>
+												<p
+													className={
+														styles["send-note"]
+													}
+												>
+													** Clicking the send button
+													will finalize the decision
+													and notify the requester.
+													This action is irreversible.
+												</p>
+												<button
+													className={
+														styles["send-btn"]
+													}
+													onClick={() => {
+														handleSendClick(
+															request.transactionId
+														);
+													}}
+												>
+													SEND
+												</button>
+											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-					)}
-				</div>
-			))}
+						)}
+					</div>
+				))
+			) : (
+				<div className="no-results">No matching requests found</div>
+			)}
 
-			{/* Add pagination controls if there are multiple pages */}
-			{pagination.totalPages > 1 && (
-				<PageButtons
-					currentPage={pagination.currentPage}
-					totalPages={pagination.totalPages}
-					onPageChange={handlePageChange}
-				/>
+			{/* Updated pagination layout */}
+			{filteredRequests.length > 0 && (
+				<div className={styles.paginationContainer}>
+					{/* Record info moved to the side */}
+					<div className={styles.recordInfo}>
+						Showing {indexOfFirstRecord + 1} to{" "}
+						{Math.min(indexOfLastRecord, filteredRequests.length)}{" "}
+						of {filteredRequests.length} results
+					</div>
+
+					{/* Page buttons centered in their own container */}
+					<div className={styles.pageButtonsContainer}>
+						<PageButtons
+							currentPage={clientCurrentPage}
+							totalPages={totalFilteredPages}
+							onPageChange={handlePageChange}
+						/>
+					</div>
+				</div>
 			)}
 
 			{showPopout && (
@@ -933,9 +1143,11 @@ const PendingRequestList = () => {
 					isOpen={showPopout}
 				/>
 			)}
+
 			{previewFile && (
 				<ViewFiles file={previewFile} onClose={handleClosePreview} />
 			)}
+
 			{showHistoryPopout && (
 				<HistoryPopout
 					onClose={handleCloseHistory}

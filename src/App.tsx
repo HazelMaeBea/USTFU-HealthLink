@@ -16,7 +16,7 @@ import HospitalizationHistory from "./components/Pages/HospitalizationHistory";
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/Settings";
 import AdminSettings from "./components/Pages/AdminSettings";
-import PendingRequestList from "./components/Page Elements/PendingRequests/PendingRequestsList";
+import PendingRequests from "./components/Pages/PendingRequests";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { UserProvider } from "./contexts/userContext";
 import { FirebaseProvider } from "./contexts/firebaseContext";
@@ -33,7 +33,10 @@ const App: React.FC = () => {
 						<Routes>
 							{/* Public routes */}
 							<Route path="/login" element={<LoginPage />} />
-							<Route path="/register" element={<Registration />} />
+							<Route
+								path="/register"
+								element={<Registration />}
+							/>
 
 							{/* Protected routes */}
 							<Route element={<ProtectedRoute />}>
@@ -46,26 +49,44 @@ const App: React.FC = () => {
 										path="/tracking"
 										element={<HospitalizationTracking />}
 									/>
-									<Route path="/history" element={<HospitalizationHistory />} />
+									<Route
+										path="/history"
+										element={<HospitalizationHistory />}
+									/>
 									<Route
 										path="/pendingrequests"
 										element={
 											<ErrorBoundary>
-												<PendingRequestList />
+												<PendingRequests />
 											</ErrorBoundary>
 										}
 									/>
-									<Route path="/generate" element={<FormGenerator />} />
+									<Route
+										path="/generate"
+										element={<FormGenerator />}
+									/>
 
 									<Route path="/faqs" element={<FAQs />} />
-									<Route path="/settings" element={<Settings />} />
-									<Route path="/adminsettings" element={<AdminSettings />} />
+									<Route
+										path="/settings"
+										element={<Settings />}
+									/>
+									<Route
+										path="/adminsettings"
+										element={<AdminSettings />}
+									/>
 								</Route>
 							</Route>
 
 							{/* Default routes */}
-							<Route path="/" element={<Navigate to="/home" replace />} />
-							<Route path="*" element={<Navigate to="/login" replace />} />
+							<Route
+								path="/"
+								element={<Navigate to="/home" replace />}
+							/>
+							<Route
+								path="*"
+								element={<Navigate to="/login" replace />}
+							/>
 						</Routes>
 					</div>
 				</Router>
