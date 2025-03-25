@@ -6,7 +6,7 @@ import {
 	updateDocument,
 	usePendingRequests,
 } from "./PendingRequestBackend"; // use the hook instead of mock data
-import "./PendingRequests.css";
+import styles from "./PendingRequestList.module.css"; // Change CSS import to use module
 import { RiArrowDownSFill, RiArrowRightSFill } from "react-icons/ri";
 import { FiCheck, FiEdit2 } from "react-icons/fi";
 import { HiOutlineX } from "react-icons/hi";
@@ -182,43 +182,61 @@ const PendingRequestList = () => {
 
 		const baseFields = (
 			<>
-				<hr className="yellow"></hr>
-				<div className="form-grid">
-					<div className="form-group">
+				<hr className={styles.yellow}></hr>
+				<div className={styles["form-grid"]}>
+					<div className={styles["form-group"]}>
 						<label>Last Name</label>
-						<p className="field-value">{formData.lastname}</p>
+						<p className={styles["field-value"]}>
+							{formData.lastname}
+						</p>
 					</div>
-					<div className="form-group">
+					<div className={styles["form-group"]}>
 						<label>First Name</label>
-						<p className="field-value">{formData.firstname}</p>
+						<p className={styles["field-value"]}>
+							{formData.firstname}
+						</p>
 					</div>
-					<div className="form-group">
+					<div className={styles["form-group"]}>
 						<label>Middle Name</label>
-						<p className="field-value">{formData.middlename}</p>
+						<p className={styles["field-value"]}>
+							{formData.middlename}
+						</p>
 					</div>
-					<div className="form-group">
+					<div className={styles["form-group"]}>
 						<label>Suffix</label>
-						<p className="field-value">
+						<p className={styles["field-value"]}>
 							{formData.suffix ? formData.suffix : "-"}
 						</p>
 					</div>
 				</div>
-				<div className="form-second-row-grid">
-					<div className="form-group">
+				<div className={styles["form-second-row-grid"]}>
+					<div className={styles["form-group"]}>
 						<label>Age</label>
-						<p className="field-value">{formData.age}</p>
+						<p className={styles["field-value"]}>{formData.age}</p>
 					</div>
-					<div className="form-group pending-request-gender-field">
+					<div
+						className={`${styles["form-group"]} ${styles["pending-request-gender-field"]}`}
+					>
 						<label>Gender</label>
-						<p className="field-value">{formData.gender}</p>
+						<p className={styles["field-value"]}>
+							{formData.gender}
+						</p>
 					</div>
-					<div className="form-group pending-request-college-field">
+					<div
+						className={`${styles["form-group"]} ${styles["pending-request-college-field"]}`}
+					>
 						<label>College Affiliation</label>
-						<p className="field-value">{formData.college}</p>
+						<p className={styles["field-value"]}>
+							{formData.college}
+						</p>
 					</div>
-					<div className="form-group pending-request-contact-field">
+					<div
+						className={`${styles["form-group"]} ${styles["pending-request-contact-field"]}`}
+					>
 						<label>Contact No.</label>
-						<p className="field-value">{formData.contact}</p>
+						<p className={styles["field-value"]}>
+							{formData.contact}
+						</p>
 					</div>
 				</div>
 			</>
@@ -230,55 +248,61 @@ const PendingRequestList = () => {
 					<>
 						{baseFields}
 						<hr></hr>
-						<div className="form-grid">
-							<div className="form-group">
+						<div className={styles["form-grid"]}>
+							<div className={styles["form-group"]}>
 								<label>Hospital</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.hospital}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Nature of Illness</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.illness}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Physician</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.physician}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Procedure</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.procedures}
 								</p>
 							</div>
 						</div>
 						<hr></hr>
-						<div className="form-grid">
-							<div className="form-group">
+						<div className={styles["form-grid"]}>
+							<div className={styles["form-group"]}>
 								<label>Academic Term</label>
-								<p className="field-value">{formData.term}</p>
+								<p className={styles["field-value"]}>
+									{formData.term}
+								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Academic Year</label>
-								<p className="field-value">{formData.year}</p>
+								<p className={styles["field-value"]}>
+									{formData.year}
+								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Teaching Load</label>
-								<p className="field-value">{formData.load}</p>
+								<p className={styles["field-value"]}>
+									{formData.load}
+								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Status</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.status || "-"}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Date Hired:</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.dateHired
 										? new Date(
 												formData.dateHired
@@ -286,9 +310,9 @@ const PendingRequestList = () => {
 										: "-"}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Date Retired:</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.dateRetired
 										? new Date(
 												formData.dateRetired
@@ -296,15 +320,15 @@ const PendingRequestList = () => {
 										: "-"}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Health Benefits</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.benefits}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>If HMO, please specify:</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.hmo ? formData.hmo : "-"}
 								</p>
 							</div>
@@ -316,26 +340,26 @@ const PendingRequestList = () => {
 				return (
 					<>
 						{baseFields}
-						<div className="form-eyeglasses-row-grid">
-							<div className="form-group">
+						<div className={styles["form-eyeglasses-row-grid"]}>
+							<div className={styles["form-group"]}>
 								<label>OR Number</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.ORNumber
 										? formData.ORNumber
 										: "-"}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Issued By</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.issuedBy
 										? formData.issuedBy
 										: "-"}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Amount Paid</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.amountPaid
 										? formData.amountPaid
 										: "-"}
@@ -349,16 +373,16 @@ const PendingRequestList = () => {
 				return (
 					<>
 						{baseFields}
-						<div className="form-admission-row-grid">
-							<div className="form-group">
+						<div className={styles["form-admission-row-grid"]}>
+							<div className={styles["form-group"]}>
 								<label>Load</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.load ? formData.load : "-"}
 								</p>
 							</div>
-							<div className="form-group">
+							<div className={styles["form-group"]}>
 								<label>Status</label>
-								<p className="field-value">
+								<p className={styles["field-value"]}>
 									{formData.status ? formData.status : "-"}
 								</p>
 							</div>
@@ -398,20 +422,29 @@ const PendingRequestList = () => {
 					<img
 						src={attachment.url}
 						alt={attachment.filename}
-						className="file-thumbnail"
+						className={styles["file-thumbnail"]}
 					/>
 				);
 			} else if (ext === "pdf") {
 				return (
-					<div className="default-thumbnail" data-label="PDF"></div>
+					<div
+						className={styles["default-thumbnail"]}
+						data-label="PDF"
+					></div>
 				);
 			} else if (ext === "docx") {
 				return (
-					<div className="default-thumbnail" data-label="DOCX"></div>
+					<div
+						className={styles["default-thumbnail"]}
+						data-label="DOCX"
+					></div>
 				);
 			} else {
 				return (
-					<div className="default-thumbnail" data-label="FILE"></div>
+					<div
+						className={styles["default-thumbnail"]}
+						data-label="FILE"
+					></div>
 				);
 			}
 		};
@@ -419,24 +452,24 @@ const PendingRequestList = () => {
 		return (
 			<>
 				<hr />
-				<div className="attachments-section">
+				<div className={styles["attachments-section"]}>
 					<h4>UPLOADED ATTACHMENTS</h4>
-					<div className="attachment-preview-container">
+					<div className={styles["attachment-preview-container"]}>
 						{attachmentsWithLabels.map((item, index) => (
 							<div
 								key={index}
-								className="attachment-preview"
+								className={styles["attachment-preview"]}
 								onClick={() => setPreviewFile(item.data)}
 								title={item.data.filename}
 							>
-								<div className="thumbnail-container">
+								<div className={styles["thumbnail-container"]}>
 									{renderThumbnail(item.data)}
 								</div>
-								<div className="file-info">
-									<p className="document-type">
+								<div className={styles["file-info"]}>
+									<p className={styles["document-type"]}>
 										{formatDocumentType(item.type)}
 									</p>
-									<p className="file-name">
+									<p className={styles["file-name"]}>
 										{item.data.filename}
 									</p>
 								</div>
@@ -462,13 +495,15 @@ const PendingRequestList = () => {
 			<>
 				<hr></hr>
 				<div className="d-flex flex-column align-items-center">
-					<div className="hospital-certification row flex-column flex-md-row">
+					<div
+						className={`${styles["hospital-certification"]} row flex-column flex-md-row`}
+					>
 						{/* Left Section */}
 						<div className="col-12 col-md-8">
-							<div className="certification-header">
+							<div className={styles["certification-header"]}>
 								To UST HOSPITAL:
 							</div>
-							<div className="certification-content">
+							<div className={styles["certification-content"]}>
 								<p>
 									This certifies that the above named faculty
 									is entitled to the following benefit on
@@ -479,8 +514,16 @@ const PendingRequestList = () => {
 								</p>
 								<div className="row justify-content-center align-content-center">
 									<div className="col-12 col-md-4">
-										<div className="benefit-options">
-											<label className="radio-option">
+										<div
+											className={
+												styles["benefit-options"]
+											}
+										>
+											<label
+												className={
+													styles["radio-option"]
+												}
+											>
 												<input
 													type="radio"
 													name="benefit"
@@ -490,7 +533,11 @@ const PendingRequestList = () => {
 													50% of net hospital bill
 												</span>
 											</label>
-											<label className="radio-option">
+											<label
+												className={
+													styles["radio-option"]
+												}
+											>
 												<input
 													type="radio"
 													name="benefit"
@@ -504,19 +551,28 @@ const PendingRequestList = () => {
 											</label>
 										</div>
 									</div>
-									<div className="amount col-12 col-md-8 d-flex flex-column align-items-center text-center">
+									<div
+										className={`${styles.amount} col-12 col-md-8 d-flex flex-column align-items-center text-center`}
+									>
 										<span className="mb-2">
 											but not to exceed:
 										</span>
-										<div className="amount-container p-3 rounded shadow">
-											<div className="amount-input-wrapper d-flex align-items-center">
-												<span className="currency"></span>
+										<div
+											className={`${styles["amount-container"]} p-3 rounded shadow`}
+										>
+											<div
+												className={`${styles["amount-input-wrapper"]} d-flex align-items-center`}
+											>
+												<span
+													className={styles.currency}
+												></span>
 												<input
 													aria-label="amount left"
 													type="text"
 													defaultValue={getBenefits}
-													// disabled
-													className="amount-input"
+													className={
+														styles["amount-input"]
+													}
 													onChange={(e) => {
 														setEditBenefits(
 															parseInt(
@@ -526,12 +582,16 @@ const PendingRequestList = () => {
 													}}
 												/>
 											</div>
-											<span className="amount-label">
+											<span
+												className={
+													styles["amount-label"]
+												}
+											>
 												(Remaining benefit)
 											</span>
 										</div>
 										<button
-											className="check-history-btn mt-3"
+											className={`${styles["check-history-btn"]} mt-3`}
 											onClick={() =>
 												handleCheckHistory(
 													request.requester
@@ -546,22 +606,35 @@ const PendingRequestList = () => {
 						</div>
 
 						{/* Right Section (Signature Upload) */}
-						<div className="signature col-12 col-md-4 d-flex flex-column justify-content-center align-items-center">
-							<div className="signature-section row text-center">
-								<div className="upload-box">
+						<div
+							className={`${styles.signature} col-12 col-md-4 d-flex flex-column justify-content-center align-items-center`}
+						>
+							<div
+								className={`${styles["signature-section"]} row text-center`}
+							>
+								<div className={styles["upload-box"]}>
 									{signatureImage ? (
-										<div className="signature-preview">
+										<div
+											className={
+												styles["signature-preview"]
+											}
+										>
 											<img
 												src={signatureImage}
 												alt="Signature"
-												className="uploaded-signature"
+												className={
+													styles["uploaded-signature"]
+												}
 											/>
 											<button
-												className="remove-signature-btn"
+												className={
+													styles[
+														"remove-signature-btn"
+													]
+												}
 												onClick={handleRemoveSignature}
 												title="Remove signature"
 											>
-												{/* <HiOutlineX color="red" /> */}
 												x
 											</button>
 										</div>
@@ -569,7 +642,7 @@ const PendingRequestList = () => {
 										<>
 											<p>Please attach signature here.</p>
 											<button
-												className="upload-btn"
+												className={styles["upload-btn"]}
 												onClick={handleUploadClick}
 											>
 												UPLOAD
@@ -577,24 +650,30 @@ const PendingRequestList = () => {
 											<input
 												type="file"
 												ref={fileInputRef}
-												className="hidden-file-input"
+												className={
+													styles["hidden-file-input"]
+												}
 												accept="image/*"
 												onChange={handleFileChange}
 											/>
 										</>
 									)}
 								</div>
-								<div className="signature-details col">
+								<div
+									className={`${styles["signature-details"]} col`}
+								>
 									<input
 										type="text"
-										className="signature-name-input"
+										className={
+											styles["signature-name-input"]
+										}
 										defaultValue="Emerito C. Gonzales"
 										aria-label="USTFU President"
 									/>
-									<p className="signature-title">
+									<p className={styles["signature-title"]}>
 										USTFU PRESIDENT
 									</p>
-									<p className="signature-subtitle">
+									<p className={styles["signature-subtitle"]}>
 										OR AUTHORIZED REPRESENTATIVE
 									</p>
 								</div>
@@ -614,8 +693,8 @@ const PendingRequestList = () => {
 	// Show error message if there was a problem loading the data
 	if (error) {
 		return (
-			<div className="pending-requests">
-				<div className="error-message">
+			<div className={styles["pending-requests"]}>
+				<div className={styles["error-message"]}>
 					<p>{error}</p>
 					<button onClick={() => setCurrentPage(1)}>Retry</button>
 				</div>
@@ -626,8 +705,8 @@ const PendingRequestList = () => {
 	// Check if there are no pending requests
 	if (!pendingRequests || pendingRequests.length === 0) {
 		return (
-			<div className="pending-requests">
-				<div className="empty-state">
+			<div className={styles["pending-requests"]}>
+				<div className={styles["empty-state"]}>
 					<h3>No pending requests</h3>
 					<p>
 						There are no requests waiting for your approval at this
@@ -639,13 +718,16 @@ const PendingRequestList = () => {
 	}
 
 	return (
-		<div className="pending-requests">
+		<div className={styles["pending-requests"]}>
 			{pendingRequests.map((request) => (
-				<div key={request.transactionId} className="pending-request">
+				<div
+					key={request.transactionId}
+					className={styles["pending-request"]}
+				>
 					<div
-						className={`request-header ${
+						className={`${styles["request-header"]} ${
 							expandedId === request.transactionId
-								? "expanded"
+								? styles.expanded
 								: ""
 						}`}
 						onClick={() => {
@@ -658,24 +740,26 @@ const PendingRequestList = () => {
 							setCurrentUser(request.requester);
 						}}
 					>
-						<div className="header-content">
+						<div className={styles["header-content"]}>
 							<div>
-								<span className="header-details">
+								<span className={styles["header-details"]}>
 									TRANSACTION ID:{" "}
 								</span>
 								{request.transactionId}
 							</div>
 							<div>
-								<span className="header-details">
+								<span className={styles["header-details"]}>
 									REQUESTER:{" "}
 								</span>
 								{request.requester}
 							</div>
 							<div>
-								<span className="header-details">DATE: </span>
+								<span className={styles["header-details"]}>
+									DATE:{" "}
+								</span>
 								{request.dateSubmitted}
 							</div>
-							<span className="arrow">
+							<span className={styles.arrow}>
 								{expandedId === request.transactionId ? (
 									<RiArrowDownSFill size={30} />
 								) : (
@@ -686,7 +770,7 @@ const PendingRequestList = () => {
 					</div>
 
 					{expandedId === request.transactionId && (
-						<div className="request-content">
+						<div className={styles["request-content"]}>
 							<h3>
 								{/* Form Type with conditional layout based on origFormType and hospitalStatus */}
 								{request.formData.formType === "hospital" &&
@@ -732,18 +816,24 @@ const PendingRequestList = () => {
 							{renderHospitalCertification(request)}
 
 							<hr></hr>
-							<div className="approval-section">
+							<div className={styles["approval-section"]}>
 								<h4 className="text-center text-md-start">
 									APPROVAL STEP
 								</h4>
 
 								{/* Action Buttons - Centered on small screens, inline on larger screens */}
-								<div className="approval-actions-container">
-									<div className="approval-actions">
+								<div
+									className={
+										styles["approval-actions-container"]
+									}
+								>
+									<div className={styles["approval-actions"]}>
 										<button
-											className={`approve-btn d-flex align-items-center justify-content-center ${
+											className={`${
+												styles["approve-btn"]
+											} d-flex align-items-center justify-content-center ${
 												activeDecision === "approval"
-													? "selected"
+													? styles.selected
 													: ""
 											}`}
 											onClick={() =>
@@ -756,9 +846,11 @@ const PendingRequestList = () => {
 											</span>
 										</button>
 										<button
-											className={`reject-btn d-flex align-items-center justify-content-center ${
+											className={`${
+												styles["reject-btn"]
+											} d-flex align-items-center justify-content-center ${
 												activeDecision === "rejection"
-													? "selected"
+													? styles.selected
 													: ""
 											}`}
 											onClick={() =>
@@ -769,10 +861,12 @@ const PendingRequestList = () => {
 											<span className="ms-2">Reject</span>
 										</button>
 										<button
-											className={`revise-btn d-flex align-items-center justify-content-center ${
+											className={`${
+												styles["revise-btn"]
+											} d-flex align-items-center justify-content-center ${
 												activeDecision ===
 												"for revision"
-													? "selected"
+													? styles.selected
 													: ""
 											}`}
 											onClick={() =>
@@ -788,22 +882,22 @@ const PendingRequestList = () => {
 
 									{showCommentBox && (
 										<textarea
-											className="comment-box"
+											className={styles["comment-box"]}
 											placeholder={showCommentBox}
 											onChange={handleTextArea}
 										/>
 									)}
 									{/* Send Button Section - Centered on small screens, bottom-right on large screens */}
-									<div className="send-section">
-										<div className="send-box">
-											<p className="send-note">
+									<div className={styles["send-section"]}>
+										<div className={styles["send-box"]}>
+											<p className={styles["send-note"]}>
 												** Clicking the send button will
 												finalize the decision and notify
 												the requester. This action is
 												irreversible.
 											</p>
 											<button
-												className="send-btn"
+												className={styles["send-btn"]}
 												onClick={() => {
 													handleSendClick(
 														request.transactionId

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./ViewFiles.css";
+import styles from "./ViewFiles.module.css";
 import { HiOutlineX } from "react-icons/hi";
 
 interface ViewFilesProps {
@@ -50,51 +50,69 @@ const ViewFiles: React.FC<ViewFilesProps> = ({ file, onClose }) => {
 	const resetZoom = () => setZoom(1);
 
 	return (
-		<div className="view-file-overlay" onClick={handleBackgroundClick}>
-			<div className="view-file-container" ref={modalContentRef}>
-				<div className="view-file-header">
-					<h3 className="view-file-title" title={file.filename}>
+		<div
+			className={styles["view-file-overlay"]}
+			onClick={handleBackgroundClick}
+		>
+			<div
+				className={styles["view-file-container"]}
+				ref={modalContentRef}
+			>
+				<div className={styles["view-file-header"]}>
+					<h3
+						className={styles["view-file-title"]}
+						title={file.filename}
+					>
 						{file.filename}
 					</h3>
-					<button className="close-button" onClick={onClose}>
+					<button
+						className={styles["close-button"]}
+						onClick={onClose}
+					>
 						<HiOutlineX size={20} />
 					</button>
 				</div>
-				<div className="view-file-content">
+				<div className={styles["view-file-content"]}>
 					{file.url ? (
 						isPdf ? (
 							<iframe
 								src={file.url}
 								title={file.filename}
-								className="pdf-preview"
+								className={styles["pdf-preview"]}
 							/>
 						) : (
-							<div className="image-preview-container">
-								<div className="zoom-controls">
+							<div className={styles["image-preview-container"]}>
+								<div className={styles["zoom-controls"]}>
 									<button
 										onClick={zoomOut}
-										className="zoom-button"
+										className={styles["zoom-button"]}
+										title="Zoom Out"
 									>
-										-
+										−
 									</button>
+									<div className={styles["zoom-percentage"]}>
+										{Math.round(zoom * 100)}%
+									</div>
 									<button
 										onClick={resetZoom}
-										className="zoom-button"
+										className={`${styles["zoom-button"]} ${styles["reset-button"]}`}
+										title="Reset Zoom"
 									>
 										Reset
 									</button>
 									<button
 										onClick={zoomIn}
-										className="zoom-button"
+										className={styles["zoom-button"]}
+										title="Zoom In"
 									>
 										+
 									</button>
 								</div>
-								<div className="image-wrapper">
+								<div className={styles["image-wrapper"]}>
 									<img
 										src={file.url}
 										alt={file.filename}
-										className="full-size-image"
+										className={styles["full-size-image"]}
 										style={{ transform: `scale(${zoom})` }}
 										onError={(e) => {
 											console.error(
@@ -107,7 +125,7 @@ const ViewFiles: React.FC<ViewFilesProps> = ({ file, onClose }) => {
 							</div>
 						)
 					) : (
-						<div className="file-fallback">
+						<div className={styles["file-fallback"]}>
 							<p>No preview available.</p>
 						</div>
 					)}
