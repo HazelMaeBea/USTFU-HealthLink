@@ -16,6 +16,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
+import { useFirebase } from "../../../contexts/firebaseContext.tsx";
 
 const reqCollection = collection(db, "FormRequests");
 const usersCollection = collection(db, "users");
@@ -35,10 +36,13 @@ export interface PaginatedRequests {
 	setCurrentPage: (page: number) => void;
 	isLoading: boolean;
 	error: string | null;
+	newRequestCount: number;
 }
 
 // Fixed usePendingRequests hook
 export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
+	const { uid } = useFirebase();
+
 	const [requests, setRequests] = useState<PendingRequest[]>([]);
 	const [pagination, setPagination] = useState({
 		currentPage: initialPage,
@@ -82,17 +86,45 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 	};
 
 	useEffect(() => {
+		if (!uid) return;
+
 		// Use onSnapshot for real-time updates
 		const formRequestsRef = collection(db, "FormRequests");
 		const q = query(formRequestsRef, where("status", "==", "pending"));
+
+		//Get the last loaded timestamp from localStorage
+		let lastLoadedMillis = Number(localStorage.getItem(`lastPendingLoad_${uid}`)) || 0;
 
 		const unsubscribe = onSnapshot(
 			q,
 			(snapshot) => {
 				console.log(`Received ${snapshot.size} pending requests`);
 				const results: PendingRequest[] = [];
+				let newCount = 0;
+				
 				snapshot.forEach((doc) => {
 					const data = doc.data() as PendingRequest;
+
+					//timestamp handling
+					let millis = 0;
+
+					// Check for Firestore Timestamp object type safely
+					if (typeof data.dateSubmitted === "object" && "toMillis" in data.dateSubmitted) {
+						millis = (data.dateSubmitted as Timestamp).toMillis();
+					} 
+					// Handle string date parsing safely
+					else if (typeof data.dateSubmitted === "string") {
+						const parsedMillis = Date.parse(data.dateSubmitted);
+						if (!isNaN(parsedMillis)) {
+							millis = parsedMillis;
+						}
+					}
+
+					//Filter out transfers by comparing timestamps
+					if (millis > lastLoadedMillis) {
+						newCount++;
+					}
+
 					results.push({
 						...data,
 						id: doc.id,
@@ -105,18 +137,32 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 					totalPages: Math.ceil(results.length / pageSize) || 1,
 					totalRecords: results.length,
 				});
+
+				//Save the latest timestamp to `localStorage`
+				if (results.length > 0) {
+					const latestTimestamp = Math.max(
+						...results.map((req) => Number(req.dateSubmitted) || 0)
+					);
+					localStorage.setItem(`lastPendingLoad_${uid}`, `${latestTimestamp}`);
+				}
+
+				//Save the notification count in localStorage
+				if (newCount > 0) {
+					localStorage.setItem(`pendingNotif_${uid}`, `${newCount}`);
+				}
+
 				setIsLoading(false);
 			},
 			(error) => {
-				console.error("Error fetching real-time pending requests:", error);
-				setError("Failed to load pending requests. Please try again.");
+				console.error("Error loading pending requests:", error);
+				setError("Failed to load pending requests.");
 				setIsLoading(false);
 			}
 		);
 
 		// Cleanup the listener when the component unmounts
 		return () => unsubscribe();
-	}, [currentPage, pageSize]);
+	}, [uid, currentPage, pageSize]);
 
 	return { requests, pagination, setCurrentPage, isLoading, error, fetchData };
 };
@@ -177,7 +223,6 @@ export const updateDocument = async (
 				...(validUntil ? { validUntil } : {})
 			});
 
-			console.log(`Document with ID ${document.id} has been updated.`);
 			console.log(`Document with ID ${document.id} has been updated.`);
 
 			let newCollection = "";
