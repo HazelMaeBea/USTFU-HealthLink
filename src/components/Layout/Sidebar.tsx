@@ -38,8 +38,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		useState(false);
 
 	// ✅ LocalStorage Keys
-	const PENDING_KEY = "lastPendingCount";
 	const ACCOMPLISHED_KEY = "lastAccomplishedCount";
+	const LAST_DOC_IDS_KEY = "lastPendingDocIds";
 
 	// SECURE: Get role state from useUser context
 	const { selectedRole, availableRoles, switchRole } = useUser();
@@ -129,20 +129,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		// Get last seen counts from localStorage
 		if (!uid) return;
 
-		// Get last-seen counts per user
-		const lastPendingCount = parseInt(
-			localStorage.getItem(PENDING_KEY) || "0",
-			10
+		const lastSeenDocIds = JSON.parse(
+			localStorage.getItem(LAST_DOC_IDS_KEY) || "[]"
 		);
+		const currentDocIds = requests.map((doc) => doc.id);
+		const hasNewDocs = currentDocIds.some((id) => !lastSeenDocIds.includes(id));
+
+		// Get last-seen counts per user
 		const lastAccomplishedCount = parseInt(
 			localStorage.getItem(ACCOMPLISHED_KEY) || "0",
 			10
 		);
 
-		// Check for new pending requests
+		// ✅ Trigger notification only on new additions, not deletions
 		if (selectedRole === "operations handler" || selectedRole === "admin") {
-			setHasNewPendingRequest(requests.length > lastPendingCount);
-			localStorage.setItem(PENDING_KEY, requests.length.toString());
+			if (hasNewDocs) {
+				setHasNewPendingRequest(true);
+				localStorage.setItem(LAST_DOC_IDS_KEY, JSON.stringify(currentDocIds));
+			} else {
+				setHasNewPendingRequest(false);
+			}
 		}
 
 		// Check for new accomplished records
@@ -176,8 +182,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		setActiveItem(name);
 		localStorage.setItem("activePage", name); // Store active menu item
 		if (name === "PENDING REQUESTS") {
+			// ✅ Clear the new pending request notification
 			setHasNewPendingRequest(false);
-			localStorage.setItem(PENDING_KEY, requests.length.toString());
+			const currentDocIds = requests.map((doc) => doc.id);
+			localStorage.setItem(LAST_DOC_IDS_KEY, JSON.stringify(currentDocIds));
 		}
 		if (name === "HOSPITALIZATION TRACKING") {
 			setHasNewAccomplishedRecord(false);
