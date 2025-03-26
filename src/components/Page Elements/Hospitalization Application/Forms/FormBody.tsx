@@ -16,7 +16,7 @@ import { auth, db, getFormID } from "../../../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
-import { useAutofill } from "../Autofill.ts";
+import { useAutofill, applyAutofill } from "../Autofill.ts";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 import { AiOutlineAccountBook } from "react-icons/ai";
 
@@ -210,6 +210,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		useState<string>("Preparing files...");
 	const navigate = useNavigate();
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
+	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
 
 	const {
 		register,
@@ -217,8 +218,20 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		reset,
 		setValue,
 		watch,
+		setError,
 		formState: { errors, isSubmitted },
-	} = useForm<FormData>({ resolver: zodResolver(schema) });
+	} = useForm<FormData>({
+		resolver: zodResolver(schema),
+		defaultValues: {
+			gender: undefined,
+			college: "",
+			term: "",
+			year: "",
+			status: "",
+			benefits: "",
+			hospitalStatus: undefined,
+		},
+	});
 
 	// Add a handler to close the notification with animation
 	const closeNotification = () => {
@@ -355,7 +368,24 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	};
 
 	const handleClearConfirm = () => {
-		reset();
+		// Reset form with empty select values
+		reset({
+			gender: undefined,
+			college: "",
+			term: "",
+			year: "",
+			status: "",
+			benefits: "",
+			hospitalStatus: undefined,
+		});
+
+		// Set flag to reapply autofill - moved outside the reset object
+		setShouldReapplyAutofill(true);
+
+		// Reset states
+		setDateHired(null);
+		setDateRetired(null);
+		setPhoneInputValue("+63");
 		setShowClearConfirmation(false);
 	};
 
@@ -365,6 +395,26 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
 	// Use the imported useAutofill hook
 	useAutofill(setValue, setDateHired, setDateRetired, setPhoneInputValue);
+
+	// Re-apply autofill after form is cleared
+	useEffect(() => {
+		if (shouldReapplyAutofill) {
+			// Re-apply autofill - use applyAutofill function directly, not the hook
+			applyAutofill(
+				setValue,
+				setDateHired,
+				setDateRetired,
+				setPhoneInputValue
+			);
+			setShouldReapplyAutofill(false);
+		}
+	}, [
+		shouldReapplyAutofill,
+		setValue,
+		setDateHired,
+		setDateRetired,
+		setPhoneInputValue,
+	]);
 
 	return (
 		<div className="form-body">
@@ -393,7 +443,11 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					watch={watch} // Pass watch to the component
 				/>
 				<FormUploadDisclaimer />
-				<FormMedicalFiles register={register} errors={errors} />
+				<FormMedicalFiles
+					register={register}
+					errors={errors}
+					setError={setError}
+				/>
 				<FormHospitalStatus register={register} errors={errors} />
 				<FormCertify register={register} errors={errors} />
 

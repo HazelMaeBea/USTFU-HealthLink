@@ -275,24 +275,15 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						Gender <span className="required-asterisk">*</span>
 					</label>
 					<select
-						{...register("gender")}
 						id="gender"
-						className="form-select"
+						className={`form-select ${
+							errors.gender ? "is-invalid" : ""
+						}`}
+						{...register("gender")}
 					>
-						<option
-							className="option-placeholder"
-							value=""
-							disabled
-							selected
-							hidden
-						>
-							Select gender
-						</option>
-						{genderOptions.map((option, index) => (
-							<option key={index} value={option}>
-								{option}
-							</option>
-						))}
+						<option value="">Please select gender</option>
+						<option value="Male">Male</option>
+						<option value="Female">Female</option>
 					</select>
 					{errors.gender && (
 						<p className="text-danger">{errors.gender.message}</p>
@@ -305,12 +296,15 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						<span className="required-asterisk">*</span>
 					</label>
 					<select
-						{...register("college")}
 						id="college"
-						className="form-select"
+						className={`form-select ${
+							errors.college ? "is-invalid" : ""
+						}`}
+						{...register("college")}
 					>
-						<option value="" disabled selected hidden>
-							Select college affiliation
+						<option value="">Please select college</option>
+						<option value="College of Architecture">
+							College of Architecture
 						</option>
 						{collegeOptions.map((option, index) => (
 							<option key={index} value={option}>

@@ -1,144 +1,160 @@
 import React, { useEffect, useState } from "react";
-import "./HistoryPopout.css";
+import styles from "./HistoryPopout.module.css";
 
 interface HistoryPopoutProps {
-  onClose: () => void;
-  requester: string;
+	onClose: () => void;
+	requester: string;
 }
 
 interface HistoryItem {
-  date: string;
-  description: string;
-  amount: number;
+	date: string;
+	description: string;
+	amount: number;
 }
 
 const HistoryPopout: React.FC<HistoryPopoutProps> = ({
-  onClose,
-  requester,
+	onClose,
+	requester,
 }) => {
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [totalAmount, setTotalAmount] = useState(0);
+	const [history, setHistory] = useState<HistoryItem[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [totalAmount, setTotalAmount] = useState(0);
 
-  useEffect(() => {
-    // Fetch history data for the requester
-    const fetchHistory = async () => {
-      try {
-        // In a real application, you would fetch data from your backend
-        // For now, we'll simulate a delay and return mock data
-        setLoading(true);
+	useEffect(() => {
+		// Fetch history data for the requester
+		const fetchHistory = async () => {
+			try {
+				// In a real application, you would fetch data from your backend
+				// For now, we'll simulate a delay and return mock data
+				setLoading(true);
 
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+				// Simulate API call delay
+				await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        // Example mock data based on requester
-        const mockHistory: HistoryItem[] = [
-          {
-            date: "01/15/2024",
-            description: "Health Claim - Hospital",
-            amount: 5000,
-          },
-          {
-            date: "11/02/2023",
-            description: "Health Claim - Outpatient",
-            amount: 2500,
-          },
-          {
-            date: "09/17/2023",
-            description: "Health Claim - Dental",
-            amount: 1500,
-          },
-        ];
+				// Example mock data based on requester
+				const mockHistory: HistoryItem[] = [
+					{
+						date: "01/15/2024",
+						description: "Health Claim - Hospital",
+						amount: 5000,
+					},
+					{
+						date: "11/02/2023",
+						description: "Health Claim - Outpatient",
+						amount: 2500,
+					},
+					{
+						date: "09/17/2023",
+						description: "Health Claim - Dental",
+						amount: 1500,
+					},
+				];
 
-        const totalAmount = mockHistory.reduce(
-          (sum, item) => sum + item.amount,
-          0
-        ); // Compute total amount
+				const totalAmount = mockHistory.reduce(
+					(sum, item) => sum + item.amount,
+					0
+				); // Compute total amount
 
-        setHistory(mockHistory);
-        setTotalAmount(totalAmount);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching history:", error);
-        setLoading(false);
-      }
-    };
+				setHistory(mockHistory);
+				setTotalAmount(totalAmount);
+				setLoading(false);
+			} catch (error) {
+				console.error("Error fetching history:", error);
+				setLoading(false);
+			}
+		};
 
-    if (requester) {
-      fetchHistory();
-    }
-  }, [requester]);
+		if (requester) {
+			fetchHistory();
+		}
+	}, [requester]);
 
-  return (
-    <div className="history-popout-overlay">
-      <div className="history-popout-content">
-        <button className="close-button" onClick={onClose}>
-          &times;
-        </button>
-        <div className="history-popout-header">
-          <h2>Benefit History</h2>
-        </div>
-        <div className="history-popout-body">
-          <div className="user-info">
-            <h3>User: {requester}</h3>
-          </div>
+	return (
+		<div className={styles["history-popout-overlay"]}>
+			<div className={styles["history-popout-content"]}>
+				<button className={styles["close-button"]} onClick={onClose}>
+					&times;
+				</button>
+				<div className={styles["history-popout-header"]}>
+					<h2>Benefit History</h2>
+				</div>
+				<div className={styles["history-popout-body"]}>
+					<div className={styles["user-info"]}>
+						<h3>User: {requester}</h3>
+					</div>
 
-          {loading ? (
-            <div className="loading-container">
-              <div className="loading-spinner"></div>
-              <div className="loading-text">Loading history data...</div>
-            </div>
-          ) : (
-            <>
-              {history.length > 0 ? (
-                <>
-                  <table className="history-table">
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Description</th>
-                        <th>Amount (PHP)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {history.map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.date}</td>
-                          <td>{item.description}</td>
-                          <td className="amount-column">
-                            ₱{item.amount.toLocaleString()}
-                          </td>
-                        </tr>
-                      ))}
-                      <tr>
-                        <td
-                          colSpan={2}
-                          style={{ textAlign: "right", fontWeight: "bold" }}
-                        >
-                          TOTAL:
-                        </td>
-                        <td
-                          className="amount-column"
-                          style={{ fontWeight: "bold" }}
-                        >
-                          ₱{totalAmount.toLocaleString()}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                </>
-              ) : (
-                <div className="no-history-message">
-                  No history records found for this user.
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+					{loading ? (
+						<div className={styles["loading-container"]}>
+							<div className={styles["loading-spinner"]}></div>
+							<div className={styles["loading-text"]}>
+								Loading history data...
+							</div>
+						</div>
+					) : (
+						<>
+							{history.length > 0 ? (
+								<>
+									<table className={styles["history-table"]}>
+										<thead>
+											<tr>
+												<th>Date</th>
+												<th>Description</th>
+												<th>Amount (PHP)</th>
+											</tr>
+										</thead>
+										<tbody>
+											{history.map((item, index) => (
+												<tr key={index}>
+													<td>{item.date}</td>
+													<td>{item.description}</td>
+													<td
+														className={
+															styles[
+																"amount-column"
+															]
+														}
+													>
+														₱
+														{item.amount.toLocaleString()}
+													</td>
+												</tr>
+											))}
+											<tr>
+												<td
+													colSpan={2}
+													style={{
+														textAlign: "right",
+														fontWeight: "bold",
+													}}
+												>
+													TOTAL:
+												</td>
+												<td
+													className={
+														styles["amount-column"]
+													}
+													style={{
+														fontWeight: "bold",
+													}}
+												>
+													₱
+													{totalAmount.toLocaleString()}
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</>
+							) : (
+								<div className={styles["no-history-message"]}>
+									No history records found for this user.
+								</div>
+							)}
+						</>
+					)}
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default HistoryPopout;

@@ -256,9 +256,7 @@ const Settings = () => {
 
 					setSettings(updatedSettings);
 					setOriginalSettings({ ...updatedSettings }); // Store original values for comparison
-					setCalculatedAge(
-						calculateAge(personalInfo.birthdate || "")
-					);
+					setCalculatedAge(calculateAge(personalInfo.birthdate || ""));
 					setChangedFields({}); // Reset changed fields when loading new data
 
 					console.log("Fetched user data:", userData);
@@ -268,9 +266,7 @@ const Settings = () => {
 				}
 			} catch (err) {
 				console.error("Error fetching user data:", err);
-				setError(
-					"Failed to load your profile data. Please try again later."
-				);
+				setError("Failed to load your profile data. Please try again later.");
 			} finally {
 				setIsLoading(false);
 			}
@@ -306,23 +302,39 @@ const Settings = () => {
 
 	// Handle toggle changes and track them properly
 	const handleToggleChange = async (field: string, checked: boolean) => {
-		// Track the change for the summary popup
-		if (checked !== (originalSettings as any)[field]) {
-			setChangedFields((prev) => ({
-				...prev,
-				[field]: {
-					old: (originalSettings as any)[field] ? "true" : "false",
-					new: checked ? "true" : "false",
-				},
-			}));
-		} else {
-			// Remove from changed fields if it matches original
-			const updatedChanges = { ...changedFields };
-			delete updatedChanges[field];
-			setChangedFields(updatedChanges);
+		try {
+			if (!uid) {
+				console.error("User ID is missing. Cannot update Firestore.");
+				return; // Exit early if uid is null
+			}
+
+			// Update local state immediately
+			setSettings((prev) => ({ ...prev, [field]: checked }));
+
+			// Update Firestore immediately for toggles
+			if (field === "notification" || field === "autofill") {
+				const userDocRef = doc(db, "users", uid);
+
+				// Check current Firestore structure
+				const userDoc = await getDoc(userDocRef);
+				const userData = userDoc.exists() ? userDoc.data() : null;
+				const hasSettingsObject = userData && userData.settings !== undefined;
+
+				// Update with the correct structure
+				const updateData: Record<string, any> = hasSettingsObject
+					? { [`settings.${field}`]: checked }
+					: { [field]: checked };
+
+				// Apply the update
+				await updateDoc(userDocRef, updateData);
+
+				console.log(
+					`✅ ${field} toggled to ${checked} and saved to Firestore.`
+				);
+			}
+		} catch (error) {
+			console.error(`❌ Failed to update ${field}:`, error);
 		}
-		// Update the settings state
-		setSettings({ ...settings, [field]: checked });
 	};
 
 	const handleFieldChange = (field: string, value: string) => {
@@ -384,9 +396,7 @@ const Settings = () => {
 								{values.old || "(empty)"}
 							</span>{" "}
 							→{" "}
-							<span className={styles.newValue}>
-								{values.new || "(empty)"}
-							</span>
+							<span className={styles.newValue}>{values.new || "(empty)"}</span>
 						</li>
 					))}
 				</ul>
@@ -433,9 +443,7 @@ const Settings = () => {
 			};
 
 			// Check each field against the original value
-			for (const [settingKey, firestoreKey] of Object.entries(
-				fieldMappings
-			)) {
+			for (const [settingKey, firestoreKey] of Object.entries(fieldMappings)) {
 				if (
 					settings[settingKey as keyof typeof settings] !==
 					(originalSettings as any)[settingKey]
@@ -448,32 +456,6 @@ const Settings = () => {
 			// Handle top-level fields
 			if (settings.college !== (originalSettings as any).college) {
 				updateData["personalInfo.college"] = settings.college; // Changed from updateData.college
-			}
-
-			// Fix the path for notification and autofill - check both possible locations
-			const userDoc = await getDoc(userDocRef);
-			const userData = userDoc.exists() ? userDoc.data() : null;
-
-			// Determine where notification and autofill should be saved based on current structure
-			const hasSettingsObject =
-				userData && userData.settings !== undefined;
-
-			if (
-				settings.notification !== (originalSettings as any).notification
-			) {
-				if (hasSettingsObject) {
-					updateData["settings.notification"] = settings.notification;
-				} else {
-					updateData.notification = settings.notification;
-				}
-			}
-
-			if (settings.autofill !== (originalSettings as any).autofill) {
-				if (hasSettingsObject) {
-					updateData["settings.autofill"] = settings.autofill;
-				} else {
-					updateData.autofill = settings.autofill;
-				}
 			}
 
 			if (Object.keys(updateData).length === 0) {
@@ -518,10 +500,7 @@ const Settings = () => {
 		if (value.length > 3) {
 			const mainNumber = value.substring(3); // get everything after +63
 
-			let formatted = mainNumber.replace(
-				/(\d{3})(\d{3})(\d+)/,
-				"$1-$2-$3"
-			);
+			const formatted = mainNumber.replace(/(\d{3})(\d{3})(\d+)/, "$1-$2-$3");
 			formattedValue = "+63-" + formatted;
 		}
 
@@ -558,7 +537,7 @@ const Settings = () => {
 		setIsPhoneFocused(true);
 		// Remove formatting when focused, but keep +63
 		if (settings.phoneNumber) {
-			let rawValue = "+63" + settings.phoneNumber;
+			const rawValue = "+63" + settings.phoneNumber;
 			setPhoneInputValue(rawValue);
 		} else {
 			setPhoneInputValue("+63");
@@ -586,86 +565,112 @@ const Settings = () => {
 
 	if (isLoading) {
 		return (
-			<div className={styles.settingsContainer}>
-				<div className="loading-container">
-					{/* Preferences Section */}
-					<div className="loading-section">
-						<div className="loading-header skeleton"></div>
-						<div className="loading-toggle-row">
-							<div className="loading-toggle-label skeleton"></div>
-							<div className="loading-toggle skeleton"></div>
+			<div className="settings-loading-container">
+				{/* Preferences Section */}
+				<div className="settings-loading-section">
+					<div className="settings-loading-header settings-skeleton"></div>
+					<div className="settings-loading-toggle-group">
+						<div className="settings-loading-toggle-row">
+							<div className="settings-loading-toggle-label settings-skeleton"></div>
+							<div className="settings-loading-toggle settings-skeleton"></div>
 						</div>
-						<div className="loading-toggle-row">
-							<div className="loading-toggle-label skeleton"></div>
-							<div className="loading-toggle skeleton"></div>
+						<div className="settings-loading-toggle-row">
+							<div className="settings-loading-toggle-label settings-skeleton"></div>
+							<div className="settings-loading-toggle settings-skeleton"></div>
+						</div>
+					</div>
+				</div>
+
+				{/* Personal Information Section */}
+				<div className="settings-loading-section">
+					<div className="settings-loading-header settings-skeleton"></div>
+
+					{/* Name Fields */}
+					<div className="settings-loading-form-row">
+						<div className="settings-loading-form-group settings-loading-lg">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-lg">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-lg">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-xs">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
 					</div>
 
-					{/* Personal Information Section */}
-					<div className="loading-section">
-						<div className="loading-header skeleton"></div>
-
-						{/* Name Fields */}
-						<div className="loading-form-row">
-							{["lg", "lg", "lg", "xs"].map((size, index) => (
-								<div
-									key={index}
-									className={`loading-form-group loading-${size}`}
-								>
-									<div className="loading-label skeleton"></div>
-									<div className="loading-field skeleton"></div>
-								</div>
-							))}
+					{/* Personal Details */}
+					<div className="settings-loading-form-row">
+						<div className="settings-loading-form-group settings-loading-md">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
-
-						{/* Personal Details */}
-						<div className="loading-form-row">
-							{["md", "xs", "sm", "md", "flex"].map(
-								(size, index) => (
-									<div
-										key={index}
-										className={`loading-form-group loading-${size}`}
-									>
-										<div className="loading-label skeleton"></div>
-										<div className="loading-field skeleton"></div>
-									</div>
-								)
-							)}
+						<div className="settings-loading-form-group settings-loading-xs">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
-
-						{/* Work Details */}
-						<div className="loading-form-row">
-							{["xs", "sm", "xs", "md", "md", "flex"].map(
-								(size, index) => (
-									<div
-										key={index}
-										className={`loading-form-group loading-${size}`}
-									>
-										<div className="loading-label skeleton"></div>
-										<div className="loading-field skeleton"></div>
-									</div>
-								)
-							)}
+						<div className="settings-loading-form-group settings-loading-sm">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
-
-						{/* College and Address */}
-						<div className="loading-form-row">
-							{["half", "half"].map((size, index) => (
-								<div
-									key={index}
-									className={`loading-form-group loading-${size}`}
-								>
-									<div className="loading-label skeleton"></div>
-									<div className="loading-field skeleton"></div>
-								</div>
-							))}
+						<div className="settings-loading-form-group settings-loading-md">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
-
-						{/* Loading Spinner */}
-						<div className="loading-spinner-container">
-							<div className="loading-spinner"></div>
+						<div className="settings-loading-form-group settings-loading-flex">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
 						</div>
 					</div>
+
+					{/* Work Details */}
+					<div className="settings-loading-form-row">
+						<div className="settings-loading-form-group settings-loading-xs">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-sm">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-xs">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-md">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-md">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-flex">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+					</div>
+
+					{/* College and Address */}
+					<div className="settings-loading-form-row">
+						<div className="settings-loading-form-group settings-loading-half">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+						<div className="settings-loading-form-group settings-loading-half">
+							<div className="settings-loading-label settings-skeleton"></div>
+							<div className="settings-loading-field settings-skeleton"></div>
+						</div>
+					</div>
+
+					{/* Button */}
+					<div className="settings-loading-button settings-skeleton"></div>
 				</div>
 			</div>
 		);
@@ -699,10 +704,7 @@ const Settings = () => {
 									type="checkbox"
 									checked={settings.notification}
 									onChange={(e) =>
-										handleToggleChange(
-											"notification",
-											e.target.checked
-										)
+										handleToggleChange("notification", e.target.checked)
 									}
 									aria-label="toggle notifications"
 								/>
@@ -721,10 +723,7 @@ const Settings = () => {
 									type="checkbox"
 									checked={settings.autofill}
 									onChange={(e) =>
-										handleToggleChange(
-											"autofill",
-											e.target.checked
-										)
+										handleToggleChange("autofill", e.target.checked)
 									}
 									aria-label="toggle autofill"
 								/>
@@ -746,9 +745,7 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.firstname}
-							onChange={(e) =>
-								handleFieldChange("firstname", e.target.value)
-							}
+							onChange={(e) => handleFieldChange("firstname", e.target.value)}
 							aria-label="First Name"
 						/>
 					</div>
@@ -758,9 +755,7 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.lastname}
-							onChange={(e) =>
-								handleFieldChange("lastname", e.target.value)
-							}
+							onChange={(e) => handleFieldChange("lastname", e.target.value)}
 							aria-label="Last-Name"
 						/>
 					</div>
@@ -770,9 +765,7 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.middlename}
-							onChange={(e) =>
-								handleFieldChange("middlename", e.target.value)
-							}
+							onChange={(e) => handleFieldChange("middlename", e.target.value)}
 							aria-label="Middle Name"
 						/>
 					</div>
@@ -781,9 +774,7 @@ const Settings = () => {
 						<select
 							className="form-select settings-field-value"
 							value={settings.suffix}
-							onChange={(e) =>
-								handleFieldChange("suffix", e.target.value)
-							}
+							onChange={(e) => handleFieldChange("suffix", e.target.value)}
 							aria-label="Suffix"
 						>
 							<option value="" disabled hidden>
@@ -807,10 +798,7 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.birthdate}
 							onChange={(e) =>
-								handleFieldChange(
-									"birthdate",
-									formatBirthdate(e.target.value)
-								)
+								handleFieldChange("birthdate", formatBirthdate(e.target.value))
 							}
 							aria-label="Birthdate"
 						/>
@@ -828,9 +816,7 @@ const Settings = () => {
 						<select
 							className="form-select settings-field-value"
 							value={settings.gender}
-							onChange={(e) =>
-								handleFieldChange("gender", e.target.value)
-							}
+							onChange={(e) => handleFieldChange("gender", e.target.value)}
 							aria-label="Gender"
 						>
 							<option value="" disabled hidden>
@@ -862,10 +848,7 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.numberID}
 							onChange={(e) =>
-								handleFieldChange(
-									"numberID",
-									formatIDNumber(e.target.value)
-								)
+								handleFieldChange("numberID", formatIDNumber(e.target.value))
 							}
 							aria-label="ID Number"
 						/>
@@ -896,9 +879,7 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.load}
-							onChange={(e) =>
-								handleFieldChange("load", e.target.value)
-							}
+							onChange={(e) => handleFieldChange("load", e.target.value)}
 							aria-label="Load (Units)"
 						/>
 					</div>
@@ -907,9 +888,7 @@ const Settings = () => {
 						<select
 							className="form-select settings-field-value"
 							value={settings.status}
-							onChange={(e) =>
-								handleFieldChange("status", e.target.value)
-							}
+							onChange={(e) => handleFieldChange("status", e.target.value)}
 							aria-label="Status"
 						>
 							<option value="" disabled hidden>
@@ -930,10 +909,7 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.dateHired}
 							onChange={(e) =>
-								handleFieldChange(
-									"dateHired",
-									formatBirthdate(e.target.value)
-								)
+								handleFieldChange("dateHired", formatBirthdate(e.target.value))
 							}
 						/>
 					</div>
@@ -961,9 +937,7 @@ const Settings = () => {
 						<select
 							className="form-select settings-field-value"
 							value={settings.college}
-							onChange={(e) =>
-								handleFieldChange("college", e.target.value)
-							}
+							onChange={(e) => handleFieldChange("college", e.target.value)}
 							aria-label="College Affiliation"
 						>
 							<option value="" disabled hidden>
@@ -982,9 +956,7 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.address}
-							onChange={(e) =>
-								handleFieldChange("address", e.target.value)
-							}
+							onChange={(e) => handleFieldChange("address", e.target.value)}
 							aria-label="Home Address"
 						/>
 					</div>
@@ -995,9 +967,7 @@ const Settings = () => {
 						onClick={() => setIsConfirmOpen(true)}
 						className={styles.settingsBtnSubmit}
 						disabled={
-							isLoading ||
-							isSaving ||
-							Object.keys(changedFields).length === 0
+							isLoading || isSaving || Object.keys(changedFields).length === 0
 						}
 					>
 						{isSaving ? "Saving..." : "Save Changes"}

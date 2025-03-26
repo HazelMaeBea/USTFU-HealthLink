@@ -112,24 +112,22 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 	}
 };
 
-export const useAutofill = (
+/**
+ * Apply autofill data to form fields
+ * This is a regular function, not a hook
+ */
+export const applyAutofill = (
 	setValue: UseFormSetValue<any>,
 	setDateHired?: Dispatch<SetStateAction<Date | null>>,
 	setDateRetired?: Dispatch<SetStateAction<Date | null>>,
 	setPhoneInputValue?: Dispatch<SetStateAction<string>>
-): void => {
-	// Add a ref to track whether autofill has already been applied
-	const autofillAppliedRef = useRef(false);
+) => {
+	const autofillData = getAutofillData();
 
-	useEffect(() => {
-		// Only run autofill once when the component mounts
-		if (autofillAppliedRef.current) return;
-
-		const fillForm = async () => {
-			const autofillData = await getAutofillData();
-
-			if (autofillData) {
-				Object.entries(autofillData).forEach(([field, value]) => {
+	if (autofillData) {
+		autofillData.then((data) => {
+			if (data) {
+				Object.entries(data).forEach(([field, value]) => {
 					if (value !== undefined && value !== null && value !== "") {
 						console.log(`Autofill: Setting ${field} to:`, value);
 
@@ -137,8 +135,8 @@ export const useAutofill = (
 							try {
 								// Set the form value but don't override user edits later
 								setValue(field as any, value, {
-									shouldDirty: false, // Changed from true
-									shouldTouch: false, // Changed from true
+									shouldDirty: false,
+									shouldTouch: false,
 								});
 
 								if (
@@ -162,8 +160,8 @@ export const useAutofill = (
 							try {
 								// Set the form value but don't override user edits later
 								setValue(field as any, value as any, {
-									shouldDirty: false, // Changed from true
-									shouldTouch: false, // Changed from true
+									shouldDirty: false,
+									shouldTouch: false,
 								});
 							} catch (error) {
 								console.error(
@@ -175,21 +173,44 @@ export const useAutofill = (
 					}
 				});
 
-				if (setDateHired && autofillData.dateHired) {
-					setDateHired(autofillData.dateHired);
+				if (setDateHired && data.dateHired) {
+					setDateHired(data.dateHired);
 				}
 
-				if (setDateRetired && autofillData.dateRetired) {
-					setDateRetired(autofillData.dateRetired);
+				if (setDateRetired && data.dateRetired) {
+					setDateRetired(data.dateRetired);
 				}
 
 				console.log("Autofill: Complete");
-				autofillAppliedRef.current = true;
 			} else {
 				console.log("Autofill: No data available or autofill disabled");
 			}
-		};
+		});
+	}
+};
 
-		fillForm();
+/**
+ * React hook to apply autofill when component mounts
+ * Separate from the actual autofill function to avoid hook rules violations
+ */
+export const useAutofill = (
+	setValue: UseFormSetValue<any>,
+	setDateHired?: Dispatch<SetStateAction<Date | null>>,
+	setDateRetired?: Dispatch<SetStateAction<Date | null>>,
+	setPhoneInputValue?: Dispatch<SetStateAction<string>>
+) => {
+	const autofillAppliedRef = useRef(false);
+
+	useEffect(() => {
+		// Only run autofill once when the component mounts
+		if (!autofillAppliedRef.current) {
+			applyAutofill(
+				setValue,
+				setDateHired,
+				setDateRetired,
+				setPhoneInputValue
+			);
+			autofillAppliedRef.current = true;
+		}
 	}, [setValue, setDateHired, setDateRetired, setPhoneInputValue]);
 };
