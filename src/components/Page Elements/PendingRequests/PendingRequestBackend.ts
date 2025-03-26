@@ -52,6 +52,7 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 	const [currentPage, setCurrentPage] = useState(initialPage);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [newRequestCount, setNewRequestCount] = useState(0);
 
 	const fetchData = async () => {
 		const formRequestsRef = collection(db, "FormRequests");
@@ -164,7 +165,7 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 		return () => unsubscribe();
 	}, [uid, currentPage, pageSize]);
 
-	return { requests, pagination, setCurrentPage, isLoading, error, fetchData };
+	return { requests, pagination, setCurrentPage, isLoading, error, fetchData, newRequestCount };
 };
 
 export async function getRemainingBenefits(
