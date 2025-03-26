@@ -37,6 +37,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	const [pendingNotif, setPendingNotif] = useState(0);
 	const [accomplishedNotif, setAccomplishedNotif] = useState(0);
 
+	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(false);
+	const [hasNewAccomplishedRequest, setHasNewAccomplishedRequest] =
+		useState(false);
+
 	// ✅ LocalStorage Keys
 	const PENDING_KEY = "lastPendingCount";
 	const ACCOMPLISHED_KEY = "lastAccomplishedCount";
@@ -146,6 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 			if (currentPendingCount !== pendingCount) {
 				localStorage.setItem(PENDING_KEY, currentPendingCount.toString());
 				setPendingNotif(currentPendingCount);
+				setHasNewPendingRequest(true);
 			}
 
 			// Sync accomplished records
@@ -156,6 +161,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 					currentAccomplishedCount.toString()
 				);
 				setAccomplishedNotif(currentAccomplishedCount);
+				setHasNewAccomplishedRequest(true);
 			}
 		}, 10000);
 
@@ -164,6 +170,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		uid,
 		newRequestCount,
 		newAccomplishedCount,
+		hasNewAccomplishedRequest,
+		hasNewPendingRequest,
 		fetchData,
 		fetchAccomplishedRecords,
 	]);
@@ -309,7 +317,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 										to={item.path}
 										onClick={() => handleMenuClick(item.name)}
 									>
-										{item.icon}
+										{item.name === "PENDING REQUESTS" ? (
+											<NotifBadge show={hasNewPendingRequest}>
+												{item.icon}
+											</NotifBadge>
+										) : item.name === "HOSPITALIZATION APPLICATION" ? (
+											<NotifBadge show={hasNewAccomplishedRequest}>
+												{item.icon}
+											</NotifBadge>
+										) : (
+											item.icon
+										)}
 										<span className="menu-text">{item.name}</span>
 									</Link>
 								) : (
