@@ -34,12 +34,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	const { newRequestCount, fetchData } = usePendingRequests();
 
 	// ✅ Firestore notification states
-	const [pendingNotif, setPendingNotif] = useState(0);
-	const [accomplishedNotif, setAccomplishedNotif] = useState(0);
-
-	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(false);
-	const [hasNewAccomplishedRequest, setHasNewAccomplishedRequest] =
-		useState(false);
+	const [pendingNotif, setPendingNotif] = useState(false);
+	const [accomplishedNotif, setAccomplishedNotif] = useState(false);
 
 	// ✅ LocalStorage Keys
 	const PENDING_KEY = "lastPendingCount";
@@ -138,24 +134,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		const accomplishedCount =
 			Number(localStorage.getItem(ACCOMPLISHED_KEY)) || 0;
 
-		setPendingNotif(pendingCount);
-		setAccomplishedNotif(accomplishedCount);
-
 		// ✅ Firestore updates will automatically trigger the hooks
 		fetchData();
 		fetchAccomplishedRecords();
 
-		// Compare and update notification states
-		if (newRequestCount !== pendingCount) {
+		if (selectedRole === "operations handler" || selectedRole === "admin") {
+			setPendingNotif(newRequestCount > pendingCount);
 			localStorage.setItem(PENDING_KEY, newRequestCount.toString());
-			setPendingNotif(newRequestCount);
-			setHasNewPendingRequest(true);
 		}
 
-		if (newAccomplishedCount !== accomplishedCount) {
+		// Check for new accomplished records
+		if (selectedRole === "member") {
+			if (newAccomplishedCount > accomplishedCount) {
+			}
+			setAccomplishedNotif(newAccomplishedCount > accomplishedCount);
 			localStorage.setItem(ACCOMPLISHED_KEY, newAccomplishedCount.toString());
-			setAccomplishedNotif(newAccomplishedCount);
-			setHasNewAccomplishedRequest(true);
 		}
 	}, [
 		uid,
@@ -221,7 +214,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 			{
 				name: "HOSPITALIZATION TRACKING",
 				icon: (
-					<NotifBadge show={accomplishedNotif > 0}>
+					<NotifBadge show={accomplishedNotif}>
 						<MdHistory size={20} />
 					</NotifBadge>
 				),
@@ -235,7 +228,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 			{
 				name: "PENDING REQUESTS",
 				icon: (
-					<NotifBadge show={pendingNotif > 0}>
+					<NotifBadge show={pendingNotif}>
 						<AiOutlineFileDone size={20} />
 					</NotifBadge>
 				),
@@ -306,17 +299,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 										to={item.path}
 										onClick={() => handleMenuClick(item.name)}
 									>
-										{item.name === "PENDING REQUESTS" ? (
-											<NotifBadge show={hasNewPendingRequest}>
-												{item.icon}
-											</NotifBadge>
-										) : item.name === "HOSPITALIZATION TRACKING" ? (
-											<NotifBadge show={hasNewAccomplishedRequest}>
-												{item.icon}
-											</NotifBadge>
-										) : (
-											item.icon
-										)}
+										{item.icon}
 										<span className="menu-text">{item.name}</span>
 									</Link>
 								) : (
