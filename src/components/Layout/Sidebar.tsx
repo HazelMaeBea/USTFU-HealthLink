@@ -163,7 +163,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 				setAccomplishedNotif(currentAccomplishedCount);
 				setHasNewAccomplishedRequest(true);
 			}
-		}, 10000);
+		}, 500);
 
 		return () => clearInterval(interval);
 	}, [
@@ -321,7 +321,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 											<NotifBadge show={hasNewPendingRequest}>
 												{item.icon}
 											</NotifBadge>
-										) : item.name === "HOSPITALIZATION APPLICATION" ? (
+										) : item.name === "HOSPITALIZATION TRACKING" ? (
 											<NotifBadge show={hasNewAccomplishedRequest}>
 												{item.icon}
 											</NotifBadge>
