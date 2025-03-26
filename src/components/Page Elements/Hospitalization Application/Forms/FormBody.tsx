@@ -11,8 +11,8 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormMedicalFiles from "./FormMedicalFiles";
 import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
-import { doc, setDoc } from "firebase/firestore";
-import { auth, db, getFormID } from "../../../../config/firebase.ts";
+import { addDoc, collection } from "firebase/firestore";
+import { auth, db} from "../../../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
@@ -252,22 +252,22 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		try {
 			const email = auth?.currentUser?.email;
 
-			const formIDValue = await getFormID(true, data.claimRequestCount) || 1;
-			console.log("FormIDValue:", formIDValue);
+			// const formIDValue = await getFormID(true, data.claimRequestCount) || 1;
+			// console.log("FormIDValue:", formIDValue);
 			// console.log(data.claimRequestCount)
 			//Loop statement starts here
 			
 			for (let i = data.claimRequestCount - 1; i >= 0; i--) {
-				let formID = 0;
-				if (formIDValue <= data.claimRequestCount) {
-					formID = data.claimRequestCount - i
-				} 
-				else 
-					{formID = formIDValue - i;}
-				console.log("FormID:", formID);
-				const formIDString = formID?.toString().padStart(6, "0") || "error";
-				setFormIdString(formIDString);
-				const currentYear: string = new Date().getFullYear().toString();
+				// let formID = 0;
+				// if (formIDValue <= data.claimRequestCount) {
+				// 	formID = data.claimRequestCount - i
+				// } 
+				// else 
+				// 	{formID = formIDValue - i;}
+				// console.log("FormID:", formID);
+				// const formIDString = formID?.toString().padStart(6, "0") || "error";
+				// setFormIdString(formIDString);
+				// const currentYear: string = new Date().getFullYear().toString();
 
 				// Extract all files to upload into a single object
 				const filesToUpload = {
@@ -283,16 +283,17 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
 				// Use the new utility to upload all files and get URLs in one operation
 				setUploadProgress("Uploading files (this may take a moment)...");
+				const transID = "TRN" + Date.now()
 				const fileUploadResults = await uploadFilesAndGetURLs(
 					email,
-					formIDString,
+					transID,
 					filesToUpload
 				);
 
 				setUploadProgress("Creating document...");
 				// Build new document structure using download URLs
 				const newDoc = {
-					transactionId: "TRN" + Date.now(),
+					transactionId: transID,
 					requester: auth?.currentUser?.displayName || email || "Unknown",
 					dateSubmitted: new Date().toLocaleString("en-US", {
 						timeZone: "Asia/Manila",
@@ -336,15 +337,9 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				};
 
 				setUploadProgress("Saving to database...");
-				await setDoc(
-					doc(
-						db,
-						"FormRequests",
-						currentYear + "-" + formIDString + "-O"
-					),
-					newDoc
-				);
-				console.log("Document written with ID: ", formIDString);
+				await addDoc(collection(db, "FormRequests"), newDoc);
+
+				console.log("Document written with Transaction ID: ", transID);
 				// Show success notification instead of old popup
 				setSubmissionStatus("success");
 
