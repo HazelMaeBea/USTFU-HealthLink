@@ -26,13 +26,52 @@
 // export default ProtectedRoute;
 
 import React, { useEffect, useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useFirebase } from "../contexts/firebaseContext";
 
 const ProtectedRoute: React.FC = () => {
-	const { isLoading, isAuthenticated, isVerified, userStatus } =
+	const { isLoading, isAuthenticated, isVerified, userStatus, userClaims } =
 		useFirebase();
 	const [gracePeriod, setGracePeriod] = useState(true);
+	const navigate = useNavigate();
+
+	// ✅ Handle initial redirection only once after login
+	useEffect(() => {
+		if (
+			!isLoading &&
+			isAuthenticated &&
+			isVerified &&
+			userStatus?.toLowerCase() === "active"
+		) {
+			// Check if already redirected
+			const alreadyRedirected = localStorage.getItem("redirected");
+
+			if (!alreadyRedirected) {
+				if (userClaims?.role === "operations handler") {
+					navigate("/pendingrequests", { replace: true });
+				} else if (userClaims?.role === "member") {
+					navigate("/home", { replace: true });
+				}
+				// ✅ Store the flag to prevent repeated redirection
+				localStorage.setItem("redirected", "true");
+			}
+		}
+	}, [
+		isLoading,
+		isAuthenticated,
+		isVerified,
+		userStatus,
+		userClaims,
+		navigate,
+	]);
+
+	// ✅ Clear the redirection flag on logout
+	useEffect(() => {
+		// Clear the flag when the user logs out
+		if (!isAuthenticated) {
+			localStorage.removeItem("redirected");
+		}
+	}, [isAuthenticated]);
 
 	useEffect(() => {
 		if (!isLoading) {
@@ -62,15 +101,12 @@ const ProtectedRoute: React.FC = () => {
 		);
 	}
 
-	if (!isAuthenticated) {
-		return <Navigate to="/login" replace />;
-	}
-
-	if (!isVerified) {
-		return <Navigate to="/login" replace />;
-	}
-
-	if (!userStatus || userStatus.toLowerCase() !== "active") {
+	if (
+		!isAuthenticated ||
+		!isVerified ||
+		!userStatus ||
+		userStatus.toLowerCase() !== "active"
+	) {
 		return <Navigate to="/login" replace />;
 	}
 
