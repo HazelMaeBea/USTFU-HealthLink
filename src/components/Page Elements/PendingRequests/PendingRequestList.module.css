@@ -647,7 +647,7 @@ form-admission-row-grid {
 	margin-bottom: 1rem;
 }
 
-/* Updated Pagination Controls */
+/* Updated Pagination Controls - perfect centering */
 .paginationContainer {
 	display: flex;
 	flex-direction: row;
@@ -664,12 +664,76 @@ form-admission-row-grid {
 	justify-content: center;
 	align-items: center;
 	flex: 1;
+	text-align: center;
+}
+
+.pageButtonsContainer > div {
+	margin: 0 auto;
+	display: inline-flex;
+	justify-content: center;
 }
 
 .recordInfo {
 	font-size: 0.85rem;
 	color: #666;
 	flex-shrink: 0;
+}
+
+/* Sort order toggle styling NOT YET IMPLEMENTED*/
+.sortToggleContainer {
+	position: relative;
+	margin-left: 1rem;
+	flex-shrink: 0;
+}
+
+.sortToggleBtn {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	background-color: #f8f9fa;
+	color: #495057;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.sortToggleBtn:hover {
+	background-color: #e9ecef;
+}
+
+.sortToggleDropdown {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	margin-top: 0.25rem;
+	background-color: white;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	z-index: 100;
+	min-width: 150px;
+}
+
+.sortToggleOption {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.6rem 0.75rem;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+	font-size: 0.85rem;
+}
+
+.sortToggleOption:hover {
+	background-color: #f8f9fa;
+}
+
+.sortToggleOption.selected {
+	background-color: #e9ecef;
+	font-weight: 500;
 }
 
 /* Animations */
