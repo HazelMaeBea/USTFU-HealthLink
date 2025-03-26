@@ -9,8 +9,8 @@ import FormPersonalInfo from "./FormPersonalInfo";
 import FormInvoice from "./FormInvoice";
 import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormCertify from "./FormCertify";
-import { doc, setDoc } from "firebase/firestore";
-import { auth, db, getFormID } from "../../../../config/firebase.ts";
+import { addDoc, collection } from "firebase/firestore";
+import { auth, db } from "../../../../config/firebase.ts";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit.tsx";
 import { useNavigate } from "react-router-dom";
@@ -239,11 +239,8 @@ const EyeglassesForm = () => {
 
 		try {
 			const email = auth?.currentUser?.email;
+			const transID = "TRN" + Date.now()
 
-			const formID = await getFormID(true);
-			const formIDString = formID?.toString().padStart(6, "0") || "error";
-			setFormIdString(formIDString);
-			const currentYear: string = new Date().getFullYear().toString();
 
 			const filesToUpload = {
 				applicantSignature: data.applicantSignature,
@@ -253,13 +250,13 @@ const EyeglassesForm = () => {
 
 			const fileUploadResults = await uploadFilesAndGetURLs(
 				email,
-				formIDString,
+				transID,
 				filesToUpload
 			);
 
 			// Build new document structure with download URLs
 			const newDoc = {
-				transactionId: "TRN" + Date.now(),
+				transactionId: transID,
 				requester: auth?.currentUser?.displayName || email || "Unknown",
 				dateSubmitted: new Date().toLocaleString("en-US", {
 					timeZone: "Asia/Manila",
@@ -293,15 +290,11 @@ const EyeglassesForm = () => {
 				},
 			};
 
-			await setDoc(
-				doc(
-					db,
-					"FormRequests",
-					currentYear + "-" + formIDString + "-O"
-				),
+			await addDoc(
+				collection(db, "FormRequests"),
 				newDoc
-			);
-			console.log("Document written with ID: ", formIDString);
+			  );
+			console.log("Document written with ID: ", transID);
 
 			// Show success notification
 			setSubmissionStatus("success");
