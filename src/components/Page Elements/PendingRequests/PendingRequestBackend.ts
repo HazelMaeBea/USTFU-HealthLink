@@ -12,6 +12,7 @@ import {
 	Timestamp,
 	orderBy,
 	limit,
+	updateDoc,
 } from "firebase/firestore";
 import { db } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
@@ -48,28 +49,49 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
+	const fetchData = async () => {
+		const formRequestsRef = collection(db, "FormRequests");
+		const q = query(formRequestsRef, where("status", "==", "pending"));
+
+		setIsLoading(true);
+
+		try {
+			const snapshot = await getDocs(q);  // Manual fetch
+			const results: PendingRequest[] = [];
+			snapshot.forEach((doc) => {
+				const data = doc.data() as PendingRequest;
+				results.push({
+					...data,
+					id: doc.id,
+				});
+			});
+
+			// Update state with fetched data
+			setRequests(results);
+			setPagination({
+				currentPage,
+				totalPages: Math.ceil(results.length / pageSize) || 1,
+				totalRecords: results.length,
+			});
+		} catch (error) {
+			console.error("Error fetching pending requests:", error);
+			setError("Failed to load pending requests. Please try again.");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	useEffect(() => {
-		const fetchData = async () => {
-			setIsLoading(true);
-			try {
-				// FIXED: Use FormRequests collection instead of pendingRequests
-				const formRequestsRef = collection(db, "FormRequests");
+		// Use onSnapshot for real-time updates
+		const formRequestsRef = collection(db, "FormRequests");
+		const q = query(formRequestsRef, where("status", "==", "pending"));
 
-				// Create a query to get pending requests
-				// FIXED: Simplified query to avoid potential index issues
-				const q = query(
-					formRequestsRef,
-					where("status", "==", "pending")
-				);
-
-				console.log("Fetching pending requests...");
-				const querySnapshot = await getDocs(q);
-				console.log(`Found ${querySnapshot.size} pending requests`);
-
-				// Process the results
+		const unsubscribe = onSnapshot(
+			q,
+			(snapshot) => {
+				console.log(`Received ${snapshot.size} pending requests`);
 				const results: PendingRequest[] = [];
-				querySnapshot.forEach((doc) => {
-					console.log(`Processing document: ${doc.id}`);
+				snapshot.forEach((doc) => {
 					const data = doc.data() as PendingRequest;
 					results.push({
 						...data,
@@ -77,26 +99,26 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 					});
 				});
 
-				// Set the requests and update pagination info
 				setRequests(results);
 				setPagination({
 					currentPage,
 					totalPages: Math.ceil(results.length / pageSize) || 1,
 					totalRecords: results.length,
 				});
-				setError(null);
-			} catch (err) {
-				console.error("Error fetching pending requests:", err);
+				setIsLoading(false);
+			},
+			(error) => {
+				console.error("Error fetching real-time pending requests:", error);
 				setError("Failed to load pending requests. Please try again.");
-			} finally {
 				setIsLoading(false);
 			}
-		};
+		);
 
-		fetchData();
+		// Cleanup the listener when the component unmounts
+		return () => unsubscribe();
 	}, [currentPage, pageSize]);
 
-	return { requests, pagination, setCurrentPage, isLoading, error };
+	return { requests, pagination, setCurrentPage, isLoading, error, fetchData };
 };
 
 export async function getRemainingBenefits(
@@ -141,25 +163,21 @@ export const updateDocument = async (
 			where("transactionId", "==", transID)
 		);
 		const querySnapshot = await getDocs(userQuery);
-		querySnapshot.forEach(async (document) => {
+		for (const document of querySnapshot.docs) {
 			const docRef = doc(db, "FormRequests", document.id);
 			const docData = document.data();
 
 			const decisionTimestamp = Timestamp.now();
 
 			// Create update object with optional validUntil field
-			const updateData: any = {
+			await updateDoc(docRef, {
+				status: status,                       // ✅ Ensure status is updated
 				statusReason: textArea,
-				status: status,
 				DateDecided: decisionTimestamp,
-			};
+				...(validUntil ? { validUntil } : {})
+			});
 
-			// Add validUntil if it's provided
-			if (validUntil) {
-				updateData.validUntil = validUntil;
-			}
-
-			await setDoc(docRef, updateData, { merge: true });
+			console.log(`Document with ID ${document.id} has been updated.`);
 			console.log(`Document with ID ${document.id} has been updated.`);
 
 			let newCollection = "";
@@ -194,7 +212,7 @@ export const updateDocument = async (
 					`Document moved to ${newCollection} and deleted from FormRequests.`
 				);
 			}
-		});
+		}
 	} catch (error) {
 		console.error("Error updating document:", error);
 	}
