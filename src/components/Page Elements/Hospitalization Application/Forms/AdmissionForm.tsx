@@ -10,7 +10,7 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormMedicalFiles from "./FormMedicalFiles";
 import FormCertify from "./FormCertify";
 import AdmissionTeachingInfo from "./AdmissionTeachingInfo";
-import { doc, setDoc } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { auth, db, getFormID } from "../../../../config/firebase.ts";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit";
@@ -247,11 +247,6 @@ const AdmissionForm = () => {
 		try {
 			const email = auth?.currentUser?.email;
 
-			const formID = await getFormID(true);
-			const formIDString = formID?.toString().padStart(6, "0") || "error";
-			setFormIdString(formIDString);
-			const currentYear: string = new Date().getFullYear().toString();
-
 			const filesToUpload = {
 				applicantSignature: data.applicantSignature,
 				docRequest: data.docRequest,
@@ -259,15 +254,16 @@ const AdmissionForm = () => {
 				hospitalInvoice: data.hospitalInvoice,
 				labInvoice: data.labInvoice,
 			};
+			const transID = "TRN" + Date.now()
 
 			const fileUploadResults = await uploadFilesAndGetURLs(
 				email,
-				formIDString,
+				transID,
 				filesToUpload
 			);
 
 			const pendingRequestData = {
-				transactionId: "TRN" + Date.now(),
+				transactionId: transID,
 				requester: auth?.currentUser?.displayName || email || "Unknown",
 				dateSubmitted: new Date().toLocaleString("en-US", {
 					timeZone: "Asia/Manila",
@@ -305,17 +301,13 @@ const AdmissionForm = () => {
 			};
 
 			// Add the pending request document to Firestore.
-			await setDoc(
-				doc(
-					db,
-					"FormRequests",
-					currentYear + "-" + formIDString + "-O"
-				),
+			await addDoc(
+				collection(db, "FormRequests"),
 				pendingRequestData
-			);
+			  );
 			console.log(
 				"Document written with ID: ",
-				currentYear + "-" + formIDString
+				transID
 			);
 
 			// Show success notification
