@@ -14,7 +14,7 @@ import {
 	limit,
 	updateDoc,
 } from "firebase/firestore";
-import { db } from "../../../../src/config/firebase.ts";
+import { db, getFormID } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
 
 const reqCollection = collection(db, "FormRequests");
@@ -187,8 +187,15 @@ export const updateDocument = async (
 				newCollection = "RevisionsRequests";
 			}
 
+			// insert code to generate new ID
+			const formIDValue = await getFormID(true, docData.claimRequestCount) || 1;
+			const formIDString = formIDValue?.toString().padStart(6, "0") || "error";
+			const currentYear: string = new Date().getFullYear().toString();
+			const formID = currentYear + "-" + formIDString + "-O";
+			console.log("Generated FormID", formID)
+			
 			if (newCollection) {
-				const newDocRef = doc(db, newCollection, document.id);
+				const newDocRef = doc(db, newCollection, formID);
 
 				// Create new document data with all fields
 				const newDocData = {

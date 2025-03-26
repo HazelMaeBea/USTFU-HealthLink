@@ -11,13 +11,14 @@ import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormMedicalFiles from "./FormMedicalFiles";
 import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
-import { doc, setDoc } from "firebase/firestore";
-import { auth, db, getFormID } from "../../../../config/firebase.ts";
+import { addDoc, collection } from "firebase/firestore";
+import { auth, db} from "../../../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 import { useAutofill, applyAutofill } from "../Autofill.ts";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
+import { AiOutlineAccountBook } from "react-icons/ai";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -250,92 +251,85 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
 		try {
 			const email = auth?.currentUser?.email;
+			
+			for (let i = data.claimRequestCount - 1; i >= 0; i--) {
 
-			const formID = await getFormID(true);
-			const formIDString = formID?.toString().padStart(6, "0") || "error";
-			setFormIdString(formIDString);
-			const currentYear: string = new Date().getFullYear().toString();
+				// Extract all files to upload into a single object
+				const filesToUpload = {
+					applicantSignature: data.applicantSignature,
+					docRequest: data.docRequest,
+					employeeID: data.employeeID,
+					hospitalInvoice: data.hospitalInvoice,
+					labInvoice: data.labInvoice,
+				};
 
-			// Extract all files to upload into a single object
-			const filesToUpload = {
-				applicantSignature: data.applicantSignature,
-				docRequest: data.docRequest,
-				employeeID: data.employeeID,
-				hospitalInvoice: data.hospitalInvoice,
-				labInvoice: data.labInvoice,
-			};
+				// Pre-process and optimize files before upload
+				setUploadProgress("Optimizing files...");
 
-			// Pre-process and optimize files before upload
-			setUploadProgress("Optimizing files...");
+				// Use the new utility to upload all files and get URLs in one operation
+				setUploadProgress("Uploading files (this may take a moment)...");
+				const transID = "TRN" + Date.now()
+				const fileUploadResults = await uploadFilesAndGetURLs(
+					email,
+					transID,
+					filesToUpload
+				);
 
-			// Use the new utility to upload all files and get URLs in one operation
-			setUploadProgress("Uploading files (this may take a moment)...");
-			const fileUploadResults = await uploadFilesAndGetURLs(
-				email,
-				formIDString,
-				filesToUpload
-			);
+				setUploadProgress("Creating document...");
+				// Build new document structure using download URLs
+				const newDoc = {
+					transactionId: transID,
+					requester: auth?.currentUser?.displayName || email || "Unknown",
+					dateSubmitted: new Date().toLocaleString("en-US", {
+						timeZone: "Asia/Manila",
+						month: "2-digit",
+						day: "2-digit",
+						year: "numeric",
+						hour: "numeric",
+						minute: "numeric",
+						hour12: true,
+					}),
+					status: "pending",
+					formData: {
+						formType: "hospital",
+						origFormType: origFormType,
+						lastname: data.lastname,
+						firstname: data.firstname,
+						middlename: data.middlename,
+						suffix: data.suffix,
+						age: data.age,
+						gender: data.gender,
+						contact: data.contact,
+						college: data.college,
+						hospital: data.hospital,
+						illness: data.illness,
+						physician: data.physician,
+						procedures: data.procedures,
+						term: data.term,
+						year: data.year,
+						load: data.load,
+						status: data.status,
+						benefits: data.benefits,
+						hmo: data.hmo,
+						docRequest: fileUploadResults.docRequest,
+						hospitalInvoice: fileUploadResults.hospitalInvoice,
+						labInvoice: fileUploadResults.labInvoice,
+						employeeID: fileUploadResults.employeeID,
+						applicantSignature: fileUploadResults.applicantSignature,
+						hospitalStatus: data.hospitalStatus,
+						claimRequestCount: data.claimRequestCount,
+					},
+				};
 
-			setUploadProgress("Creating document...");
-			// Build new document structure using download URLs
-			const newDoc = {
-				transactionId: "TRN" + Date.now(),
-				requester: auth?.currentUser?.displayName || email || "Unknown",
-				dateSubmitted: new Date().toLocaleString("en-US", {
-					timeZone: "Asia/Manila",
-					month: "2-digit",
-					day: "2-digit",
-					year: "numeric",
-					hour: "numeric",
-					minute: "numeric",
-					hour12: true,
-				}),
-				status: "pending",
-				formData: {
-					formType: "hospital",
-					origFormType: origFormType,
-					lastname: data.lastname,
-					firstname: data.firstname,
-					middlename: data.middlename,
-					suffix: data.suffix,
-					age: data.age,
-					gender: data.gender,
-					contact: data.contact,
-					college: data.college,
-					hospital: data.hospital,
-					illness: data.illness,
-					physician: data.physician,
-					procedures: data.procedures,
-					term: data.term,
-					year: data.year,
-					load: data.load,
-					status: data.status,
-					benefits: data.benefits,
-					hmo: data.hmo,
-					docRequest: fileUploadResults.docRequest,
-					hospitalInvoice: fileUploadResults.hospitalInvoice,
-					labInvoice: fileUploadResults.labInvoice,
-					employeeID: fileUploadResults.employeeID,
-					applicantSignature: fileUploadResults.applicantSignature,
-					hospitalStatus: data.hospitalStatus,
-					claimRequestCount: data.claimRequestCount,
-				},
-			};
+				setUploadProgress("Saving to database...");
+				await addDoc(collection(db, "FormRequests"), newDoc);
 
-			setUploadProgress("Saving to database...");
-			await setDoc(
-				doc(
-					db,
-					"FormRequests",
-					currentYear + "-" + formIDString + "-O"
-				),
-				newDoc
-			);
-			console.log("Document written with ID: ", formIDString);
-			// Show success notification instead of old popup
-			setSubmissionStatus("success");
+				console.log("Document written with Transaction ID: ", transID);
+				// Show success notification instead of old popup
+				setSubmissionStatus("success");
 
-			// Reset form after successful submission
+				// Reset form after successful submission
+			}
 			reset();
 		} catch (error) {
 			console.error(error);
