@@ -130,10 +130,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
 	// ✅ Compare current state with last seen state
 	useEffect(() => {
-		// Get last seen counts from localStorage
+		// Ensure uid is present
 		if (!uid) return;
 
-		// Load notification counts from localStorage
+		// Load notification counts from localStorage on mount
 		const pendingCount = Number(localStorage.getItem(PENDING_KEY)) || 0;
 		const accomplishedCount =
 			Number(localStorage.getItem(ACCOMPLISHED_KEY)) || 0;
@@ -141,37 +141,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		setPendingNotif(pendingCount);
 		setAccomplishedNotif(accomplishedCount);
 
-		const interval = setInterval(() => {
-			fetchData();
-			fetchAccomplishedRecords();
+		// ✅ Firestore updates will automatically trigger the hooks
+		fetchData();
+		fetchAccomplishedRecords();
 
-			// Sync pending requests
-			const currentPendingCount = newRequestCount;
-			if (currentPendingCount !== pendingCount) {
-				localStorage.setItem(PENDING_KEY, currentPendingCount.toString());
-				setPendingNotif(currentPendingCount);
-				setHasNewPendingRequest(true);
-			}
+		// Compare and update notification states
+		if (newRequestCount !== pendingCount) {
+			localStorage.setItem(PENDING_KEY, newRequestCount.toString());
+			setPendingNotif(newRequestCount);
+			setHasNewPendingRequest(true);
+		}
 
-			// Sync accomplished records
-			const currentAccomplishedCount = newAccomplishedCount;
-			if (currentAccomplishedCount !== accomplishedCount) {
-				localStorage.setItem(
-					ACCOMPLISHED_KEY,
-					currentAccomplishedCount.toString()
-				);
-				setAccomplishedNotif(currentAccomplishedCount);
-				setHasNewAccomplishedRequest(true);
-			}
-		}, 500);
-
-		return () => clearInterval(interval);
+		if (newAccomplishedCount !== accomplishedCount) {
+			localStorage.setItem(ACCOMPLISHED_KEY, newAccomplishedCount.toString());
+			setAccomplishedNotif(newAccomplishedCount);
+			setHasNewAccomplishedRequest(true);
+		}
 	}, [
 		uid,
 		newRequestCount,
 		newAccomplishedCount,
-		hasNewAccomplishedRequest,
-		hasNewPendingRequest,
 		fetchData,
 		fetchAccomplishedRecords,
 	]);
