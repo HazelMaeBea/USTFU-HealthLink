@@ -16,6 +16,7 @@ import Profile from "./Profile";
 import Popout from "../Page Elements/Popout/Popout";
 import NotifBadge from "../Page Elements/NotifBadge/NotifBadge";
 import "./Sidebar.css";
+import useNotifications from "../Page Elements/NotifBadge/NotifTrigger";
 
 interface SidebarProps {
 	onLogout: () => Promise<void>;
@@ -31,15 +32,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	// ✅ Use hooks
 	const { accomplishedRecords } = useTrackingRecords();
 	const { requests } = usePendingRequests();
-
-	// Firestore notification states
-	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(false);
-	const [hasNewAccomplishedRecord, setHasNewAccomplishedRecord] =
-		useState(false);
-
-	// ✅ LocalStorage Keys
-	const ACCOMPLISHED_KEY = "lastAccomplishedCount";
-	const LAST_DOC_IDS_KEY = "lastPendingDocIds";
 
 	// SECURE: Get role state from useUser context
 	const { selectedRole, availableRoles, switchRole } = useUser();
@@ -124,45 +116,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		}
 	}, [location.pathname]);
 
-	// ✅ Compare current state with last seen state
-	useEffect(() => {
-		// Get last seen counts from localStorage
-		if (!uid) return;
-
-		const lastSeenDocIds = JSON.parse(
-			localStorage.getItem(LAST_DOC_IDS_KEY) || "[]"
-		);
-		const currentDocIds = requests.map((doc) => doc.id);
-		const hasNewDocs = currentDocIds.some((id) => !lastSeenDocIds.includes(id));
-
-		// Get last-seen counts per user
-		const lastAccomplishedCount = parseInt(
-			localStorage.getItem(ACCOMPLISHED_KEY) || "0",
-			10
-		);
-
-		// ✅ Trigger notification only on new additions, not deletions
-		if (selectedRole === "operations handler" || selectedRole === "admin") {
-			if (hasNewDocs) {
-				setHasNewPendingRequest(true);
-				localStorage.setItem(LAST_DOC_IDS_KEY, JSON.stringify(currentDocIds));
-			} else {
-				setHasNewPendingRequest(false);
-			}
-		}
-
-		// Check for new accomplished records
-		if (selectedRole === "member") {
-			setHasNewAccomplishedRecord(
-				accomplishedRecords.length > lastAccomplishedCount
-			);
-			localStorage.setItem(
-				ACCOMPLISHED_KEY,
-				accomplishedRecords.length.toString()
-			);
-		}
-	}, [requests, accomplishedRecords, selectedRole, uid]);
-
 	const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
 	const handleLogoutClick = () => setIsPopoutOpen(true);
@@ -178,21 +131,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
 	const handleCancel = () => setIsPopoutOpen(false);
 
+	const {
+		hasNewPendingRequest,
+		hasNewAccomplishedRecord,
+		clearPendingNotifications,
+		clearAccomplishedNotifications,
+	} = useNotifications({
+		requests,
+		accomplishedRecords,
+		uid,
+		selectedRole,
+	});
+
 	const handleMenuClick = (name: string, action?: () => void) => {
 		setActiveItem(name);
 		localStorage.setItem("activePage", name); // Store active menu item
 		if (name === "PENDING REQUESTS") {
-			// ✅ Clear the new pending request notification
-			setHasNewPendingRequest(false);
-			const currentDocIds = requests.map((doc) => doc.id);
-			localStorage.setItem(LAST_DOC_IDS_KEY, JSON.stringify(currentDocIds));
+			clearPendingNotifications();
 		}
 		if (name === "HOSPITALIZATION TRACKING") {
-			setHasNewAccomplishedRecord(false);
-			localStorage.setItem(
-				ACCOMPLISHED_KEY,
-				accomplishedRecords.length.toString()
-			);
+			clearAccomplishedNotifications();
 		}
 		if (action) action();
 	};
