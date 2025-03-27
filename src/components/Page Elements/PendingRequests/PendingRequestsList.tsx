@@ -15,6 +15,9 @@ import ViewFiles from "./ViewFiles";
 import HistoryPopout from "./HistoryPopout";
 import PageButtons from "../PageButtons/PageButtons"; // Import the PageButtons component
 import PendingRequestsLoadingSkeleton from "./PendingRequestsLoadingSkeleton";
+import unreadPending from "../NotifBadge/unreadPending";
+import useNotifications from "../NotifBadge/NotifTrigger";
+import { useFirebase } from "../../../contexts/firebaseContext";
 
 interface PendingRequestListProps {
 	searchQuery?: string;
@@ -67,6 +70,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const [getCurrentUser, setCurrentUser] = useState<string | null>(null);
 	// Add validUntil state
 	const [validUntil, setValidUntil] = useState<string>("");
+
+	const { uid } = useFirebase();
+	const { unreadTransactionIds } = unreadPending();
+	const { clearPendingNotifications } = useNotifications({
+		uid: uid,
+		selectedRole: "operations handler",
+	});
 
 	// Handle change on textArea
 	const handleTextArea = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -212,20 +222,20 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 				<div className={styles["form-grid"]}>
 					<div className={styles["form-group"]}>
 						<label>Last Name</label>
-						<p className={styles["field-value"]}>{formData.lastname}</p>
+						<p className={styles["field-value"]}>{formData?.lastname}</p>
 					</div>
 					<div className={styles["form-group"]}>
 						<label>First Name</label>
-						<p className={styles["field-value"]}>{formData.firstname}</p>
+						<p className={styles["field-value"]}>{formData?.firstname}</p>
 					</div>
 					<div className={styles["form-group"]}>
 						<label>Middle Name</label>
-						<p className={styles["field-value"]}>{formData.middlename}</p>
+						<p className={styles["field-value"]}>{formData?.middlename}</p>
 					</div>
 					<div className={styles["form-group"]}>
 						<label>Suffix</label>
 						<p className={styles["field-value"]}>
-							{formData.suffix ? formData.suffix : "-"}
+							{formData?.suffix ? formData?.suffix : "-"}
 						</p>
 					</div>
 				</div>
@@ -235,32 +245,32 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						<p
 							className={`${styles["field-value"]} ${styles["field-numeric"]}`}
 						>
-							{formData.age}
+							{formData?.age}
 						</p>
 					</div>
 					<div
 						className={`${styles["form-group"]} ${styles["pending-request-gender-field"]}`}
 					>
 						<label>Gender</label>
-						<p className={styles["field-value"]}>{formData.gender}</p>
+						<p className={styles["field-value"]}>{formData?.gender}</p>
 					</div>
 					<div
 						className={`${styles["form-group"]} ${styles["pending-request-college-field"]}`}
 					>
 						<label>College Affiliation</label>
-						<p className={styles["field-value"]}>{formData.college}</p>
+						<p className={styles["field-value"]}>{formData?.college}</p>
 					</div>
 					<div
 						className={`${styles["form-group"]} ${styles["pending-request-contact-field"]}`}
 					>
 						<label>Contact No.</label>
-						<p className={styles["field-value"]}>{formData.contact}</p>
+						<p className={styles["field-value"]}>{formData?.contact}</p>
 					</div>
 				</div>
 			</>
 		);
 
-		switch (formData.formType) {
+		switch (formData?.formType) {
 			case "hospital":
 				return (
 					<>
@@ -269,43 +279,43 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						<div className={styles["form-grid"]}>
 							<div className={styles["form-group"]}>
 								<label>Hospital</label>
-								<p className={styles["field-value"]}>{formData.hospital}</p>
+								<p className={styles["field-value"]}>{formData?.hospital}</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Nature of Illness</label>
-								<p className={styles["field-value"]}>{formData.illness}</p>
+								<p className={styles["field-value"]}>{formData?.illness}</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Physician</label>
-								<p className={styles["field-value"]}>{formData.physician}</p>
+								<p className={styles["field-value"]}>{formData?.physician}</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Procedure</label>
-								<p className={styles["field-value"]}>{formData.procedures}</p>
+								<p className={styles["field-value"]}>{formData?.procedures}</p>
 							</div>
 						</div>
 						<hr></hr>
 						<div className={styles["form-grid"]}>
 							<div className={styles["form-group"]}>
 								<label>Academic Term</label>
-								<p className={styles["field-value"]}>{formData.term}</p>
+								<p className={styles["field-value"]}>{formData?.term}</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Academic Year</label>
-								<p className={styles["field-value"]}>{formData.year}</p>
+								<p className={styles["field-value"]}>{formData?.year}</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Teaching Load</label>
 								<p
 									className={`${styles["field-value"]} ${styles["field-numeric"]}`}
 								>
-									{formData.load}
+									{formData?.load}
 								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Status</label>
 								<p className={styles["field-value"]}>
-									{formData.status || "-"}
+									{formData?.status || "-"}
 								</p>
 							</div>
 							<div className={styles["form-group"]}>
@@ -313,8 +323,8 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								<p
 									className={`${styles["field-value"]} ${styles["field-date"]}`}
 								>
-									{formData.dateHired
-										? new Date(formData.dateHired).toLocaleDateString()
+									{formData?.dateHired
+										? new Date(formData?.dateHired).toLocaleDateString()
 										: "-"}
 								</p>
 							</div>
@@ -323,19 +333,19 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								<p
 									className={`${styles["field-value"]} ${styles["field-date"]}`}
 								>
-									{formData.dateRetired
-										? new Date(formData.dateRetired).toLocaleDateString()
+									{formData?.dateRetired
+										? new Date(formData?.dateRetired).toLocaleDateString()
 										: "-"}
 								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Health Benefits</label>
-								<p className={styles["field-value"]}>{formData.benefits}</p>
+								<p className={styles["field-value"]}>{formData?.benefits}</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>If HMO, please specify:</label>
 								<p className={styles["field-value"]}>
-									{formData.hmo ? formData.hmo : "-"}
+									{formData?.hmo ? formData?.hmo : "-"}
 								</p>
 							</div>
 						</div>
@@ -350,13 +360,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 							<div className={styles["form-group"]}>
 								<label>OR Number</label>
 								<p className={styles["field-value"]}>
-									{formData.ORNumber ? formData.ORNumber : "-"}
+									{formData?.ORNumber ? formData?.ORNumber : "-"}
 								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Issued By</label>
 								<p className={styles["field-value"]}>
-									{formData.issuedBy ? formData.issuedBy : "-"}
+									{formData?.issuedBy ? formData?.issuedBy : "-"}
 								</p>
 							</div>
 							<div className={styles["form-group"]}>
@@ -364,7 +374,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								<p
 									className={`${styles["field-value"]} ${styles["field-currency"]}`}
 								>
-									{formData.amountPaid ? formData.amountPaid : "-"}
+									{formData?.amountPaid ? formData?.amountPaid : "-"}
 								</p>
 							</div>
 						</div>
@@ -381,13 +391,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								<p
 									className={`${styles["field-value"]} ${styles["field-numeric"]}`}
 								>
-									{formData.load ? formData.load : "-"}
+									{formData?.load ? formData?.load : "-"}
 								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Status</label>
 								<p className={styles["field-value"]}>
-									{formData.status ? formData.status : "-"}
+									{formData?.status ? formData?.status : "-"}
 								</p>
 							</div>
 						</div>
@@ -401,16 +411,16 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 		// Create an array of objects that include both the attachment and its type
 		const attachmentsWithLabels = [
-			{ type: "employeeID", data: formData.employeeID },
-			{ type: "applicantSignature", data: formData.applicantSignature },
-			...("docRequest" in formData
-				? [{ type: "docRequest", data: formData.docRequest }]
+			{ type: "employeeID", data: formData?.employeeID },
+			{ type: "applicantSignature", data: formData?.applicantSignature },
+			...("docRequest" in [formData]
+				? [{ type: "docRequest", data: formData?.docRequest }]
 				: []),
-			...("hospitalInvoice" in formData
-				? [{ type: "hospitalInvoice", data: formData.hospitalInvoice }]
+			...("hospitalInvoice" in [formData]
+				? [{ type: "hospitalInvoice", data: formData?.hospitalInvoice }]
 				: []),
-			...("labInvoice" in formData
-				? [{ type: "labInvoice", data: formData.labInvoice }]
+			...("labInvoice" in [formData]
+				? [{ type: "labInvoice", data: formData?.labInvoice }]
 				: []),
 		].filter((item) => item.data && item.data.filename);
 
@@ -455,7 +465,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								key={index}
 								className={styles["attachment-preview"]}
 								onClick={() => setPreviewFile(item.data)}
-								title={item.data.filename}
+								title={item.data?.filename}
 							>
 								<div className={styles["thumbnail-container"]}>
 									{renderThumbnail(item.data)}
@@ -464,7 +474,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									<p className={styles["document-type"]}>
 										{formatDocumentType(item.type)}
 									</p>
-									<p className={styles["file-name"]}>{item.data.filename}</p>
+									<p className={styles["file-name"]}>{item.data?.filename}</p>
 								</div>
 							</div>
 						))}
@@ -475,7 +485,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	};
 
 	const renderHospitalCertification = (request: PendingRequest) => {
-		if (request.formData.formType !== "hospital") return null;
+		if (request.formData?.formType !== "hospital") return null;
 		getRemainingBenefits(request.requester)
 			.then((result) => {
 				setBenefits(result);
@@ -775,8 +785,12 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						<div
 							className={`${styles["request-header"]} ${
 								expandedId === request.transactionId ? styles.expanded : ""
+							} ${
+								unreadTransactionIds?.includes(request.transactionId)
+									? styles.highlight
+									: ""
 							}`}
-							onClick={() => {
+							onClick={async () => {
 								setExpandedId(
 									expandedId === request.transactionId
 										? null
@@ -784,14 +798,15 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								);
 								setEditBenefits(getBenefits);
 								setCurrentUser(request.requester);
+								await clearPendingNotifications();
 							}}
 						>
 							<div className={styles["header-content"]}>
 								<div className={styles["header-item"]}>
 									<span className={styles["request-type"]}>
-										{request.formData.formType === "hospital"
+										{request.formData?.formType === "hospital"
 											? "Hospital"
-											: request.formData.formType}
+											: request.formData?.formType}
 									</span>
 								</div>
 
@@ -834,24 +849,24 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 							<div className={styles["request-content"]}>
 								{/* Move "done as" to appear under the main title */}
 								<h3>
-									{request.formData.formType === "hospital" ? (
+									{request.formData?.formType === "hospital" ? (
 										<>
-											{request.formData.hospitalStatus?.toLowerCase() ===
+											{request.formData?.hospitalStatus?.toLowerCase() ===
 											"in-patient"
 												? "INPATIENT"
-												: request.formData.hospitalStatus?.toLowerCase() ===
+												: request.formData?.hospitalStatus?.toLowerCase() ===
 												  "out-patient"
 												? "OUTPATIENT"
 												: "HOSPITAL"}{" "}
 											SUBMITTED FORM DETAILS
-											{request.formData.hospitalStatus && (
+											{request.formData?.hospitalStatus && (
 												<span className={styles["done-as-subtitle"]}>
-													(done as {request.formData.hospitalStatus})
+													(done as {request.formData?.hospitalStatus})
 												</span>
 											)}
 										</>
 									) : (
-										request.formData.formType.toUpperCase()
+										request.formData?.formType?.toUpperCase()
 									)}
 								</h3>
 

@@ -990,3 +990,9 @@ form-admission-row-grid {
 	text-align: center;
 	text-transform: uppercase;
 }
+
+.request-header.highlight {
+	border: 2px solid #ffcc00; /* Yellow border for pending */
+	background-color: #fffbe6; /* Light yellow background */
+	transition: background 0.3s ease, border 0.3s ease;
+}
