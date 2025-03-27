@@ -10,8 +10,6 @@ import { RiSettings5Line } from "react-icons/ri";
 import { FaRegFolderOpen } from "react-icons/fa";
 import { AiOutlineFileDone } from "react-icons/ai";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
-import useTrackingRecords from "../Page Elements/TrackingPage/useTrackingRecord";
-import { usePendingRequests } from "../Page Elements/PendingRequests/PendingRequestBackend";
 import Profile from "./Profile";
 import Popout from "../Page Elements/Popout/Popout";
 import NotifBadge from "../Page Elements/NotifBadge/NotifBadge";
@@ -28,10 +26,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		return localStorage.getItem("activePage") || "HOSPITALIZATION APPLICATION";
 	});
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
-
-	// ✅ Use hooks
-	const { accomplishedRecords } = useTrackingRecords();
-	const { requests } = usePendingRequests();
 
 	// SECURE: Get role state from useUser context
 	const { selectedRole, availableRoles, switchRole } = useUser();
@@ -131,26 +125,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
 	const handleCancel = () => setIsPopoutOpen(false);
 
-	const {
-		hasNewPendingRequest,
-		hasNewAccomplishedRecord,
-		clearPendingNotifications,
-		clearAccomplishedNotifications,
-	} = useNotifications({ uid, selectedRole });
+	const { hasNewPendingRequest, hasNewAccomplishedRecord } = useNotifications({
+		uid,
+		selectedRole,
+	});
 
 	const handleMenuClick = (name: string, action?: () => void) => {
 		setActiveItem(name);
 		localStorage.setItem("activePage", name); // Store active menu item
-		if (
-			name === "PENDING REQUESTS" &&
-			(selectedRole === "operations handler" || selectedRole === "admin")
-		) {
-			clearPendingNotifications();
-		}
-
-		if (name === "HOSPITALIZATION TRACKING" && selectedRole === "member") {
-			clearAccomplishedNotifications();
-		}
+		if (action) action();
 	};
 
 	// SECURE: Use the context's switchRole function
