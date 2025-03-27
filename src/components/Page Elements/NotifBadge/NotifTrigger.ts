@@ -1,196 +1,157 @@
-import { doc, getDoc } from "firebase/firestore";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
+import { onSnapshot, collection, query, where, doc, updateDoc, arrayUnion, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
 import { db } from "../../../config/firebase";
+import { useFirebase } from "../../../contexts/firebaseContext";
 
 interface UseNotificationsProps {
-	requests: any[];                // Pending requests collection
-	accomplishedRecords: any[];     // Accomplished records collection
-	uid: string | null;             // User ID
-	selectedRole: string;           // Current user role
-    transactionId?: string;
+	uid: string | null;
+	selectedRole: string;
 }
 
-// ✅ LocalStorage Keys
-const ACCOMPLISHED_KEY = "lastAccomplishedCount";
-const PENDING_DOC_IDS_KEY = "lastPendingDocIds";
-const PENDING_LAST_SEEN_DATE_KEY = "lastPendingDocSubmitted";
-const ACCOMPLISHED_LAST_SEEN_DATE_KEY = "lastAccomplishedDateDecided";
-const CLEARED_PENDING_DOCS_KEY = "clearedPendingDocs";
-const PENDING_LAST_SEEN_DATE_PER_ID = "pendingLastSeenDatePerId";
-
-const useNotifications = ({
-	requests,
-	accomplishedRecords,
-	uid,
-	selectedRole,
-}: UseNotificationsProps) => {
-
-	// 🔥 State Variables
+const useNotifications = ({ uid, selectedRole }: UseNotificationsProps) => {
+	const {fullName} = useFirebase();
 	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(false);
 	const [hasNewAccomplishedRecord, setHasNewAccomplishedRecord] = useState(false);
-	const [triggerPendingClass, setTriggerPendingClass] = useState(false);
-	const [triggerAccomplishedClass, setTriggerAccomplishedClass] = useState(false);
-	const [clearedDocIds, setClearedDocIds] = useState<string[]>([]);
 
-    const fetchAndStoreRequestDate = async (transactionId: string) => {
-		try {
-			const docRef = doc(db, "FormRequests", transactionId);  // ✅ Reference the specific request
-			const docSnap = await getDoc(docRef);
-
-			if (docSnap.exists()) {
-				const requestData = docSnap.data();
-				const docSubmitted = new Date(requestData.docSubmitted).getTime();
-
-				// ✅ Store the date in localStorage by transactionId
-				const storedDates = JSON.parse(
-					localStorage.getItem(PENDING_LAST_SEEN_DATE_PER_ID) || "{}"
-				);
-				
-				storedDates[transactionId] = docSubmitted;
-				localStorage.setItem(PENDING_LAST_SEEN_DATE_PER_ID, JSON.stringify(storedDates));
-
-				console.log(`✅ Stored date for ${transactionId}: ${docSubmitted}`);
-			} else {
-				console.log(`❌ No request found for ID: ${transactionId}`);
-			}
-		} catch (error) {
-			console.error("Error fetching request date:", error);
-		}
-	};
-    
-	// ✅ UseRef to Prevent Infinite Loop
-	const isMounted = useRef(false);
-
-	// ✅ Load cleared IDs from localStorage on initial render only
 	useEffect(() => {
-		const storedCleared = localStorage.getItem(CLEARED_PENDING_DOCS_KEY);
-		if (storedCleared) {
-			setClearedDocIds(JSON.parse(storedCleared));
-		}
-	}, []);
+		if (!uid) return;
 
-	// ✅ Compare current state with last seen state
-	useEffect(() => {
-		if (!uid || !isMounted.current) {
-			isMounted.current = true;  // Skip the first render
-			return;
-		}
+		let unsubscribePending: () => void = () => {};
+		let unsubscribeAccomplished: () => void = () => {};
 
-		const latestClearedIds = JSON.parse(localStorage.getItem(CLEARED_PENDING_DOCS_KEY) || "[]");
-
-		// 🔥 Handle Pending Requests Notifications
+		// Real-time listener for `notifyPending` (for operations handlers/admins)
 		if (selectedRole === "operations handler" || selectedRole === "admin") {
-			const lastSeenDocIds = JSON.parse(localStorage.getItem(PENDING_DOC_IDS_KEY) || "[]");
-			const currentDocIds = requests.map((doc) => doc.id);
+			const pendingQuery = query(collection(db, "notifyPending"));
 
-			// ✅ Filter out cleared and seen IDs
-			const newDocIds = currentDocIds
-				.filter((id) => !lastSeenDocIds.includes(id))   // Exclude seen IDs
-				.filter((id) => !latestClearedIds.includes(id));  // Exclude cleared IDs
+			unsubscribePending = onSnapshot(pendingQuery, (snapshot) => {
+				let newPending = false;
 
-			// ✅ Check for date-based changes
-			const lastSeenDocSubmitted = localStorage.getItem(PENDING_LAST_SEEN_DATE_KEY) || "0";
-			const latestDocSubmitted = requests
-				.map((doc) => new Date(doc.docSubmitted).getTime())
-				.reduce((max, date) => (date > max ? date : max), 0);
+				snapshot.docs.forEach(async (docSnap) => {
+					const data = docSnap.data();
+					const { isReadBy = [] } = data;
 
-			const isNewDate = latestDocSubmitted > Number(lastSeenDocSubmitted);
-			const hasNewDocs = newDocIds.length > 0;
+					// If current user hasn't read it, trigger notification
+					if (!isReadBy.includes(uid)) {
+						newPending = true;
+					}
+				});
 
-			if (hasNewDocs || isNewDate) {
-				console.log("🔥 New Pending Requests (excluding cleared):", newDocIds);
-				setHasNewPendingRequest(true);
-				setTriggerPendingClass(true);
-			} else {
-				setHasNewPendingRequest(false);
-				setTriggerPendingClass(false);
-			}
-
-			// ✅ Sync localStorage
-			localStorage.setItem(PENDING_DOC_IDS_KEY, JSON.stringify(currentDocIds));
-			localStorage.setItem(PENDING_LAST_SEEN_DATE_KEY, latestDocSubmitted.toString());
+				setHasNewPendingRequest(newPending);
+			});
 		}
 
-		// 🔥 Handle Accomplished Records Notifications
+		// Real-time listener for `notifyAccomplished_Revision` (for members)
 		if (selectedRole === "member") {
-			const lastAccomplishedCount = parseInt(localStorage.getItem(ACCOMPLISHED_KEY) || "0", 10);
-			const lastSeenDateDecided = localStorage.getItem(ACCOMPLISHED_LAST_SEEN_DATE_KEY) || "0";
+			const accomplishedQuery = query(
+				collection(db, "notifyAccomplished_Revisions"),
+				where("requester", "==", fullName),
+				where("isRead", "==", false)
+			);
 
-			// Find the latest DateDecided in the new batch
-			const latestDateDecided = accomplishedRecords
-				.map((doc) => new Date(doc.DateDecided).getTime())
-				.reduce((max, date) => (date > max ? date : max), 0);
-
-			const isNewAccomplishedDate = latestDateDecided > Number(lastSeenDateDecided);
-
-			if (accomplishedRecords.length > lastAccomplishedCount || isNewAccomplishedDate) {
-				console.log("🔥 New Accomplished Records:", accomplishedRecords);
-				setHasNewAccomplishedRecord(true);
-				setTriggerAccomplishedClass(true);
-			} else {
-				setHasNewAccomplishedRecord(false);
-				setTriggerAccomplishedClass(false);
-			}
-
-			// ✅ Sync localStorage
-			localStorage.setItem(ACCOMPLISHED_KEY, accomplishedRecords.length.toString());
-			localStorage.setItem(ACCOMPLISHED_LAST_SEEN_DATE_KEY, latestDateDecided.toString());
+			unsubscribeAccomplished = onSnapshot(accomplishedQuery, (snapshot) => {
+				setHasNewAccomplishedRecord(snapshot.docs.length > 0);
+			});
 		}
-	}, [requests, accomplishedRecords, selectedRole, uid]);
 
-	// ✅ Clear Pending Notifications
-	const clearPendingNotifications = () => {
-		setHasNewPendingRequest(false);
-		setTriggerPendingClass(false);
+		return () => {
+			unsubscribePending();
+			unsubscribeAccomplished();
+		};
+	}, [uid, selectedRole]);
 
-		const currentDocIds = requests.map((doc) => doc.id);
-		localStorage.setItem(PENDING_DOC_IDS_KEY, JSON.stringify(currentDocIds));
+	// Functions to clear notifications
 
-		const latestDocSubmitted = requests
-			.map((doc) => new Date(doc.docSubmitted).getTime())
-			.reduce((max, date) => (date > max ? date : max), 0);
+	// For operations handlers/admins: Mark as read by adding the UID to `isReadBy`
+	const clearPendingNotifications = async () => {
+		if (!uid) return;
 
-		localStorage.setItem(PENDING_LAST_SEEN_DATE_KEY, latestDocSubmitted.toString());
+		try {
+			const pendingQuery = query(collection(db, "notifyPending"));
+			const snapshot = await getDocs(pendingQuery);
+
+			const batchUpdates = snapshot.docs.map(async (docSnap) => {
+				const docRef = doc(db, "notifyPending", docSnap.id);
+				const data = docSnap.data();
+				const { isReadBy = [] } = data;
+
+				// Add current UID to `isReadBy` if not already present
+				if (!isReadBy.includes(uid)) {
+					await updateDoc(docRef, {
+						isReadBy: arrayUnion(uid)
+					});
+				}
+			});
+
+			await Promise.all(batchUpdates);
+			setHasNewPendingRequest(false); // Update local state
+			console.log("All pending notifications cleared.");
+		} catch (error) {
+			console.error("Error clearing pending notifications:", error);
+		}
 	};
 
-	// ✅ Clear Accomplished Notifications
-	const clearAccomplishedNotifications = () => {
-		setHasNewAccomplishedRecord(false);
-		setTriggerAccomplishedClass(false);
+	// For members: Mark all notifications as read by updating `isRead` to true
+	const clearAccomplishedNotifications = async () => {
+		if (!uid) return;
 
-		localStorage.setItem(
-			ACCOMPLISHED_KEY,
-			accomplishedRecords.length.toString()
-		);
+		try {
+			const accomplishedQuery = query(
+				collection(db, "notifyAccomplished_Revisions"),
+				where("requester", "==", fullName),
+				where("isRead", "==", false)
+			);
 
-		const latestDateDecided = accomplishedRecords
-			.map((doc) => new Date(doc.DateDecided).getTime())
-			.reduce((max, date) => (date > max ? date : max), 0);
+			const snapshot = await getDocs(accomplishedQuery);
 
-		localStorage.setItem(ACCOMPLISHED_LAST_SEEN_DATE_KEY, latestDateDecided.toString());
+			const batchUpdates = snapshot.docs.map(async (docSnap) => {
+				const docRef = doc(db, "notifyAccomplished_Revisions", docSnap.id);
+				await updateDoc(docRef, { isRead: true });
+			});
+
+			await Promise.all(batchUpdates);
+			setHasNewAccomplishedRecord(false); //Update local state
+			console.log("All accomplished notifications cleared.");
+		} catch (error) {
+			console.error("Error clearing accomplished notifications:", error);
+		}
 	};
 
-	// ✅ Improved Clearing Function
-	const clearRequestNotification = (transactionId: string) => {
-		const updatedClearedDocIds = [...new Set([...clearedDocIds, transactionId])];
-
-		// ✅ Sync both localStorage and state immediately
-		localStorage.setItem(CLEARED_PENDING_DOCS_KEY, JSON.stringify(updatedClearedDocIds));
-		setClearedDocIds(updatedClearedDocIds);  // Immediate sync in state
-
-		console.log(`✅ Cleared Notification for Request ID: ${transactionId}`);
-	};
-
-	// ✅ Return states and functions
 	return {
 		hasNewPendingRequest,
 		hasNewAccomplishedRecord,
-		triggerPendingClass,
-		triggerAccomplishedClass,
 		clearPendingNotifications,
 		clearAccomplishedNotifications,
-		clearRequestNotification,
 	};
 };
 
 export default useNotifications;
+
+export const pushPendingNotification = async (transactionId: string) => {
+	try {
+		await addDoc(collection(db, "notifyPending"), {
+			transactionId,
+			isReadBy: [],             // No one has read it yet
+			timestamp: serverTimestamp()
+		});
+		console.log(`Pending notification added for transaction: ${transactionId}`);
+	} catch (error) {
+		console.error("Error adding pending notification:", error);
+	}
+};
+
+export const pushAccomplishedNotification = async (
+	transactionId: string,
+	requester: string
+) => {
+	try {
+		await addDoc(collection(db, "notifyAccomplished_Revisions"), {
+			transactionId,
+			requester,
+			isRead: false,              // Unread by default
+			timestamp: serverTimestamp()
+		});
+		console.log(`Accomplished notification added for requester: ${requester}`);
+	} catch (error) {
+		console.error("Error adding accomplished notification:", error);
+	}
+};

@@ -136,23 +136,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		hasNewAccomplishedRecord,
 		clearPendingNotifications,
 		clearAccomplishedNotifications,
-	} = useNotifications({
-		requests,
-		accomplishedRecords,
-		uid,
-		selectedRole,
-	});
+	} = useNotifications({ uid, selectedRole });
 
 	const handleMenuClick = (name: string, action?: () => void) => {
 		setActiveItem(name);
 		localStorage.setItem("activePage", name); // Store active menu item
-		if (name === "PENDING REQUESTS") {
+		if (
+			name === "PENDING REQUESTS" &&
+			(selectedRole === "operations handler" || selectedRole === "admin")
+		) {
 			clearPendingNotifications();
 		}
-		if (name === "HOSPITALIZATION TRACKING") {
+
+		if (name === "HOSPITALIZATION TRACKING" && selectedRole === "member") {
 			clearAccomplishedNotifications();
 		}
-		if (action) action();
 	};
 
 	// SECURE: Use the context's switchRole function

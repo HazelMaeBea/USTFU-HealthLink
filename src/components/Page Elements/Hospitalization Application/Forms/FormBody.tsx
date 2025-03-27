@@ -12,13 +12,14 @@ import FormMedicalFiles from "./FormMedicalFiles";
 import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
 import { addDoc, collection } from "firebase/firestore";
-import { auth, db} from "../../../../config/firebase.ts";
+import { auth, db } from "../../../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 import { useAutofill, applyAutofill } from "../Autofill.ts";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 import { AiOutlineAccountBook } from "react-icons/ai";
+import { pushPendingNotification } from "../../NotifBadge/NotifTrigger.ts";
 
 export type FormData = z.infer<typeof schema>;
 
@@ -141,19 +142,14 @@ const schema = z
 		// employeeID: z.any().refine((files) => files && files.length > 0, {
 		// 	message: "Please upload a copy of your employee ID",
 		// }),
-		applicantSignature: z
-			.any()
-			.refine((files) => files && files.length > 0, {
-				message: "Please upload your signature",
+		applicantSignature: z.any().refine((files) => files && files.length > 0, {
+			message: "Please upload your signature",
+		}),
+		hospitalStatus: z.enum(["In-Patient", "Out-Patient", "ER Consultation"], {
+			errorMap: () => ({
+				message: "Please select your hospital status",
 			}),
-		hospitalStatus: z.enum(
-			["In-Patient", "Out-Patient", "ER Consultation"],
-			{
-				errorMap: () => ({
-					message: "Please select your hospital status",
-				}),
-			}
-		),
+		}),
 		certify: z.enum(["Yes"], {
 			errorMap: () => ({
 				message:
@@ -196,8 +192,7 @@ const schema = z
 const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [dateHired, setDateHired] = useState<Date | null>(null);
 	const [dateRetired, setDateRetired] = useState<Date | null>(null);
-	const [showSuccessNotification, setShowSuccessNotification] =
-		useState(false);
+	const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 	const [isNotificationHiding, setIsNotificationHiding] = useState(false);
 	const [showClearConfirmation, setShowClearConfirmation] =
 		useState<boolean>(false);
@@ -251,9 +246,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
 		try {
 			const email = auth?.currentUser?.email;
-			
-			for (let i = data.claimRequestCount - 1; i >= 0; i--) {
 
+			for (let i = data.claimRequestCount - 1; i >= 0; i--) {
 				// Extract all files to upload into a single object
 				const filesToUpload = {
 					applicantSignature: data.applicantSignature,
@@ -268,7 +262,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
 				// Use the new utility to upload all files and get URLs in one operation
 				setUploadProgress("Uploading files (this may take a moment)...");
-				const transID = "TRN" + Date.now()
+				const transID = "TRN" + Date.now();
 				const fileUploadResults = await uploadFilesAndGetURLs(
 					email,
 					transID,
@@ -321,10 +315,14 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					},
 				};
 
+				// Trigger real-time notification for operations handlers/admins
+				await pushPendingNotification(transID);
+
 				setUploadProgress("Saving to database...");
 				await addDoc(collection(db, "FormRequests"), newDoc);
 
 				console.log("Document written with Transaction ID: ", transID);
+
 				// Show success notification instead of old popup
 				setSubmissionStatus("success");
 
@@ -335,9 +333,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			console.error(error);
 			setSubmissionStatus("error");
 			setErrorMessage(
-				error instanceof Error
-					? error.message
-					: "An unexpected error occurred"
+				error instanceof Error ? error.message : "An unexpected error occurred"
 			);
 		}
 	};
@@ -380,12 +376,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	useEffect(() => {
 		if (shouldReapplyAutofill) {
 			// Re-apply autofill - use applyAutofill function directly, not the hook
-			applyAutofill(
-				setValue,
-				setDateHired,
-				setDateRetired,
-				setPhoneInputValue
-			);
+			applyAutofill(setValue, setDateHired, setDateRetired, setPhoneInputValue);
 			setShouldReapplyAutofill(false);
 		}
 	}, [
@@ -432,10 +423,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				<FormCertify register={register} errors={errors} />
 
 				<div className="buttonDiv">
-					<button
-						type="submit"
-						className="btn btn-submit form-submit"
-					>
+					<button type="submit" className="btn btn-submit form-submit">
 						Submit
 					</button>
 					<button
@@ -452,9 +440,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				<div
 					className={`success-notification ${
 						isNotificationHiding ? "hiding" : ""
-					} ${
-						submissionStatus === "error" ? "error-notification" : ""
-					}`}
+					} ${submissionStatus === "error" ? "error-notification" : ""}`}
 				>
 					<div className={`success-icon ${submissionStatus}`}>
 						{submissionStatus === "processing" ? (
@@ -489,19 +475,13 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 									className="success-link"
 								>
 									Track your request{" "}
-									<FiArrowRight
-										size={14}
-										className="success-link-icon"
-									/>
+									<FiArrowRight size={14} className="success-link-icon" />
 								</a>
 							</div>
 						)}
 						{submissionStatus === "error" && (
 							<div className="success-action">
-								<button
-									onClick={closeNotification}
-									className="try-again-link"
-								>
+								<button onClick={closeNotification} className="try-again-link">
 									Close and try again
 								</button>
 							</div>
