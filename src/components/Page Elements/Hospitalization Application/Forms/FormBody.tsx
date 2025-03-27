@@ -24,6 +24,7 @@ import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 import { useAutofill, applyAutofill } from "../Autofill.ts";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
+import { pushPendingNotification } from "../../NotifBadge/NotifTrigger.ts";
 import { HospitalFormData } from "../../PendingRequests/types.ts";
 
 type FormData = z.infer<typeof schema>;
@@ -148,19 +149,14 @@ const schema = z
 		// employeeID: z.any().refine((files) => files && files.length > 0, {
 		// 	message: "Please upload a copy of your employee ID",
 		// }),
-		applicantSignature: z
-			.any()
-			.refine((files) => files && files.length > 0, {
-				message: "Please upload your signature",
+		applicantSignature: z.any().refine((files) => files && files.length > 0, {
+			message: "Please upload your signature",
+		}),
+		hospitalStatus: z.enum(["In-Patient", "Out-Patient", "ER Consultation"], {
+			errorMap: () => ({
+				message: "Please select your hospital status",
 			}),
-		hospitalStatus: z.enum(
-			["In-Patient", "Out-Patient", "ER Consultation"],
-			{
-				errorMap: () => ({
-					message: "Please select your hospital status",
-				}),
-			}
-		),
+		}),
 		certify: z.enum(["Yes"], {
 			errorMap: () => ({
 				message:
@@ -203,8 +199,7 @@ const schema = z
 const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [dateHired, setDateHired] = useState<Date | null>(null);
 	const [dateRetired, setDateRetired] = useState<Date | null>(null);
-	const [showSuccessNotification, setShowSuccessNotification] =
-		useState(false);
+	const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 	const [isNotificationHiding, setIsNotificationHiding] = useState(false);
 	const [showClearConfirmation, setShowClearConfirmation] =
 		useState<boolean>(false);
@@ -276,6 +271,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				setUploadProgress(
 					"Uploading files (this may take a moment)..."
 				);
+        
 				const transID = "TRN" + Date.now();
 				const fileUploadResults = await uploadFilesAndGetURLs(
 					email,
@@ -331,10 +327,14 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					},
 				};
 
+				// Trigger real-time notification for operations handlers/admins
+				await pushPendingNotification(transID);
+
 				setUploadProgress("Saving to database...");
 				await addDoc(collection(db, "FormRequests"), newDoc);
 
 				console.log("Document written with Transaction ID: ", transID);
+
 				// Show success notification instead of old popup
 				setSubmissionStatus("success");
 
@@ -345,9 +345,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			console.error(error);
 			setSubmissionStatus("error");
 			setErrorMessage(
-				error instanceof Error
-					? error.message
-					: "An unexpected error occurred"
+				error instanceof Error ? error.message : "An unexpected error occurred"
 			);
 		}
 	};
@@ -390,12 +388,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	useEffect(() => {
 		if (shouldReapplyAutofill) {
 			// Re-apply autofill - use applyAutofill function directly, not the hook
-			applyAutofill(
-				setValue,
-				setDateHired,
-				setDateRetired,
-				setPhoneInputValue
-			);
+			applyAutofill(setValue, setDateHired, setDateRetired, setPhoneInputValue);
 			setShouldReapplyAutofill(false);
 		}
 	}, [
@@ -451,10 +444,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				/>
 
 				<div className="buttonDiv">
-					<button
-						type="submit"
-						className="btn btn-submit form-submit"
-					>
+					<button type="submit" className="btn btn-submit form-submit">
 						Submit
 					</button>
 					<button
@@ -471,9 +461,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				<div
 					className={`success-notification ${
 						isNotificationHiding ? "hiding" : ""
-					} ${
-						submissionStatus === "error" ? "error-notification" : ""
-					}`}
+					} ${submissionStatus === "error" ? "error-notification" : ""}`}
 				>
 					<div className={`success-icon ${submissionStatus}`}>
 						{submissionStatus === "processing" ? (
@@ -508,19 +496,13 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 									className="success-link"
 								>
 									Track your request{" "}
-									<FiArrowRight
-										size={14}
-										className="success-link-icon"
-									/>
+									<FiArrowRight size={14} className="success-link-icon" />
 								</a>
 							</div>
 						)}
 						{submissionStatus === "error" && (
 							<div className="success-action">
-								<button
-									onClick={closeNotification}
-									className="try-again-link"
-								>
+								<button onClick={closeNotification} className="try-again-link">
 									Close and try again
 								</button>
 							</div>

@@ -1,0 +1,157 @@
+import { useEffect, useState } from "react";
+import { onSnapshot, collection, query, where, doc, updateDoc, arrayUnion, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
+import { db } from "../../../config/firebase";
+import { useFirebase } from "../../../contexts/firebaseContext";
+
+interface UseNotificationsProps {
+	uid: string | null;
+	selectedRole: string;
+}
+
+const useNotifications = ({ uid, selectedRole }: UseNotificationsProps) => {
+	const {fullName} = useFirebase();
+	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(false);
+	const [hasNewAccomplishedRecord, setHasNewAccomplishedRecord] = useState(false);
+
+	useEffect(() => {
+		if (!uid) return;
+
+		let unsubscribePending: () => void = () => {};
+		let unsubscribeAccomplished: () => void = () => {};
+
+		// Real-time listener for `notifyPending` (for operations handlers/admins)
+		if (selectedRole === "operations handler" || selectedRole === "admin") {
+			const pendingQuery = query(collection(db, "notifyPending"));
+
+			unsubscribePending = onSnapshot(pendingQuery, (snapshot) => {
+				let newPending = false;
+
+				snapshot.docs.forEach(async (docSnap) => {
+					const data = docSnap.data();
+					const { isReadBy = [] } = data;
+
+					// If current user hasn't read it, trigger notification
+					if (!isReadBy.includes(uid)) {
+						newPending = true;
+					}
+				});
+
+				setHasNewPendingRequest(newPending);
+			});
+		}
+
+		// Real-time listener for `notifyAccomplished_Revision` (for members)
+		if (selectedRole === "member") {
+			const accomplishedQuery = query(
+				collection(db, "notifyAccomplished_Revisions"),
+				where("requester", "==", fullName),
+				where("isRead", "==", false)
+			);
+
+			unsubscribeAccomplished = onSnapshot(accomplishedQuery, (snapshot) => {
+				setHasNewAccomplishedRecord(snapshot.docs.length > 0);
+			});
+		}
+
+		return () => {
+			unsubscribePending();
+			unsubscribeAccomplished();
+		};
+	}, [uid, selectedRole]);
+
+	// Functions to clear notifications
+
+	// For operations handlers/admins: Mark as read by adding the UID to `isReadBy`
+	const clearPendingNotifications = async () => {
+		if (!uid) return;
+
+		try {
+			const pendingQuery = query(collection(db, "notifyPending"));
+			const snapshot = await getDocs(pendingQuery);
+
+			const batchUpdates = snapshot.docs.map(async (docSnap) => {
+				const docRef = doc(db, "notifyPending", docSnap.id);
+				const data = docSnap.data();
+				const { isReadBy = [] } = data;
+
+				// Add current UID to `isReadBy` if not already present
+				if (!isReadBy.includes(uid)) {
+					await updateDoc(docRef, {
+						isReadBy: arrayUnion(uid)
+					});
+				}
+			});
+
+			await Promise.all(batchUpdates);
+			setHasNewPendingRequest(false); // Update local state
+			console.log("All pending notifications cleared.");
+		} catch (error) {
+			console.error("Error clearing pending notifications:", error);
+		}
+	};
+
+	// For members: Mark all notifications as read by updating `isRead` to true
+	const clearAccomplishedNotifications = async () => {
+		if (!uid) return;
+
+		try {
+			const accomplishedQuery = query(
+				collection(db, "notifyAccomplished_Revisions"),
+				where("requester", "==", fullName),
+				where("isRead", "==", false)
+			);
+
+			const snapshot = await getDocs(accomplishedQuery);
+
+			const batchUpdates = snapshot.docs.map(async (docSnap) => {
+				const docRef = doc(db, "notifyAccomplished_Revisions", docSnap.id);
+				await updateDoc(docRef, { isRead: true });
+			});
+
+			await Promise.all(batchUpdates);
+			setHasNewAccomplishedRecord(false); //Update local state
+			console.log("All accomplished notifications cleared.");
+		} catch (error) {
+			console.error("Error clearing accomplished notifications:", error);
+		}
+	};
+
+	return {
+		hasNewPendingRequest,
+		hasNewAccomplishedRecord,
+		clearPendingNotifications,
+		clearAccomplishedNotifications,
+	};
+};
+
+export default useNotifications;
+
+export const pushPendingNotification = async (transactionId: string) => {
+	try {
+		await addDoc(collection(db, "notifyPending"), {
+			transactionId,
+			isReadBy: [],             // No one has read it yet
+			timestamp: serverTimestamp()
+		});
+		console.log(`Pending notification added for transaction: ${transactionId}`);
+	} catch (error) {
+		console.error("Error adding pending notification:", error);
+	}
+};
+
+export const pushAccomplishedNotification = async (
+	transactionId: string,
+	requester: string
+) => {
+	try {
+		await addDoc(collection(db, "notifyAccomplished_Revisions"), {
+			transactionId,
+			requester,
+			isRead: false,              // Unread by default
+			timestamp: serverTimestamp()
+		});
+		console.log(`Accomplished notification added for requester: ${requester}`);
+	} catch (error) {
+		console.error("Error adding accomplished notification:", error);
+	}
+};

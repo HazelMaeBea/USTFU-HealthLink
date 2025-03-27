@@ -16,6 +16,7 @@ import {
 } from "firebase/firestore";
 import { db, getFormID } from "../../../../src/config/firebase.ts";
 import type { PendingRequest } from "./types";
+import { pushAccomplishedNotification } from "../NotifBadge/NotifTrigger.ts";
 
 const reqCollection = collection(db, "FormRequests");
 const usersCollection = collection(db, "users");
@@ -178,7 +179,6 @@ export const updateDocument = async (
 			});
 
 			console.log(`Document with ID ${document.id} has been updated.`);
-			console.log(`Document with ID ${document.id} has been updated.`);
 
 			let newCollection = "";
 			if (["approved", "rejected"].includes(status)) {
@@ -218,6 +218,12 @@ export const updateDocument = async (
 				console.log(
 					`Document moved to ${newCollection} and deleted from FormRequests.`
 				);
+
+				if (newCollection === "AccomplishedRequests" || newCollection === "RevisionsRequests") {
+					const requester = docData.requester;  // Retrieve the requester from the docData
+					await pushAccomplishedNotification(transID, requester);
+					console.log(`✅ Notification pushed for requester: ${requester}`);
+				}
 			}
 		}
 	} catch (error) {
