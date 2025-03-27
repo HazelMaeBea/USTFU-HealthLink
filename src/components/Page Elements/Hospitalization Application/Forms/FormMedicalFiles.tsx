@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { UseFormRegister, FieldErrors, UseFormSetError } from "react-hook-form";
-import { FormData } from "./FormBody";
-import {
-	validateFileListSize,
-	MAX_FILE_SIZE,
-} from "../../../../utils/fileUpload";
+import { validateFileListSize } from "../../../../utils/fileUpload";
+import { HospitalFormData } from "../../PendingRequests/types";
 
+// import { FormData } from "./FormBody";
+// interface FormMedicalFilesProps {
+// 	register: UseFormRegister<FormData>;
+// 	errors: FieldErrors<FormData>;
+// 	setError?: UseFormSetError<FormData>;
+// }
 interface FormMedicalFilesProps {
-	register: UseFormRegister<FormData>;
-	errors: FieldErrors<FormData>;
-	setError?: UseFormSetError<FormData>;
+	register: UseFormRegister<HospitalFormData>;
+	errors: FieldErrors<HospitalFormData>;
+	setError?: UseFormSetError<HospitalFormData>;
 }
 
 const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({

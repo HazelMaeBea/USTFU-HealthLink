@@ -1,10 +1,16 @@
 import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { FormData } from "./FormBody";
+import { HospitalFormData } from "../../PendingRequests/types";
+
+// import { FormData } from "./FormBody";
+// interface FormHospitalStatusProps {
+// 	register: UseFormRegister<FormData>;
+// 	errors: FieldErrors<FormData>;
+// }
 
 interface FormHospitalStatusProps {
-	register: UseFormRegister<FormData>;
-	errors: FieldErrors<FormData>;
+	register: UseFormRegister<HospitalFormData>;
+	errors: FieldErrors<HospitalFormData>;
 }
 
 const hospitalStatusOptions = ["In-Patient", "Out-Patient", "ER Consultation"];
@@ -18,7 +24,8 @@ const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 			<hr className="section-separator" />
 			<fieldset className="hospitalStatusFieldset">
 				<label className="form-label hospital-status-label">
-					Hospital Status:{" "} <span className="required-asterisk">*</span>
+					Hospital Status:{" "}
+					<span className="required-asterisk">*</span>
 				</label>
 				<div className="hospital-status-options-container row">
 					{hospitalStatusOptions.map((option, index) => (
