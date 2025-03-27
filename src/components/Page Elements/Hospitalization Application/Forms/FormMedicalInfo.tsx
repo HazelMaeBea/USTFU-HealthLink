@@ -1,11 +1,17 @@
 import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { FormData } from "./FormBody";
+import { HospitalFormData } from "../../PendingRequests/types";
 
 interface FormMedicalInfoProps {
-	register: UseFormRegister<FormData>;
-	errors: FieldErrors<FormData>;
+	register: UseFormRegister<HospitalFormData>;
+	errors: FieldErrors<HospitalFormData>;
 }
+
+// import { FormData } from "./FormBody";
+// interface FormMedicalInfoProps {
+// 	register: UseFormRegister<FormData>;
+// 	errors: FieldErrors<FormData>;
+// }
 
 const procedureOptions = [
 	"Physical Therapy",

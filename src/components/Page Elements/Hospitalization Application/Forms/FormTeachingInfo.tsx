@@ -1,31 +1,35 @@
-import React, {
-	useEffect,
-	useState,
-	Dispatch,
-	SetStateAction,
-	useRef,
-} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
 	UseFormRegister,
 	FieldErrors,
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { FormData } from "./FormBody";
+import { HospitalFormData } from "../../PendingRequests/types";
+
+// import { FormData } from "./FormBody";
+// interface FormTeachingInfoProps {
+// 	register: UseFormRegister<FormData>;
+// 	errors: FieldErrors<FormData>;
+// 	dateHired: Date | null;
+// 	setDateHired: Dispatch<SetStateAction<Date | null>>;
+// 	dateRetired: Date | null;
+// 	setDateRetired: Dispatch<SetStateAction<Date | null>>;
+// 	setValue?: UseFormSetValue<FormData>;
+// 	watch?: UseFormWatch<FormData>; // Add watch function to props
+// }
 
 interface FormTeachingInfoProps {
-	register: UseFormRegister<FormData>;
-	errors: FieldErrors<FormData>;
+	register: UseFormRegister<HospitalFormData>;
+	errors: FieldErrors<HospitalFormData>;
+	setValue: UseFormSetValue<HospitalFormData>;
+	watch: UseFormWatch<HospitalFormData>;
 	dateHired: Date | null;
-	setDateHired: Dispatch<SetStateAction<Date | null>>;
+	setDateHired: React.Dispatch<React.SetStateAction<Date | null>>;
 	dateRetired: Date | null;
-	setDateRetired: Dispatch<SetStateAction<Date | null>>;
-	setValue?: UseFormSetValue<FormData>;
-	watch?: UseFormWatch<FormData>; // Add watch function to props
+	setDateRetired: React.Dispatch<React.SetStateAction<Date | null>>;
 }
 
-// Removed commented-out termOptions and yearOptions as they're no longer needed
-const loadOptions = ["Full", "Part"];
 const statusOptions = [
 	"Tenured",
 	"Tenured-Track",

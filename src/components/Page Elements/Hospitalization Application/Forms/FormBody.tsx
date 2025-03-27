@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { FieldValues, useForm } from "react-hook-form";
+import {
+	FieldValues,
+	useForm,
+	UseFormRegister,
+	UseFormSetValue,
+	UseFormWatch,
+} from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "react-datepicker/dist/react-datepicker.css";
@@ -12,15 +18,16 @@ import FormMedicalFiles from "./FormMedicalFiles";
 import FormHospitalStatus from "./FormHospitalStatus";
 import FormCertify from "./FormCertify";
 import { addDoc, collection } from "firebase/firestore";
-import { auth, db} from "../../../../config/firebase.ts";
+import { auth, db } from "../../../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 import { useAutofill, applyAutofill } from "../Autofill.ts";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
-import { AiOutlineAccountBook } from "react-icons/ai";
+import { HospitalFormData } from "../../PendingRequests/types.ts";
 
-export type FormData = z.infer<typeof schema>;
+type FormData = z.infer<typeof schema>;
+type UnifiedFormData = FormData & HospitalFormData;
 
 interface FormBodyProps {
 	origFormType: string;
@@ -220,7 +227,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		watch,
 		setError,
 		formState: { errors, isSubmitted },
-	} = useForm<FormData>({
+	} = useForm<UnifiedFormData>({
 		resolver: zodResolver(schema),
 		defaultValues: {
 			gender: undefined,
@@ -251,9 +258,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
 		try {
 			const email = auth?.currentUser?.email;
-			
-			for (let i = data.claimRequestCount - 1; i >= 0; i--) {
 
+			for (let i = data.claimRequestCount - 1; i >= 0; i--) {
 				// Extract all files to upload into a single object
 				const filesToUpload = {
 					applicantSignature: data.applicantSignature,
@@ -267,8 +273,10 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				setUploadProgress("Optimizing files...");
 
 				// Use the new utility to upload all files and get URLs in one operation
-				setUploadProgress("Uploading files (this may take a moment)...");
-				const transID = "TRN" + Date.now()
+				setUploadProgress(
+					"Uploading files (this may take a moment)..."
+				);
+				const transID = "TRN" + Date.now();
 				const fileUploadResults = await uploadFilesAndGetURLs(
 					email,
 					transID,
@@ -279,7 +287,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				// Build new document structure using download URLs
 				const newDoc = {
 					transactionId: transID,
-					requester: auth?.currentUser?.displayName || email || "Unknown",
+					requester:
+						auth?.currentUser?.displayName || email || "Unknown",
 					dateSubmitted: new Date().toLocaleString("en-US", {
 						timeZone: "Asia/Manila",
 						month: "2-digit",
@@ -315,7 +324,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 						hospitalInvoice: fileUploadResults.hospitalInvoice,
 						labInvoice: fileUploadResults.labInvoice,
 						employeeID: fileUploadResults.employeeID,
-						applicantSignature: fileUploadResults.applicantSignature,
+						applicantSignature:
+							fileUploadResults.applicantSignature,
 						hospitalStatus: data.hospitalStatus,
 						claimRequestCount: data.claimRequestCount,
 					},
@@ -404,32 +414,41 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				)}
 
 				<FormPersonalInfo
-					register={register}
+					register={register as UseFormRegister<HospitalFormData>}
 					errors={errors}
-					setValue={setValue}
-					watch={watch}
+					setValue={setValue as UseFormSetValue<HospitalFormData>}
+					watch={watch as UseFormWatch<HospitalFormData>}
 					phoneInputValue={phoneInputValue}
 					setPhoneInputValue={setPhoneInputValue}
 				/>
-				<FormMedicalInfo register={register} errors={errors} />
+				<FormMedicalInfo
+					register={register as UseFormRegister<HospitalFormData>}
+					errors={errors}
+				/>
 				<FormTeachingInfo
-					register={register}
+					register={register as UseFormRegister<HospitalFormData>}
 					errors={errors}
 					dateHired={dateHired}
 					setDateHired={setDateHired}
 					dateRetired={dateRetired}
 					setDateRetired={setDateRetired}
-					setValue={setValue}
-					watch={watch} // Pass watch to the component
+					setValue={setValue as UseFormSetValue<HospitalFormData>}
+					watch={watch as UseFormWatch<HospitalFormData>}
 				/>
 				<FormUploadDisclaimer />
 				<FormMedicalFiles
-					register={register}
+					register={register as UseFormRegister<HospitalFormData>}
 					errors={errors}
 					setError={setError}
 				/>
-				<FormHospitalStatus register={register} errors={errors} />
-				<FormCertify register={register} errors={errors} />
+				<FormHospitalStatus
+					register={register as UseFormRegister<HospitalFormData>}
+					errors={errors}
+				/>
+				<FormCertify
+					register={register as UseFormRegister<HospitalFormData>}
+					errors={errors}
+				/>
 
 				<div className="buttonDiv">
 					<button

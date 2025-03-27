@@ -5,13 +5,23 @@ import {
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { FormData } from "./EyeglassesForm";
+import { HospitalFormData } from "../../PendingRequests/types";
+// import { FormData } from "./EyeglassesForm";
+
+// interface FormPersonalInfoProps {
+// 	register: UseFormRegister<FormData>;
+// 	errors: FieldErrors<FormData>;
+// 	setValue: UseFormSetValue<FormData>;
+// 	watch: UseFormWatch<FormData>;
+// 	phoneInputValue?: string;
+// 	setPhoneInputValue?: Dispatch<SetStateAction<string>>;
+// }
 
 interface FormPersonalInfoProps {
-	register: UseFormRegister<FormData>;
-	errors: FieldErrors<FormData>;
-	setValue: UseFormSetValue<FormData>;
-	watch: UseFormWatch<FormData>;
+	register: UseFormRegister<HospitalFormData>;
+	errors: FieldErrors<HospitalFormData>;
+	setValue: UseFormSetValue<HospitalFormData>;
+	watch: UseFormWatch<HospitalFormData>;
 	phoneInputValue?: string;
 	setPhoneInputValue?: Dispatch<SetStateAction<string>>;
 }
