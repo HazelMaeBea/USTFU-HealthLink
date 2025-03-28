@@ -87,8 +87,11 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	// Add validUntil state
 	const [validUntil, setValidUntil] = useState<string>("");
 
+	// for notifs
 	const { uid } = useFirebase();
-	const { unreadTransactionIds } = unreadPending();
+	const currentUid = uid ?? "";
+	const { unreadTransactionIds, isReadByList, setUnreadTransactionIds } =
+		unreadPending();
 	const { clearPendingNotifications } = useNotifications({
 		uid: uid,
 		selectedRole: "operations handler",
@@ -971,8 +974,12 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									? styles.expanded
 									: ""
 							} ${
-								unreadTransactionIds?.includes(
+								unreadTransactionIds.includes(
 									request.transactionId
+								) &&
+								isReadByList[request.transactionId] &&
+								!isReadByList[request.transactionId].includes(
+									currentUid
 								)
 									? styles.highlight
 									: ""
@@ -985,7 +992,16 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								);
 								setEditBenefits(getBenefits);
 								setCurrentUser(request.requester);
-								await clearPendingNotifications();
+
+								await clearPendingNotifications(
+									request.transactionId
+								);
+								// ✅ Locally remove highlight
+								setUnreadTransactionIds((prev) =>
+									prev.filter(
+										(id) => id !== request.transactionId
+									)
+								);
 							}}
 						>
 							<div className={styles["header-content"]}>
