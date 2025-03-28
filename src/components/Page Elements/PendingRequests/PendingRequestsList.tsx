@@ -205,11 +205,16 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 	// Apply filters to get filtered requests
 	const filteredRequests = applyFilters(pendingRequests);
+
+	// Sort the filtered requests by date
 	const sortedRequests = [...filteredRequests].sort((a, b) => {
 		const dateA = a.dateSubmitted ? new Date(a.dateSubmitted).getTime() : 0;
 		const dateB = b.dateSubmitted ? new Date(b.dateSubmitted).getTime() : 0;
 
-		return sortOrder === "oldest" ? dateB - dateA : dateA - dateB;
+		// Fix the sort order logic:
+		// For "newest", show newest first (descending, so dateB - dateA)
+		// For "oldest", show oldest first (ascending, so dateA - dateB)
+		return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
 	});
 
 	// Calculate pagination for sorted results
