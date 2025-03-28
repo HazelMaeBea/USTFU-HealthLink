@@ -48,21 +48,55 @@
 	box-shadow: 1px 1px 1px 1px hsl(0, 0%, 82%);
 }
 
-.record-box:hover {
-	background-color: hsl(53, 100%, 93%) !important;
-}
-
 /* Variant Backgrounds */
 .record-box.approved {
 	background-color: hsl(120, 100%, 92%);
+}
+
+.record-box.approved:hover {
+	background-color: hsl(120, 100%, 85%); /* Darker green on hover */
+	box-shadow: 0 0 10px hsl(120, 100%, 70%); /* Soft green glow */
+}
+
+.record-box.approved.highlight {
+	background-color: hsl(150, 100%, 95%); /* Light blue background */
+	border: 2px solid hsl(150, 100%, 75%); /* Slightly darker blue border */
+	box-shadow: 0 0 10px hsl(150, 100%, 85%); /* Soft glow effect */
+	transition: all 0.3s ease-in-out; /* Smooth transition */
+}
+
+.record-box.approved.highlight:hover {
+	background-color: hsl(150, 100%, 78%);
+	box-shadow: 0 0 12px hsl(150, 100%, 60%);
 }
 
 .record-box.rejected {
 	background-color: hsl(0, 100%, 83%);
 }
 
+.record-box.rejected:hover {
+	background-color: hsl(0, 100%, 75%); /* Darker red on hover */
+	box-shadow: 0 0 10px hsl(0, 100%, 60%); /* Soft red glow */
+}
+
+.record-box.rejected.highlight {
+	background-color: hsl(10, 100%, 95%); /* Light blue background */
+	border: 2px solid hsl(10, 100%, 75%); /* Slightly darker blue border */
+	box-shadow: 0 0 10px hsl(10, 100%, 85%); /* Soft glow effect */
+	transition: all 0.3s ease-in-out; /* Smooth transition */
+}
+
+.record-box.rejected.highlight:hover {
+	background-color: hsl(10, 100%, 78%);
+	box-shadow: 0 0 12px hsl(10, 100%, 60%);
+}
+
 .record-box.pending {
 	background-color: hsl(54, 100%, 88%);
+}
+
+.record-box.pending:hover {
+	background-color: hsl(53, 100%, 93%) !important;
 }
 
 /* Record Content */
@@ -195,7 +229,6 @@
 	.button-container {
 		width: 20%;
 		align-self: center;
-
 	}
 
 	.record-dateTime,
@@ -209,4 +242,3 @@
 		margin-left: 0;
 	}
 }
-
