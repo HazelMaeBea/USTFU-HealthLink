@@ -236,3 +236,73 @@
 		min-height: 400px; /* Add minimum height for mobile view */
 	}
 }
+
+/* Updated Sort Toggle Button Styling - Match Filter Style */
+.sortToggleContainer {
+	position: relative;
+	margin-right: 0.75rem;
+	flex-shrink: 0;
+}
+
+.sortToggleBtn {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.6rem 0.75rem;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	background-color: #e9ecef;
+	color: #495057;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.sortToggleBtn:hover {
+	background-color: #dee2e6;
+	color: #212529;
+}
+
+.sortToggleBtn.oldest {
+	background-color: #fff3cd;
+	color: #856404;
+	border-color: #ffeeba;
+}
+
+.sortToggleBtn.oldest:hover {
+	background-color: #ffeeba;
+}
+
+/* Sort Dropdown */
+.sortToggleDropdown {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	margin-top: 0.25rem;
+	background-color: white;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	z-index: 100;
+	min-width: 150px;
+}
+
+.sortToggleOption {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.6rem 0.75rem;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+	font-size: 0.85rem;
+}
+
+.sortToggleOption:hover {
+	background-color: #f8f9fa;
+}
+
+.sortToggleOption.selected {
+	background-color: #fff3cd; /* Changed to yellow theme */
+	color: #856404; /* Yellow-themed text */
+	font-weight: 500;
+}

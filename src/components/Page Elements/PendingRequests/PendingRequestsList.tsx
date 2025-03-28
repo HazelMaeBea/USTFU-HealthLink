@@ -1,19 +1,24 @@
 import { useState, useRef, useEffect } from "react";
-import type { PendingRequest } from "./types";
+import type {
+	PendingRequest,
+	FormData,
+	FormAttachment,
+	HospitalFormData,
+} from "./types";
 import {
 	getRemainingBenefits,
 	updateBenefits,
 	updateDocument,
 	usePendingRequests,
-} from "./PendingRequestBackend"; // use the hook instead of mock data
-import styles from "./PendingRequestList.module.css"; // Change CSS import to use module
+} from "./PendingRequestBackend";
+import styles from "./PendingRequestList.module.css";
 import { RiArrowDownSFill, RiArrowRightSFill } from "react-icons/ri";
 import { FiCheck, FiEdit2 } from "react-icons/fi";
 import { HiOutlineX } from "react-icons/hi";
 import Popout from "../Popout/Popout";
 import ViewFiles from "./ViewFiles";
 import HistoryPopout from "./HistoryPopout";
-import PageButtons from "../PageButtons/PageButtons"; // Import the PageButtons component
+import PageButtons from "../PageButtons/PageButtons";
 import PendingRequestsLoadingSkeleton from "./PendingRequestsLoadingSkeleton";
 import unreadPending from "../NotifBadge/unreadPending";
 import useNotifications from "../NotifBadge/NotifTrigger";
@@ -23,12 +28,21 @@ interface PendingRequestListProps {
 	searchQuery?: string;
 	selectedType?: string;
 	filters?: string[];
+	sortOrder?: "newest" | "oldest";
+}
+
+// Type guard function to check if formData is HospitalFormData
+function isHospitalFormData(
+	formData: FormData | undefined
+): formData is HospitalFormData {
+	return formData?.formType === "hospital";
 }
 
 const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	searchQuery = "",
 	selectedType = "All",
 	filters = [],
+	sortOrder = "newest",
 }) => {
 	// Increase the page size to fetch ALL items at once
 	const {
@@ -54,7 +68,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const [showPopout, setShowPopout] = useState<boolean>(false);
 	const [previewFile, setPreviewFile] = useState<any>(null);
 	const [showHistoryPopout, setShowHistoryPopout] = useState<boolean>(false);
-	const [currentRequester, setCurrentRequester] = useState<string | null>(null);
+	const [currentRequester, setCurrentRequester] = useState<string | null>(
+		null
+	);
 	const [signatureImage, setSignatureImage] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,9 +94,138 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		selectedRole: "operations handler",
 	});
 
+	// Apply all filters to the requests
+	const applyFilters = (requests: PendingRequest[]) => {
+		return requests.filter((request) => {
+			if (!request || !request.formData) return false;
+
+			// Type filter (form type)
+			const formType = request.formData.formType?.toLowerCase() || "";
+			const hospitalStatus = isHospitalFormData(request.formData)
+				? request.formData.hospitalStatus?.toLowerCase() || ""
+				: "";
+
+			const matchesType =
+				selectedType === "All" ||
+				formType === selectedType ||
+				// For hospital forms, check if it's inpatient or outpatient
+				(selectedType === "hospital" && formType === "hospital") ||
+				// For specific hospital types
+				(formType === "hospital" &&
+					((selectedType === "inpatient" &&
+						hospitalStatus.includes("in-patient")) ||
+						(selectedType === "outpatient" &&
+							hospitalStatus.includes("out-patient"))));
+
+			// Search query with proper null checks
+			const matchesSearch =
+				!searchQuery.trim() ||
+				request.name
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				request.status
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.studentId
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.requester
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.transactionId
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.formData.firstname
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.formData.lastname
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase()) ||
+				request.formData.middlename
+					?.toLowerCase()
+					.includes(searchQuery.toLowerCase());
+
+			// Other filters with proper null checks
+			const matchesFilters = filters.every((filter) => {
+				const [filterType, filterValue] = filter.split(": ");
+
+				if (filterType === "College") {
+					const college = request.formData?.college || "";
+					return filterValue
+						.split(", ")
+						.some((value) =>
+							college.toLowerCase().includes(value.toLowerCase())
+						);
+				} else if (filterType === "Status") {
+					const status = request.formData?.status || "";
+					return filterValue
+						.split(", ")
+						.some((value) =>
+							status.toLowerCase().includes(value.toLowerCase())
+						);
+				} else if (filterType === "Date") {
+					// Handle date filter
+					const [startDateStr, endDateStr] = filterValue.split(" - ");
+					const [startMonth, startDay, startYear] =
+						startDateStr.split("/");
+					const [endMonth, endDay, endYear] = endDateStr.split("/");
+
+					const startDate = new Date(
+						parseInt(startYear),
+						parseInt(startMonth) - 1,
+						parseInt(startDay)
+					);
+
+					const endDate = new Date(
+						parseInt(endYear),
+						parseInt(endMonth) - 1,
+						parseInt(endDay),
+						23,
+						59,
+						59
+					);
+
+					const requestDate = request.dateSubmitted
+						? new Date(request.dateSubmitted)
+						: null;
+					return requestDate
+						? requestDate >= startDate && requestDate <= endDate
+						: false;
+				}
+				return true;
+			});
+
+			return matchesType && matchesSearch && matchesFilters;
+		});
+	};
+
+	// Apply filters to get filtered requests
+	const filteredRequests = applyFilters(pendingRequests);
+	const sortedRequests = [...filteredRequests].sort((a, b) => {
+		const dateA = a.dateSubmitted ? new Date(a.dateSubmitted).getTime() : 0;
+		const dateB = b.dateSubmitted ? new Date(b.dateSubmitted).getTime() : 0;
+
+		return sortOrder === "oldest" ? dateB - dateA : dateA - dateB;
+	});
+
+	// Calculate pagination for sorted results
+	const totalFilteredPages = Math.max(
+		1,
+		Math.ceil(sortedRequests.length / recordsPerPage)
+	);
+
+	// Get current page's records for display
+	const indexOfLastRecord = clientCurrentPage * recordsPerPage;
+	const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+	const currentFilteredRecords = sortedRequests.slice(
+		indexOfFirstRecord,
+		indexOfLastRecord
+	);
+
 	// Handle change on textArea
 	const handleTextArea = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setText(event.target.value); // Update state with textarea value
+		setText(event.target.value);
 	};
 
 	// Handle page change from the PageButtons component
@@ -102,13 +247,32 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 	// Reset to page 1 when search query or filters change
 	useEffect(() => {
+		setClientCurrentPage(1);
 		// Only reset if we're not already on page 1
 		if (pagination.currentPage !== 1) {
 			setCurrentPage(1);
 		}
-	}, [searchQuery, selectedType, filters]);
+	}, [
+		searchQuery,
+		selectedType,
+		filters,
+		setCurrentPage,
+		pagination.currentPage,
+	]);
 
-	const handleAction = (action: "approval" | "rejection" | "for revision") => {
+	// Add this new effect to ensure current page is valid when filtered results change
+	useEffect(() => {
+		// After filtering, if the current page is beyond the available pages, reset to page 1
+		const maxPages =
+			Math.ceil(filteredRequests.length / recordsPerPage) || 1;
+		if (clientCurrentPage > maxPages) {
+			setClientCurrentPage(1);
+		}
+	}, [filteredRequests, recordsPerPage, clientCurrentPage]);
+
+	const handleAction = (
+		action: "approval" | "rejection" | "for revision"
+	) => {
 		setActiveDecision(action); // Store the decision type
 
 		if (action === "rejection") {
@@ -216,21 +380,29 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const renderFormFields = (request: PendingRequest) => {
 		const { formData } = request;
 
+		if (!formData) return null;
+
 		const baseFields = (
 			<>
 				<hr className={styles.yellow}></hr>
 				<div className={styles["form-grid"]}>
 					<div className={styles["form-group"]}>
 						<label>Last Name</label>
-						<p className={styles["field-value"]}>{formData?.lastname}</p>
+						<p className={styles["field-value"]}>
+							{formData?.lastname}
+						</p>
 					</div>
 					<div className={styles["form-group"]}>
 						<label>First Name</label>
-						<p className={styles["field-value"]}>{formData?.firstname}</p>
+						<p className={styles["field-value"]}>
+							{formData?.firstname}
+						</p>
 					</div>
 					<div className={styles["form-group"]}>
 						<label>Middle Name</label>
-						<p className={styles["field-value"]}>{formData?.middlename}</p>
+						<p className={styles["field-value"]}>
+							{formData?.middlename}
+						</p>
 					</div>
 					<div className={styles["form-group"]}>
 						<label>Suffix</label>
@@ -252,19 +424,25 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						className={`${styles["form-group"]} ${styles["pending-request-gender-field"]}`}
 					>
 						<label>Gender</label>
-						<p className={styles["field-value"]}>{formData?.gender}</p>
+						<p className={styles["field-value"]}>
+							{formData?.gender}
+						</p>
 					</div>
 					<div
 						className={`${styles["form-group"]} ${styles["pending-request-college-field"]}`}
 					>
 						<label>College Affiliation</label>
-						<p className={styles["field-value"]}>{formData?.college}</p>
+						<p className={styles["field-value"]}>
+							{formData?.college}
+						</p>
 					</div>
 					<div
 						className={`${styles["form-group"]} ${styles["pending-request-contact-field"]}`}
 					>
 						<label>Contact No.</label>
-						<p className={styles["field-value"]}>{formData?.contact}</p>
+						<p className={styles["field-value"]}>
+							{formData?.contact}
+						</p>
 					</div>
 				</div>
 			</>
@@ -279,30 +457,42 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						<div className={styles["form-grid"]}>
 							<div className={styles["form-group"]}>
 								<label>Hospital</label>
-								<p className={styles["field-value"]}>{formData?.hospital}</p>
+								<p className={styles["field-value"]}>
+									{formData?.hospital}
+								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Nature of Illness</label>
-								<p className={styles["field-value"]}>{formData?.illness}</p>
+								<p className={styles["field-value"]}>
+									{formData?.illness}
+								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Physician</label>
-								<p className={styles["field-value"]}>{formData?.physician}</p>
+								<p className={styles["field-value"]}>
+									{formData?.physician}
+								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Procedure</label>
-								<p className={styles["field-value"]}>{formData?.procedures}</p>
+								<p className={styles["field-value"]}>
+									{formData?.procedures}
+								</p>
 							</div>
 						</div>
 						<hr></hr>
 						<div className={styles["form-grid"]}>
 							<div className={styles["form-group"]}>
 								<label>Academic Term</label>
-								<p className={styles["field-value"]}>{formData?.term}</p>
+								<p className={styles["field-value"]}>
+									{formData?.term}
+								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Academic Year</label>
-								<p className={styles["field-value"]}>{formData?.year}</p>
+								<p className={styles["field-value"]}>
+									{formData?.year}
+								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Teaching Load</label>
@@ -324,7 +514,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									className={`${styles["field-value"]} ${styles["field-date"]}`}
 								>
 									{formData?.dateHired
-										? new Date(formData?.dateHired).toLocaleDateString()
+										? new Date(
+												formData?.dateHired
+										  ).toLocaleDateString()
 										: "-"}
 								</p>
 							</div>
@@ -334,13 +526,17 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									className={`${styles["field-value"]} ${styles["field-date"]}`}
 								>
 									{formData?.dateRetired
-										? new Date(formData?.dateRetired).toLocaleDateString()
+										? new Date(
+												formData?.dateRetired
+										  ).toLocaleDateString()
 										: "-"}
 								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Health Benefits</label>
-								<p className={styles["field-value"]}>{formData?.benefits}</p>
+								<p className={styles["field-value"]}>
+									{formData?.benefits}
+								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>If HMO, please specify:</label>
@@ -360,13 +556,17 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 							<div className={styles["form-group"]}>
 								<label>OR Number</label>
 								<p className={styles["field-value"]}>
-									{formData?.ORNumber ? formData?.ORNumber : "-"}
+									{formData?.ORNumber
+										? formData?.ORNumber
+										: "-"}
 								</p>
 							</div>
 							<div className={styles["form-group"]}>
 								<label>Issued By</label>
 								<p className={styles["field-value"]}>
-									{formData?.issuedBy ? formData?.issuedBy : "-"}
+									{formData?.issuedBy
+										? formData?.issuedBy
+										: "-"}
 								</p>
 							</div>
 							<div className={styles["form-group"]}>
@@ -374,7 +574,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								<p
 									className={`${styles["field-value"]} ${styles["field-currency"]}`}
 								>
-									{formData?.amountPaid ? formData?.amountPaid : "-"}
+									{formData?.amountPaid
+										? formData?.amountPaid
+										: "-"}
 								</p>
 							</div>
 						</div>
@@ -403,32 +605,50 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						</div>
 					</>
 				);
+
+			default:
+				return baseFields;
 		}
 	};
 
 	const renderAttachments = (request: PendingRequest) => {
 		const { formData } = request;
 
+		if (!formData) return null;
+
 		// Create an array of objects that include both the attachment and its type
+		// Only include attachments that exist
 		const attachmentsWithLabels = [
-			{ type: "employeeID", data: formData?.employeeID },
-			{ type: "applicantSignature", data: formData?.applicantSignature },
-			...("docRequest" in [formData]
-				? [{ type: "docRequest", data: formData?.docRequest }]
+			// Common attachments for all form types
+			...(formData.employeeID
+				? [{ type: "employeeID", data: formData.employeeID }]
 				: []),
-			...("hospitalInvoice" in [formData]
-				? [{ type: "hospitalInvoice", data: formData?.hospitalInvoice }]
+			...(formData.applicantSignature
+				? [
+						{
+							type: "applicantSignature",
+							data: formData.applicantSignature,
+						},
+				  ]
 				: []),
-			...("labInvoice" in [formData]
-				? [{ type: "labInvoice", data: formData?.labInvoice }]
+
+			// Conditionally include form-specific attachments
+			...(formData.docRequest
+				? [{ type: "docRequest", data: formData.docRequest }]
+				: []),
+			...(formData.hospitalInvoice
+				? [{ type: "hospitalInvoice", data: formData.hospitalInvoice }]
+				: []),
+			...(formData.labInvoice
+				? [{ type: "labInvoice", data: formData.labInvoice }]
 				: []),
 		].filter((item) => item.data && item.data.filename);
 
+		// If no attachments, don't render this section
+		if (attachmentsWithLabels.length === 0) return null;
+
 		// Helper: check file extension and return appropriate content
-		const renderThumbnail = (attachment: {
-			url?: string;
-			filename: string;
-		}) => {
+		const renderThumbnail = (attachment: FormAttachment) => {
 			const ext = attachment.filename.split(".").pop()?.toLowerCase();
 			const imageTypes = ["png", "jpg", "jpeg", "gif", "svg"];
 			if (ext && imageTypes.includes(ext) && attachment.url) {
@@ -441,15 +661,24 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 				);
 			} else if (ext === "pdf") {
 				return (
-					<div className={styles["default-thumbnail"]} data-label="PDF"></div>
+					<div
+						className={styles["default-thumbnail"]}
+						data-label="PDF"
+					></div>
 				);
 			} else if (ext === "docx") {
 				return (
-					<div className={styles["default-thumbnail"]} data-label="DOCX"></div>
+					<div
+						className={styles["default-thumbnail"]}
+						data-label="DOCX"
+					></div>
 				);
 			} else {
 				return (
-					<div className={styles["default-thumbnail"]} data-label="FILE"></div>
+					<div
+						className={styles["default-thumbnail"]}
+						data-label="FILE"
+					></div>
 				);
 			}
 		};
@@ -474,7 +703,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									<p className={styles["document-type"]}>
 										{formatDocumentType(item.type)}
 									</p>
-									<p className={styles["file-name"]}>{item.data?.filename}</p>
+									<p className={styles["file-name"]}>
+										{item.data?.filename}
+									</p>
 								</div>
 							</div>
 						))}
@@ -485,7 +716,8 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	};
 
 	const renderHospitalCertification = (request: PendingRequest) => {
-		if (request.formData?.formType !== "hospital") return null;
+		if (!request.formData || !isHospitalFormData(request.formData))
+			return null;
 		getRemainingBenefits(request.requester)
 			.then((result) => {
 				setBenefits(result);
@@ -498,13 +730,16 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			<>
 				<hr></hr>
 				<div className={styles["hospital-certification"]}>
-					<h4 className={styles["section-header"]}>To UST HOSPITAL</h4>
+					<h4 className={styles["section-header"]}>
+						To UST HOSPITAL
+					</h4>
 					<div className={styles["certification-content"]}>
 						<p className="text-center">
-							This certifies that the above named faculty is entitled to the
-							following benefit on his/her total charges (procedure, supplies,
-							drugs and reader's fee) but not to exceed his/her remaining
-							benefit subject to final verification:
+							This certifies that the above named faculty is
+							entitled to the following benefit on his/her total
+							charges (procedure, supplies, drugs and reader's
+							fee) but not to exceed his/her remaining benefit
+							subject to final verification:
 						</p>
 
 						{/* Valid Until Date Field */}
@@ -521,10 +756,16 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 						<div className={styles["hospital-certification-grid"]}>
 							{/* Benefit Options */}
-							<div className={styles["benefit-options-container"]}>
+							<div
+								className={styles["benefit-options-container"]}
+							>
 								<div className={styles["benefit-options"]}>
 									<label className={styles["radio-option"]}>
-										<input type="radio" name="benefit" value="50" />
+										<input
+											type="radio"
+											name="benefit"
+											value="50"
+										/>
 										<span>50% of net hospital bill</span>
 									</label>
 									<label className={styles["radio-option"]}>
@@ -549,14 +790,18 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									<div
 										className={`${styles["amount-input-wrapper"]} d-flex align-items-center`}
 									>
-										<span className={styles.currency}></span>
+										<span
+											className={styles.currency}
+										></span>
 										<input
 											aria-label="amount left"
 											type="text"
 											defaultValue={getBenefits}
 											className={styles["amount-input"]}
 											onChange={(e) => {
-												setEditBenefits(parseInt(e.target.value));
+												setEditBenefits(
+													parseInt(e.target.value)
+												);
 											}}
 										/>
 									</div>
@@ -566,7 +811,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								</div>
 								<button
 									className={`${styles["check-history-btn"]} mt-3`}
-									onClick={() => handleCheckHistory(request.requester)}
+									onClick={() =>
+										handleCheckHistory(request.requester)
+									}
 								>
 									CHECK HISTORY
 								</button>
@@ -577,15 +824,29 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								<div className={styles["signature-section"]}>
 									<div className={styles["upload-box"]}>
 										{signatureImage ? (
-											<div className={styles["signature-preview"]}>
+											<div
+												className={
+													styles["signature-preview"]
+												}
+											>
 												<img
 													src={signatureImage}
 													alt="Signature"
-													className={styles["uploaded-signature"]}
+													className={
+														styles[
+															"uploaded-signature"
+														]
+													}
 												/>
 												<button
-													className={styles["remove-signature-btn"]}
-													onClick={handleRemoveSignature}
+													className={
+														styles[
+															"remove-signature-btn"
+														]
+													}
+													onClick={
+														handleRemoveSignature
+													}
 													title="Remove signature"
 												>
 													x
@@ -593,9 +854,14 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 											</div>
 										) : (
 											<>
-												<p>Please attach signature here.</p>
+												<p>
+													Please attach signature
+													here.
+												</p>
 												<button
-													className={styles["upload-btn"]}
+													className={
+														styles["upload-btn"]
+													}
 													onClick={handleUploadClick}
 												>
 													UPLOAD
@@ -603,22 +869,40 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 												<input
 													type="file"
 													ref={fileInputRef}
-													className={styles["hidden-file-input"]}
+													className={
+														styles[
+															"hidden-file-input"
+														]
+													}
 													accept="image/*"
 													onChange={handleFileChange}
 												/>
 											</>
 										)}
 									</div>
-									<div className={styles["signature-details"]}>
+									<div
+										className={styles["signature-details"]}
+									>
 										<input
 											type="text"
-											className={styles["signature-name-input"]}
+											className={
+												styles["signature-name-input"]
+											}
 											defaultValue="Emerito C. Gonzales"
 											aria-label="USTFU President"
 										/>
-										<p className={styles["signature-title"]}>USTFU PRESIDENT</p>
-										<p className={styles["signature-subtitle"]}>
+										<p
+											className={
+												styles["signature-title"]
+											}
+										>
+											USTFU PRESIDENT
+										</p>
+										<p
+											className={
+												styles["signature-subtitle"]
+											}
+										>
 											OR AUTHORIZED REPRESENTATIVE
 										</p>
 									</div>
@@ -631,114 +915,10 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		);
 	};
 
-	// Apply all filters to the requests
-	const applyFilters = (requests: PendingRequest[]) => {
-		return requests.filter((request) => {
-			if (!request) return false;
-
-			// Type filter (form type)
-			// Fix: Check formType instead of origFormType and handle hospital forms correctly
-			const matchesType =
-				selectedType === "All" ||
-				request.formData?.formType?.toLowerCase() === selectedType ||
-				// For hospital forms, check if it's inpatient or outpatient
-				(selectedType === "hospital" &&
-					request.formData?.formType === "hospital") ||
-				// For specific hospital types
-				(request.formData?.formType === "hospital" &&
-					((selectedType === "inpatient" &&
-						request.formData?.hospitalStatus
-							?.toLowerCase()
-							?.includes("in-patient")) ||
-						(selectedType === "outpatient" &&
-							request.formData?.hospitalStatus
-								?.toLowerCase()
-								?.includes("out-patient"))));
-
-			// Search query (unchanged)
-			const matchesSearch =
-				!searchQuery.trim() ||
-				request.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				request.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				request.status?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				request.studentId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				request.requester?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				request.transactionId
-					?.toLowerCase()
-					.includes(searchQuery.toLowerCase()) ||
-				request.formData?.firstname
-					?.toLowerCase()
-					.includes(searchQuery.toLowerCase()) ||
-				request.formData?.lastname
-					?.toLowerCase()
-					.includes(searchQuery.toLowerCase()) ||
-				request.formData?.middlename
-					?.toLowerCase()
-					.includes(searchQuery.toLowerCase());
-
-			// Other filters (unchanged)
-			const matchesFilters = filters.every((filter) => {
-				const [filterType, filterValue] = filter.split(": ");
-
-				if (filterType === "College") {
-					return filterValue.split(", ").includes(request.formData?.college);
-				} else if (filterType === "Status") {
-					return filterValue.split(", ").includes(request.formData?.status);
-				} else if (filterType === "Date") {
-					// Handle date filter
-					const [startDateStr, endDateStr] = filterValue.split(" - ");
-					const [startMonth, startDay, startYear] = startDateStr.split("/");
-					const [endMonth, endDay, endYear] = endDateStr.split("/");
-
-					const startDate = new Date(
-						parseInt(startYear),
-						parseInt(startMonth) - 1,
-						parseInt(startDay)
-					);
-
-					const endDate = new Date(
-						parseInt(endYear),
-						parseInt(endMonth) - 1,
-						parseInt(endDay),
-						23,
-						59,
-						59
-					);
-
-					const requestDate = request.dateSubmitted
-						? new Date(request.dateSubmitted)
-						: null;
-					return requestDate
-						? requestDate >= startDate && requestDate <= endDate
-						: false;
-				}
-				return true;
-			});
-
-			return matchesType && matchesSearch && matchesFilters;
-		});
-	};
-
-	// Apply filters to get filtered requests
-	const filteredRequests = applyFilters(pendingRequests);
-
-	// Calculate pagination for filtered results
-	const totalFilteredPages = Math.max(
-		1,
-		Math.ceil(filteredRequests.length / recordsPerPage)
-	);
-
-	// Get current page's records for display
-	const indexOfLastRecord = clientCurrentPage * recordsPerPage;
-	const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-	const currentFilteredRecords = filteredRequests.slice(
-		indexOfFirstRecord,
-		indexOfLastRecord
-	);
-
 	// For debugging - let's see what data we're getting
 	console.log("Original requests count:", pendingRequests.length);
 	console.log("Filtered requests count:", filteredRequests.length);
+	console.log("Sorted by:", sortOrder);
 	console.log("Records per page:", recordsPerPage);
 	console.log("Total filtered pages:", totalFilteredPages);
 	console.log("Current page:", clientCurrentPage);
@@ -767,7 +947,10 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			<div className={styles["pending-requests"]}>
 				<div className={styles["empty-state"]}>
 					<h3>No pending requests</h3>
-					<p>There are no requests waiting for your approval at this time.</p>
+					<p>
+						There are no requests waiting for your approval at this
+						time.
+					</p>
 				</div>
 			</div>
 		);
@@ -775,8 +958,8 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 	return (
 		<div className={styles["pending-requests"]}>
-			{filteredRequests.length > 0 ? (
-				// Map through the current page of filtered records
+			{sortedRequests.length > 0 ? (
+				// Map through the current page of sorted records
 				currentFilteredRecords.map((request) => (
 					<div
 						key={request.transactionId}
@@ -784,9 +967,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 					>
 						<div
 							className={`${styles["request-header"]} ${
-								expandedId === request.transactionId ? styles.expanded : ""
+								expandedId === request.transactionId
+									? styles.expanded
+									: ""
 							} ${
-								unreadTransactionIds?.includes(request.transactionId)
+								unreadTransactionIds?.includes(
+									request.transactionId
+								)
 									? styles.highlight
 									: ""
 							}`}
@@ -804,15 +991,19 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 							<div className={styles["header-content"]}>
 								<div className={styles["header-item"]}>
 									<span className={styles["request-type"]}>
-										{request.formData?.formType === "hospital"
+										{request.formData?.formType ===
+										"hospital"
 											? "Hospital"
-											: request.formData?.formType}
+											: request.formData?.formType ||
+											  "Unknown"}
 									</span>
 								</div>
 
 								{/* Date */}
 								<div className={styles["header-item"]}>
-									<span className={styles["header-label"]}>Date</span>
+									<span className={styles["header-label"]}>
+										Date
+									</span>
 									<span className={styles["header-value"]}>
 										{request.dateSubmitted}
 									</span>
@@ -820,7 +1011,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 								{/* Requester */}
 								<div className={styles["header-item"]}>
-									<span className={styles["header-label"]}>Requester</span>
+									<span className={styles["header-label"]}>
+										Requester
+									</span>
 									<span className={styles["header-value"]}>
 										{request.requester}
 									</span>
@@ -828,7 +1021,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 								{/* Transaction ID */}
 								<div className={styles["header-item"]}>
-									<span className={styles["header-label"]}>Transaction ID</span>
+									<span className={styles["header-label"]}>
+										Transaction ID
+									</span>
 									<span className={styles["header-value"]}>
 										{request.transactionId}
 									</span>
@@ -849,24 +1044,44 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 							<div className={styles["request-content"]}>
 								{/* Move "done as" to appear under the main title */}
 								<h3>
-									{request.formData?.formType === "hospital" ? (
+									{request.formData?.formType ===
+									"hospital" ? (
 										<>
-											{request.formData?.hospitalStatus?.toLowerCase() ===
-											"in-patient"
-												? "INPATIENT"
-												: request.formData?.hospitalStatus?.toLowerCase() ===
-												  "out-patient"
-												? "OUTPATIENT"
-												: "HOSPITAL"}{" "}
-											SUBMITTED FORM DETAILS
-											{request.formData?.hospitalStatus && (
-												<span className={styles["done-as-subtitle"]}>
-													(done as {request.formData?.hospitalStatus})
-												</span>
+											{isHospitalFormData(
+												request.formData
+											) && (
+												<>
+													{request.formData.hospitalStatus?.toLowerCase() ===
+													"in-patient"
+														? "INPATIENT"
+														: request.formData.hospitalStatus?.toLowerCase() ===
+														  "out-patient"
+														? "OUTPATIENT"
+														: "HOSPITAL"}{" "}
+													SUBMITTED FORM DETAILS
+													{request.formData
+														.hospitalStatus && (
+														<span
+															className={
+																styles[
+																	"done-as-subtitle"
+																]
+															}
+														>
+															(done as{" "}
+															{
+																request.formData
+																	.hospitalStatus
+															}
+															)
+														</span>
+													)}
+												</>
 											)}
 										</>
 									) : (
-										request.formData?.formType?.toUpperCase()
+										request.formData?.formType?.toUpperCase() ||
+										"UNKNOWN"
 									)}
 								</h3>
 
@@ -876,50 +1091,81 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 								<hr></hr>
 								<div className={styles["approval-section"]}>
-									<h4 className={styles["section-header"]}>APPROVAL STEP</h4>
+									<h4 className={styles["section-header"]}>
+										APPROVAL STEP
+									</h4>
 
-									<div className={styles["approval-actions-container"]}>
-										<div className={styles["approval-actions"]}>
+									<div
+										className={
+											styles["approval-actions-container"]
+										}
+									>
+										<div
+											className={
+												styles["approval-actions"]
+											}
+										>
 											<button
 												className={`${
 													styles["approve-btn"]
 												} d-flex align-items-center justify-content-center ${
-													activeDecision === "approval" ? styles.selected : ""
+													activeDecision ===
+													"approval"
+														? styles.selected
+														: ""
 												}`}
-												onClick={() => handleAction("approval")}
+												onClick={() =>
+													handleAction("approval")
+												}
 											>
 												<FiCheck size={25} />
-												<span className="ms-2">Approve</span>
+												<span className="ms-2">
+													Approve
+												</span>
 											</button>
 											<button
 												className={`${
 													styles["reject-btn"]
 												} d-flex align-items-center justify-content-center ${
-													activeDecision === "rejection" ? styles.selected : ""
+													activeDecision ===
+													"rejection"
+														? styles.selected
+														: ""
 												}`}
-												onClick={() => handleAction("rejection")}
+												onClick={() =>
+													handleAction("rejection")
+												}
 											>
 												<HiOutlineX size={25} />
-												<span className="ms-2">Reject</span>
+												<span className="ms-2">
+													Reject
+												</span>
 											</button>
 											<button
 												className={`${
 													styles["revise-btn"]
 												} d-flex align-items-center justify-content-center ${
-													activeDecision === "for revision"
+													activeDecision ===
+													"for revision"
 														? styles.selected
 														: ""
 												}`}
-												onClick={() => handleAction("for revision")}
+												onClick={() =>
+													handleAction("for revision")
+												}
 											>
 												<FiEdit2 size={23} />
-												<span className="ms-2">To Revise</span>
+												<span className="ms-2">
+													To Revise
+												</span>
 											</button>
 										</div>
 
 										{showCommentBox && (
 											<textarea
-												className={styles["comment-box"]}
+												className={
+													styles["comment-box"]
+												}
 												placeholder={showCommentBox}
 												onChange={handleTextArea}
 											/>
@@ -927,14 +1173,24 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 										<div className={styles["send-section"]}>
 											<div className={styles["send-box"]}>
-												<p className={styles["send-note"]}>
-													** Clicking the send button will finalize the decision
-													and notify the requester. This action is irreversible.
+												<p
+													className={
+														styles["send-note"]
+													}
+												>
+													** Clicking the send button
+													will finalize the decision
+													and notify the requester.
+													This action is irreversible.
 												</p>
 												<button
-													className={styles["send-btn"]}
+													className={
+														styles["send-btn"]
+													}
 													onClick={() => {
-														handleSendClick(request.transactionId);
+														handleSendClick(
+															request.transactionId
+														);
 													}}
 												>
 													SEND
@@ -952,13 +1208,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			)}
 
 			{/* Updated pagination layout */}
-			{filteredRequests.length > 0 && (
+			{sortedRequests.length > 0 && (
 				<div className={styles.paginationContainer}>
 					{/* Record info moved to the side */}
 					<div className={styles.recordInfo}>
 						Showing {indexOfFirstRecord + 1} to{" "}
-						{Math.min(indexOfLastRecord, filteredRequests.length)} of{" "}
-						{filteredRequests.length} results
+						{Math.min(indexOfLastRecord, sortedRequests.length)} of{" "}
+						{sortedRequests.length} results
 					</div>
 
 					{/* Page buttons centered in their own container */}

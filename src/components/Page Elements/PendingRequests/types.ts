@@ -1,25 +1,34 @@
-export type FileData = {
-	url: string;
+// Define the attachment type for consistent structure
+export interface FormAttachment {
 	filename: string;
-};
+	url?: string;
+	contentType?: string;
+}
 
-export type BaseFormData = {
+export type FileData = FormAttachment; // Alias for backward compatibility
+
+export interface BaseFormData {
 	lastname?: string;
 	firstname?: string;
 	middlename?: string;
 	suffix?: string | null;
 	age?: number;
-	gender?: "Male" | "Female";
-	contact?: number;
+	gender?: string;
+	contact?: string;
 	college?: string;
-	employeeID?: FileData;
-	applicantSignature?: FileData;
+	status?: string;
+	employeeID?: FormAttachment;
+	applicantSignature?: FormAttachment;
 	claimRequestCount?: number;
-};
-
-export type HospitalFormData = BaseFormData & {
-	formType?: "hospital";
+	formType?: string;
 	origFormType?: string;
+	docRequest?: FormAttachment;
+	hospitalInvoice?: FormAttachment;
+	labInvoice?: FormAttachment;
+}
+
+export interface HospitalFormData extends BaseFormData {
+	formType: "hospital";
 	hospital?: string;
 	illness?: string;
 	physician?: string;
@@ -29,46 +38,46 @@ export type HospitalFormData = BaseFormData & {
 	year?: string;
 	load?: number;
 	status?: string;
-	dateHired?: Date | null;
-	dateRetired?: Date | null;
+	dateHired?: Date | string | null;
+	dateRetired?: Date | string | null;
 	benefits?: string;
 	hmo?: string | null;
-	docRequest?: FileData;
-	hospitalInvoice?: FileData;
-	labInvoice?: FileData;
-	hospitalStatus?: "In-Patient" | "Out-Patient" | "ER Consultation";
-	certify?: "Yes" | "No";
-};
+	hospitalStatus?: string;
+	certify?: string;
+}
 
-export type EyeglassesFormData = BaseFormData & {
-	formType?: "eyeglasses";
+export interface EyeglassesFormData extends BaseFormData {
+	formType: "eyeglasses";
 	ORNumber?: string;
 	issuedBy?: string;
-	amountPaid?: number;
-};
+	amountPaid?: string;
+}
 
-export type AdmissionFormData = BaseFormData & {
-	formType?: "admission";
-	load?: string;
+export interface AdmissionFormData extends BaseFormData {
+	formType: "admission";
+	idNumber?: string;
+	address?: string;
+	load?: number;
 	status?: string;
-	docRequest?: FileData;
-	hospitalInvoice?: FileData;
-	labInvoice?: FileData;
-};
+	dateHired?: Date | string | null;
+	dateRetired?: Date | string | null;
+}
 
 export type FormData =
 	| HospitalFormData
 	| EyeglassesFormData
 	| AdmissionFormData;
 
-export type PendingRequest = {
-	[x: string]: any;
+export interface PendingRequest {
+	id?: string;
 	transactionId: string;
+	name?: string;
 	requester: string;
-	dateSubmitted: string;
-	status: "pending" | "approved" | "rejected" | "revision";
+	status: string;
+	dateSubmitted?: string;
 	formData?: FormData;
-};
+	studentId?: string;
+}
 
 export type Archive = PendingRequest;
 
@@ -77,8 +86,8 @@ export interface Record {
 	transactionID: string;
 	typeOfForm: string;
 	status: string;
-	formData?: any; // Make optional
-	dateSubmitted?: string; // Make optional
-	DateDecided?: { toDate: () => Date }; // Make optional
+	formData?: FormData;
+	dateSubmitted?: string;
+	DateDecided?: { toDate: () => Date } | Date;
 	requester: string;
 }

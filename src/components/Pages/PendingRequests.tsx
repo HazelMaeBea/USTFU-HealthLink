@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import PendingRequestList from "../Page Elements/PendingRequests/PendingRequestsList";
-import { FiSearch, FiFilter, FiPlus, FiX, FiClock } from "react-icons/fi";
+import { FiSearch, FiPlus, FiX, FiClock } from "react-icons/fi";
+import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
 import historyStyles from "../Page Elements/HistoryPage/HistoryPage.module.css";
 import styles from "./PendingRequests.module.css";
 
@@ -13,6 +14,9 @@ const PendingRequests: React.FC = () => {
 	const [showFormTypeDropdown, setShowFormTypeDropdown] = useState(false);
 	const [showClearAllConfirmation, setShowClearAllConfirmation] =
 		useState(false);
+	// Add sort order state
+	const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+	const [showSortDropdown, setShowSortDropdown] = useState(false);
 
 	// Add proper date range state
 	const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
@@ -24,6 +28,7 @@ const PendingRequests: React.FC = () => {
 	// Refs for the dropdown containers
 	const formTypeDropdownRef = useRef<HTMLDivElement>(null);
 	const filterDropdownRef = useRef<HTMLDivElement>(null);
+	const sortDropdownRef = useRef<HTMLDivElement>(null);
 
 	// Close dropdowns when clicking outside
 	useEffect(() => {
@@ -42,6 +47,14 @@ const PendingRequests: React.FC = () => {
 				!filterDropdownRef.current.contains(event.target as Node)
 			) {
 				setShowFilterOptions(false);
+			}
+
+			// Close sort dropdown when clicking outside
+			if (
+				sortDropdownRef.current &&
+				!sortDropdownRef.current.contains(event.target as Node)
+			) {
+				setShowSortDropdown(false);
 			}
 		}
 
@@ -302,6 +315,72 @@ const PendingRequests: React.FC = () => {
 						</div>
 
 						<div className={historyStyles.filterButtonContainer}>
+							{/* Sort Order Toggle Button - Updated with conditional class */}
+							<div
+								className={styles.sortToggleContainer}
+								ref={sortDropdownRef}
+							>
+								<button
+									className={`${styles.sortToggleBtn} ${
+										sortOrder === "oldest"
+											? styles.oldest
+											: ""
+									}`}
+									onClick={() =>
+										setShowSortDropdown(!showSortDropdown)
+									}
+									title={`Sort by ${sortOrder}`}
+								>
+									{sortOrder === "newest" ? (
+										<>
+											<FaSortAmountDown size={14} />
+											<span>Newest</span>
+										</>
+									) : (
+										<>
+											<FaSortAmountUp size={14} />
+											<span>Oldest</span>
+										</>
+									)}
+								</button>
+								{showSortDropdown && (
+									<div className={styles.sortToggleDropdown}>
+										<div
+											className={`${
+												styles.sortToggleOption
+											} ${
+												sortOrder === "newest"
+													? styles.selected
+													: ""
+											}`}
+											onClick={() => {
+												setSortOrder("newest");
+												setShowSortDropdown(false);
+											}}
+										>
+											<FaSortAmountDown size={14} />
+											<span>Newest First</span>
+										</div>
+										<div
+											className={`${
+												styles.sortToggleOption
+											} ${
+												sortOrder === "oldest"
+													? styles.selected
+													: ""
+											}`}
+											onClick={() => {
+												setSortOrder("oldest");
+												setShowSortDropdown(false);
+											}}
+										>
+											<FaSortAmountUp size={14} />
+											<span>Oldest First</span>
+										</div>
+									</div>
+								)}
+							</div>
+
 							{availableFilters.length > 0 && (
 								<div
 									className={
@@ -349,11 +428,12 @@ const PendingRequests: React.FC = () => {
 				</div>
 
 				<div className={styles.pendingRequestsContent}>
-					{/* Render the pending requests list */}
+					{/* Render the pending requests list with sort order */}
 					<PendingRequestList
 						searchQuery={searchQuery}
 						selectedType={selectedType}
 						filters={filters}
+						sortOrder={sortOrder}
 					/>
 				</div>
 			</div>

@@ -679,10 +679,10 @@ form-admission-row-grid {
 	flex-shrink: 0;
 }
 
-/* Sort order toggle styling NOT YET IMPLEMENTED*/
+/* Sort order toggle styling - IMPLEMENTED */
 .sortToggleContainer {
 	position: relative;
-	margin-left: 1rem;
+	margin-right: 0.75rem;
 	flex-shrink: 0;
 }
 
