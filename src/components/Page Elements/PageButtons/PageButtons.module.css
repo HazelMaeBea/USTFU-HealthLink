@@ -1,11 +1,11 @@
-.page-buttons-wrapper {
+.pageButtonsWrapper {
 	width: 100%;
 	text-align: left;
 	padding: 20px 30px 20px 20px;
 	box-sizing: border-box;
 }
 
-.page-buttons {
+.pageButtons {
 	display: inline-flex;
 	justify-content: flex-end;
 	align-items: center;
@@ -18,8 +18,8 @@
 	margin: 0;
 }
 
-.prev-button,
-.next-button {
+.prevButton,
+.nextButton {
 	border-radius: 50%;
 	min-width: 36px;
 	min-height: 36px;
@@ -31,29 +31,29 @@
 	transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
 }
 
-.prev-button {
+.prevButton {
 	background-color: white;
 }
 
-.prev-button:hover {
+.prevButton:hover {
 	background: #e0e0e0;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.next-button:hover {
+.nextButton:hover {
 	background: hsl(210, 10%, 23%);
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.page-input-container {
+.pageInputContainer {
 	position: relative;
 	display: inline-block;
 }
 
-.current-page-input {
-	width: 60px;
+.currentPageInput {
+	width: 60px; /* Default width for single digits */
 	text-align: center;
-	padding-right: 40px;
+	padding-right: 45px; /* Space for "of X" */
 	background: #f0f0f0;
 	color: #000;
 	border: none;
@@ -63,13 +63,20 @@
 	appearance: none;
 	font-size: 16px;
 	z-index: 1;
+	transition: width 0.2s ease; /* Smooth transition when width changes */
 }
 
-.current-page-input:focus {
+/* Class for multi-digit numbers */
+.multiDigit {
+	width: 80px; /* Wider for double or triple digits */
+	padding-right: 55px; /* More space for "of X" with wider input */
+}
+
+.currentPageInput:focus {
 	outline: none;
 }
 
-.page-input-suffix {
+.pageInputSuffix {
 	position: absolute;
 	right: 10px;
 	top: 50%;
@@ -80,23 +87,28 @@
 }
 
 @media (max-width: 480px) {
-	.page-buttons-wrapper {
+	.pageButtonsWrapper {
 		padding: 10px 15px;
 	}
-	.page-buttons {
+	.pageButtons {
 		gap: 5px;
 		padding: 5px 10px;
 	}
-	.prev-button,
-	.next-button {
+	.prevButton,
+	.nextButton {
 		min-width: 30px;
 		min-height: 30px;
 		padding: 3px;
 	}
-	.current-page-input {
+	.currentPageInput {
 		width: 50px;
+		padding-right: 40px;
 	}
-	.page-input-suffix {
+	.multiDigit {
+		width: 65px;
+		padding-right: 45px;
+	}
+	.pageInputSuffix {
 		font-size: 0.8em;
 	}
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./PageButtons.css";
+import styles from "./PageButtons.module.css";
 
 import {
 	MdOutlineKeyboardArrowLeft,
@@ -41,11 +41,14 @@ const PageButtons: React.FC<PageButtonsProps> = ({
 		return () => clearTimeout(timeout);
 	}, [inputValue, currentPage, totalPages, onPageChange]);
 
+	// Determine if the input has multiple digits
+	const isMultiDigit = inputValue.length > 1;
+
 	return (
-		<div className="page-buttons-wrapper">
-			<div className="page-buttons">
+		<div className={styles.pageButtonsWrapper}>
+			<div className={styles.pageButtons}>
 				<button
-					className="prev-button"
+					className={styles.prevButton}
 					onClick={() =>
 						currentPage > 1 && onPageChange(currentPage - 1)
 					}
@@ -54,9 +57,11 @@ const PageButtons: React.FC<PageButtonsProps> = ({
 				>
 					<MdOutlineKeyboardArrowLeft color="black" size={20} />
 				</button>
-				<div className="page-input-container">
+				<div className={styles.pageInputContainer}>
 					<input
-						className="current-page-input"
+						className={`${styles.currentPageInput} ${
+							isMultiDigit ? styles.multiDigit : ""
+						}`}
 						type="text"
 						value={inputValue}
 						onChange={(e) => setInputValue(e.target.value)}
@@ -67,10 +72,13 @@ const PageButtons: React.FC<PageButtonsProps> = ({
 						}}
 						placeholder={currentPage.toString()}
 					/>
-					<span className="page-input-suffix"> of {totalPages}</span>
+					<span className={styles.pageInputSuffix}>
+						{" "}
+						of {totalPages}
+					</span>
 				</div>
 				<button
-					className="next-button"
+					className={styles.nextButton}
 					onClick={() =>
 						currentPage < totalPages &&
 						onPageChange(currentPage + 1)
