@@ -1,33 +1,28 @@
-import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
+import React, {
+	useState,
+	useEffect,
+	Dispatch,
+	SetStateAction,
+	useCallback,
+} from "react";
 import {
 	UseFormRegister,
 	FieldErrors,
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { HospitalFormData } from "../../PendingRequests/types";
-// import { FormData } from "./EyeglassesForm";
-
-// interface FormPersonalInfoProps {
-// 	register: UseFormRegister<FormData>;
-// 	errors: FieldErrors<FormData>;
-// 	setValue: UseFormSetValue<FormData>;
-// 	watch: UseFormWatch<FormData>;
-// 	phoneInputValue?: string;
-// 	setPhoneInputValue?: Dispatch<SetStateAction<string>>;
-// }
+import { UnifiedFormData } from "./formTypes";
 
 interface FormPersonalInfoProps {
-	register: UseFormRegister<HospitalFormData>;
-	errors: FieldErrors<HospitalFormData>;
-	setValue: UseFormSetValue<HospitalFormData>;
-	watch: UseFormWatch<HospitalFormData>;
+	register: UseFormRegister<UnifiedFormData>;
+	errors: FieldErrors<UnifiedFormData>;
+	setValue: UseFormSetValue<UnifiedFormData>;
+	watch: UseFormWatch<UnifiedFormData>;
 	phoneInputValue?: string;
 	setPhoneInputValue?: Dispatch<SetStateAction<string>>;
 }
 
 const suffixOptions = ["Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"];
-const genderOptions = ["Male", "Female"];
 const collegeOptions = [
 	"College of Accountancy",
 	"College of Architecture",
@@ -65,34 +60,40 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 	const phoneInputValue = externalPhoneValue || localPhoneInputValue;
 	const setPhoneInputValue = externalSetPhoneValue || setLocalPhoneInputValue;
 
-	const contactValue = watch("contact");
+	// Use the watch function to get all form values instead of watching just "contact"
+	const formValues = watch();
+	const contactValue = formValues.contact;
+
+	// Memoize formatPhoneNumberDisplay with useCallback
+	const formatPhoneNumberDisplay = useCallback(
+		(value: string) => {
+			if (value.startsWith("+63+63")) {
+				value = "+63" + value.substring(6);
+			} else if (!value.startsWith("+63")) {
+				value = "+63" + value.replace(/^63/, "");
+			}
+
+			let formattedValue = value;
+
+			if (value.length > 3) {
+				const mainNumber = value.substring(3);
+				const formatted = mainNumber.replace(
+					/(\d{3})(\d{3})(\d+)/,
+					"$1-$2-$3"
+				);
+				formattedValue = "+63-" + formatted;
+			}
+
+			setPhoneInputValue(formattedValue);
+		},
+		[setPhoneInputValue]
+	);
 
 	useEffect(() => {
 		if (contactValue && !isPhoneFocused) {
 			formatPhoneNumberDisplay(contactValue.toString());
 		}
-	}, [contactValue, isPhoneFocused]);
-
-	const formatPhoneNumberDisplay = (value: string) => {
-		if (value.startsWith("+63+63")) {
-			value = "+63" + value.substring(6);
-		} else if (!value.startsWith("+63")) {
-			value = "+63" + value.replace(/^63/, "");
-		}
-
-		let formattedValue = value;
-
-		if (value.length > 3) {
-			const mainNumber = value.substring(3);
-			const formatted = mainNumber.replace(
-				/(\d{3})(\d{3})(\d+)/,
-				"$1-$2-$3"
-			);
-			formattedValue = "+63-" + formatted;
-		}
-
-		setPhoneInputValue(formattedValue);
-	};
+	}, [contactValue, isPhoneFocused, formatPhoneNumberDisplay]);
 
 	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		let value = e.target.value;
@@ -129,9 +130,13 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 
 		if (digitsOnly.length > 3) {
 			const numericValue = parseInt(digitsOnly.substring(3), 10);
-			setValue("contact", numericValue, { shouldValidate: true });
+			setValue("contact" as keyof UnifiedFormData, numericValue, {
+				shouldValidate: true,
+			});
 		} else {
-			setValue("contact", undefined as any, { shouldValidate: true });
+			setValue("contact" as keyof UnifiedFormData, null, {
+				shouldValidate: true,
+			});
 		}
 
 		if (!isBackspace && e.target.selectionStart !== null) {
@@ -173,13 +178,16 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 		}
 	};
 
+	// Get the register result for "contact" safely
+	const contactRegister = register("contact" as keyof UnifiedFormData);
+
 	const {
 		name: contactName,
 		ref: contactRef,
 		onChange: contactOnChange,
 		onBlur: contactOnBlur,
 		...contactRest
-	} = register("contact");
+	} = contactRegister;
 
 	return (
 		<fieldset className="PersonalInfo">
@@ -196,7 +204,9 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						placeholder="e.g. Doe..."
 					/>
 					{errors.lastname && (
-						<p className="text-danger">{errors.lastname.message}</p>
+						<p className="text-danger">
+							{errors.lastname.message as string}
+						</p>
 					)}
 				</div>
 
@@ -213,7 +223,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 					/>
 					{errors.firstname && (
 						<p className="text-danger">
-							{errors.firstname.message}
+							{errors.firstname.message as string}
 						</p>
 					)}
 				</div>
@@ -231,7 +241,7 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 					/>
 					{errors.middlename && (
 						<p className="text-danger">
-							{errors.middlename.message}
+							{errors.middlename.message as string}
 						</p>
 					)}
 				</div>
@@ -276,7 +286,9 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						placeholder="35..."
 					/>
 					{errors.age && (
-						<p className="text-danger">{errors.age.message}</p>
+						<p className="text-danger">
+							{errors.age.message as string}
+						</p>
 					)}
 				</div>
 
@@ -296,7 +308,9 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						<option value="Female">Female</option>
 					</select>
 					{errors.gender && (
-						<p className="text-danger">{errors.gender.message}</p>
+						<p className="text-danger">
+							{errors.gender.message as string}
+						</p>
 					)}
 				</div>
 
@@ -323,7 +337,9 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						))}
 					</select>
 					{errors.college && (
-						<p className="text-danger">{errors.college.message}</p>
+						<p className="text-danger">
+							{errors.college.message as string}
+						</p>
 					)}
 				</div>
 
@@ -354,7 +370,9 @@ const FormPersonalInfo: React.FC<FormPersonalInfoProps> = ({
 						{...contactRest}
 					/>
 					{errors.contact && (
-						<p className="text-danger">{errors.contact.message}</p>
+						<p className="text-danger">
+							{errors.contact.message as string}
+						</p>
 					)}
 				</div>
 			</div>

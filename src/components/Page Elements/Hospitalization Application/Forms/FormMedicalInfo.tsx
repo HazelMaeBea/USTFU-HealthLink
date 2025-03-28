@@ -1,17 +1,11 @@
 import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { HospitalFormData } from "../../PendingRequests/types";
+import { UnifiedFormData } from "./formTypes";
 
 interface FormMedicalInfoProps {
-	register: UseFormRegister<HospitalFormData>;
-	errors: FieldErrors<HospitalFormData>;
+	register: UseFormRegister<UnifiedFormData>;
+	errors: FieldErrors<UnifiedFormData>;
 }
-
-// import { FormData } from "./FormBody";
-// interface FormMedicalInfoProps {
-// 	register: UseFormRegister<FormData>;
-// 	errors: FieldErrors<FormData>;
-// }
 
 const procedureOptions = [
 	"Physical Therapy",
@@ -45,7 +39,9 @@ const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 						placeholder="e.g. UST Hospital..."
 					/>
 					{errors.hospital && (
-						<p className="text-danger">{errors.hospital.message}</p>
+						<p className="text-danger">
+							{errors.hospital.message as string}
+						</p>
 					)}
 				</div>
 				<div className="mb-1 col-md-6">
@@ -61,7 +57,9 @@ const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 						placeholder="e.g. Chronic Back Pain..."
 					/>
 					{errors.illness && (
-						<p className="text-danger">{errors.illness.message}</p>
+						<p className="text-danger">
+							{errors.illness.message as string}
+						</p>
 					)}
 				</div>
 				<div className="mb-1 col-md-3">
@@ -77,7 +75,7 @@ const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 					/>
 					{errors.physician && (
 						<p className="text-danger">
-							{errors.physician.message}
+							{errors.physician.message as string}
 						</p>
 					)}
 				</div>
@@ -104,7 +102,7 @@ const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 					</select>
 					{errors.procedures && (
 						<p className="text-danger">
-							{errors.procedures.message}
+							{errors.procedures.message as string}
 						</p>
 					)}
 				</div>
@@ -124,7 +122,7 @@ const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 					/>
 					{errors.procedureSpecify && (
 						<p className="text-danger">
-							{errors.procedureSpecify.message}
+							{errors.procedureSpecify.message as string}
 						</p>
 					)}
 				</div>

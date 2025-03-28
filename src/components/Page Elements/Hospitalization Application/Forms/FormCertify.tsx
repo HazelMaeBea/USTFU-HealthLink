@@ -1,16 +1,10 @@
 import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { HospitalFormData } from "../../PendingRequests/types";
-
-// import { FormData } from "./FormBody";
-// interface FormCertifyProps {
-//   register: UseFormRegister<FormData>;
-//   errors: FieldErrors<FormData>;
-// }
+import { UnifiedFormData } from "./formTypes";
 
 interface FormCertifyProps {
-	register: UseFormRegister<HospitalFormData>;
-	errors: FieldErrors<HospitalFormData>;
+	register: UseFormRegister<UnifiedFormData>;
+	errors: FieldErrors<UnifiedFormData>;
 }
 
 const FormCertify: React.FC<FormCertifyProps> = ({ register, errors }) => {
@@ -37,7 +31,9 @@ const FormCertify: React.FC<FormCertifyProps> = ({ register, errors }) => {
 				</label>
 			</div>
 			{errors.certify && (
-				<p className="text-danger">{errors.certify.message}</p>
+				<p className="text-danger">
+					{errors.certify.message as string}
+				</p>
 			)}
 		</fieldset>
 	);

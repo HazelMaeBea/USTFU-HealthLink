@@ -1,10 +1,10 @@
 import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { FormData } from "./FormBody";
+import { UnifiedFormData } from "./formTypes";
 
 interface FormSigIDFiles {
-	register: UseFormRegister<FormData>;
-	errors: FieldErrors<FormData>;
+	register: UseFormRegister<UnifiedFormData>;
+	errors: FieldErrors<UnifiedFormData>;
 }
 
 const FormSigIDFiles: React.FC<FormSigIDFiles> = ({ register, errors }) => {

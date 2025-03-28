@@ -1,16 +1,10 @@
 import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { HospitalFormData } from "../../PendingRequests/types";
-
-// import { FormData } from "./FormBody";
-// interface FormHospitalStatusProps {
-// 	register: UseFormRegister<FormData>;
-// 	errors: FieldErrors<FormData>;
-// }
+import { UnifiedFormData } from "./formTypes";
 
 interface FormHospitalStatusProps {
-	register: UseFormRegister<HospitalFormData>;
-	errors: FieldErrors<HospitalFormData>;
+	register: UseFormRegister<UnifiedFormData>;
+	errors: FieldErrors<UnifiedFormData>;
 }
 
 const hospitalStatusOptions = ["In-Patient", "Out-Patient", "ER Consultation"];
@@ -50,7 +44,7 @@ const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 				</div>
 				{errors.hospitalStatus && (
 					<p className="text-danger">
-						{errors.hospitalStatus.message}
+						{errors.hospitalStatus.message as string}
 					</p>
 				)}
 			</fieldset>

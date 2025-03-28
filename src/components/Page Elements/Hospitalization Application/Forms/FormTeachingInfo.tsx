@@ -1,33 +1,27 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, {
+	Dispatch,
+	SetStateAction,
+	useEffect,
+	useState,
+	useRef,
+} from "react";
 import {
 	UseFormRegister,
 	FieldErrors,
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { HospitalFormData } from "../../PendingRequests/types";
-
-// import { FormData } from "./FormBody";
-// interface FormTeachingInfoProps {
-// 	register: UseFormRegister<FormData>;
-// 	errors: FieldErrors<FormData>;
-// 	dateHired: Date | null;
-// 	setDateHired: Dispatch<SetStateAction<Date | null>>;
-// 	dateRetired: Date | null;
-// 	setDateRetired: Dispatch<SetStateAction<Date | null>>;
-// 	setValue?: UseFormSetValue<FormData>;
-// 	watch?: UseFormWatch<FormData>; // Add watch function to props
-// }
+import { UnifiedFormData } from "./formTypes"; // Change import to use UnifiedFormData
 
 interface FormTeachingInfoProps {
-	register: UseFormRegister<HospitalFormData>;
-	errors: FieldErrors<HospitalFormData>;
-	setValue: UseFormSetValue<HospitalFormData>;
-	watch: UseFormWatch<HospitalFormData>;
+	register: UseFormRegister<UnifiedFormData>; // Update type here
+	errors: FieldErrors<UnifiedFormData>; // Update type here
 	dateHired: Date | null;
-	setDateHired: React.Dispatch<React.SetStateAction<Date | null>>;
+	setDateHired: Dispatch<SetStateAction<Date | null>>;
 	dateRetired: Date | null;
-	setDateRetired: React.Dispatch<React.SetStateAction<Date | null>>;
+	setDateRetired: Dispatch<SetStateAction<Date | null>>;
+	setValue: UseFormSetValue<UnifiedFormData>; // Update type here
+	watch: UseFormWatch<UnifiedFormData>; // Update type here
 }
 
 const statusOptions = [
@@ -77,7 +71,6 @@ const getCurrentTerm = () => {
 const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	register,
 	errors,
-	dateHired,
 	setDateHired,
 	dateRetired,
 	setDateRetired,

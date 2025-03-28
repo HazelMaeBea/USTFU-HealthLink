@@ -1,18 +1,12 @@
 import React, { useState } from "react";
 import { UseFormRegister, FieldErrors, UseFormSetError } from "react-hook-form";
 import { validateFileListSize } from "../../../../utils/fileUpload";
-import { HospitalFormData } from "../../PendingRequests/types";
+import { UnifiedFormData } from "./formTypes";
 
-// import { FormData } from "./FormBody";
-// interface FormMedicalFilesProps {
-// 	register: UseFormRegister<FormData>;
-// 	errors: FieldErrors<FormData>;
-// 	setError?: UseFormSetError<FormData>;
-// }
 interface FormMedicalFilesProps {
-	register: UseFormRegister<HospitalFormData>;
-	errors: FieldErrors<HospitalFormData>;
-	setError?: UseFormSetError<HospitalFormData>;
+	register: UseFormRegister<UnifiedFormData>;
+	errors: FieldErrors<UnifiedFormData>;
+	setError?: UseFormSetError<UnifiedFormData>;
 }
 
 const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
@@ -40,6 +34,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 
 				// Set form error if setError is provided
 				if (setError) {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					setError(fieldName as any, {
 						type: "manual",
 						message: result.errorMessage,

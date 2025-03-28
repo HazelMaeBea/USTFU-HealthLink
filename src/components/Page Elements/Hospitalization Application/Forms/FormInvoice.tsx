@@ -5,14 +5,14 @@ import {
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { FormData } from "./EyeglassesForm";
+import { UnifiedFormData } from "./formTypes";
 import "./FormInvoice.css";
 
 interface FormInvoiceProps {
-	register: UseFormRegister<FormData>;
-	errors: FieldErrors<FormData>;
-	setValue: UseFormSetValue<FormData>;
-	watch: UseFormWatch<FormData>;
+	register: UseFormRegister<UnifiedFormData>;
+	errors: FieldErrors<UnifiedFormData>;
+	setValue: UseFormSetValue<UnifiedFormData>;
+	watch: UseFormWatch<UnifiedFormData>;
 }
 
 const FormInvoice: React.FC<FormInvoiceProps> = ({
@@ -60,10 +60,11 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({
 			setInputValue(cleanValue);
 
 			if (cleanValue && !isNaN(Number(cleanValue))) {
-				let numValue = parseFloat(cleanValue);
+				const numValue = parseFloat(cleanValue);
 				setValue("amountPaid", numValue);
 			} else if (cleanValue === "") {
-				setValue("amountPaid", undefined as any);
+				// Use null for empty values rather than undefined as any
+				setValue("amountPaid", null as unknown as number);
 			}
 		}
 	};
