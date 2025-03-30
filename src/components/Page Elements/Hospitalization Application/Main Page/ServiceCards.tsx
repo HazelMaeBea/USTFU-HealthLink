@@ -4,8 +4,47 @@ import inpatientIcon from "../../../../assets/inpatient.png";
 import admissionIcon from "../../../../assets/admission.png";
 import outpatientIcon from "../../../../assets/outpatient.png";
 import eyeglassesIcon from "../../../../assets/eyeglasses.png";
+import { useUser } from "../../../../contexts/userContext";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "../../../../config/firebase";
+import { differenceInYears } from "date-fns";
+import { useState } from "react";
 
 const ServiceCards = () => {
+  const { displayName } = useUser();
+  const usersRef = collection(db,'users');
+  const userQuery = query(usersRef, where("fullName", "==", displayName));
+  const [lastRequestFlag, setRequestFlag] = useState(false);
+  
+  onSnapshot(
+    userQuery,
+    (snapshot) => {
+      try {
+        if (!snapshot.empty) {
+          const doc = snapshot.docs[0];
+          const lastEyeglasses = doc.data().eyeglassesFlag.toMillis();
+          // const currentTime = Date.now() + 65995820897; //plus around 2 years to test if eyeglasses are requestable
+          const currentTime = Date.now();
+          const timeDifference = currentTime - lastEyeglasses;
+          const differenceInYears = timeDifference / (1000 * 60 * 60 * 24 * 365);
+          console.log(`Time difference in years: ${differenceInYears.toFixed(2)} years`);
+          if(differenceInYears >= 2)
+            setRequestFlag(true);
+          else
+            setRequestFlag(false);
+        } else {
+          console.log("No matching document found.");
+        }
+
+      } catch (error) {
+        console.error("An error occurred while processing the snapshot:", error);
+      }
+    },
+    (error) => {
+      console.error("An error occurred with the Firestore query:", error);
+    }
+  );
+  
   const navigate = useNavigate();
   const cards = [
     {
@@ -27,6 +66,7 @@ const ServiceCards = () => {
       title: "Eyeglasses Reimbursement Form",
       icon: eyeglassesIcon,
       path: "/home/eyeglasses", // Update paths to be relative to /home
+      disabled: lastRequestFlag,
     },
   ];
 
@@ -42,8 +82,12 @@ const ServiceCards = () => {
             className="card"
             key={index}
             onClick={() => {
-              console.log("Navigating to:", card.path); // Debug line to check paths
-              navigate(card.path); // Use the full path relative to /home
+              if (!card.disabled) {
+                console.log("Navigating to:", card.path);
+                navigate(card.path);
+              } else {
+                console.log(`${card.title} is disabled.`);
+              }
             }}
           >
             <img
