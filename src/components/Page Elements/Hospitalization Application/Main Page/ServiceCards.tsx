@@ -119,10 +119,10 @@ const ServiceCards = () => {
       </div>
       <Popout
         title="Sorry, you are unable to request for Eyeglasses Benefits at this time"
-        message="You've recently requested for Eyeglasses Benefits on: [INSERT DATE]. These benefits can only be availed once every 2 years."
+        message="You've recently requested for Eyeglasses Benefits on [INSERT DATE]. These benefits can only be availed once every 2 years."
         onConfirm={handleConfirm}
         onCancel={handleCancel}
-        isOpen={isPopoutOpen} // Pass in state as a prop
+        isOpen={isPopoutOpen}
       />
     </div>
   );
