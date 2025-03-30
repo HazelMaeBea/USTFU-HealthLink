@@ -23,6 +23,8 @@ import PendingRequestsLoadingSkeleton from "./PendingRequestsLoadingSkeleton";
 import unreadPending from "../NotifBadge/unreadPending";
 import useNotifications from "../NotifBadge/NotifTrigger";
 import { useFirebase } from "../../../contexts/firebaseContext";
+import { collection, getDocs} from "firebase/firestore";
+import { db } from "../../../config/firebase";
 
 interface PendingRequestListProps {
 	searchQuery?: string;
@@ -31,12 +33,47 @@ interface PendingRequestListProps {
 	sortOrder?: "newest" | "oldest";
 }
 
+interface BenefitsData {
+	fullName: string;
+	remainingBenefits: number;
+  }
+
 // Type guard function to check if formData is HospitalFormData
 function isHospitalFormData(
 	formData: FormData | undefined
 ): formData is HospitalFormData {
 	return formData?.formType === "hospital";
 }
+
+const [getAllBenefits, setAllBenefits] = useState<Record<string, number>>({});
+async function getUsersBenefits() {
+	const usersCollection = collection(db, "users");
+	const snapshot = await getDocs(usersCollection);
+  
+	const result: Record<string, BenefitsData["remainingBenefits"]> = {};
+
+	snapshot.forEach((doc) => {
+		const data = {
+			fullName: doc.data().fullName,
+			remainingBenefits: doc.data().personalInfo.remainingBenefits || doc.data().remainingBenefits || 0
+		} as BenefitsData
+
+		if (data.fullName && data.remainingBenefits !== undefined) {
+			result[data.fullName] = data.remainingBenefits;
+		}
+	});
+	return result;
+}
+
+useEffect(() => {
+	getUsersBenefits()
+	  .then((resolvedValue) => {
+		setAllBenefits(resolvedValue);
+	  })
+	  .catch((error) => {
+		console.error("Error resolving promise:", error);
+	  });
+  }, []); // Empty array ensures this runs only onc
 
 const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	searchQuery = "",
@@ -75,6 +112,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	// Hooks to access benefits
+
 	const [getBenefits, setBenefits] = useState<number>(0);
 	const [getEditBenefits, setEditBenefits] = useState<number>(1);
 	// Hooks to access submit fields
@@ -86,6 +124,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const [getCurrentUser, setCurrentUser] = useState<string | null>(null);
 	// Add validUntil state
 	const [validUntil, setValidUntil] = useState<string>("");
+
 
 	// for notifs
 	const { uid } = useFirebase();
@@ -312,7 +351,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			const updateStatus = getStatus || "pending";
 			// Include validUntil when updating the document
 			updateDocument(transID, textArea, updateStatus, validUntil);
-			if (getBenefits !== getEditBenefits) {
+			if (getAllBenefits[getCurrentUser || 'null'] !== getEditBenefits) {
 				await updateBenefits(getEditBenefits, getCurrentUser);
 			}
 
@@ -724,15 +763,17 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	};
 
 	const renderHospitalCertification = (request: PendingRequest) => {
-		if (!request.formData || !isHospitalFormData(request.formData))
-			return null;
-		getRemainingBenefits(request.requester)
-			.then((result) => {
-				setBenefits(result);
-			})
-			.catch((error) => {
-				console.error("Error fetching remainingBenefits:", error);
-			});
+		// if (!request.formData || !isHospitalFormData(request.formData))
+		// 	return null;
+		// getRemainingBenefits(request.requester)
+		// 	.then((result) => {
+		// 		setBenefits(result);
+		// 	})
+		// 	.catch((error) => {
+		// 		console.error("Error fetching remainingBenefits:", error);
+		// 	});
+
+		// const remainingBenefits = getUsersBenefits()
 
 		return (
 			<>
@@ -804,7 +845,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										<input
 											aria-label="amount left"
 											type="text"
-											defaultValue={getBenefits}
+											defaultValue={getAllBenefits[request.requester]}
 											className={styles["amount-input"]}
 											onChange={(e) => {
 												setEditBenefits(
