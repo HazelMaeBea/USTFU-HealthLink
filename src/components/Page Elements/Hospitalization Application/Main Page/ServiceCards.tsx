@@ -38,11 +38,14 @@ const ServiceCards = () => {
           if (doc.data().eyeglassesFlag !== undefined) {
             const eyeglassDate = doc.data().eyeglassesFlag
             const eyeglassDateMils = eyeglassDate.toMillis();
+            const twoYearsInMillis = 2 * 365 * 24 * 60 * 60 * 1000; // 2 years in milliseconds
+            const updatedEyeglassDateMils = eyeglassDateMils + twoYearsInMillis;
+
             // const currentTime = Date.now() + 65995820897; //plus around 2 years to test if eyeglasses are requestable
             const currentTime = Date.now();
             const timeDifference = currentTime - eyeglassDateMils;
             const differenceInYears = timeDifference / (1000 * 60 * 60 * 24 * 365);
-            console.log(`Time difference in years: ${differenceInYears.toFixed(2)} years`);
+            // console.log(`Time difference in years: ${differenceInYears} years`);
             const oldFormattedDate = eyeglassDate.toDate().toLocaleDateString("en-US", {
               timeZone: "Asia/Manila",
               month: "long",
@@ -50,7 +53,7 @@ const ServiceCards = () => {
               year: "numeric"
             }) as string;
             setOldEyeglassesDate(oldFormattedDate)
-            const newFormattedDate = new Date(currentTime + 65995820897).toLocaleDateString("en-US", {
+            const newFormattedDate = new Date(updatedEyeglassDateMils).toLocaleDateString("en-US", {
               timeZone: "Asia/Manila",
               month: "long",
               day: "numeric",
@@ -134,7 +137,7 @@ const ServiceCards = () => {
         ))}
       </div>
       <Popout
-        title="Sorry, you are unable to request for Eyeglasses Benefits at this time [Pls help me design this popup]"
+        title="Sorry, you are unable to request for Eyeglasses Benefits at this time [PLS help with this popup ang panget ng two buttons sa baba]"
         message={"You've recently requested for Eyeglasses Benefits on " + oldEyeglassesDate + ". These benefits can only be availed once every 2 years. You may next avail on " + newEyeglassesDate}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
