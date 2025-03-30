@@ -7,14 +7,26 @@ import eyeglassesIcon from "../../../../assets/eyeglasses.png";
 import { useUser } from "../../../../contexts/userContext";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../../../../config/firebase";
-import { differenceInYears } from "date-fns";
 import { useState } from "react";
+import Popout from "../../Popout/Popout";
 
 const ServiceCards = () => {
   const { displayName } = useUser();
   const usersRef = collection(db,'users');
   const userQuery = query(usersRef, where("fullName", "==", displayName));
   const [lastRequestFlag, setRequestFlag] = useState(false);
+  const [isPopoutOpen, setPopoutOpen] = useState<boolean>(false); // Type explicitly defined for state
+
+  const handleConfirm = (): void => {
+    console.log("User clicked Confirm");
+    setPopoutOpen(false); // Close the Popout after confirmation
+  };
+
+  const handleCancel = (): void => {
+    console.log("User clicked Cancel");
+    setPopoutOpen(false); // Close the Popout
+  };
+
   
   onSnapshot(
     userQuery,
@@ -22,16 +34,21 @@ const ServiceCards = () => {
       try {
         if (!snapshot.empty) {
           const doc = snapshot.docs[0];
-          const lastEyeglasses = doc.data().eyeglassesFlag.toMillis();
-          // const currentTime = Date.now() + 65995820897; //plus around 2 years to test if eyeglasses are requestable
-          const currentTime = Date.now();
-          const timeDifference = currentTime - lastEyeglasses;
-          const differenceInYears = timeDifference / (1000 * 60 * 60 * 24 * 365);
-          console.log(`Time difference in years: ${differenceInYears.toFixed(2)} years`);
-          if(differenceInYears >= 2)
-            setRequestFlag(true);
-          else
-            setRequestFlag(false);
+          if (doc.data().eyeglassesFlag !== undefined) {
+            const lastEyeglasses = doc.data().eyeglassesFlag.toMillis();
+            const currentTime = Date.now() + 65995820897; //plus around 2 years to test if eyeglasses are requestable
+            // const currentTime = Date.now();
+            const timeDifference = currentTime - lastEyeglasses;
+            const differenceInYears = timeDifference / (1000 * 60 * 60 * 24 * 365);
+            console.log(`Time difference in years: ${differenceInYears.toFixed(2)} years`);
+            if(differenceInYears >= 2)
+              setRequestFlag(true);
+            else
+              setRequestFlag(false);
+          } else {
+            console.log("Field does not exist")
+          }
+
         } else {
           console.log("No matching document found.");
         }
@@ -87,6 +104,7 @@ const ServiceCards = () => {
                 navigate(card.path);
               } else {
                 console.log(`${card.title} is disabled.`);
+                setPopoutOpen(true)
               }
             }}
           >
@@ -99,6 +117,13 @@ const ServiceCards = () => {
           </div>
         ))}
       </div>
+      <Popout
+        title="Sorry, you are unable to request for Eyeglasses Benefits at this time"
+        message="You've recently requested for Eyeglasses Benefits on: [INSERT DATE]. These benefits can only be availed once every 2 years."
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        isOpen={isPopoutOpen} // Pass in state as a prop
+      />
     </div>
   );
 };
