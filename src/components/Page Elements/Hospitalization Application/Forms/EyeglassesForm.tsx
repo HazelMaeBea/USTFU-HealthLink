@@ -9,7 +9,7 @@ import FormPersonalInfo from "./FormPersonalInfo";
 import FormInvoice from "./FormInvoice";
 import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormCertify from "./FormCertify";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, query, setDoc, Timestamp, where } from "firebase/firestore";
 import { auth, db } from "../../../../config/firebase.ts";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit.tsx";
@@ -296,6 +296,15 @@ const EyeglassesForm = () => {
 			  );
 			console.log("Document written with ID: ", transID);
 
+			const usersRef = collection(db, "users");
+   			const q = query(usersRef, where("email", "==", email));
+    		const querySnapshot = await getDocs(q);
+			querySnapshot.forEach(async (docSnapshot) => {
+				const docRef = doc(db, "users", docSnapshot.id);
+		  
+				await setDoc(docRef, {eyeglassesFlag: Timestamp.now()}, { merge: true });
+				console.log("Document updated successfully.");
+			  });
 			// Show success notification
 			setSubmissionStatus("success");
 

@@ -6,7 +6,8 @@ import type {
 	HospitalFormData,
 } from "./types";
 import {
-	getRemainingBenefits,
+	BenefitsData,
+	getUsersBenefits,
 	updateBenefits,
 	updateDocument,
 	usePendingRequests,
@@ -38,12 +39,28 @@ function isHospitalFormData(
 	return formData?.formType === "hospital";
 }
 
+// const [getAllBenefits, setAllBenefits] = useState<Record<string, number>>({});
+let globalBenefitsData: Record<string, BenefitsData["remainingBenefits"]>;
+
+async function initializeBenefitsData() {
+	globalBenefitsData = await getUsersBenefits();
+	console.log("Global data initialized:", globalBenefitsData);
+  }
+
 const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	searchQuery = "",
 	selectedType = "All",
 	filters = [],
 	sortOrder = "newest",
 }) => {
+	useEffect(() => {
+		const fetchData = async () => {
+		  await initializeBenefitsData();
+		};
+	
+		fetchData(); // Call the async function
+	  }, []);
+	
 	// Increase the page size to fetch ALL items at once
 	const {
 		requests: pendingRequests,
@@ -75,6 +92,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	// Hooks to access benefits
+
 	const [getBenefits, setBenefits] = useState<number>(0);
 	const [getEditBenefits, setEditBenefits] = useState<number>(1);
 	// Hooks to access submit fields
@@ -86,6 +104,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const [getCurrentUser, setCurrentUser] = useState<string | null>(null);
 	// Add validUntil state
 	const [validUntil, setValidUntil] = useState<string>("");
+
 
 	// for notifs
 	const { uid } = useFirebase();
@@ -312,12 +331,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			const updateStatus = getStatus || "pending";
 			// Include validUntil when updating the document
 			updateDocument(transID, textArea, updateStatus, validUntil);
-			if (getBenefits !== getEditBenefits) {
+			if (globalBenefitsData[getCurrentUser || 'null'] !== getEditBenefits) {
 				await updateBenefits(getEditBenefits, getCurrentUser);
 			}
 
 			// 🚩 Manually re-fetch the list after confirmation
 			await fetchData();
+			initializeBenefitsData();
 		} catch (error) {
 			console.error(error);
 		}
@@ -724,15 +744,17 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	};
 
 	const renderHospitalCertification = (request: PendingRequest) => {
-		if (!request.formData || !isHospitalFormData(request.formData))
-			return null;
-		getRemainingBenefits(request.requester)
-			.then((result) => {
-				setBenefits(result);
-			})
-			.catch((error) => {
-				console.error("Error fetching remainingBenefits:", error);
-			});
+		// if (!request.formData || !isHospitalFormData(request.formData))
+		// 	return null;
+		// getRemainingBenefits(request.requester)
+		// 	.then((result) => {
+		// 		setBenefits(result);
+		// 	})
+		// 	.catch((error) => {
+		// 		console.error("Error fetching remainingBenefits:", error);
+		// 	});
+
+		// const remainingBenefits = getUsersBenefits()
 
 		return (
 			<>
@@ -804,7 +826,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										<input
 											aria-label="amount left"
 											type="text"
-											defaultValue={getBenefits}
+											defaultValue={globalBenefitsData[request.requester]}
 											className={styles["amount-input"]}
 											onChange={(e) => {
 												setEditBenefits(
@@ -995,7 +1017,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										? null
 										: request.transactionId
 								);
-								setEditBenefits(getBenefits);
+								setEditBenefits(globalBenefitsData[request.requester]);
 								setCurrentUser(request.requester);
 
 								await clearPendingNotifications(

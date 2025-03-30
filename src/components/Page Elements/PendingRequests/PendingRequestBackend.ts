@@ -29,6 +29,11 @@ export interface PaginationInfo {
 	totalItems: number;
 }
 
+export interface BenefitsData {
+	fullName: string;
+	remainingBenefits: number;
+  }
+
 // Interface for the hook return value
 export interface PaginatedRequests {
 	requests: PendingRequest[];
@@ -121,35 +126,6 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 
 	return { requests, pagination, setCurrentPage, isLoading, error, fetchData };
 };
-
-export async function getRemainingBenefits(
-	inputRequester: string
-): Promise<number> {
-	try {
-		const userQuery = query(
-			usersCollection,
-			where("fullName", "==", inputRequester)
-		);
-		const querySnapshot = await getDocs(userQuery);
-		console.log(inputRequester);
-
-		if (querySnapshot.empty) {
-			console.log("No matching documents found.");
-			return 1;
-		}
-
-		let remainingBenefits: number = 0;
-
-		querySnapshot.forEach((doc: DocumentData) => {
-			remainingBenefits = doc.data().personalInfo.remainingBenefits;
-		});
-
-		return remainingBenefits;
-	} catch (error) {
-		console.error("Error fetching remainingBenefits:", error);
-		throw error;
-	}
-}
 
 // Update the updateDocument function to include validUntil
 export const updateDocument = async (
@@ -257,3 +233,21 @@ export const updateBenefits = async (
 		console.error(error);
 	}
 };
+
+export async function getUsersBenefits() {
+	const snapshot = await getDocs(usersCollection);
+  
+	const result: Record<string, BenefitsData["remainingBenefits"]> = {};
+
+	snapshot.forEach((doc) => {
+		const data = {
+			fullName: doc.data().fullName,
+			remainingBenefits: doc.data().personalInfo.remainingBenefits || doc.data().remainingBenefits || 0
+		} as BenefitsData
+
+		if (data.fullName && data.remainingBenefits !== undefined) {
+			result[data.fullName] = data.remainingBenefits;
+		}
+	});
+	return result;
+}
