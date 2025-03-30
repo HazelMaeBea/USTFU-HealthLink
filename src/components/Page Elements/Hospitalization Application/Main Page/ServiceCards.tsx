@@ -50,7 +50,7 @@ const ServiceCards = () => {
               year: "numeric"
             }) as string;
             setOldEyeglassesDate(oldFormattedDate)
-            const newFormattedDate = new Date(currentTime).toLocaleDateString("en-US", {
+            const newFormattedDate = new Date(currentTime + 65995820897).toLocaleDateString("en-US", {
               timeZone: "Asia/Manila",
               month: "long",
               day: "numeric",
