@@ -6,7 +6,8 @@ import type {
 	HospitalFormData,
 } from "./types";
 import {
-	getRemainingBenefits,
+	BenefitsData,
+	getUsersBenefits,
 	updateBenefits,
 	updateDocument,
 	usePendingRequests,
@@ -23,8 +24,6 @@ import PendingRequestsLoadingSkeleton from "./PendingRequestsLoadingSkeleton";
 import unreadPending from "../NotifBadge/unreadPending";
 import useNotifications from "../NotifBadge/NotifTrigger";
 import { useFirebase } from "../../../contexts/firebaseContext";
-import { collection, getDocs} from "firebase/firestore";
-import { db } from "../../../config/firebase";
 
 interface PendingRequestListProps {
 	searchQuery?: string;
@@ -33,11 +32,6 @@ interface PendingRequestListProps {
 	sortOrder?: "newest" | "oldest";
 }
 
-interface BenefitsData {
-	fullName: string;
-	remainingBenefits: number;
-  }
-
 // Type guard function to check if formData is HospitalFormData
 function isHospitalFormData(
 	formData: FormData | undefined
@@ -45,35 +39,13 @@ function isHospitalFormData(
 	return formData?.formType === "hospital";
 }
 
-const [getAllBenefits, setAllBenefits] = useState<Record<string, number>>({});
-async function getUsersBenefits() {
-	const usersCollection = collection(db, "users");
-	const snapshot = await getDocs(usersCollection);
-  
-	const result: Record<string, BenefitsData["remainingBenefits"]> = {};
+// const [getAllBenefits, setAllBenefits] = useState<Record<string, number>>({});
+let globalBenefitsData: Record<string, BenefitsData["remainingBenefits"]>;
 
-	snapshot.forEach((doc) => {
-		const data = {
-			fullName: doc.data().fullName,
-			remainingBenefits: doc.data().personalInfo.remainingBenefits || doc.data().remainingBenefits || 0
-		} as BenefitsData
-
-		if (data.fullName && data.remainingBenefits !== undefined) {
-			result[data.fullName] = data.remainingBenefits;
-		}
-	});
-	return result;
-}
-
-useEffect(() => {
-	getUsersBenefits()
-	  .then((resolvedValue) => {
-		setAllBenefits(resolvedValue);
-	  })
-	  .catch((error) => {
-		console.error("Error resolving promise:", error);
-	  });
-  }, []); // Empty array ensures this runs only onc
+async function initializeBenefitsData() {
+	globalBenefitsData = await getUsersBenefits();
+	console.log("Global data initialized:", globalBenefitsData);
+  }
 
 const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	searchQuery = "",
@@ -81,6 +53,14 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	filters = [],
 	sortOrder = "newest",
 }) => {
+	useEffect(() => {
+		const fetchData = async () => {
+		  await initializeBenefitsData();
+		};
+	
+		fetchData(); // Call the async function
+	  }, []);
+	
 	// Increase the page size to fetch ALL items at once
 	const {
 		requests: pendingRequests,
@@ -351,12 +331,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			const updateStatus = getStatus || "pending";
 			// Include validUntil when updating the document
 			updateDocument(transID, textArea, updateStatus, validUntil);
-			if (getAllBenefits[getCurrentUser || 'null'] !== getEditBenefits) {
+			if (globalBenefitsData[getCurrentUser || 'null'] !== getEditBenefits) {
 				await updateBenefits(getEditBenefits, getCurrentUser);
 			}
 
 			// 🚩 Manually re-fetch the list after confirmation
 			await fetchData();
+			initializeBenefitsData();
 		} catch (error) {
 			console.error(error);
 		}
@@ -845,7 +826,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										<input
 											aria-label="amount left"
 											type="text"
-											defaultValue={getAllBenefits[request.requester]}
+											defaultValue={globalBenefitsData[request.requester]}
 											className={styles["amount-input"]}
 											onChange={(e) => {
 												setEditBenefits(
@@ -1036,7 +1017,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										? null
 										: request.transactionId
 								);
-								setEditBenefits(getBenefits);
+								setEditBenefits(globalBenefitsData[request.requester]);
 								setCurrentUser(request.requester);
 
 								await clearPendingNotifications(
