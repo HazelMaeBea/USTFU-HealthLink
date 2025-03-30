@@ -134,7 +134,7 @@ const ServiceCards = () => {
         ))}
       </div>
       <Popout
-        title="Sorry, you are unable to request for Eyeglasses Benefits at this time [Pls help me fix this popup]"
+        title="Sorry, you are unable to request for Eyeglasses Benefits at this time [Pls help me design this popup]"
         message={"You've recently requested for Eyeglasses Benefits on " + oldEyeglassesDate + ". These benefits can only be availed once every 2 years. You may next avail on " + newEyeglassesDate}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
