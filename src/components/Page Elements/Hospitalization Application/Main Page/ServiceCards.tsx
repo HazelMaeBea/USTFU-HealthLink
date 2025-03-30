@@ -16,17 +16,18 @@ const ServiceCards = () => {
   const userQuery = query(usersRef, where("fullName", "==", displayName));
   const [lastRequestFlag, setRequestFlag] = useState(false);
   const [isPopoutOpen, setPopoutOpen] = useState<boolean>(false); // Type explicitly defined for state
-
+  const [oldEyeglassesDate, setOldEyeglassesDate] = useState<string | undefined>();
+  const [newEyeglassesDate, setNewEyeGlassesDate] = useState<string | undefined>();
+  
   const handleConfirm = (): void => {
     console.log("User clicked Confirm");
     setPopoutOpen(false); // Close the Popout after confirmation
   };
-
+  
   const handleCancel = (): void => {
     console.log("User clicked Cancel");
     setPopoutOpen(false); // Close the Popout
   };
-
   
   onSnapshot(
     userQuery,
@@ -35,16 +36,34 @@ const ServiceCards = () => {
         if (!snapshot.empty) {
           const doc = snapshot.docs[0];
           if (doc.data().eyeglassesFlag !== undefined) {
-            const lastEyeglasses = doc.data().eyeglassesFlag.toMillis();
-            const currentTime = Date.now() + 65995820897; //plus around 2 years to test if eyeglasses are requestable
-            // const currentTime = Date.now();
-            const timeDifference = currentTime - lastEyeglasses;
+            const eyeglassDate = doc.data().eyeglassesFlag
+            const eyeglassDateMils = eyeglassDate.toMillis();
+            const twoYearsInMillis = 2 * 365 * 24 * 60 * 60 * 1000; // 2 years in milliseconds
+            const updatedEyeglassDateMils = eyeglassDateMils + twoYearsInMillis;
+
+            // const currentTime = Date.now() + 65995820897; //plus around 2 years to test if eyeglasses are requestable
+            const currentTime = Date.now();
+            const timeDifference = currentTime - eyeglassDateMils;
             const differenceInYears = timeDifference / (1000 * 60 * 60 * 24 * 365);
-            console.log(`Time difference in years: ${differenceInYears.toFixed(2)} years`);
+            // console.log(`Time difference in years: ${differenceInYears} years`);
+            const oldFormattedDate = eyeglassDate.toDate().toLocaleDateString("en-US", {
+              timeZone: "Asia/Manila",
+              month: "long",
+              day: "numeric",
+              year: "numeric"
+            }) as string;
+            setOldEyeglassesDate(oldFormattedDate)
+            const newFormattedDate = new Date(updatedEyeglassDateMils).toLocaleDateString("en-US", {
+              timeZone: "Asia/Manila",
+              month: "long",
+              day: "numeric",
+              year: "numeric"
+            }) as string;
+            setNewEyeGlassesDate(newFormattedDate)
             if(differenceInYears >= 2)
-              setRequestFlag(true);
-            else
               setRequestFlag(false);
+            else
+              setRequestFlag(true);
           } else {
             console.log("Field does not exist")
           }
@@ -61,7 +80,7 @@ const ServiceCards = () => {
       console.error("An error occurred with the Firestore query:", error);
     }
   );
-  
+
   const navigate = useNavigate();
   const cards = [
     {
@@ -118,8 +137,8 @@ const ServiceCards = () => {
         ))}
       </div>
       <Popout
-        title="Sorry, you are unable to request for Eyeglasses Benefits at this time"
-        message="You've recently requested for Eyeglasses Benefits on [INSERT DATE]. These benefits can only be availed once every 2 years."
+        title="Sorry, you are unable to request for Eyeglasses Benefits at this time [PLS help with this popup ang panget ng two buttons sa baba]"
+        message={"You've recently requested for Eyeglasses Benefits on " + oldEyeglassesDate + ". These benefits can only be availed once every 2 years. You may next avail on " + newEyeglassesDate}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
         isOpen={isPopoutOpen}
