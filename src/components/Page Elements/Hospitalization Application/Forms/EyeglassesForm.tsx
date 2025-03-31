@@ -231,7 +231,6 @@ const EyeglassesForm = () => {
 					employeeID: fileUploadResults.employeeID,
 					applicantSignature: fileUploadResults.applicantSignature,
 					eyeglassesReceipt: fileUploadResults.eyeglassesReceipt,
-					claimRequestCount: data.claimRequestCount,
 				},
 			};
 

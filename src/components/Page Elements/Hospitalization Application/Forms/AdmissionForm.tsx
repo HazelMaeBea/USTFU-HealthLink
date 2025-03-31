@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { FieldValues, useForm } from "react-hook-form";
-import { z } from "zod"; // Add missing z import
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "react-datepicker/dist/react-datepicker.css";
 import "./FormBody.css";
 import FormHeader from "./FormHeader";
 import FormPersonalInfo from "./FormPersonalInfo";
 import FormUploadDisclaimer from "./FormUploadDisclaimer";
-import FormMedicalFiles from "./FormMedicalFiles";
 import FormCertify from "./FormCertify";
 import AdmissionTeachingInfo from "./AdmissionTeachingInfo";
 import { addDoc, collection } from "firebase/firestore";
@@ -18,7 +17,10 @@ import { useAutofill, applyAutofill } from "../Autofill.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
-import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
+import {
+	uploadFilesAndGetURLs,
+	validateFileListSize,
+} from "../../../../utils/fileUpload.ts";
 import { baseFormSchema, UnifiedFormData } from "./formTypes";
 
 // Extend the base schema with admission-specific fields
@@ -59,14 +61,20 @@ const schema = baseFormSchema
 			.transform((val) => (val ? new Date(val) : null))
 			.optional(),
 		docRequest: z.any().refine((files) => files && files.length > 0, {
-			message: "File is required",
+			message: "Doctor's note or request is required",
 		}),
 		hospitalInvoice: z.any().refine((files) => files && files.length > 0, {
-			message: "File is required",
+			message: "Hospital invoice is required",
 		}),
 		labInvoice: z.any().refine((files) => files && files.length > 0, {
-			message: "File is required",
+			message: "Laboratory invoice is required",
 		}),
+		employeeID: z.any().nullable().optional(),
+		applicantSignature: z
+			.any()
+			.refine((files) => files && files.length > 0, {
+				message: "Please upload your signature",
+			}),
 	})
 	.superRefine((data, ctx) => {
 		if (data.status === "Tenured-Track" && !data.dateHired) {
@@ -101,6 +109,7 @@ const AdmissionForm = () => {
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
+	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 	const navigate = useNavigate();
 
 	const {
@@ -166,6 +175,8 @@ const AdmissionForm = () => {
 			status: "",
 		});
 
+		// Clear file errors
+		setFileErrors({});
 		setShouldReapplyAutofill(true);
 		setShowClearConfirmation(false);
 	};
@@ -173,6 +184,36 @@ const AdmissionForm = () => {
 	const handleClearCancel = () => {
 		setShowClearConfirmation(false);
 	};
+
+	// Handler for file input changes
+	const handleFileChange =
+		(fieldName: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+			const files = e.target.files;
+			const result = validateFileListSize(files);
+
+			if (!result.valid) {
+				// Set custom file error
+				setFileErrors((prev) => ({
+					...prev,
+					[fieldName]: result.errorMessage,
+				}));
+
+				// Clear the input
+				e.target.value = "";
+
+				// Set form error
+				setError(fieldName as any, {
+					type: "manual",
+					message: result.errorMessage,
+				});
+			} else {
+				// Clear error if file is valid
+				setFileErrors((prev) => ({
+					...prev,
+					[fieldName]: "",
+				}));
+			}
+		};
 
 	const onSubmit = async (data: FieldValues) => {
 		setSubmissionStatus("processing");
@@ -189,6 +230,7 @@ const AdmissionForm = () => {
 				labInvoice: data.labInvoice,
 			};
 			const transID = "TRN" + Date.now();
+			setFormIdString(transID);
 
 			const fileUploadResults = await uploadFilesAndGetURLs(
 				email,
@@ -230,7 +272,6 @@ const AdmissionForm = () => {
 					labInvoice: fileUploadResults.labInvoice,
 					employeeID: fileUploadResults.employeeID,
 					applicantSignature: fileUploadResults.applicantSignature,
-					claimRequestCount: data["claimRequestCount"],
 				},
 			};
 
@@ -246,6 +287,7 @@ const AdmissionForm = () => {
 			setDateHired(null);
 			setDateRetired(null);
 			setPhoneInputValue("+63");
+			setFileErrors({});
 		} catch (error) {
 			console.error(error);
 			setSubmissionStatus("error");
@@ -289,15 +331,223 @@ const AdmissionForm = () => {
 								setDateHired={setDateHired}
 								dateRetired={dateRetired}
 								setDateRetired={setDateRetired}
-								setValue={setValue} // Add setValue prop here
-								watch={watch} // Pass watch to the component
+								setValue={setValue}
+								watch={watch}
 							/>
 							<FormUploadDisclaimer />
-							<FormMedicalFiles
-								register={register}
-								errors={errors}
-								setError={setError}
-							/>
+
+							{/* Custom document upload table */}
+							<div className="document-input-container fieldset-no-line">
+								<table className="table-borderless">
+									<thead className="table-header table-header-padding">
+										<tr>
+											<th>Document</th>
+											<th className="d-flex justify-content-center">
+												Upload
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>
+												Doctor's Note/Request{" "}
+												<span className="required-asterisk">
+													*
+												</span>
+											</td>
+											<td className="d-flex justify-content-center">
+												<input
+													id="docRequest"
+													type="file"
+													accept=".pdf, .png, .jpg, .jpeg"
+													className={`form-control ${
+														errors.docRequest ||
+														fileErrors.docRequest
+															? "is-invalid"
+															: ""
+													}`}
+													{...register("docRequest")}
+													name="docRequest"
+													onChange={(e) => {
+														register(
+															"docRequest"
+														).onChange(e);
+														handleFileChange(
+															"docRequest"
+														)(e);
+													}}
+												/>
+												{(errors.docRequest ||
+													fileErrors.docRequest) && (
+													<p className="invalid-feedback">
+														{fileErrors.docRequest ||
+															(errors.docRequest
+																?.message as string)}
+													</p>
+												)}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Hospital Receipt/Invoice{" "}
+												<span className="required-asterisk">
+													*
+												</span>
+											</td>
+											<td className="d-flex justify-content-center">
+												<input
+													id="hospitalInvoice"
+													type="file"
+													accept=".pdf, .png, .jpg, .jpeg"
+													className={`form-control ${
+														errors.hospitalInvoice ||
+														fileErrors.hospitalInvoice
+															? "is-invalid"
+															: ""
+													}`}
+													{...register(
+														"hospitalInvoice"
+													)}
+													name="hospitalInvoice"
+													onChange={(e) => {
+														register(
+															"hospitalInvoice"
+														).onChange(e);
+														handleFileChange(
+															"hospitalInvoice"
+														)(e);
+													}}
+												/>
+												{(errors.hospitalInvoice ||
+													fileErrors.hospitalInvoice) && (
+													<p className="invalid-feedback">
+														{fileErrors.hospitalInvoice ||
+															(errors
+																.hospitalInvoice
+																?.message as string)}
+													</p>
+												)}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Laboratory Receipt/Invoice{" "}
+												<span className="required-asterisk">
+													*
+												</span>
+											</td>
+											<td className="d-flex justify-content-center">
+												<input
+													id="labInvoice"
+													type="file"
+													accept=".pdf, .png, .jpg, .jpeg"
+													className={`form-control ${
+														errors.labInvoice ||
+														fileErrors.labInvoice
+															? "is-invalid"
+															: ""
+													}`}
+													{...register("labInvoice")}
+													name="labInvoice"
+													onChange={(e) => {
+														register(
+															"labInvoice"
+														).onChange(e);
+														handleFileChange(
+															"labInvoice"
+														)(e);
+													}}
+												/>
+												{(errors.labInvoice ||
+													fileErrors.labInvoice) && (
+													<p className="invalid-feedback">
+														{fileErrors.labInvoice ||
+															(errors.labInvoice
+																?.message as string)}
+													</p>
+												)}
+											</td>
+										</tr>
+										<tr>
+											<td>Employee/UST ID</td>
+											<td className="d-flex justify-content-center">
+												<input
+													id="employeeID"
+													type="file"
+													accept=".pdf, .png, .jpg, .jpeg"
+													className={`form-control ${
+														errors.employeeID ||
+														fileErrors.employeeID
+															? "is-invalid"
+															: ""
+													}`}
+													{...register("employeeID")}
+													name="employeeID"
+													onChange={(e) => {
+														register(
+															"employeeID"
+														).onChange(e);
+														handleFileChange(
+															"employeeID"
+														)(e);
+													}}
+												/>
+												{(errors.employeeID ||
+													fileErrors.employeeID) && (
+													<p className="invalid-feedback">
+														{fileErrors.employeeID ||
+															(errors.employeeID
+																?.message as string)}
+													</p>
+												)}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Applicant's Signature{" "}
+												<span className="required-asterisk">
+													*
+												</span>
+											</td>
+											<td className="d-flex justify-content-center">
+												<input
+													id="applicantSignature"
+													type="file"
+													accept=".pdf, .png, .jpg, .jpeg"
+													className={`form-control ${
+														errors.applicantSignature ||
+														fileErrors.applicantSignature
+															? "is-invalid"
+															: ""
+													}`}
+													{...register(
+														"applicantSignature"
+													)}
+													name="applicantSignature"
+													onChange={(e) => {
+														register(
+															"applicantSignature"
+														).onChange(e);
+														handleFileChange(
+															"applicantSignature"
+														)(e);
+													}}
+												/>
+												{(errors.applicantSignature ||
+													fileErrors.applicantSignature) && (
+													<p className="invalid-feedback">
+														{fileErrors.applicantSignature ||
+															(errors
+																.applicantSignature
+																?.message as string)}
+													</p>
+												)}
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
 							<FormCertify register={register} errors={errors} />
 
 							<div className="buttonDiv">
@@ -322,7 +572,7 @@ const AdmissionForm = () => {
 				</div>
 			</div>
 
-			{/* Add success notification component */}
+			{/* Success notification component */}
 			{showSuccessNotification && (
 				<div
 					className={`success-notification ${
