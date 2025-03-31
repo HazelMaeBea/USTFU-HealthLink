@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FieldValues, useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod"; // Add missing z import
 import { zodResolver } from "@hookform/resolvers/zod";
 import "react-datepicker/dist/react-datepicker.css";
 import "./FormBody.css";
@@ -11,7 +11,7 @@ import FormMedicalFiles from "./FormMedicalFiles";
 import FormCertify from "./FormCertify";
 import AdmissionTeachingInfo from "./AdmissionTeachingInfo";
 import { addDoc, collection } from "firebase/firestore";
-import { auth, db, getFormID } from "../../../../config/firebase.ts";
+import { auth, db } from "../../../../config/firebase.ts";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit";
 import { useAutofill, applyAutofill } from "../Autofill.ts";
@@ -19,29 +19,11 @@ import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
+import { baseFormSchema, UnifiedFormData } from "./formTypes";
 
-export type FormData = z.infer<typeof schema>;
-
-const schema = z
-	.object({
-		lastname: z
-			.string({
-				required_error: "Please enter your last name",
-				invalid_type_error: "Last name must be text",
-			})
-			.min(1, "Please enter your last name"),
-		firstname: z
-			.string({
-				required_error: "Please enter your first name",
-				invalid_type_error: "First name must be text",
-			})
-			.min(1, "Please enter your first name"),
-		middlename: z
-			.string({
-				required_error: "Please enter your middle name",
-				invalid_type_error: "Middle name must be text",
-			})
-			.min(1, "Please enter your middle name"),
+// Extend the base schema with admission-specific fields
+const schema = baseFormSchema
+	.extend({
 		idNumber: z
 			.string({
 				required_error: "Please enter your ID number",
@@ -54,32 +36,6 @@ const schema = z
 				invalid_type_error: "Address must be text",
 			})
 			.min(1, "Please enter your address"),
-		suffix: z
-			.string({
-				invalid_type_error: "Suffix must be text",
-			})
-			.nullish(),
-		age: z.coerce
-			.number({
-				invalid_type_error: "Please enter a valid age",
-				required_error: "Age is required",
-			})
-			.min(18, "You must be at least 18 years old to apply"),
-		gender: z.enum(["Male", "Female"], {
-			errorMap: () => ({ message: "Please select your gender" }),
-		}),
-		contact: z.coerce
-			.number({
-				invalid_type_error: "Please enter a valid contact number",
-				required_error: "Contact number is required",
-			})
-			.min(10, "Please provide a valid contact number"),
-		college: z
-			.string({
-				required_error: "Please select your college",
-				invalid_type_error: "Please make a valid selection",
-			})
-			.min(1, "Please select your college"),
 		load: z.coerce
 			.number({
 				required_error: "Please enter your teaching load",
@@ -110,28 +66,6 @@ const schema = z
 		}),
 		labInvoice: z.any().refine((files) => files && files.length > 0, {
 			message: "File is required",
-		}),
-		employeeID: z.any().nullable().optional(),
-		// employeeID: z.any().refine((files) => files && files.length > 0, {
-		// 	message: "File is required",
-		// }),
-		applicantSignature: z
-			.any()
-			.refine((files) => files && files.length > 0, {
-				message: "File is required",
-			}),
-		claimRequestCount: z.coerce
-			.number({
-				invalid_type_error: "Please enter a valid number",
-				required_error: "Number of claims is required",
-			})
-			.min(1, "Please enter at least 1 claim")
-			.max(10, "Maximum of 10 claims allowed"),
-		certify: z.enum(["Yes"], {
-			errorMap: () => ({
-				message:
-					"You must certify that all information provided is true and correct",
-			}),
 		}),
 	})
 	.superRefine((data, ctx) => {
@@ -177,7 +111,7 @@ const AdmissionForm = () => {
 		watch,
 		setError,
 		formState: { errors, isSubmitted },
-	} = useForm<FormData>({
+	} = useForm<UnifiedFormData>({
 		resolver: zodResolver(schema),
 		mode: "onChange",
 		defaultValues: {
@@ -254,7 +188,7 @@ const AdmissionForm = () => {
 				hospitalInvoice: data.hospitalInvoice,
 				labInvoice: data.labInvoice,
 			};
-			const transID = "TRN" + Date.now()
+			const transID = "TRN" + Date.now();
 
 			const fileUploadResults = await uploadFilesAndGetURLs(
 				email,
@@ -301,14 +235,8 @@ const AdmissionForm = () => {
 			};
 
 			// Add the pending request document to Firestore.
-			await addDoc(
-				collection(db, "FormRequests"),
-				pendingRequestData
-			  );
-			console.log(
-				"Document written with ID: ",
-				transID
-			);
+			await addDoc(collection(db, "FormRequests"), pendingRequestData);
+			console.log("Document written with ID: ", transID);
 
 			// Show success notification
 			setSubmissionStatus("success");

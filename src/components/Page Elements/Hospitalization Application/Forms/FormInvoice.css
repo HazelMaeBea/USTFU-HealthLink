@@ -1,6 +1,5 @@
 /* Ensure the container behaves as a single field */
-.form-control,
-.amount-container {
+.form-control {
 	height: 40px;
 	display: flex;
 	align-items: center;
@@ -12,44 +11,27 @@
 	margin-bottom: 0.5rem; /* Consistent spacing below the label */
 }
 
-.amount-container {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	width: 100%;
-	border: 1px solid #ccc;
-	border-radius: 8px;
-	overflow: hidden;
-	transition: border 0.3s, box-shadow 0.3s;
+/* Input styling */
+.amount-input {
+	font-size: 1rem;
+	padding: 10px 15px;
+	height: 100%;
+	box-sizing: border-box;
+	text-align: left;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", Arial, sans-serif;
 }
 
-.amount-container:focus-within {
+.amount-input:focus {
 	border: 2px solid #007bff;
 	box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Peso symbol styling */
-.currency-symbol {
-	font-size: 1rem;
-	color: #ccc;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 100%;
-	padding-left: 10px;
-}
-
-/* Input styling with height match */
-.custom-input {
-	flex: 1;
-	border: none;
-	outline: none;
-	font-size: 1rem;
-	padding: 10px 15px;
-	height: 100%;
-	box-sizing: border-box; /* Prevent padding from altering height */
-}
-
-.amount-container:hover {
+.amount-input:hover {
 	border: 1px solid #007bff;
+}
+
+/* Make sure the peso sign is always visible */
+.amount-input::placeholder {
+	color: #aaa;
 }

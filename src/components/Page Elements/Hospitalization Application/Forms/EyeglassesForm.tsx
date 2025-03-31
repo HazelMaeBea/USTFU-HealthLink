@@ -9,7 +9,16 @@ import FormPersonalInfo from "./FormPersonalInfo";
 import FormInvoice from "./FormInvoice";
 import FormUploadDisclaimer from "./FormUploadDisclaimer";
 import FormCertify from "./FormCertify";
-import { addDoc, collection, doc, getDocs, query, setDoc, Timestamp, where } from "firebase/firestore";
+import {
+	addDoc,
+	collection,
+	doc,
+	getDocs,
+	query,
+	setDoc,
+	Timestamp,
+	where,
+} from "firebase/firestore";
 import { auth, db } from "../../../../config/firebase.ts";
 import BackButton from "./BackButton";
 import RemainingBenefit from "./RemainingBenefit.tsx";
@@ -21,48 +30,10 @@ import {
 	uploadFilesAndGetURLs,
 	validateFileListSize,
 } from "../../../../utils/fileUpload.ts";
+import { baseFormSchema, UnifiedFormData } from "./formTypes";
 
-export type FormData = z.infer<typeof schema>;
-
-const schema = z.object({
-	lastname: z
-		.string({
-			required_error: "Please enter your last name",
-			invalid_type_error: "Last name must be text",
-		})
-		.min(1, "Please enter your last name"),
-	firstname: z
-		.string({
-			required_error: "Please enter your first name",
-			invalid_type_error: "First name must be text",
-		})
-		.min(1, "Please enter your first name"),
-	middlename: z
-		.string({
-			required_error: "Please enter your middle name",
-			invalid_type_error: "Middle name must be text",
-		})
-		.min(1, "Please enter your middle name"),
-	suffix: z
-		.string({
-			invalid_type_error: "Please enter your suffix",
-		})
-		.nullish(),
-	age: z.coerce
-		.number({
-			invalid_type_error: "Please enter a valid age",
-			required_error: "Age is required",
-		})
-		.min(18, "You must be at least 18 years old to apply"),
-	gender: z.enum(["Male", "Female"], {
-		errorMap: () => ({ message: "Please select your gender" }),
-	}),
-	contact: z.coerce
-		.number({
-			invalid_type_error: "Please enter a valid contact number",
-			required_error: "Contact number is required",
-		})
-		.min(21, "Please provide a valid contact number"),
+// Extend the base schema with eyeglasses-specific fields
+const schema = baseFormSchema.extend({
 	ORNumber: z.string().nonempty("Please enter a valid OR Number"),
 	issuedBy: z.string().nonempty("Please enter a valid Issue By"),
 	amountPaid: z.coerce
@@ -70,14 +41,8 @@ const schema = z.object({
 			invalid_type_error: "Please enter a valid amount",
 			required_error: "Amount Paid is required",
 		})
-		.min(1, "Amount must be greater than 0")
+		.min(1, "Amount must be more than 0")
 		.max(2500, "Amount cannot exceed ₱2,500.00"),
-	college: z
-		.string({
-			required_error: "Please select your college",
-			invalid_type_error: "Please make a valid selection",
-		})
-		.min(1, "Please select your college"),
 	load: z.coerce
 		.number({
 			required_error: "Please enter your teaching load",
@@ -93,27 +58,8 @@ const schema = z.object({
 		.transform((val) => (val ? new Date(val) : null))
 		.optional(),
 	employeeID: z.any().nullable().optional(),
-	//   employeeID: z.any().refine((files) => files && files.length > 0, {
-	//     message: "File is required",
-	//   }),
-	applicantSignature: z.any().refine((files) => files && files.length > 0, {
-		message: "Please upload your signature",
-	}),
 	eyeglassesReceipt: z.any().refine((files) => files && files.length > 0, {
 		message: "Eyeglasses receipt is required",
-	}),
-	claimRequestCount: z.coerce
-		.number({
-			invalid_type_error: "Please enter a valid number",
-			required_error: "Number of claims is required",
-		})
-		.min(1, "Please enter at least 1 claim")
-		.max(10, "Maximum of 10 claims allowed"),
-	certify: z.enum(["Yes"], {
-		errorMap: () => ({
-			message:
-				"You must certify that all information provided is true and correct",
-		}),
 	}),
 });
 
@@ -143,7 +89,7 @@ const EyeglassesForm = () => {
 		watch,
 		setError,
 		formState: { errors, isSubmitted },
-	} = useForm<FormData>({
+	} = useForm<UnifiedFormData>({
 		resolver: zodResolver(schema),
 		mode: "onChange",
 		defaultValues: {
@@ -239,8 +185,7 @@ const EyeglassesForm = () => {
 
 		try {
 			const email = auth?.currentUser?.email;
-			const transID = "TRN" + Date.now()
-
+			const transID = "TRN" + Date.now();
 
 			const filesToUpload = {
 				applicantSignature: data.applicantSignature,
@@ -290,21 +235,22 @@ const EyeglassesForm = () => {
 				},
 			};
 
-			await addDoc(
-				collection(db, "FormRequests"),
-				newDoc
-			  );
+			await addDoc(collection(db, "FormRequests"), newDoc);
 			console.log("Document written with ID: ", transID);
 
 			const usersRef = collection(db, "users");
-   			const q = query(usersRef, where("email", "==", email));
-    		const querySnapshot = await getDocs(q);
+			const q = query(usersRef, where("email", "==", email));
+			const querySnapshot = await getDocs(q);
 			querySnapshot.forEach(async (docSnapshot) => {
 				const docRef = doc(db, "users", docSnapshot.id);
-		  
-				await setDoc(docRef, {eyeglassesFlag: Timestamp.now()}, { merge: true });
+
+				await setDoc(
+					docRef,
+					{ eyeglassesFlag: Timestamp.now() },
+					{ merge: true }
+				);
 				console.log("Document updated successfully.");
-			  });
+			});
 			// Show success notification
 			setSubmissionStatus("success");
 
@@ -577,65 +523,6 @@ const EyeglassesForm = () => {
 										</tr>
 									</tbody>
 								</table>
-								<div className="claim-request-container">
-									<div className="claim-request">
-										<div>
-											<label htmlFor="claimRequestCount">
-												{" "}
-											</label>
-											How many claims do you want to
-											request?{" "}
-											<span className="required-asterisk">
-												*
-											</span>
-											<br />
-											<span className="claim-example">
-												(e.g. Multiple Therapy Visits
-												for 3 weeks, Scheduled multiple
-												operations)
-											</span>
-											<div className="claim-input">
-												<input
-													{...register(
-														"claimRequestCount",
-														{
-															valueAsNumber: true,
-															min: 1,
-															max: 10,
-														}
-													)}
-													id="claimRequestCount"
-													type="number"
-													className="form-control claimRequestCount"
-													placeholder="1-10"
-												/>
-												<span
-													className="claim-text"
-													style={{
-														fontWeight: "normal",
-													}}
-												>
-													{" "}
-													claims
-												</span>
-											</div>
-											{errors.claimRequestCount && (
-												<span
-													className="text-danger claim-error"
-													style={{
-														fontWeight: "normal",
-													}}
-												>
-													{" "}
-													{
-														errors.claimRequestCount
-															.message
-													}
-												</span>
-											)}
-										</div>
-									</div>
-								</div>
 							</div>
 
 							<FormCertify register={register} errors={errors} />

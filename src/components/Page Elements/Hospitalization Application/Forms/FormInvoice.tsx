@@ -26,17 +26,21 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({
 
 	const amountPaid = watch("amountPaid");
 
-	// Format number with commas and decimal places
+	// Format number with peso sign, commas and decimal places
 	const formatWithCommas = (value: number): string => {
-		return value.toLocaleString("en-US", {
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2,
-		});
+		return (
+			"₱ " +
+			value.toLocaleString("en-US", {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 2,
+			})
+		);
 	};
 
 	useEffect(() => {
 		if (amountPaid) {
 			if (isFocused) {
+				// When focused, show just the numeric value for easy editing
 				const plainValue = amountPaid.toString();
 				setInputValue(
 					plainValue.includes(".") && plainValue.endsWith(".0")
@@ -44,17 +48,20 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({
 						: plainValue
 				);
 			} else {
-				// Format with commas and 2 decimal places
+				// When not focused, format with peso sign and commas
 				setInputValue(formatWithCommas(Number(amountPaid)));
 			}
+		} else if (!isFocused) {
+			// If no value and not focused, show as empty with peso format
+			setInputValue("");
 		}
 	}, [amountPaid, isFocused]);
 
 	const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 
-		// Only allow digits and decimal point (remove any commas during input)
-		const cleanValue = value.replace(/,/g, "");
+		// Remove peso sign, spaces and commas during input
+		const cleanValue = value.replace(/[₱\s,]/g, "");
 
 		if (cleanValue === "" || /^\d*\.?\d*$/.test(cleanValue)) {
 			setInputValue(cleanValue);
@@ -63,7 +70,6 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({
 				const numValue = parseFloat(cleanValue);
 				setValue("amountPaid", numValue);
 			} else if (cleanValue === "") {
-				// Use null for empty values rather than undefined as any
 				setValue("amountPaid", null as unknown as number);
 			}
 		}
@@ -79,6 +85,8 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({
 					? plainValue.replace(/\.0+$/, "")
 					: plainValue
 			);
+		} else {
+			setInputValue("");
 		}
 	};
 
@@ -86,9 +94,11 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({
 		setIsFocused(false);
 		if (inputValue && !isNaN(parseFloat(inputValue))) {
 			const numValue = parseFloat(inputValue);
-			// Format with commas and 2 decimal places
+			// Format with peso sign, commas and 2 decimal places
 			setInputValue(formatWithCommas(numValue));
 			setValue("amountPaid", numValue);
+		} else if (inputValue === "") {
+			setInputValue("");
 		}
 	};
 
@@ -147,30 +157,29 @@ const FormInvoice: React.FC<FormInvoiceProps> = ({
 							Amount Paid (Max ₱2,500)
 							<span className="required-asterisk">*</span>
 						</label>
-						<div className="amount-container">
-							<span className="currency-symbol">₱</span>
-							<input
-								id="amountPaid"
-								name={name}
-								ref={ref}
-								type="text"
-								className={`form-control custom-input ${
-									errors.amountPaid ? "is-invalid" : ""
-								}`}
-								placeholder="eg. 2500.00"
-								value={inputValue}
-								onChange={(e) => {
-									handleAmountChange(e);
-									registerOnChange(e);
-								}}
-								onFocus={handleFocus}
-								onBlur={(e) => {
-									handleBlur();
-									if (registerOnBlur) registerOnBlur(e);
-								}}
-								{...rest}
-							/>
-						</div>
+
+						<input
+							id="amountPaid"
+							name={name}
+							ref={ref}
+							type="text"
+							className={`form-control ${
+								errors.amountPaid ? "is-invalid" : ""
+							}`}
+							placeholder="₱ 2,500.00"
+							value={inputValue}
+							onChange={(e) => {
+								handleAmountChange(e);
+								registerOnChange(e);
+							}}
+							onFocus={handleFocus}
+							onBlur={(e) => {
+								handleBlur();
+								if (registerOnBlur) registerOnBlur(e);
+							}}
+							{...rest}
+						/>
+
 						{errors.amountPaid && (
 							<p className="text-danger">
 								{errors.amountPaid.message as string}
