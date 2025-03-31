@@ -730,17 +730,10 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	};
 
 	const renderHospitalCertification = (request: PendingRequest) => {
-		// if (!request.formData || !isHospitalFormData(request.formData))
-		// 	return null;
-		// getRemainingBenefits(request.requester)
-		// 	.then((result) => {
-		// 		setBenefits(result);
-		// 	})
-		// 	.catch((error) => {
-		// 		console.error("Error fetching remainingBenefits:", error);
-		// 	});
-
-		// const remainingBenefits = getUsersBenefits()
+		// Only render hospital certification for hospital type requests
+		if (!request.formData || request.formData.formType !== "hospital") {
+			return null;
+		}
 
 		return (
 			<>
@@ -757,18 +750,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 							fee) but not to exceed his/her remaining benefit
 							subject to final verification:
 						</p>
-
-						{/* Valid Until Date Field */}
-						<div className={styles["valid-until-container"]}>
-							<label htmlFor="valid-until">Valid Until:</label>
-							<input
-								type="date"
-								id="valid-until"
-								className={styles["valid-until-input"]}
-								value={validUntil}
-								onChange={(e) => setValidUntil(e.target.value)}
-							/>
-						</div>
 
 						<div className={styles["hospital-certification-grid"]}>
 							{/* Benefit Options */}
@@ -794,6 +775,23 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										/>
 										<span>100% of net hospital bill</span>
 									</label>
+								</div>
+								{/* Valid Until Date Field */}
+								<div
+									className={styles["valid-until-container"]}
+								>
+									<label htmlFor="valid-until">
+										Valid Until:
+									</label>
+									<input
+										type="date"
+										id="valid-until"
+										className={styles["valid-until-input"]}
+										value={validUntil}
+										onChange={(e) =>
+											setValidUntil(e.target.value)
+										}
+									/>
 								</div>
 							</div>
 
