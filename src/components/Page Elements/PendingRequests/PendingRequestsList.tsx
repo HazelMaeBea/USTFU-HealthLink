@@ -45,7 +45,7 @@ let globalBenefitsData: Record<string, BenefitsData["remainingBenefits"]>;
 async function initializeBenefitsData() {
 	globalBenefitsData = await getUsersBenefits();
 	console.log("Global data initialized:", globalBenefitsData);
-  }
+}
 
 const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	searchQuery = "",
@@ -55,12 +55,12 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 }) => {
 	useEffect(() => {
 		const fetchData = async () => {
-		  await initializeBenefitsData();
+			await initializeBenefitsData();
 		};
-	
+
 		fetchData(); // Call the async function
-	  }, []);
-	
+	}, []);
+
 	// Increase the page size to fetch ALL items at once
 	const {
 		requests: pendingRequests,
@@ -92,19 +92,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	// Hooks to access benefits
-
 	const [getBenefits, setBenefits] = useState<number>(0);
 	const [getEditBenefits, setEditBenefits] = useState<number>(1);
-	// Hooks to access submit fields
 	const [getText, setText] = useState<string | null>(null);
-	// Hooks to access transactionID
 	const [getTransID, setTransID] = useState<string | null>(null);
-	// Hooks to access document status
 	const [getStatus, setStatus] = useState<string | null>(null);
 	const [getCurrentUser, setCurrentUser] = useState<string | null>(null);
-	// Add validUntil state
 	const [validUntil, setValidUntil] = useState<string>("");
-
 
 	// for notifs
 	const { uid } = useFirebase();
@@ -130,9 +124,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			const matchesType =
 				selectedType === "All" ||
 				formType === selectedType ||
-				// For hospital forms, check if it's inpatient or outpatient
 				(selectedType === "hospital" && formType === "hospital") ||
-				// For specific hospital types
 				(formType === "hospital" &&
 					((selectedType === "inpatient" &&
 						hospitalStatus.includes("in-patient")) ||
@@ -187,7 +179,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 							status.toLowerCase().includes(value.toLowerCase())
 						);
 				} else if (filterType === "Date") {
-					// Handle date filter
 					const [startDateStr, endDateStr] = filterValue.split(" - ");
 					const [startMonth, startDay, startYear] =
 						startDateStr.split("/");
@@ -222,10 +213,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		});
 	};
 
-	// Apply filters to get filtered requests
 	const filteredRequests = applyFilters(pendingRequests);
-
-	// Sort the filtered requests by date
 	const sortedRequests = [...filteredRequests].sort((a, b) => {
 		const dateA = a.dateSubmitted ? new Date(a.dateSubmitted).getTime() : 0;
 		const dateB = b.dateSubmitted ? new Date(b.dateSubmitted).getTime() : 0;
@@ -287,7 +275,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		pagination.currentPage,
 	]);
 
-	// Add this new effect to ensure current page is valid when filtered results change
 	useEffect(() => {
 		// After filtering, if the current page is beyond the available pages, reset to page 1
 		const maxPages =
@@ -300,7 +287,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const handleAction = (
 		action: "approval" | "rejection" | "for revision"
 	) => {
-		setActiveDecision(action); // Store the decision type
+		setActiveDecision(action);
 
 		if (action === "rejection") {
 			setShowCommentBox("Reason for rejection...");
@@ -331,7 +318,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			const updateStatus = getStatus || "pending";
 			// Include validUntil when updating the document
 			updateDocument(transID, textArea, updateStatus, validUntil);
-			if (globalBenefitsData[getCurrentUser || 'null'] !== getEditBenefits) {
+			if (
+				globalBenefitsData[getCurrentUser || "null"] !== getEditBenefits
+			) {
 				await updateBenefits(getEditBenefits, getCurrentUser);
 			}
 
@@ -343,12 +332,12 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		}
 
 		// console.log(getText);
-		setShowPopout(false); // Close the popout after confirmation
+		setShowPopout(false);
 		setShowCommentBox(null);
 	};
 
 	const handleCancel = () => {
-		setShowPopout(false); // Close popout without confirming
+		setShowPopout(false);
 	};
 
 	const handleClosePreview = () => {
@@ -392,10 +381,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 	// Helper function to convert camelCase to Title Case with spaces
 	const formatDocumentType = (camelCaseKey: string): string => {
-		// Special case for ID
 		if (camelCaseKey === "employeeID") return "Employee ID";
-
-		// Handle other keys by splitting camelCase and capitalizing
 		return (
 			camelCaseKey
 				// Insert a space before all capital letters
@@ -826,7 +812,11 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										<input
 											aria-label="amount left"
 											type="text"
-											defaultValue={globalBenefitsData[request.requester]}
+											defaultValue={
+												globalBenefitsData[
+													request.requester
+												]
+											}
 											className={styles["amount-input"]}
 											onChange={(e) => {
 												setEditBenefits(
@@ -1017,7 +1007,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										? null
 										: request.transactionId
 								);
-								setEditBenefits(globalBenefitsData[request.requester]);
+								setEditBenefits(
+									globalBenefitsData[request.requester]
+								);
 								setCurrentUser(request.requester);
 
 								await clearPendingNotifications(

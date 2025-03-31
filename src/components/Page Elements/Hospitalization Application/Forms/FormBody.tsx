@@ -265,13 +265,13 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					},
 				};
 
-				// Trigger real-time notification for operations handlers/admins
-				await pushPendingNotification(transID);
-
 				setUploadProgress("Saving to database...");
 				await addDoc(collection(db, "FormRequests"), newDoc);
 
 				console.log("Document written with Transaction ID: ", transID);
+
+				// Trigger real-time notification for operations handlers/admins
+				await pushPendingNotification(transID);
 
 				// Show success notification instead of old popup
 				setSubmissionStatus("success");

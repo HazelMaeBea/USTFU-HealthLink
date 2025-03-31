@@ -7,6 +7,7 @@
 		<link rel="stylesheet" href="Inpatient-pdfGen.css" />
 	</head>
 	<body>
+		
 		<div class="inpatient-form-container">
 			<div class="inpatient-header">
 				<img
@@ -28,40 +29,61 @@
 				</h3>
 				<h4 class="inpatient-subtitle">Application Form: In-Patient</h4>
 			</div>
+			
+			<div style="display: flex; justify-content: space-between; align-items: center">
+				<div class="inpatient-type-options">
+					<div class="inpatient-option-item">
+						<input
+							type="radio"
+							class="inpatient-radio"
+							name="inpatient-type"
+							id="confinement"
+						/>
+						<label for="confinement">For Confinement</label>
+					</div>
 
-			<div class="inpatient-type-options">
-				<div class="inpatient-option-item">
-					<input
-						type="radio"
-						class="inpatient-radio"
-						name="inpatient-type"
-						id="confinement"
-					/>
-					<label for="confinement">For Confinement</label>
+					<div class="inpatient-option-item">
+						<input
+							type="radio"
+							class="inpatient-radio"
+							name="inpatient-type"
+							id="out-patient"
+						/>
+						<label for="out-patient">Done as Out-Patient</label>
+					</div>
+
+					<div class="inpatient-option-item" style="margin-bottom: 5px;">
+						<input
+							type="radio"
+							class="inpatient-radio"
+							name="inpatient-type"
+							id="er-consultation"
+						/>
+						<label for="er-consultation" "
+							>ER Consultation</label
+						>
+					</div>
 				</div>
 
-				<div class="inpatient-option-item">
-					<input
-						type="radio"
-						class="inpatient-radio"
-						name="inpatient-type"
-						id="out-patient"
-					/>
-					<label for="out-patient">Done as Out-Patient</label>
-				</div>
-
-				<div class="inpatient-option-item" style="margin-bottom: 5px;">
-					<input
-						type="radio"
-						class="inpatient-radio"
-						name="inpatient-type"
-						id="er-consultation"
-					/>
-					<label for="er-consultation" "
-						>ER Consultation</label
+				<div class="inpatient-form-field" style="text-align: right;">
+					<label for="valid-until" style="font-size: 14px"
+						>Valid Until</label
 					>
+					<!-- validUntil: string -->
+					<input
+						type="text"
+						id="valid-until"
+						name="valid-until"
+						style="
+							width: 100px;
+							font-size: 14px;
+							text-align: center;
+							font-weight: bold;
+						"
+					/>
 				</div>
 			</div>
+			
 
 			<div class="inpatient-general-section" style="padding-bottom: 5px; padding-top: 7px">
 				<div class="inpatient-form-field">

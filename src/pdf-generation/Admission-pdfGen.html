@@ -33,7 +33,23 @@
 					(For Faculty Members ONLY)
 				</h4>
 			</div>
-
+			<div class="admission-form-field" style="text-align: right">
+				<label for="valid-until" style="font-size: 14px"
+					>Valid Until</label
+				>
+				<!-- validUntil: string -->
+				<input
+					type="text"
+					id="valid-until"
+					name="valid-until"
+					style="
+						width: 100px;
+						font-size: 14px;
+						text-align: center;
+						font-weight: bold;
+					"
+				/>
+			</div>
 			<div class="admission-form-field">
 				<label for="name" style="margin-left: 20px">NAME:</label>
 				<!-- User Full Name firstname, middlename, lastname: string -->
@@ -209,7 +225,7 @@
 
 				<div class="admission-checkbox-group">
 					<div class="admission-checkbox-item">
-						<!-- netHostpitalBill50: boolean -->
+						<!-- netHospitalBill50: boolean -->
 						<!-- not in db-->
 						<input
 							type="checkbox"
@@ -221,7 +237,7 @@
 							>50% of net hospital bill</label
 						>
 
-						<!-- netHostpitalBill100: boolean -->
+						<!-- netHospitalBill100: boolean -->
 						<!-- not in db -->
 
 						<input

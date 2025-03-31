@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
 	collection,
 	doc,
-	DocumentData,
 	getDocs,
 	onSnapshot,
 	query,
@@ -10,8 +9,6 @@ import {
 	where,
 	deleteDoc,
 	Timestamp,
-	orderBy,
-	limit,
 	updateDoc,
 } from "firebase/firestore";
 import { db, getFormID } from "../../../../src/config/firebase.ts";
