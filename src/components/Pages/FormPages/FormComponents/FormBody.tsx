@@ -13,7 +13,7 @@ import FormHospitalStatus from "./FormHospitalStatus.tsx";
 import FormCertify from "./FormCertify.tsx";
 import ValidationErrorDropdown from "./ValidationErrorDropdown.tsx";
 import { addDoc, collection } from "firebase/firestore";
-import { auth, db } from "../../../../config/firebase.ts";
+import { auth, db } from "../../../../contexts/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout.tsx";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";

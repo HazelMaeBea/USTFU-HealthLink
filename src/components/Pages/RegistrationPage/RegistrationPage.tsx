@@ -9,7 +9,7 @@ import { useFirebase } from "../../../contexts/firebaseContext";
 import styles from "./RegistrationPage.module.css";
 import ConfirmationMessage from "./ConfirmationMessage";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../../../config/firebase";
+import { db } from "../../../contexts/firebase";
 import USTFULogo from "../../../assets/USTFULogo.png";
 
 const schema = z.object({

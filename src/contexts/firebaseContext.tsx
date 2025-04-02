@@ -26,7 +26,7 @@ import {
 	storageRef,
 	callFunction,
 	getFormID,
-} from "../config/firebase";
+} from "./firebase";
 import { User, onAuthStateChanged, getIdTokenResult } from "firebase/auth";
 import { login, logout } from "../services/auth";
 import { doc, getDoc } from "firebase/firestore";

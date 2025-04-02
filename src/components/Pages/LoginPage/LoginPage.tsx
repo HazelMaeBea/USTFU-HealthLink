@@ -9,7 +9,7 @@ import {
 	isRegistered,
 	getUserStatus,
 	auth,
-} from "../../../config/firebase";
+} from "../../../contexts/firebase";
 import Popout from "../../Page Elements/Popout/Popout";
 
 const LoginPage: React.FC = () => {

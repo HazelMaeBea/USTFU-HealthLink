@@ -11,7 +11,7 @@ import {
 	where,
 	getDocs,
 } from "firebase/firestore";
-import { db, auth } from "../../../config/firebase";
+import { db, auth } from "../../../contexts/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 interface VerificationRequest {

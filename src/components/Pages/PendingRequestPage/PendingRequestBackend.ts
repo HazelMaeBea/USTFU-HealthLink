@@ -11,7 +11,7 @@ import {
 	Timestamp,
 	updateDoc,
 } from "firebase/firestore";
-import { db, getFormID } from "../../../config/firebase.ts";
+import { db, getFormID } from "../../../contexts/firebase.ts";
 import type { PendingRequest } from "./types.ts";
 import { pushAccomplishedNotification } from "../../Page Elements/NotifBadge/NotifTrigger.ts";
 

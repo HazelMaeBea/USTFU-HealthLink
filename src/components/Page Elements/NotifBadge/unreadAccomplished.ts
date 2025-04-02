@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useFirebase } from "../../../contexts/firebaseContext";
-import { db } from "../../../config/firebase";
+import { db } from "../../../contexts/firebase";
 
 const unreadAccomplished = () => {
 	const { fullName } = useFirebase();
-	const [unreadAccomplishedIds, setUnreadAccomplishedIds] = useState<string[]>([]);
+	const [unreadAccomplishedIds, setUnreadAccomplishedIds] = useState<
+		string[]
+	>([]);
 
 	useEffect(() => {
 		if (!fullName) return;

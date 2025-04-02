@@ -1,5 +1,5 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "../config/firebase";
+import { storage } from "../contexts/firebase";
 import imageCompression from "browser-image-compression";
 
 interface FileUploadResult {

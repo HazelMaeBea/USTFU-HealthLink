@@ -11,7 +11,7 @@ import FormCertify from "./FormComponents/FormCertify.tsx";
 import AdmissionTeachingInfo from "./FormComponents/AdmissionTeachingInfo.tsx";
 import ValidationErrorDropdown from "./FormComponents/ValidationErrorDropdown.tsx";
 import { addDoc, collection } from "firebase/firestore";
-import { auth, db } from "../../../config/firebase.ts";
+import { auth, db } from "../../../contexts/firebase.ts";
 import BackButton from "../../Page Elements/BackButton/BackButton.tsx";
 import RemainingBenefit from "./RemainingBenefitPopout/RemainingBenefit.tsx";
 import { useAutofill, applyAutofill } from "./FormUtil/Autofill.ts";

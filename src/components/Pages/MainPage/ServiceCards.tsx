@@ -6,7 +6,7 @@ import outpatientIcon from "../../../assets/outpatient.png";
 import eyeglassesIcon from "../../../assets/eyeglasses.png";
 import { useUser } from "../../../contexts/userContext";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { db } from "../../../config/firebase";
+import { db } from "../../../contexts/firebase";
 import { useState } from "react";
 import Popout from "../../Page Elements/Popout/Popout";
 

@@ -1,10 +1,10 @@
-import { auth } from "../config/firebase";
+import { auth } from "../contexts/firebase";
 import {
-    setPersistence,
-    browserLocalPersistence,
-    signInWithPopup,
-    GoogleAuthProvider,
-    signOut,
+	setPersistence,
+	browserLocalPersistence,
+	signInWithPopup,
+	GoogleAuthProvider,
+	signOut,
 } from "firebase/auth";
 
 // Configure Google authentication provider with UST domain restriction
@@ -18,22 +18,22 @@ provider.setCustomParameters({ hd: "ust.edu.ph", prompt: "select_account" });
  * @returns {Promise<User|null>} The authenticated user or null
  */
 export const login = async () => {
-    try {
-        // Set persistence to local storage
-        await setPersistence(auth, browserLocalPersistence);
+	try {
+		// Set persistence to local storage
+		await setPersistence(auth, browserLocalPersistence);
 
-        // Perform Google sign-in
-        const result = await signInWithPopup(auth, provider);
-        return result.user;
-    } catch (error: any) {
-        // Handle specific auth errors
-        if (error.code === "auth/popup-closed-by-user") {
-            console.log("Sign-in popup closed by user");
-            return null;
-        }
-        console.error("Login error:", error);
-        throw error;
-    }
+		// Perform Google sign-in
+		const result = await signInWithPopup(auth, provider);
+		return result.user;
+	} catch (error: any) {
+		// Handle specific auth errors
+		if (error.code === "auth/popup-closed-by-user") {
+			console.log("Sign-in popup closed by user");
+			return null;
+		}
+		console.error("Login error:", error);
+		throw error;
+	}
 };
 
 /**
@@ -42,10 +42,10 @@ export const login = async () => {
  * @returns {Promise<void>} Resolves when logout is complete.
  */
 export const logout = async (): Promise<void> => {
-    try {
-        await signOut(auth);
-    } catch (error) {
-        console.error("Logout error:", error);
-        throw error;
-    }
+	try {
+		await signOut(auth);
+	} catch (error) {
+		console.error("Logout error:", error);
+		throw error;
+	}
 };

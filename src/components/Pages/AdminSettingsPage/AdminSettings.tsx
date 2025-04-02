@@ -9,7 +9,7 @@ import {
 	where,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { db, auth } from "../../../config/firebase";
+import { db, auth } from "../../../contexts/firebase";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
 
