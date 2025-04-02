@@ -12,7 +12,7 @@ import LoginPage from "./components/Pages/LoginPage/LoginPage";
 import RegistrationPage from "./components/Pages/RegistrationPage/RegistrationPage";
 import HospitalizationApplication from "./components/Pages/HospitalizationApplication";
 import HospitalizationTracking from "./components/Pages/HospitalizationTracking";
-import HospitalizationHistory from "./components/Pages/HospitalizationHistory";
+import HistoryPage from "./components/Pages/AdminHistoryPage/HistoryPage";
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/SettingsPage/Settings";
 import AdminSettings from "./components/Pages/AdminSettings";
@@ -51,7 +51,7 @@ const App: React.FC = () => {
 									/>
 									<Route
 										path="/history"
-										element={<HospitalizationHistory />}
+										element={<HistoryPage />}
 									/>
 									<Route
 										path="/pendingrequests"

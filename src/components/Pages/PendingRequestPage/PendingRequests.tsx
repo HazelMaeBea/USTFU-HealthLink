@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import PendingRequestList from "./PendingRequestsList";
 import { FiSearch, FiPlus, FiX, FiClock } from "react-icons/fi";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
-import historyStyles from "../../../../src/components/Page Elements/HistoryPage/HistoryPage.module.css";
+import historyStyles from "../AdminHistoryPage/HistoryPage.module.css";
 import styles from "./PendingRequests.module.css";
 
 const PendingRequests: React.FC = () => {
