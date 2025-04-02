@@ -1,5 +1,3 @@
-import "../Page Elements/AdminSettings/AdminSettings.css";
-
 import { useState, useEffect } from "react";
 import {
 	collection,
@@ -11,16 +9,16 @@ import {
 	where,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { db, auth } from "../../config/firebase";
+import { db, auth } from "../../../config/firebase";
 import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
 
-import Popout from "../Page Elements/Popout/Popout";
-import VerificationPage from "../Page Elements/AdminSettings/VerificationPage";
-import PageButtons from "../Page Elements/PageButtons/PageButtons";
-import UserRow from "../Page Elements/AdminSettings/UserRow";
-import UserAuditLogs from "../Page Elements/AdminSettings/UserAuditLogs";
-import AuditLogsPopout from "../Page Elements/AdminSettings/AuditLogsPopout";
+import Popout from "../../Page Elements/Popout/Popout";
+import VerificationPage from "./VerificationPage";
+import PageButtons from "../../Page Elements/PageButtons/PageButtons";
+import UserRow from "./UserRow";
+import UserAuditLogs from "./UserAuditLogs";
+import AuditLogsPopout from "./AuditLogsPopout";
 
 interface User {
 	id: string;

@@ -15,7 +15,7 @@ import TrackingPage from "./components/Pages/MemberHistoryPage/TrackingPage";
 import HistoryPage from "./components/Pages/AdminHistoryPage/HistoryPage";
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/SettingsPage/Settings";
-import AdminSettings from "./components/Pages/AdminSettings";
+import AdminSettings from "./components/Pages/AdminSettingsPage/AdminSettings";
 import PendingRequests from "./components/Pages/PendingRequestPage/PendingRequests";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { UserProvider } from "./contexts/userContext";

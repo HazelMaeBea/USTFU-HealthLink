@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./AuditLogsPopout.css";
-import PageButtons from "../PageButtons/PageButtons";
+import PageButtons from "../../Page Elements/PageButtons/PageButtons";
 
 interface AuditLog {
 	timestamp: string;
@@ -19,132 +19,132 @@ const UserAuditLogs: React.FC = () => {
 			{
 				timestamp: "2023-10-01 10:00:00",
 				name: "Alice Johnson",
-				changes: "College from 'Engineering' to 'Science'"
+				changes: "College from 'Engineering' to 'Science'",
 			},
 			{
 				timestamp: "2023-10-02 14:30:00",
 				name: "Bob Smith",
-				changes: "Role from 'Member' to 'Operations Handler'"
+				changes: "Role from 'Member' to 'Operations Handler'",
 			},
 			{
 				timestamp: "2023-10-03 09:15:00",
 				name: "Charlie Brown",
-				changes: "Status updated from 'ACTIVE' to 'INACTIVE'"
+				changes: "Status updated from 'ACTIVE' to 'INACTIVE'",
 			},
 			{
 				timestamp: "2023-10-04 11:45:00",
 				name: "Dana White",
-				changes: "Leave dates updated"
+				changes: "Leave dates updated",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			{
 				timestamp: "2023-10-05 16:00:00",
 				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'"
+				changes: "Inactive Reason changed to 'on-leave'",
 			},
 			// ...more logs if needed
 		];
