@@ -11,7 +11,7 @@ import Layout from "./components/Layout/Layout";
 import LoginPage from "./components/Pages/LoginPage/LoginPage";
 import RegistrationPage from "./components/Pages/RegistrationPage/RegistrationPage";
 import HospitalizationApplication from "./components/Pages/HospitalizationApplication";
-import HospitalizationTracking from "./components/Pages/HospitalizationTracking";
+import TrackingPage from "./components/Pages/MemberHistoryPage/TrackingPage";
 import HistoryPage from "./components/Pages/AdminHistoryPage/HistoryPage";
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/SettingsPage/Settings";
@@ -47,7 +47,7 @@ const App: React.FC = () => {
 									/>
 									<Route
 										path="/tracking"
-										element={<HospitalizationTracking />}
+										element={<TrackingPage />}
 									/>
 									<Route
 										path="/history"
