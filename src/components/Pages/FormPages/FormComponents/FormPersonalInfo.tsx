@@ -11,7 +11,7 @@ import {
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { UnifiedFormData } from "./formTypes";
+import { UnifiedFormData } from "../FormUtil/formTypes";
 
 interface FormPersonalInfoProps {
 	register: UseFormRegister<UnifiedFormData>;

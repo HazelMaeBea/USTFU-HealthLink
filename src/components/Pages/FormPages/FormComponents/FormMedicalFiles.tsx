@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { UseFormRegister, FieldErrors, UseFormSetError } from "react-hook-form";
 import { validateFileListSize } from "../../../../utils/fileUpload";
-import { UnifiedFormData } from "./formTypes";
+import { UnifiedFormData } from "../FormUtil/formTypes";
 
 interface FormMedicalFilesProps {
 	register: UseFormRegister<UnifiedFormData>;

@@ -5,7 +5,7 @@ import {
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { UnifiedFormData } from "./formTypes";
+import { UnifiedFormData } from "../FormUtil/formTypes";
 import "./FormInvoice.css";
 
 interface FormInvoiceProps {

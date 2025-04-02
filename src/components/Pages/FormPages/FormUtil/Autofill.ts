@@ -1,5 +1,5 @@
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../../../config/firebase";
+import { auth, db } from "../../../../config/firebase";
 import { FieldValues, UseFormSetValue } from "react-hook-form";
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 

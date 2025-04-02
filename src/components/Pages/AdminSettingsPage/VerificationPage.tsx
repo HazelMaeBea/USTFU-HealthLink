@@ -1,14 +1,12 @@
 import "./AdminSettings.css";
 import "./VerificationPage.css";
 import { useState, useEffect, useRef } from "react";
-import Popout from "../Popout/Popout";
-import PageButtons from "../PageButtons/PageButtons";
+import Popout from "../../Page Elements/Popout/Popout";
+import PageButtons from "../../Page Elements/PageButtons/PageButtons";
 import {
 	collection,
 	onSnapshot,
-	doc,
 	updateDoc,
-	deleteDoc,
 	query,
 	where,
 	getDocs,
@@ -43,8 +41,11 @@ const VerificationPage = () => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
 			if (currentUser) {
 				const usersRef = collection(db, "users");
-                const unverifiedUsersQuery = query(usersRef, where("verified", "==", false));
-                const unsubscribeUsers = onSnapshot(
+				const unverifiedUsersQuery = query(
+					usersRef,
+					where("verified", "==", false)
+				);
+				const unsubscribeUsers = onSnapshot(
 					unverifiedUsersQuery,
 					(snapshot) => {
 						const filteredUsers = snapshot.docs
@@ -123,18 +124,24 @@ const VerificationPage = () => {
 	const handleApprove = async (request: VerificationRequest) => {
 		try {
 			const userQuery = query(
-				collection(db, "users"), 
+				collection(db, "users"),
 				where("fullName", "==", request.name)
 			);
-	
+
 			const querySnapshot = await getDocs(userQuery);
 			if (!querySnapshot.empty) {
 				const userDoc = querySnapshot.docs[0].ref;
-	
-				await updateDoc(userDoc, { verified: true, role: request.role });
+
+				await updateDoc(userDoc, {
+					verified: true,
+					role: request.role,
+				});
 				console.log("Approved:", request.name);
 			} else {
-				console.log("No user found with the given fullName:", request.name);
+				console.log(
+					"No user found with the given fullName:",
+					request.name
+				);
 			}
 		} catch (error) {
 			console.error("Error approving request:", error);
@@ -144,19 +151,22 @@ const VerificationPage = () => {
 	const handleDeny = async (request: VerificationRequest) => {
 		try {
 			const userQuery = query(
-				collection(db, "users"), 
+				collection(db, "users"),
 				where("fullName", "==", request.name)
 			);
-	
+
 			const querySnapshot = await getDocs(userQuery);
 			if (!querySnapshot.empty) {
 				const userDoc = querySnapshot.docs[0].ref;
-	
+
 				//await deleteDoc(userDoc);
-				console.log("To delete", userDoc)
+				console.log("To delete", userDoc);
 				console.log("Denied:", request.name);
 			} else {
-				console.log("No user found with the given fullName:", request.name);
+				console.log(
+					"No user found with the given fullName:",
+					request.name
+				);
 			}
 		} catch (error) {
 			console.error("Error denying request:", error);
@@ -176,18 +186,24 @@ const VerificationPage = () => {
 		);
 		setPendingAction(() => async () => {
 			const namesArray = target.map((req) => req.name); // Extract 'name' field from each item
-			const rolesArray = target.reduce((acc: { [key: string]: string }, req) => {
-				acc[req.name] = req.role; // Set index as req.name and value as req.role
-				return acc;
-			}, {});			
-			const queryRef = query(collection(db, "users"), where("fullName", "in", namesArray))
+			const rolesArray = target.reduce(
+				(acc: { [key: string]: string }, req) => {
+					acc[req.name] = req.role; // Set index as req.name and value as req.role
+					return acc;
+				},
+				{}
+			);
+			const queryRef = query(
+				collection(db, "users"),
+				where("fullName", "in", namesArray)
+			);
 			const querySnapshot = await getDocs(queryRef);
 
-			querySnapshot.forEach( async (doc) => {
+			querySnapshot.forEach(async (doc) => {
 				await updateDoc(doc.ref, {
 					verified: true,
-					role: rolesArray[doc.data().fullName]
-				})
+					role: rolesArray[doc.data().fullName],
+				});
 				// console.log(rolesArray[doc.data().fullName]);
 			});
 		});
@@ -206,10 +222,13 @@ const VerificationPage = () => {
 		);
 		setPendingAction(() => async () => {
 			const namesArray = target.map((req) => req.name); // Extract 'name' field from each item
-			const queryRef = query(collection(db, "users"), where("fullName", "in", namesArray))
+			const queryRef = query(
+				collection(db, "users"),
+				where("fullName", "in", namesArray)
+			);
 			const querySnapshot = await getDocs(queryRef);
 
-			querySnapshot.forEach( async (doc) => {
+			querySnapshot.forEach(async (doc) => {
 				// await deleteDoc(doc.ref);
 				console.log("Rejected the following docs", doc.data());
 			});
@@ -277,9 +296,7 @@ const VerificationPage = () => {
 										<span className="checkmark"></span>
 									</label>
 								</td>
-								<td className="verfication-td">
-									{request.id}
-								</td>
+								<td className="verfication-td">{request.id}</td>
 								<td className="verfication-td">
 									{request.name}
 								</td>
@@ -317,8 +334,9 @@ const VerificationPage = () => {
 												setPopoutMessage(
 													`Are you sure you want to approve ${request.name}?`
 												);
-												setPendingAction(() => () =>
-													handleApprove(request)
+												setPendingAction(
+													() => () =>
+														handleApprove(request)
 												);
 												setPopoutOpen(true);
 											}}
@@ -335,8 +353,9 @@ const VerificationPage = () => {
 												setPopoutMessage(
 													`Are you sure you want to deny ${request.name}?`
 												);
-												setPendingAction(() => () =>
-													handleDeny(request)
+												setPendingAction(
+													() => () =>
+														handleDeny(request)
 												);
 												setPopoutOpen(true);
 											}}

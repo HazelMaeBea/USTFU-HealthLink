@@ -11,7 +11,7 @@ import {
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { UnifiedFormData } from "./formTypes"; // Change import to use UnifiedFormData
+import { UnifiedFormData } from "../FormUtil/formTypes"; // Change import to use UnifiedFormData
 
 interface FormTeachingInfoProps {
 	register: UseFormRegister<UnifiedFormData>; // Update type here

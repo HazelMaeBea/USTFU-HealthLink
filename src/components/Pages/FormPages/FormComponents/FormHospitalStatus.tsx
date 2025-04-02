@@ -1,6 +1,6 @@
 import React from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { UnifiedFormData } from "./formTypes";
+import { UnifiedFormData } from "../FormUtil/formTypes";
 
 interface FormHospitalStatusProps {
 	register: UseFormRegister<UnifiedFormData>;

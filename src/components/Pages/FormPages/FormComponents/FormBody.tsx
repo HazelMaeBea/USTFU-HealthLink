@@ -4,22 +4,23 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "react-datepicker/dist/react-datepicker.css";
 import "./FormBody.css";
-import FormPersonalInfo from "./FormPersonalInfo";
-import FormMedicalInfo from "./FormMedicalInfo";
-import FormTeachingInfo from "./FormTeachingInfo";
-import FormUploadDisclaimer from "./FormUploadDisclaimer";
-import FormMedicalFiles from "./FormMedicalFiles";
-import FormHospitalStatus from "./FormHospitalStatus";
-import FormCertify from "./FormCertify";
+import FormPersonalInfo from "./FormPersonalInfo.tsx";
+import FormMedicalInfo from "./FormMedicalInfo.tsx";
+import FormTeachingInfo from "./FormTeachingInfo.tsx";
+import FormUploadDisclaimer from "./FormUploadDisclaimer.tsx";
+import FormMedicalFiles from "./FormMedicalFiles.tsx";
+import FormHospitalStatus from "./FormHospitalStatus.tsx";
+import FormCertify from "./FormCertify.tsx";
+import ValidationErrorDropdown from "./ValidationErrorDropdown.tsx";
 import { addDoc, collection } from "firebase/firestore";
 import { auth, db } from "../../../../config/firebase.ts";
 import { useNavigate } from "react-router-dom";
-import Popout from "../../../Page Elements/Popout/Popout";
+import Popout from "../../../Page Elements/Popout/Popout.tsx";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
-import { useAutofill, applyAutofill } from "../Autofill.ts";
+import { useAutofill, applyAutofill } from "../FormUtil/Autofill.ts";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
-import { pushPendingNotification } from "../../NotifBadge/NotifTrigger.ts";
-import { baseFormSchema, UnifiedFormData } from "./formTypes";
+import { pushPendingNotification } from "../../../Page Elements/NotifBadge/NotifTrigger.ts";
+import { baseFormSchema, UnifiedFormData } from "../FormUtil/formTypes.ts";
 
 interface FormBodyProps {
 	origFormType: string;
@@ -348,7 +349,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		<div className="form-body">
 			<form onSubmit={handleSubmit(onSubmit)}>
 				{isSubmitted && Object.keys(errors).length > 0 && (
-					<p className="note">Please fill out the following boxes</p>
+					<ValidationErrorDropdown errors={errors} />
 				)}
 
 				<FormPersonalInfo

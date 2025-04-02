@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./BackButton.css"; // Reuse the same CSS file
-import "./RemainingBenefit.css"; // Import new CSS for popup
+import "../../../Page Elements/BackButton/BackButton.css";
+import "./RemainingBenefit.css";
 
 const RemainingBenefit = () => {
 	const [showPopup, setShowPopup] = useState(false);

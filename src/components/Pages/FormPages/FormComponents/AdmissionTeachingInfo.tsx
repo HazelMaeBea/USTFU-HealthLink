@@ -11,7 +11,7 @@ import {
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { FormData } from "./AdmissionForm";
+import { FormData } from "../AdmissionForm";
 
 interface AdmissionTeachingInfoProps {
 	register: UseFormRegister<FormData>;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./AuditLogsPopout.css";
-import PageButtons from "../PageButtons/PageButtons";
+import PageButtons from "../../Page Elements/PageButtons/PageButtons";
 
 interface AuditLogsPopoutProps {
 	title: string;
@@ -9,7 +9,12 @@ interface AuditLogsPopoutProps {
 	children: React.ReactNode;
 }
 
-const AuditLogsPopout: React.FC<AuditLogsPopoutProps> = ({ title, onClose, isOpen, children }) => {
+const AuditLogsPopout: React.FC<AuditLogsPopoutProps> = ({
+	title,
+	onClose,
+	isOpen,
+	children,
+}) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const logsPerPage = 7;
 
@@ -26,11 +31,11 @@ const AuditLogsPopout: React.FC<AuditLogsPopoutProps> = ({ title, onClose, isOpe
 			<div className="audit-logs-popout">
 				<div className="audit-logs-popout-header">
 					<h2>{title}</h2>
-					<button className="close-btn" onClick={onClose}>&times;</button>
+					<button className="close-btn" onClick={onClose}>
+						&times;
+					</button>
 				</div>
-				<div className="audit-logs-popout-body">
-					{currentLogs}
-				</div>
+				<div className="audit-logs-popout-body">{currentLogs}</div>
 				{totalPages > 1 && (
 					<PageButtons
 						currentPage={currentPage}

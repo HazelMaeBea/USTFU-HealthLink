@@ -3,67 +3,102 @@ import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "react-datepicker/dist/react-datepicker.css";
-import "./FormBody.css";
-import FormHeader from "./FormHeader";
-import FormPersonalInfo from "./FormPersonalInfo";
-import FormInvoice from "./FormInvoice";
-import FormUploadDisclaimer from "./FormUploadDisclaimer";
-import FormCertify from "./FormCertify";
-import {
-	addDoc,
-	collection,
-	doc,
-	getDocs,
-	query,
-	setDoc,
-	Timestamp,
-	where,
-} from "firebase/firestore";
-import { auth, db } from "../../../../config/firebase.ts";
-import BackButton from "./BackButton";
-import RemainingBenefit from "./RemainingBenefit.tsx";
+import "./FormComponents/FormBody.css";
+import FormHeader from "./FormComponents/FormHeader.tsx";
+import FormPersonalInfo from "./FormComponents/FormPersonalInfo.tsx";
+import FormUploadDisclaimer from "./FormComponents/FormUploadDisclaimer.tsx";
+import FormCertify from "./FormComponents/FormCertify.tsx";
+import AdmissionTeachingInfo from "./FormComponents/AdmissionTeachingInfo.tsx";
+import ValidationErrorDropdown from "./FormComponents/ValidationErrorDropdown.tsx";
+import { addDoc, collection } from "firebase/firestore";
+import { auth, db } from "../../../config/firebase.ts";
+import BackButton from "../../Page Elements/BackButton/BackButton.tsx";
+import RemainingBenefit from "./RemainingBenefitPopout/RemainingBenefit.tsx";
+import { useAutofill, applyAutofill } from "./FormUtil/Autofill.ts";
 import { useNavigate } from "react-router-dom";
-import Popout from "../../../Page Elements/Popout/Popout";
+import Popout from "../../Page Elements/Popout/Popout.tsx";
 import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
-import { useAutofill, applyAutofill } from "../Autofill.ts";
 import {
 	uploadFilesAndGetURLs,
 	validateFileListSize,
-} from "../../../../utils/fileUpload.ts";
-import { baseFormSchema, UnifiedFormData } from "./formTypes";
+} from "../../../utils/fileUpload.ts";
+import { baseFormSchema, UnifiedFormData } from "./FormUtil/formTypes.ts";
 
-// Extend the base schema with eyeglasses-specific fields
-const schema = baseFormSchema.extend({
-	ORNumber: z.string().nonempty("Please enter a valid OR Number"),
-	issuedBy: z.string().nonempty("Please enter a valid Issue By"),
-	amountPaid: z.coerce
-		.number({
-			invalid_type_error: "Please enter a valid amount",
-			required_error: "Amount Paid is required",
-		})
-		.min(1, "Amount must be more than 0")
-		.max(2500, "Amount cannot exceed ₱2,500.00"),
-	load: z.coerce
-		.number({
-			required_error: "Please enter your teaching load",
-			invalid_type_error: "Teaching load must be a number",
-		})
-		.min(0, "Teaching load cannot be negative")
-		.max(30, "Teaching load cannot exceed 30 units"),
-	dateHired: z
-		.string({
-			invalid_type_error: "Please select a valid date",
-		})
-		.nullable()
-		.transform((val) => (val ? new Date(val) : null))
-		.optional(),
-	employeeID: z.any().nullable().optional(),
-	eyeglassesReceipt: z.any().refine((files) => files && files.length > 0, {
-		message: "Eyeglasses receipt is required",
-	}),
-});
+// Extend the base schema with admission-specific fields
+const schema = baseFormSchema
+	.extend({
+		idNumber: z
+			.string({
+				required_error: "Please enter your ID number",
+				invalid_type_error: "ID number must be text",
+			})
+			.min(1, "Please enter your ID number"),
+		address: z
+			.string({
+				required_error: "Please enter your address",
+				invalid_type_error: "Address must be text",
+			})
+			.min(1, "Please enter your address"),
+		load: z.coerce
+			.number({
+				required_error: "Please enter your teaching load",
+				invalid_type_error: "Teaching load must be a number",
+			})
+			.min(0, "Teaching load cannot be negative")
+			.max(30, "Teaching load cannot exceed 30 units"),
+		status: z.string().nonempty("Please select your employment status"),
+		dateHired: z
+			.string({
+				invalid_type_error: "Please select a valid date",
+			})
+			.nullable()
+			.transform((val) => (val ? new Date(val) : null))
+			.optional(),
+		dateRetired: z
+			.string({
+				invalid_type_error: "Please select a valid date",
+			})
+			.nullable()
+			.transform((val) => (val ? new Date(val) : null))
+			.optional(),
+		docRequest: z.any().refine((files) => files && files.length > 0, {
+			message: "Doctor's note or request is required",
+		}),
+		hospitalInvoice: z.any().refine((files) => files && files.length > 0, {
+			message: "Hospital invoice is required",
+		}),
+		labInvoice: z.any().refine((files) => files && files.length > 0, {
+			message: "Laboratory invoice is required",
+		}),
+		employeeID: z.any().nullable().optional(),
+		applicantSignature: z
+			.any()
+			.refine((files) => files && files.length > 0, {
+				message: "Please upload your signature",
+			}),
+	})
+	.omit({ claimRequestCount: true }) // Remove claimRequestCount requirement
+	.superRefine((data, ctx) => {
+		if (data.status === "Tenured-Track" && !data.dateHired) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message:
+					"Please provide your date of hire as a Tenure-Track faculty member",
+				path: ["dateHired"],
+			});
+		}
+		if (data.status === "Retiree" && !data.dateRetired) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "Please provide your retirement date",
+				path: ["dateRetired"],
+			});
+		}
+	});
 
-const EyeglassesForm = () => {
+const AdmissionForm = () => {
+	const [dateHired, setDateHired] = useState<Date | null>(null);
+	const [dateRetired, setDateRetired] = useState<Date | null>(null);
 	const [showSuccessNotification, setShowSuccessNotification] =
 		useState(false);
 	const [isNotificationHiding, setIsNotificationHiding] = useState(false);
@@ -74,11 +109,9 @@ const EyeglassesForm = () => {
 		"processing" | "success" | "error"
 	>("processing");
 	const [errorMessage, setErrorMessage] = useState<string>("");
-	const [dateHired, setDateHired] = useState<Date | null>(null);
-	// Add a state for phone input value at the form level
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
-	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
+	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 	const navigate = useNavigate();
 
 	const {
@@ -95,11 +128,12 @@ const EyeglassesForm = () => {
 		defaultValues: {
 			gender: undefined,
 			college: "",
+			status: "",
 		},
 	});
 
 	// Apply autofill when component loads
-	useAutofill(setValue, setDateHired, undefined, setPhoneInputValue);
+	useAutofill(setValue, setDateHired, setDateRetired, setPhoneInputValue);
 
 	// Re-apply autofill after form is cleared
 	useEffect(() => {
@@ -108,12 +142,18 @@ const EyeglassesForm = () => {
 			applyAutofill(
 				setValue,
 				setDateHired,
-				undefined,
+				setDateRetired,
 				setPhoneInputValue
 			);
 			setShouldReapplyAutofill(false);
 		}
-	}, [shouldReapplyAutofill, setValue, setDateHired, setPhoneInputValue]);
+	}, [
+		shouldReapplyAutofill,
+		setValue,
+		setDateHired,
+		setDateRetired,
+		setPhoneInputValue,
+	]);
 
 	const closeNotification = () => {
 		setIsNotificationHiding(true);
@@ -134,13 +174,12 @@ const EyeglassesForm = () => {
 		reset({
 			gender: undefined,
 			college: "",
+			status: "",
 		});
-
-		// Set flag to reapply autofill
-		setShouldReapplyAutofill(true);
 
 		// Clear file errors
 		setFileErrors({});
+		setShouldReapplyAutofill(true);
 		setShowClearConfirmation(false);
 	};
 
@@ -179,19 +218,21 @@ const EyeglassesForm = () => {
 		};
 
 	const onSubmit = async (data: FieldValues) => {
-		// Show notification immediately with processing state
 		setSubmissionStatus("processing");
 		setShowSuccessNotification(true);
 
 		try {
 			const email = auth?.currentUser?.email;
-			const transID = "TRN" + Date.now();
 
 			const filesToUpload = {
 				applicantSignature: data.applicantSignature,
+				docRequest: data.docRequest,
 				employeeID: data.employeeID,
-				eyeglassesReceipt: data.eyeglassesReceipt,
+				hospitalInvoice: data.hospitalInvoice,
+				labInvoice: data.labInvoice,
 			};
+			const transID = "TRN" + Date.now();
+			setFormIdString(transID);
 
 			const fileUploadResults = await uploadFilesAndGetURLs(
 				email,
@@ -199,8 +240,7 @@ const EyeglassesForm = () => {
 				filesToUpload
 			);
 
-			// Build new document structure with download URLs
-			const newDoc = {
+			const pendingRequestData = {
 				transactionId: transID,
 				requester: auth?.currentUser?.displayName || email || "Unknown",
 				dateSubmitted: new Date().toLocaleString("en-US", {
@@ -214,47 +254,42 @@ const EyeglassesForm = () => {
 				}),
 				status: "pending",
 				formData: {
-					formType: "eyeglasses",
-					origFormType: "eyeglasses",
-					lastname: data.lastname,
-					firstname: data.firstname,
-					middlename: data.middlename,
-					age: data.age,
-					gender: data.gender,
-					contact: data.contact,
-					college: data.college,
-					ORNumber: data.ORNumber,
-					issuedBy: data.issuedBy,
-					amountPaid: data.amountPaid,
-					load: data.load,
+					formType: "admission",
+					origFormType: "admission",
+					lastname: data["lastname"],
+					firstname: data["firstname"],
+					middlename: data["middlename"],
+					idNumber: data["idNumber"],
+					address: data["address"],
+					age: data["age"],
+					gender: data["gender"],
+					contact: data["contact"],
+					college: data["college"],
+					load: data["load"],
+					status: data["status"],
 					dateHired: data.dateHired,
+					dateRetired: data.dateRetired,
+					docRequest: fileUploadResults.docRequest,
+					hospitalInvoice: fileUploadResults.hospitalInvoice,
+					labInvoice: fileUploadResults.labInvoice,
 					employeeID: fileUploadResults.employeeID,
 					applicantSignature: fileUploadResults.applicantSignature,
-					eyeglassesReceipt: fileUploadResults.eyeglassesReceipt,
 				},
 			};
 
-			await addDoc(collection(db, "FormRequests"), newDoc);
+			// Add the pending request document to Firestore.
+			await addDoc(collection(db, "FormRequests"), pendingRequestData);
 			console.log("Document written with ID: ", transID);
 
-			const usersRef = collection(db, "users");
-			const q = query(usersRef, where("email", "==", email));
-			const querySnapshot = await getDocs(q);
-			querySnapshot.forEach(async (docSnapshot) => {
-				const docRef = doc(db, "users", docSnapshot.id);
-
-				await setDoc(
-					docRef,
-					{ eyeglassesFlag: Timestamp.now() },
-					{ merge: true }
-				);
-				console.log("Document updated successfully.");
-			});
 			// Show success notification
 			setSubmissionStatus("success");
 
 			// Reset form after successful submission
 			reset();
+			setDateHired(null);
+			setDateRetired(null);
+			setPhoneInputValue("+63");
+			setFileErrors({});
 		} catch (error) {
 			console.error(error);
 			setSubmissionStatus("error");
@@ -273,14 +308,12 @@ const EyeglassesForm = () => {
 				<RemainingBenefit />
 			</div>
 			<div className="container">
-				<FormHeader formType="Eyeglasses Form" />
+				<FormHeader formType="Hospital Admission Form" />
 				<div className="form-body">
 					<div className="form-container">
 						<form onSubmit={handleSubmit(onSubmit)}>
 							{isSubmitted && Object.keys(errors).length > 0 && (
-								<p className="note">
-									Please fill out the following boxes
-								</p>
+								<ValidationErrorDropdown errors={errors} />
 							)}
 
 							<FormPersonalInfo
@@ -291,88 +324,13 @@ const EyeglassesForm = () => {
 								phoneInputValue={phoneInputValue}
 								setPhoneInputValue={setPhoneInputValue}
 							/>
-
-							{/* Add Date Hired field */}
-							<fieldset className="personal-info-container">
-								<div className="row mb-3">
-									<div className="col-md-3">
-										<label
-											htmlFor="load"
-											className="form-label"
-										>
-											Load (Units){" "}
-											<span className="required-asterisk">
-												*
-											</span>
-										</label>
-										<input
-											id="load"
-											type="number"
-											className={`form-control ${
-												errors.load ? "is-invalid" : ""
-											}`}
-											{...register("load", {
-												valueAsNumber: true,
-											})}
-											name="load"
-											min="0"
-											max="30"
-											placeholder="Enter units"
-										/>
-										{errors.load && (
-											<div className="invalid-feedback">
-												{
-													errors.load
-														?.message as React.ReactNode
-												}
-											</div>
-										)}
-									</div>
-									<div className="col-md-6">
-										<label
-											htmlFor="dateHired"
-											className="form-label"
-										>
-											Date Hired{" "}
-											<span className="required-asterisk">
-												*
-											</span>
-										</label>
-										<input
-											type="date"
-											{...register("dateHired")}
-											id="dateHired"
-											className={`form-control ${
-												errors.dateHired
-													? "is-invalid"
-													: ""
-											}`}
-											onChange={(e) => {
-												const date = e.target.value
-													? new Date(e.target.value)
-													: null;
-												setDateHired(date);
-												register("dateHired").onChange(
-													e
-												);
-											}}
-											style={{ color: "black" }}
-										/>
-										{errors.dateHired && (
-											<p className="text-danger">
-												{
-													errors.dateHired
-														?.message as string
-												}
-											</p>
-										)}
-									</div>
-								</div>
-							</fieldset>
-
-							<FormInvoice
+							<AdmissionTeachingInfo
 								register={register}
 								errors={errors}
+								dateHired={dateHired}
+								setDateHired={setDateHired}
+								dateRetired={dateRetired}
+								setDateRetired={setDateRetired}
 								setValue={setValue}
 								watch={watch}
 							/>
@@ -391,12 +349,128 @@ const EyeglassesForm = () => {
 									</thead>
 									<tbody>
 										<tr>
+											<td>
+												Doctor's Note/Request{" "}
+												<span className="required-asterisk">
+													*
+												</span>
+											</td>
+											<td className="d-flex justify-content-center">
+												<input
+													id="docRequest"
+													type="file"
+													accept=".pdf, .png, .jpg, .jpeg"
+													className={`form-control ${
+														errors.docRequest ||
+														fileErrors.docRequest
+															? "is-invalid"
+															: ""
+													}`}
+													{...register("docRequest")}
+													name="docRequest"
+													onChange={(e) => {
+														register(
+															"docRequest"
+														).onChange(e);
+														handleFileChange(
+															"docRequest"
+														)(e);
+													}}
+												/>
+												{(errors.docRequest ||
+													fileErrors.docRequest) && (
+													<p className="invalid-feedback">
+														{fileErrors.docRequest ||
+															(errors.docRequest
+																?.message as string)}
+													</p>
+												)}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Hospital Receipt/Invoice{" "}
+												<span className="required-asterisk">
+													*
+												</span>
+											</td>
+											<td className="d-flex justify-content-center">
+												<input
+													id="hospitalInvoice"
+													type="file"
+													accept=".pdf, .png, .jpg, .jpeg"
+													className={`form-control ${
+														errors.hospitalInvoice ||
+														fileErrors.hospitalInvoice
+															? "is-invalid"
+															: ""
+													}`}
+													{...register(
+														"hospitalInvoice"
+													)}
+													name="hospitalInvoice"
+													onChange={(e) => {
+														register(
+															"hospitalInvoice"
+														).onChange(e);
+														handleFileChange(
+															"hospitalInvoice"
+														)(e);
+													}}
+												/>
+												{(errors.hospitalInvoice ||
+													fileErrors.hospitalInvoice) && (
+													<p className="invalid-feedback">
+														{fileErrors.hospitalInvoice ||
+															(errors
+																.hospitalInvoice
+																?.message as string)}
+													</p>
+												)}
+											</td>
+										</tr>
+										<tr>
+											<td>
+												Laboratory Receipt/Invoice{" "}
+												<span className="required-asterisk">
+													*
+												</span>
+											</td>
+											<td className="d-flex justify-content-center">
+												<input
+													id="labInvoice"
+													type="file"
+													accept=".pdf, .png, .jpg, .jpeg"
+													className={`form-control ${
+														errors.labInvoice ||
+														fileErrors.labInvoice
+															? "is-invalid"
+															: ""
+													}`}
+													{...register("labInvoice")}
+													name="labInvoice"
+													onChange={(e) => {
+														register(
+															"labInvoice"
+														).onChange(e);
+														handleFileChange(
+															"labInvoice"
+														)(e);
+													}}
+												/>
+												{(errors.labInvoice ||
+													fileErrors.labInvoice) && (
+													<p className="invalid-feedback">
+														{fileErrors.labInvoice ||
+															(errors.labInvoice
+																?.message as string)}
+													</p>
+												)}
+											</td>
+										</tr>
+										<tr>
 											<td>Employee/UST ID</td>
 											<td className="d-flex justify-content-center">
-												<label
-													htmlFor="employeeID"
-													className="form-label"
-												></label>
 												<input
 													id="employeeID"
 													type="file"
@@ -430,62 +504,12 @@ const EyeglassesForm = () => {
 										</tr>
 										<tr>
 											<td>
-												Eyeglasses Receipt{" "}
-												<span className="required-asterisk">
-													*
-												</span>
-											</td>
-											<td className="d-flex justify-content-center">
-												<label
-													htmlFor="eyeglassesReceipt"
-													className="form-label"
-												></label>
-												<input
-													id="eyeglassesReceipt"
-													type="file"
-													accept=".pdf, .png, .jpg, .jpeg"
-													className={`form-control ${
-														errors.eyeglassesReceipt ||
-														fileErrors.eyeglassesReceipt
-															? "is-invalid"
-															: ""
-													}`}
-													{...register(
-														"eyeglassesReceipt"
-													)}
-													name="eyeglassesReceipt"
-													onChange={(e) => {
-														register(
-															"eyeglassesReceipt"
-														).onChange(e);
-														handleFileChange(
-															"eyeglassesReceipt"
-														)(e);
-													}}
-												/>
-												{(errors.eyeglassesReceipt ||
-													fileErrors.eyeglassesReceipt) && (
-													<p className="invalid-feedback">
-														{fileErrors.eyeglassesReceipt ||
-															(errors
-																.eyeglassesReceipt
-																?.message as string)}
-													</p>
-												)}
-											</td>
-										</tr>
-										<tr>
-											<td>
 												Applicant's Signature{" "}
 												<span className="required-asterisk">
 													*
 												</span>
 											</td>
 											<td className="d-flex justify-content-center">
-												<label
-													htmlFor="applicantSignature"
-													className="form-label"
-												></label>
 												<input
 													id="applicantSignature"
 													type="file"
@@ -548,6 +572,7 @@ const EyeglassesForm = () => {
 				</div>
 			</div>
 
+			{/* Success notification component */}
 			{showSuccessNotification && (
 				<div
 					className={`success-notification ${
@@ -630,4 +655,4 @@ const EyeglassesForm = () => {
 	);
 };
 
-export default EyeglassesForm;
+export default AdmissionForm;

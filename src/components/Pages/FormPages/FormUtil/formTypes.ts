@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { HospitalFormData } from "../../../Pages/PendingRequestPage/types";
+import { HospitalFormData } from "../../PendingRequestPage/types";
 
 // Base schema shared across form types
 export const baseFormSchema = z.object({
