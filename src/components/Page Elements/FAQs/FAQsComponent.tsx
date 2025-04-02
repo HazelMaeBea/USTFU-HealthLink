@@ -30,7 +30,7 @@ const FAQsComponent = () => {
 					{questions.map((q, index) => (
 						<div key={index} className="question">
 							<h2>{q.question}</h2>
-							<p>{q.answer}</p>
+							<p className="faq-answer-text">{q.answer}</p>
 							{q.media && (
 								<iframe
 									width="560"

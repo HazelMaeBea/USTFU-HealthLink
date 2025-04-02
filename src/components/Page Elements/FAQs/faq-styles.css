@@ -89,6 +89,16 @@
 	color: black;
 }
 
+.faq-answer-text {
+	white-space: pre-line;
+	padding: 1rem;
+	background-color: #ffffff;
+	color: #333;
+	border-left: 4px solid #f39c12;
+	line-height: 1.6;
+	font-size: 1rem;
+}
+
 .faq-media {
 	margin-top: 1rem;
 }

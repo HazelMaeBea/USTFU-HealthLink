@@ -68,7 +68,7 @@ function FAQItem({ question, answer, media }: FAQItemProps) {
 			</button>
 			{isOpen && (
 				<div className="faq-answer">
-					<p>{answer}</p>
+					<p className="faq-answer-text">{answer}</p>
 					{media && (
 						<div
 							className="faq-media"
