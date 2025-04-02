@@ -1,9 +1,9 @@
 import React from "react";
 import styles from "./RecordTable.module.css";
-import { Record } from "../../Pages/PendingRequestPage/types";
+import { Record } from "../PendingRequestPage/types";
 import { useFirebase } from "../../../contexts/firebaseContext";
-import unreadAccomplished from "../NotifBadge/unreadAccomplished";
-import useNotifications from "../NotifBadge/NotifTrigger";
+import unreadAccomplished from "../../Page Elements/NotifBadge/unreadAccomplished";
+import useNotifications from "../../Page Elements/NotifBadge/NotifTrigger";
 // Import icons for form types - updated to match ServiceCards path pattern
 import inpatientIcon from "../../../assets/inpatient.png";
 import admissionIcon from "../../../assets/admission.png";

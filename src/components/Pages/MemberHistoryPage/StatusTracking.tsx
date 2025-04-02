@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import styles from "./TrackingPage.module.css";
 import useTrackingRecords from "./useTrackingRecord";
-import ViewFiles from "../ViewFiles/ViewFiles";
+import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles";
 import { IoIosArrowBack } from "react-icons/io";
-import "../Hospitalization Application/Forms/BackButton.css";
 
 interface StatusTrackingProps {
 	onBack: () => void;

@@ -2,10 +2,10 @@ import { useState } from "react";
 import styles from "./TrackingPage.module.css"; // Updated import to use module CSS
 import Tabs from "./Tabs";
 import RecordTable from "./RecordTable";
-import PageButtons from "../PageButtons/PageButtons";
+import PageButtons from "../../Page Elements/PageButtons/PageButtons";
 import StatusTracking from "./StatusTracking";
 import useTrackingRecords from "./useTrackingRecord";
-import { Record } from "../../Pages/PendingRequestPage/types";
+import { Record } from "../PendingRequestPage/types";
 
 const TrackingPage = () => {
 	const [activeTab, setActiveTab] = useState(0);
