@@ -14,7 +14,7 @@ import HospitalizationApplication from "./components/Pages/HospitalizationApplic
 import HospitalizationTracking from "./components/Pages/HospitalizationTracking";
 import HospitalizationHistory from "./components/Pages/HospitalizationHistory";
 import FAQs from "./components/Pages/Faqs";
-import Settings from "./components/Pages/Settings";
+import Settings from "./components/Pages/SettingsPage/Settings";
 import AdminSettings from "./components/Pages/AdminSettings";
 import PendingRequests from "./components/Pages/PendingRequests";
 import ErrorBoundary from "./components/ErrorBoundary";

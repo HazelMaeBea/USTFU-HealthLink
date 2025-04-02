@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Settings.module.css";
-import "./Settings.css"; // Add this import for the loading skeleton styles
-import Popout from "../Page Elements/Popout/Popout";
-import { useFirebase } from "../../contexts/firebaseContext";
+import Popout from "../../Page Elements/Popout/Popout";
+import { useFirebase } from "../../../contexts/firebaseContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const suffixOptions = ["", "Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"];
@@ -56,11 +55,9 @@ const getAcademicYears = () => {
 
 getAcademicYears();
 
-// Helper function to calculate age based on birthdate string (format: MM/DD/YYYY)
 const calculateAge = (birthdateStr: string): string => {
 	if (!birthdateStr) return "";
 
-	// Parse the birthdate string
 	const parts = birthdateStr.split("/");
 	if (parts.length !== 3) return "";
 
@@ -75,7 +72,6 @@ const calculateAge = (birthdateStr: string): string => {
 
 	let age = today.getFullYear() - birthDate.getFullYear();
 
-	// Adjust age if birthday hasn't occurred yet this year
 	const monthDiff = today.getMonth() - birthDate.getMonth();
 	if (
 		monthDiff < 0 ||
@@ -87,7 +83,6 @@ const calculateAge = (birthdateStr: string): string => {
 	return age.toString();
 };
 
-// Updated auto-format function to ensure valid date values for mm/dd/yyyy format
 const formatDateInput = (value: string): string => {
 	const cleaned = value.replace(/\D/g, "");
 	let formatted = "";
@@ -110,10 +105,8 @@ const formatDateInput = (value: string): string => {
 	return formatted;
 };
 
-// Updated processDateField to only clamp when the date is complete (mm/dd/yyyy)
 const processDateField = (value: string): string => {
 	const formatted = formatDateInput(value);
-	// Only process when date is complete (10 characters: mm/dd/yyyy)
 	if (formatted.length === 10) {
 		const parts = formatted.split("/");
 		const month = parseInt(parts[0], 10);
@@ -121,7 +114,6 @@ const processDateField = (value: string): string => {
 		const year = parseInt(parts[2], 10);
 		const inputDate = new Date(year, month - 1, day);
 		const today = new Date();
-		// If the input date is in the future, clamp it to today's date.
 		if (inputDate > today) {
 			const m = today.getMonth() + 1;
 			const d = today.getDate();
@@ -134,7 +126,6 @@ const processDateField = (value: string): string => {
 	return formatted;
 };
 
-// >>> Added formatting helper functions (based on your RegistrationPage)
 const formatBirthdate = (value: string): string => {
 	const digits = value.replace(/\D/g, "").slice(0, 8);
 	return digits.length >= 5
@@ -151,7 +142,6 @@ const formatIDNumber = (value: string): string => {
 
 const Settings = () => {
 	const [settings, setSettings] = useState({
-		// User profile fields with safe defaults
 		firstname: "",
 		lastname: "",
 		middlename: "",
@@ -168,22 +158,15 @@ const Settings = () => {
 		phoneNumber: "",
 		gender: "",
 		college: "",
-		// Toggles - fixed naming to match database
 		notification: false,
 		autofill: false,
 	});
 
-	// Original settings to compare against for detecting changes
 	const [originalSettings, setOriginalSettings] = useState({});
-
-	// Computed age state
 	const [calculatedAge, setCalculatedAge] = useState("");
-
-	// Track which fields have changed
 	const [changedFields, setChangedFields] = useState<
 		Record<string, { old: string; new: string }>
 	>({});
-
 	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -191,15 +174,12 @@ const Settings = () => {
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [isPhoneFocused, setIsPhoneFocused] = useState<boolean>(false);
 
-	// Get Firebase context
 	const { db, currentUser, uid } = useFirebase();
 
-	// Update age whenever birthdate changes
 	useEffect(() => {
 		setCalculatedAge(calculateAge(settings.birthdate));
 	}, [settings.birthdate]);
 
-	// Fetch user data from Firestore
 	useEffect(() => {
 		const fetchUserData = async () => {
 			if (!uid) {
@@ -216,13 +196,6 @@ const Settings = () => {
 					const userData = userDoc.data();
 					const personalInfo = userData.personalInfo || {};
 
-					// Add console log to debug the structure
-					console.log(
-						"Full user data structure:",
-						JSON.stringify(userData, null, 2)
-					);
-
-					// Set settings with nested fields from personalInfo
 					const updatedSettings = {
 						firstname: personalInfo.firstName || "",
 						lastname: personalInfo.lastName || "",
@@ -255,18 +228,19 @@ const Settings = () => {
 					};
 
 					setSettings(updatedSettings);
-					setOriginalSettings({ ...updatedSettings }); // Store original values for comparison
-					setCalculatedAge(calculateAge(personalInfo.birthdate || ""));
-					setChangedFields({}); // Reset changed fields when loading new data
-
-					console.log("Fetched user data:", userData);
-					console.log("Personal info:", personalInfo);
+					setOriginalSettings({ ...updatedSettings });
+					setCalculatedAge(
+						calculateAge(personalInfo.birthdate || "")
+					);
+					setChangedFields({});
 				} else {
 					console.log("No such document!");
 				}
 			} catch (err) {
 				console.error("Error fetching user data:", err);
-				setError("Failed to load your profile data. Please try again later.");
+				setError(
+					"Failed to load your profile data. Please try again later."
+				);
 			} finally {
 				setIsLoading(false);
 			}
@@ -281,7 +255,6 @@ const Settings = () => {
 	) => {
 		const newValue = e.currentTarget.innerText;
 
-		// Only track changes that differ from original
 		if (newValue !== (originalSettings as any)[field]) {
 			setChangedFields((prev) => ({
 				...prev,
@@ -291,7 +264,6 @@ const Settings = () => {
 				},
 			}));
 		} else {
-			// Remove from changed fields if it matches original
 			const updatedChanges = { ...changedFields };
 			delete updatedChanges[field];
 			setChangedFields(updatedChanges);
@@ -300,32 +272,27 @@ const Settings = () => {
 		setSettings({ ...settings, [field]: newValue });
 	};
 
-	// Handle toggle changes and track them properly
 	const handleToggleChange = async (field: string, checked: boolean) => {
 		try {
 			if (!uid) {
 				console.error("User ID is missing. Cannot update Firestore.");
-				return; // Exit early if uid is null
+				return;
 			}
 
-			// Update local state immediately
 			setSettings((prev) => ({ ...prev, [field]: checked }));
 
-			// Update Firestore immediately for toggles
 			if (field === "notification" || field === "autofill") {
 				const userDocRef = doc(db, "users", uid);
 
-				// Check current Firestore structure
 				const userDoc = await getDoc(userDocRef);
 				const userData = userDoc.exists() ? userDoc.data() : null;
-				const hasSettingsObject = userData && userData.settings !== undefined;
+				const hasSettingsObject =
+					userData && userData.settings !== undefined;
 
-				// Update with the correct structure
 				const updateData: Record<string, any> = hasSettingsObject
 					? { [`settings.${field}`]: checked }
 					: { [field]: checked };
 
-				// Apply the update
 				await updateDoc(userDocRef, updateData);
 
 				console.log(
@@ -338,7 +305,6 @@ const Settings = () => {
 	};
 
 	const handleFieldChange = (field: string, value: string) => {
-		// Track the change for the summary popup
 		if (value !== (originalSettings as any)[field]) {
 			setChangedFields((prev) => ({
 				...prev,
@@ -348,22 +314,18 @@ const Settings = () => {
 				},
 			}));
 		} else {
-			// Remove from changed fields if it matches original
 			const updatedChanges = { ...changedFields };
 			delete updatedChanges[field];
 			setChangedFields(updatedChanges);
 		}
-		// Update the settings state
 		setSettings({ ...settings, [field]: value });
 	};
 
-	// Generate a summary of changes for the popup
 	const generateChangeSummary = () => {
 		if (Object.keys(changedFields).length === 0) {
 			return "No changes detected.";
 		}
 
-		// Map field names to more readable labels
 		const fieldLabels: Record<string, string> = {
 			firstname: "First Name",
 			lastname: "Last Name",
@@ -396,7 +358,9 @@ const Settings = () => {
 								{values.old || "(empty)"}
 							</span>{" "}
 							→{" "}
-							<span className={styles.newValue}>{values.new || "(empty)"}</span>
+							<span className={styles.newValue}>
+								{values.new || "(empty)"}
+							</span>
 						</li>
 					))}
 				</ul>
@@ -405,7 +369,6 @@ const Settings = () => {
 	};
 
 	const handleConfirmSave = async () => {
-		// Update phone validation to check for proper length, not prefix
 		if (settings.phoneNumber.length < 10) {
 			setError("Please enter a valid phone number");
 			return;
@@ -420,10 +383,8 @@ const Settings = () => {
 			setIsSaving(true);
 			const userDocRef = doc(db, "users", uid);
 
-			// Create the update object with the correct structure
 			const updateData: Record<string, any> = {};
 
-			// Map settings fields directly to their counterparts in personalInfo
 			const fieldMappings: Record<string, string> = {
 				firstname: "firstName",
 				lastname: "lastName",
@@ -442,8 +403,9 @@ const Settings = () => {
 				gender: "gender",
 			};
 
-			// Check each field against the original value
-			for (const [settingKey, firestoreKey] of Object.entries(fieldMappings)) {
+			for (const [settingKey, firestoreKey] of Object.entries(
+				fieldMappings
+			)) {
 				if (
 					settings[settingKey as keyof typeof settings] !==
 					(originalSettings as any)[settingKey]
@@ -453,9 +415,8 @@ const Settings = () => {
 				}
 			}
 
-			// Handle top-level fields
 			if (settings.college !== (originalSettings as any).college) {
-				updateData["personalInfo.college"] = settings.college; // Changed from updateData.college
+				updateData["personalInfo.college"] = settings.college;
 			}
 
 			if (Object.keys(updateData).length === 0) {
@@ -467,15 +428,12 @@ const Settings = () => {
 
 			console.log("🔄 Saving changes to Firestore:", updateData);
 
-			// Update the document with the correct structure
 			await updateDoc(userDocRef, updateData);
 
 			console.log("Settings saved successfully");
 
-			// Update originalSettings to match the newly saved settings
 			setOriginalSettings({ ...settings });
 
-			// Clear the changedFields since we've saved successfully
 			setChangedFields({});
 		} catch (err) {
 			console.error("Error saving settings:", err);
@@ -486,21 +444,20 @@ const Settings = () => {
 		}
 	};
 
-	// Add these phone formatting functions
 	const formatPhoneNumberDisplay = (value: string) => {
-		// Make sure value starts with +63
 		if (!value.startsWith("+63")) {
 			value = "+63" + value;
 		}
 
-		// Format for display (e.g., +63-XXX-XXX-XXXX)
 		let formattedValue = value;
 
-		// If more than +63 is present, format with hyphens
 		if (value.length > 3) {
-			const mainNumber = value.substring(3); // get everything after +63
+			const mainNumber = value.substring(3);
 
-			const formatted = mainNumber.replace(/(\d{3})(\d{3})(\d+)/, "$1-$2-$3");
+			const formatted = mainNumber.replace(
+				/(\d{3})(\d{3})(\d+)/,
+				"$1-$2-$3"
+			);
 			formattedValue = "+63-" + formatted;
 		}
 
@@ -510,7 +467,6 @@ const Settings = () => {
 	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		let value = e.target.value;
 
-		// Ensure it always starts with +63
 		if (!value.startsWith("+63")) {
 			if (value.startsWith("+")) {
 				value = "+63" + value.substring(1);
@@ -519,12 +475,10 @@ const Settings = () => {
 			}
 		}
 
-		// Remove non-digit characters (except the leading +)
 		const digitsOnly = "+" + value.substring(1).replace(/\D/g, "");
 
 		setPhoneInputValue(digitsOnly);
 
-		// Update the form value with just the numeric part for backend storage
 		if (digitsOnly.length > 3) {
 			const phoneWithoutPrefix = digitsOnly.substring(3);
 			handleFieldChange("phoneNumber", phoneWithoutPrefix);
@@ -535,7 +489,6 @@ const Settings = () => {
 
 	const handlePhoneFocus = () => {
 		setIsPhoneFocused(true);
-		// Remove formatting when focused, but keep +63
 		if (settings.phoneNumber) {
 			const rawValue = "+63" + settings.phoneNumber;
 			setPhoneInputValue(rawValue);
@@ -547,7 +500,6 @@ const Settings = () => {
 	const handlePhoneBlur = () => {
 		setIsPhoneFocused(false);
 
-		// Reapply formatting
 		if (phoneInputValue.length > 3) {
 			const numericPart = phoneInputValue.substring(3).replace(/\D/g, "");
 			if (numericPart) {
@@ -556,7 +508,6 @@ const Settings = () => {
 		}
 	};
 
-	// Initialize phone input value when data loads
 	useEffect(() => {
 		if (settings.phoneNumber) {
 			formatPhoneNumberDisplay("+63" + settings.phoneNumber);
@@ -565,112 +516,221 @@ const Settings = () => {
 
 	if (isLoading) {
 		return (
-			<div className="settings-loading-container">
-				{/* Preferences Section */}
-				<div className="settings-loading-section">
-					<div className="settings-loading-header settings-skeleton"></div>
-					<div className="settings-loading-toggle-group">
-						<div className="settings-loading-toggle-row">
-							<div className="settings-loading-toggle-label settings-skeleton"></div>
-							<div className="settings-loading-toggle settings-skeleton"></div>
+			<div className={styles.settingsLoadingContainer}>
+				<div className={styles.settingsLoadingSection}>
+					<div
+						className={`${styles.settingsLoadingHeader} ${styles.settingsSkeleton}`}
+					></div>
+					<div className={styles.settingsLoadingToggleGroup}>
+						<div className={styles.settingsLoadingToggleRow}>
+							<div
+								className={`${styles.settingsLoadingToggleLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingToggle} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
-						<div className="settings-loading-toggle-row">
-							<div className="settings-loading-toggle-label settings-skeleton"></div>
-							<div className="settings-loading-toggle settings-skeleton"></div>
+						<div className={styles.settingsLoadingToggleRow}>
+							<div
+								className={`${styles.settingsLoadingToggleLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingToggle} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
 					</div>
 				</div>
 
-				{/* Personal Information Section */}
-				<div className="settings-loading-section">
-					<div className="settings-loading-header settings-skeleton"></div>
+				<div className={styles.settingsLoadingSection}>
+					<div
+						className={`${styles.settingsLoadingHeader} ${styles.settingsSkeleton}`}
+					></div>
 
-					{/* Name Fields */}
-					<div className="settings-loading-form-row">
-						<div className="settings-loading-form-group settings-loading-lg">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
+					<div className={styles.settingsLoadingFormRow}>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingLg}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
-						<div className="settings-loading-form-group settings-loading-lg">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingLg}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
-						<div className="settings-loading-form-group settings-loading-lg">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingLg}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
-						<div className="settings-loading-form-group settings-loading-xs">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingXs}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
 					</div>
 
-					{/* Personal Details */}
-					<div className="settings-loading-form-row">
-						<div className="settings-loading-form-group settings-loading-md">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
+					<div className={styles.settingsLoadingFormRow}>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingMd}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
-						<div className="settings-loading-form-group settings-loading-xs">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingXs}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
-						<div className="settings-loading-form-group settings-loading-sm">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingSm}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
-						<div className="settings-loading-form-group settings-loading-md">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingMd}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
-						<div className="settings-loading-form-group settings-loading-flex">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
-						</div>
-					</div>
-
-					{/* Work Details */}
-					<div className="settings-loading-form-row">
-						<div className="settings-loading-form-group settings-loading-xs">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
-						</div>
-						<div className="settings-loading-form-group settings-loading-sm">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
-						</div>
-						<div className="settings-loading-form-group settings-loading-xs">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
-						</div>
-						<div className="settings-loading-form-group settings-loading-md">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
-						</div>
-						<div className="settings-loading-form-group settings-loading-md">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
-						</div>
-						<div className="settings-loading-form-group settings-loading-flex">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
-						</div>
-					</div>
-
-					{/* College and Address */}
-					<div className="settings-loading-form-row">
-						<div className="settings-loading-form-group settings-loading-half">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
-						</div>
-						<div className="settings-loading-form-group settings-loading-half">
-							<div className="settings-loading-label settings-skeleton"></div>
-							<div className="settings-loading-field settings-skeleton"></div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingFlex}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
 						</div>
 					</div>
 
-					{/* Button */}
-					<div className="settings-loading-button settings-skeleton"></div>
+					<div className={styles.settingsLoadingFormRow}>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingXs}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
+						</div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingSm}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
+						</div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingXs}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
+						</div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingMd}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
+						</div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingMd}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
+						</div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingFlex}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
+						</div>
+					</div>
+
+					<div className={styles.settingsLoadingFormRow}>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingHalf}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
+						</div>
+						<div
+							className={`${styles.settingsLoadingFormGroup} ${styles.settingsLoadingHalf}`}
+						>
+							<div
+								className={`${styles.settingsLoadingLabel} ${styles.settingsSkeleton}`}
+							></div>
+							<div
+								className={`${styles.settingsLoadingField} ${styles.settingsSkeleton}`}
+							></div>
+						</div>
+					</div>
+
+					<div
+						className={`${styles.settingsLoadingButton} ${styles.settingsSkeleton}`}
+					></div>
 				</div>
 			</div>
 		);
@@ -691,7 +751,6 @@ const Settings = () => {
 		<div className={styles.settingsContainer}>
 			<div className={styles.settingsSection}>
 				<h3>Personal Preferences</h3>
-				{/* Updated toggle button markup using CSS modules */}
 				<div className={styles.toggleGroup}>
 					<div className={styles.toggleRow}>
 						<p>Email Notifications:</p>
@@ -704,7 +763,10 @@ const Settings = () => {
 									type="checkbox"
 									checked={settings.notification}
 									onChange={(e) =>
-										handleToggleChange("notification", e.target.checked)
+										handleToggleChange(
+											"notification",
+											e.target.checked
+										)
 									}
 									aria-label="toggle notifications"
 								/>
@@ -723,7 +785,10 @@ const Settings = () => {
 									type="checkbox"
 									checked={settings.autofill}
 									onChange={(e) =>
-										handleToggleChange("autofill", e.target.checked)
+										handleToggleChange(
+											"autofill",
+											e.target.checked
+										)
 									}
 									aria-label="toggle autofill"
 								/>
@@ -737,7 +802,6 @@ const Settings = () => {
 			<div className={styles.settingsSection}>
 				<h3>Personal Information</h3>
 
-				{/* Row 1: Name fields */}
 				<div className={styles.formRow}>
 					<div className={styles.formGroupLg}>
 						<label>First Name</label>
@@ -745,7 +809,9 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.firstname}
-							onChange={(e) => handleFieldChange("firstname", e.target.value)}
+							onChange={(e) =>
+								handleFieldChange("firstname", e.target.value)
+							}
 							aria-label="First Name"
 						/>
 					</div>
@@ -755,7 +821,9 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.lastname}
-							onChange={(e) => handleFieldChange("lastname", e.target.value)}
+							onChange={(e) =>
+								handleFieldChange("lastname", e.target.value)
+							}
 							aria-label="Last-Name"
 						/>
 					</div>
@@ -765,7 +833,9 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.middlename}
-							onChange={(e) => handleFieldChange("middlename", e.target.value)}
+							onChange={(e) =>
+								handleFieldChange("middlename", e.target.value)
+							}
 							aria-label="Middle Name"
 						/>
 					</div>
@@ -774,7 +844,9 @@ const Settings = () => {
 						<select
 							className="form-select settings-field-value"
 							value={settings.suffix}
-							onChange={(e) => handleFieldChange("suffix", e.target.value)}
+							onChange={(e) =>
+								handleFieldChange("suffix", e.target.value)
+							}
 							aria-label="Suffix"
 						>
 							<option value="" disabled hidden>
@@ -789,7 +861,6 @@ const Settings = () => {
 					</div>
 				</div>
 
-				{/* Row 2: Personal details */}
 				<div className={styles.formRow}>
 					<div className={styles.formGroupMd}>
 						<label>Birthdate</label>
@@ -798,7 +869,10 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.birthdate}
 							onChange={(e) =>
-								handleFieldChange("birthdate", formatBirthdate(e.target.value))
+								handleFieldChange(
+									"birthdate",
+									formatBirthdate(e.target.value)
+								)
 							}
 							aria-label="Birthdate"
 						/>
@@ -816,7 +890,9 @@ const Settings = () => {
 						<select
 							className="form-select settings-field-value"
 							value={settings.gender}
-							onChange={(e) => handleFieldChange("gender", e.target.value)}
+							onChange={(e) =>
+								handleFieldChange("gender", e.target.value)
+							}
 							aria-label="Gender"
 						>
 							<option value="" disabled hidden>
@@ -848,14 +924,16 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.numberID}
 							onChange={(e) =>
-								handleFieldChange("numberID", formatIDNumber(e.target.value))
+								handleFieldChange(
+									"numberID",
+									formatIDNumber(e.target.value)
+								)
 							}
 							aria-label="ID Number"
 						/>
 					</div>
 				</div>
 
-				{/* Row 3: Work details */}
 				<div className={styles.formRow}>
 					<div className={styles.formGroupXs}>
 						<label>Term</label>
@@ -879,7 +957,9 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.load}
-							onChange={(e) => handleFieldChange("load", e.target.value)}
+							onChange={(e) =>
+								handleFieldChange("load", e.target.value)
+							}
 							aria-label="Load (Units)"
 						/>
 					</div>
@@ -888,7 +968,9 @@ const Settings = () => {
 						<select
 							className="form-select settings-field-value"
 							value={settings.status}
-							onChange={(e) => handleFieldChange("status", e.target.value)}
+							onChange={(e) =>
+								handleFieldChange("status", e.target.value)
+							}
 							aria-label="Status"
 						>
 							<option value="" disabled hidden>
@@ -909,7 +991,10 @@ const Settings = () => {
 							className="form-control settings-field-value"
 							value={settings.dateHired}
 							onChange={(e) =>
-								handleFieldChange("dateHired", formatBirthdate(e.target.value))
+								handleFieldChange(
+									"dateHired",
+									formatBirthdate(e.target.value)
+								)
 							}
 						/>
 					</div>
@@ -930,14 +1015,15 @@ const Settings = () => {
 					</div>
 				</div>
 
-				{/* Row 4: College and address */}
 				<div className={styles.formRow}>
 					<div className={styles.formGroupHalf}>
 						<label>College</label>
 						<select
 							className="form-select settings-field-value"
 							value={settings.college}
-							onChange={(e) => handleFieldChange("college", e.target.value)}
+							onChange={(e) =>
+								handleFieldChange("college", e.target.value)
+							}
 							aria-label="College Affiliation"
 						>
 							<option value="" disabled hidden>
@@ -956,7 +1042,9 @@ const Settings = () => {
 							type="text"
 							className="form-control settings-field-value"
 							value={settings.address}
-							onChange={(e) => handleFieldChange("address", e.target.value)}
+							onChange={(e) =>
+								handleFieldChange("address", e.target.value)
+							}
 							aria-label="Home Address"
 						/>
 					</div>
@@ -967,7 +1055,9 @@ const Settings = () => {
 						onClick={() => setIsConfirmOpen(true)}
 						className={styles.settingsBtnSubmit}
 						disabled={
-							isLoading || isSaving || Object.keys(changedFields).length === 0
+							isLoading ||
+							isSaving ||
+							Object.keys(changedFields).length === 0
 						}
 					>
 						{isSaving ? "Saving..." : "Save Changes"}

@@ -8,7 +8,7 @@ body {
 }
 
 /* Container styling */
-.settings-container {
+.settingsContainer {
 	padding: 40px;
 	min-height: calc(100vh - 60px); /* Adjust for your header height */
 	background: #f5f7f9;
@@ -17,14 +17,14 @@ body {
 }
 
 /* Settings layout */
-.settings-content {
+.settingsContent {
 	flex: 1;
 	padding: 40px;
 	margin-left: 280px;
 }
 
 /* Section styling */
-.settings-section {
+.settingsSection {
 	background: #fff;
 	border-radius: 12px;
 	padding: 30px;
@@ -33,7 +33,7 @@ body {
 }
 
 /* Updated grid layout */
-.fields-grid {
+.fieldsGrid {
 	display: grid;
 	grid-template-columns: repeat(12, 1fr);
 	gap: 20px;
@@ -42,7 +42,7 @@ body {
 }
 
 /* Field item base styling */
-.field-item {
+.fieldItem {
 	position: relative;
 	margin-bottom: 5px;
 	padding: 0;
@@ -51,35 +51,35 @@ body {
 	box-shadow: none;
 }
 
-.field-item.name {
+.fieldItem.name {
 	grid-column: span 4; /* Equal width for name fields */
 }
 
-.field-item.small {
+.fieldItem.small {
 	grid-column: span 3; /* For suffix, age, term, load */
 }
 
-.field-item.medium {
+.fieldItem.medium {
 	grid-column: span 6; /* For status, ID, dates */
 }
 
-.field-item.large {
+.fieldItem.large {
 	grid-column: span 12; /* Full width for address */
 }
 
 /* Add field grouping */
-.field-item:nth-child(-n + 3) {
+.fieldItem:nth-child(-n + 3) {
 	/* First 3 items (names) */
 	margin-bottom: 8px;
 }
 
-.field-item:focus-within {
+.fieldItem:focus-within {
 	border-color: hsl(45, 100%, 51%);
 	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.2);
 }
 
 /* Floating label refinements */
-.field-item label {
+.fieldItem label {
 	display: block;
 	position: static;
 	transform: none;
@@ -90,12 +90,12 @@ body {
 }
 
 /* Editable fields styling */
-.field-row {
+.fieldRow {
 	display: flex;
 	align-items: center;
 	margin: 10px 0;
 }
-.field-row label {
+.fieldRow label {
 	width: 150px;
 	font-weight: 600;
 	color: #555;
@@ -133,12 +133,12 @@ body {
 }
 
 /* Toggle row and group styling */
-.toggle-group {
+.toggleGroup {
 	border: none;
 	padding: 0;
 	margin: 0 0 20px 0;
 }
-.toggle-row {
+.toggleRow {
 	display: flex;
 	align-items: center;
 	padding: 12px 16px;
@@ -146,7 +146,7 @@ body {
 	border-radius: 8px;
 	margin-bottom: 10px;
 }
-.toggle-row p {
+.toggleRow p {
 	margin: 0;
 	font-size: 0.9rem;
 	color: #444;
@@ -154,20 +154,20 @@ body {
 }
 
 /* Styling for form check elements */
-.form-check {
+.formCheck {
 	position: relative;
 	display: block;
 }
 
 /* Toggle switch styling */
-.form-check-toggle {
+.formCheckToggle {
 	position: relative;
 	padding-left: 0;
 	line-height: 30px;
 }
 
 /* Hide the default checkbox input */
-.form-check-toggle input {
+.formCheckToggle input {
 	display: block;
 	position: absolute;
 	top: 0;
@@ -183,7 +183,7 @@ body {
 }
 
 /* Style the span element that represents the toggle switch */
-.form-check-toggle input + span {
+.formCheckToggle input + span {
 	cursor: pointer;
 	-webkit-user-select: none;
 	user-select: none;
@@ -193,7 +193,7 @@ body {
 }
 
 /* Styles for the background of the toggle switch in its 'off' state. */
-.form-check-toggle input + span:before {
+.formCheckToggle input + span:before {
 	content: "";
 	position: absolute;
 	left: 0;
@@ -214,7 +214,7 @@ hr {
 }
 
 /* Styles for the toggle knob in its "off" state */
-.form-check-toggle input + span:after {
+.formCheckToggle input + span:after {
 	width: 20px;
 	height: 20px;
 	margin-top: 2px;
@@ -233,21 +233,21 @@ hr {
 }
 
 /* Styles for the toggle knob in its "on" state */
-.form-check-toggle input:checked + span:after {
+.formCheckToggle input:checked + span:after {
 	content: "";
 	margin-left: 22px;
 	box-shadow: none;
 }
 
 /* Styles for the toggle background in its "on" state */
-.form-check-toggle input:checked + span:before {
+.formCheckToggle input:checked + span:before {
 	background-color: hsl(45, 100%, 51%);
 	border-color: hsl(45, 100%, 51%);
 	transition: background 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
 /* Form styling */
-.settings-form {
+.settingsForm {
 	margin-top: 50px !important;
 }
 
@@ -258,7 +258,7 @@ hr {
 	justify-content: center; /* Center the button */
 }
 
-.settings-btn-submit {
+.settingsBtnSubmit {
 	background-color: #000000;
 	color: white;
 	padding: 10px 20px;
@@ -271,20 +271,20 @@ hr {
 }
 
 /* Hover effect only when button is not disabled */
-.settings-btn-submit:not([disabled]):hover {
+.settingsBtnSubmit:not([disabled]):hover {
 	background-color: hsl(45, 100%, 68%) !important;
 	color: white;
 	border: none;
 }
 
 /* Additional styling for disabled button to make it visually clear it's disabled */
-.settings-btn-submit[disabled] {
+.settingsBtnSubmit[disabled] {
 	opacity: 0.6;
 	cursor: not-allowed;
 }
 
 /* New form layout styles */
-.form-row {
+.formRow {
 	display: flex;
 	flex-wrap: wrap;
 	margin-bottom: 15px;
@@ -293,44 +293,44 @@ hr {
 	justify-content: space-between;
 }
 
-.form-group {
+.formGroup {
 	margin-bottom: 0;
 	display: flex;
 	flex-direction: column;
 }
 
 /* Extra small for very minimal content (suffix, single value fields) */
-.form-group-xs {
+.formGroupXs {
 	flex: 0 0 calc(8% - 8px);
 }
 
 /* Small for minimal content (age, term, load) */
-.form-group-sm {
+.formGroupSm {
 	flex: 0 0 calc(12% - 10px);
 }
 
 /* Medium for standard fields */
-.form-group-md {
+.formGroupMd {
 	flex: 0 0 calc(24% - 12px);
 }
 
 /* Half-width fields (for college and address in same row) */
-.form-group-half {
+.formGroupHalf {
 	flex: 0 0 calc(50% - 8px);
 }
 
 /* Large for fields that need more space */
-.form-group-lg {
+.formGroupLg {
 	flex: 0 0 calc(32% - 30px);
 }
 
 /* Fill remaining space in a flexible way */
-.form-group-flex {
+.formGroupFlex {
 	flex: 1;
 }
 
 /* Modern input styling - renamed from editable to settings-field-value */
-.editable.settings-field-value {
+.editable.settingsFieldValue {
 	width: 100%;
 	padding: 8px 12px;
 	background: #f8f9fa;
@@ -342,8 +342,8 @@ hr {
 	min-height: 38px;
 }
 
-/* Non-editable fields */
-.settings-field-value.non-editable {
+/* Revert non-editable fields styling */
+.non-editable.settingsFieldValue {
 	width: 100%;
 	padding: 8px 12px;
 	background: #f0f0f0;
@@ -355,14 +355,14 @@ hr {
 }
 
 /* Focus styles */
-.editable.settings-field-value:focus {
+.editable.settingsFieldValue:focus {
 	background: #fff;
 	border-color: hsl(45, 100%, 51%);
 	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.1);
 	outline: none;
 }
 
-.non-editable {
+.nonEditable {
 	width: 100%;
 	padding: 8px 12px;
 	background: #f0f0f0;
@@ -374,7 +374,7 @@ hr {
 }
 
 /* Changes summary styling */
-.changes-summary ul {
+.changesSummary ul {
 	max-height: 300px;
 	overflow-y: auto;
 	list-style-type: none;
@@ -385,22 +385,22 @@ hr {
 	border: 1px solid #e5e9ed;
 }
 
-.changes-summary li {
+.changesSummary li {
 	padding: 5px 0;
 	border-bottom: 1px dashed #e5e9ed;
 }
 
-.changes-summary li:last-child {
+.changesSummary li:last-child {
 	border-bottom: none;
 }
 
-.changes-summary .old-value {
+.changesSummary .oldValue {
 	color: #d32f2f;
 	text-decoration: line-through;
 	margin: 0 5px;
 }
 
-.changes-summary .new-value {
+.changesSummary .newValue {
 	color: #388e3c;
 	margin: 0 5px;
 	font-weight: 500;
@@ -408,117 +408,117 @@ hr {
 
 /* Responsive grid adjustments */
 @media (max-width: 1200px) {
-	.settings-container {
+	.settingsContainer {
 		padding: 30px;
 	}
-	.fields-grid {
+	.fieldsGrid {
 		grid-template-columns: repeat(8, 1fr);
 		gap: 16px;
 	}
 
-	.field-item.name {
+	.fieldItem.name {
 		grid-column: span 4;
 	}
 
-	.field-item.small {
+	.fieldItem.small {
 		grid-column: span 4;
 	}
 
-	.field-item.medium {
+	.fieldItem.medium {
 		grid-column: span 4;
 	}
 
-	.field-item.large {
+	.fieldItem.large {
 		grid-column: span 8;
 	}
 
-	.form-group-xs {
+	.formGroupXs {
 		flex: 0 0 calc(10% - 8px);
 	}
 
-	.form-group-sm {
+	.formGroupSm {
 		flex: 0 0 calc(15% - 10px);
 	}
 
-	.form-group-md {
+	.formGroupMd {
 		flex: 0 0 calc(27% - 10px);
 	}
 
-	.form-group-half {
+	.formGroupHalf {
 		flex: 0 0 calc(49% - 8px);
 	}
 }
 
 @media (max-width: 1024px) {
-	.settings-content {
+	.settingsContent {
 		margin-left: 220px;
 	}
-	.fields-grid {
+	.fieldsGrid {
 		grid-template-columns: repeat(6, 1fr);
 	}
-	.field-item.name,
-	.field-item.medium {
+	.fieldItem.name,
+	.fieldItem.medium {
 		grid-column: span 3;
 	}
-	.field-item.small {
+	.fieldItem.small {
 		grid-column: span 2;
 	}
-	.field-item.large {
+	.fieldItem.large {
 		grid-column: span 6;
 	}
 }
 
 @media (max-width: 992px) {
-	.form-row {
+	.formRow {
 		flex-direction: column;
 	}
-	.form-group-sm,
-	.form-group-md,
-	.form-group-lg,
-	.form-group-half {
+	.formGroupSm,
+	.formGroupMd,
+	.formGroupLg,
+	.formGroupHalf {
 		flex: 1 0 100%;
 	}
 }
 
 @media (max-width: 768px) {
-	.settings-container {
+	.settingsContainer {
 		padding: 20px;
 	}
-	.fields-grid {
+	.fieldsGrid {
 		grid-template-columns: repeat(4, 1fr);
 		gap: 12px;
 	}
 
-	.field-item.name {
+	.fieldItem.name {
 		grid-column: span 4;
 	}
 
-	.field-item.small {
+	.fieldItem.small {
 		grid-column: span 2;
 	}
 
-	.field-item.medium,
-	.field-item.large {
+	.fieldItem.medium,
+	.fieldItem.large {
 		grid-column: span 4;
 	}
 
-	.toggle-row {
+	.toggleRow {
 		gap: 12px;
 	}
 
-	.settings-content {
+	.settingsContent {
 		margin-left: 0;
 		padding: 20px;
 	}
 
-	.settings-section {
+	.settingsSection {
 		padding: 20px;
 	}
 }
 
 /* Form control styling */
-.form-control,
-.form-select {
+.formControl,
+.formSelect {
 	background-color: white !important;
 	border: 1px solid #e0e0e0;
 	border-radius: 8px;
@@ -527,8 +527,8 @@ hr {
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.form-control:focus,
-.form-select:focus {
+.formControl:focus,
+.formSelect:focus {
 	border-color: hsl(45, 100%, 51%);
 	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.2);
 	outline: none;
@@ -542,7 +542,7 @@ textarea::placeholder {
 }
 
 /* Options Placeholder styling */
-.option-placeholder {
+.optionPlaceholder {
 	font-style: italic !important;
 	color: hsl(0, 0%, 82%) !important;
 }
@@ -556,45 +556,45 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* Responsive styling for smaller screens */
 @media screen and (max-width: 1080px) {
-	.form-body {
+	.formBody {
 		padding: 1rem;
 		font-size: 14px;
 	}
 
-	.buttonDiv .btn-submit,
-	.buttonDiv .btn-clear {
+	.buttonDiv .btnSubmit,
+	.buttonDiv .btnClear {
 		width: 40%;
 		flex-direction: column;
 	}
 }
 
 /* Placeholder styling for select elements */
-.form-select {
+.formSelect {
 	color: hsl(0, 0%, 82%) !important;
 	font-style: italic;
 }
 
 /* Style for selected option */
-.form-select:has(option:checked:not([value=""])) {
+.formSelect:has(option:checked:not([value=""])) {
 	color: black !important;
 	font-style: normal;
 }
 
 /* Style for options in dropdown */
-.form-select option:not([value=""]) {
+.formSelect option:not([value=""]) {
 	color: black;
 	font-style: normal;
 }
 
 /* Style for placeholder option */
-.form-select option[value=""],
-form-select option[disabled] {
+.formSelect option[value=""],
+.formSelect option[disabled] {
 	color: hsl(0, 0%, 82%);
 	font-style: italic;
 }
 
 /* Remove fieldset border */
-.fieldset-no-line {
+.fieldsetNoLine {
 	border: none !important;
 }
 
@@ -605,18 +605,18 @@ table {
 }
 
 /* Upload note styling */
-.upload-note {
+.uploadNote {
 	font-size: 1.1rem;
 	font-weight: bold;
 }
 
 /* File types label styling */
-.file-types {
+.fileTypes {
 	color: #424141;
 }
 
 /* Claim request title styling */
-.claim-request {
+.claimRequest {
 	background-color: #f8f9fa;
 	padding: 1rem;
 	border-radius: 8px;
@@ -626,13 +626,13 @@ table {
 }
 
 /* Claim example styling */
-.claim-example {
+.claimExample {
 	font-weight: 450 !important;
 	font-style: italic;
 }
 
 /* Claim input container styling */
-.claim-input {
+.claimInput {
 	margin-top: 5px;
 	margin-left: auto;
 	display: flex;
@@ -641,58 +641,58 @@ table {
 	width: 100%;
 }
 
-.claim-text {
+.claimText {
 	margin-left: 6px;
 }
 
 /* Claim request container alignment */
-.claim-request-container {
+.claimRequestContainer {
 	display: flex;
 	flex-direction: column;
 }
 
 /* Hospital status label styling */
-.hospital-status-label {
+.hospitalStatusLabel {
 	font-weight: bold;
 	margin-right: 10px;
 }
 
 /* File upload styling */
-.form-control[type="file"] {
+.formControl[type="file"] {
 	padding: 0.5rem;
 	background-color: #f8f9fa;
 	border: 2px dashed #dee2e6;
 	cursor: pointer;
 }
 
-.form-control[type="file"]:hover {
+.formControl[type="file"]:hover {
 	border-color: hsl(45, 100%, 51%);
 	background-color: hsla(45, 100%, 51%, 0.05);
 }
 
 /* Checkbox and Radio button styling */
-.form-check-input {
+.formCheckInput {
 	cursor: pointer;
 	border-color: #dee2e6;
 }
 
-.form-check-input:checked {
+.formCheckInput:checked {
 	background-color: hsl(45, 100%, 51%);
 	border-color: hsl(45, 100%, 51%);
 }
 
 /* Override default radio button color */
-.form-check-input[type="radio"]:checked {
+.formCheckInput[type="radio"]:checked {
 	background-color: hsl(45, 100%, 51%);
 	border-color: hsl(45, 100%, 51%);
 }
 
-.form-check-input[type="radio"]:focus {
+.formCheckInput[type="radio"]:focus {
 	box-shadow: 0 0 0 0.25rem hsla(45, 100%, 51%, 0.25);
 }
 
 /* Section separator styling */
-.section-separator {
+.sectionSeparator {
 	border: 0;
 	height: 1px;
 	background: linear-gradient(
@@ -706,21 +706,21 @@ table {
 }
 
 /* Document upload section styling */
-.upload-section {
+.uploadSection {
 	background-color: #f8f9fa;
 	border-radius: 12px;
 	padding: 1.5rem;
 	margin: 1rem 0;
 }
 
-.upload-section-title {
+.uploadSectionTitle {
 	font-size: 1.1rem;
 	font-weight: 600;
 	color: #2c2c2c;
 	margin-bottom: 1rem;
 }
 
-.file-types-info {
+.fileTypesInfo {
 	background-color: white;
 	border-left: 4px solid hsl(45, 100%, 51%);
 	padding: 0.75rem 1rem;
@@ -728,21 +728,21 @@ table {
 	border-radius: 0 8px 8px 0;
 }
 
-.file-types-label {
+.fileTypesLabel {
 	font-weight: 500;
 	color: #666;
 	font-size: 0.9rem;
 	margin-bottom: 0.25rem;
 }
 
-.file-types-list {
+.fileTypesList {
 	color: #888;
 	font-size: 0.85rem;
 	font-style: italic;
 }
 
 /* Document input container */
-.document-input-container {
+.documentInputContainer {
 	background-color: white;
 	border-radius: 8px;
 	padding: 1rem;
@@ -750,7 +750,7 @@ table {
 }
 
 /* Updated Success Notification with close button */
-.success-notification {
+.successNotification {
 	position: fixed;
 	bottom: 30px;
 	right: 30px;
@@ -766,12 +766,12 @@ table {
 	max-width: 400px;
 }
 
-.success-notification.hiding {
+.successNotification.hiding {
 	animation: slideOut 0.3s ease-in forwards;
 }
 
 /* Add style for close button */
-.success-close {
+.successClose {
 	background: transparent;
 	border: none;
 	color: #999;
@@ -785,12 +785,12 @@ table {
 	margin-left: 8px;
 }
 
-.success-close:hover {
+.successClose:hover {
 	background-color: rgba(0, 0, 0, 0.05);
 	color: #666;
 }
 
-.success-icon {
+.successIcon {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -803,28 +803,28 @@ table {
 	flex-shrink: 0;
 }
 
-.success-content {
+.successContent {
 	flex-grow: 1;
 }
 
-.success-title {
+.successTitle {
 	font-weight: 600;
 	margin: 0;
 	color: #333;
 }
 
-.success-message {
+.successMessage {
 	margin: 4px 0 0;
 	color: #666;
 	font-size: 14px;
 }
 
-.success-action {
+.successAction {
 	display: flex;
 	margin-top: 8px;
 }
 
-.success-link {
+.successLink {
 	color: hsl(45, 100%, 51%);
 	text-decoration: none;
 	font-weight: 500;
@@ -833,11 +833,11 @@ table {
 	align-items: center;
 }
 
-.success-link:hover {
+.successLink:hover {
 	text-decoration: underline;
 }
 
-.success-link-icon {
+.successLinkIcon {
 	margin-left: 4px;
 }
 
@@ -864,12 +864,12 @@ table {
 }
 
 /* Remove old popup styling */
-.popup-overlay {
+.popupOverlay {
 	display: none; /* Hide old popup */
 }
 
 /* Updated Success Notification with status styles */
-.success-notification.error-notification {
+.successNotification.errorNotification {
 	border-left-color: #dc3545;
 }
 
@@ -890,20 +890,20 @@ table {
 }
 
 /* Status-specific styles for the icon */
-.success-icon.processing {
+.successIcon.processing {
 	background-color: #6c757d;
 }
 
-.success-icon.success {
+.successIcon.success {
 	background-color: hsl(45, 100%, 51%);
 }
 
-.success-icon.error {
+.successIcon.error {
 	background-color: #dc3545;
 }
 
 /* Try again link styling */
-.try-again-link {
+.tryAgainLink {
 	color: #dc3545;
 	text-decoration: none;
 	font-weight: 500;
@@ -917,12 +917,12 @@ table {
 	margin-top: 8px;
 }
 
-.try-again-link:hover {
+.tryAgainLink:hover {
 	text-decoration: underline;
 }
 
-/* Loading skeleton styles - Complete replacement with namespace */
-@keyframes settings-shimmer {
+/* Loading skeleton styles from regular CSS */
+@keyframes settingsShimmer {
 	0% {
 		background-position: -1000px 0;
 	}
@@ -931,14 +931,13 @@ table {
 	}
 }
 
-/* Namespaced skeleton class to avoid conflicts */
-.settings-skeleton {
+.settingsSkeleton {
 	background: linear-gradient(to right, #f0f0f0 8%, #e0e0e0 18%, #f0f0f0 33%);
 	background-size: 1000px 100%;
-	animation: settings-shimmer 2s infinite linear;
+	animation: settingsShimmer 2s infinite linear;
 }
 
-.settings-loading-container {
+.settingsLoadingContainer {
 	box-sizing: border-box;
 	padding: 40px;
 	max-width: 1400px;
@@ -947,7 +946,7 @@ table {
 	min-height: calc(100vh - 60px);
 }
 
-.settings-loading-section {
+.settingsLoadingSection {
 	background: #fff;
 	border-radius: 12px;
 	padding: 30px;
@@ -956,18 +955,18 @@ table {
 	overflow: hidden;
 }
 
-.settings-loading-header {
+.settingsLoadingHeader {
 	height: 28px;
 	width: 220px;
 	margin-bottom: 24px;
 	border-radius: 4px;
 }
 
-.settings-loading-toggle-group {
+.settingsLoadingToggleGroup {
 	margin-bottom: 20px;
 }
 
-.settings-loading-toggle-row {
+.settingsLoadingToggleRow {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -977,19 +976,19 @@ table {
 	margin-bottom: 10px;
 }
 
-.settings-loading-toggle-label {
+.settingsLoadingToggleLabel {
 	height: 16px;
 	width: 180px;
 	border-radius: 4px;
 }
 
-.settings-loading-toggle {
+.settingsLoadingToggle {
 	height: 24px;
 	width: 44px;
 	border-radius: 12px;
 }
 
-.settings-loading-form-row {
+.settingsLoadingFormRow {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 15px;
@@ -997,13 +996,13 @@ table {
 	width: 100%;
 }
 
-.settings-loading-form-group {
+.settingsLoadingFormGroup {
 	display: flex;
 	flex-direction: column;
 	margin-bottom: 5px;
 }
 
-.settings-loading-label {
+.settingsLoadingLabel {
 	height: 16px;
 	width: 80%;
 	max-width: 120px;
@@ -1011,39 +1010,39 @@ table {
 	border-radius: 4px;
 }
 
-.settings-loading-field {
+.settingsLoadingField {
 	height: 38px;
 	border-radius: 8px;
 	width: 100%;
 }
 
 /* Loading form group sizes */
-.settings-loading-xs {
+.settingsLoadingXs {
 	flex: 0 0 calc(8% - 8px);
 }
 
-.settings-loading-sm {
+.settingsLoadingSm {
 	flex: 0 0 calc(12% - 10px);
 }
 
-.settings-loading-md {
+.settingsLoadingMd {
 	flex: 0 0 calc(24% - 12px);
 }
 
-.settings-loading-lg {
+.settingsLoadingLg {
 	flex: 0 0 calc(32% - 12px);
 }
 
-.settings-loading-half {
+.settingsLoadingHalf {
 	flex: 0 0 calc(50% - 8px);
 }
 
-.settings-loading-flex {
+.settingsLoadingFlex {
 	flex: 1;
 	min-width: 100px;
 }
 
-.settings-loading-button {
+.settingsLoadingButton {
 	height: 40px;
 	width: 120px;
 	border-radius: 5px;
@@ -1053,107 +1052,107 @@ table {
 
 /* Responsive loading styles */
 @media (max-width: 1200px) {
-	.settings-loading-container {
+	.settingsLoadingContainer {
 		padding: 30px;
 	}
 
-	.settings-loading-xs {
+	.settingsLoadingXs {
 		flex: 0 0 calc(10% - 8px);
 	}
 
-	.settings-loading-sm {
+	.settingsLoadingSm {
 		flex: 0 0 calc(15% - 10px);
 	}
 
-	.settings-loading-md {
+	.settingsLoadingMd {
 		flex: 0 0 calc(27% - 12px);
 	}
 
-	.settings-loading-lg {
+	.settingsLoadingLg {
 		flex: 0 0 calc(30% - 12px);
 	}
 
-	.settings-loading-half {
+	.settingsLoadingHalf {
 		flex: 0 0 calc(49% - 8px);
 	}
 }
 
 @media (max-width: 1024px) {
-	.settings-loading-container {
+	.settingsLoadingContainer {
 		padding: 20px;
 	}
 
-	.settings-loading-section {
+	.settingsLoadingSection {
 		padding: 20px;
 	}
 
-	.settings-loading-form-row {
+	.settingsLoadingFormRow {
 		gap: 12px;
 	}
 }
 
 @media (max-width: 992px) {
-	.settings-loading-form-row {
+	.settingsLoadingFormRow {
 		flex-direction: column;
 		gap: 10px;
 	}
 
-	.settings-loading-xs,
-	.settings-loading-sm,
-	.settings-loading-md,
-	.settings-loading-lg,
-	.settings-loading-half,
-	.settings-loading-flex {
+	.settingsLoadingXs,
+	.settingsLoadingSm,
+	.settingsLoadingMd,
+	.settingsLoadingLg,
+	.settingsLoadingHalf,
+	.settingsLoadingFlex {
 		flex: 1 0 100%;
 		width: 100%;
 	}
 }
 
 @media (max-width: 768px) {
-	.settings-loading-container {
+	.settingsLoadingContainer {
 		padding: 15px;
 	}
 
-	.settings-loading-section {
+	.settingsLoadingSection {
 		padding: 15px;
 		margin-bottom: 15px;
 	}
 
-	.settings-loading-header {
+	.settingsLoadingHeader {
 		width: 150px;
 		height: 24px;
 		margin-bottom: 18px;
 	}
 
-	.settings-loading-toggle-row {
+	.settingsLoadingToggleRow {
 		padding: 10px;
 	}
 
-	.settings-loading-toggle-label {
+	.settingsLoadingToggleLabel {
 		width: 120px;
 	}
 }
 
 @media (max-width: 480px) {
-	.settings-loading-container {
+	.settingsLoadingContainer {
 		padding: 10px;
 	}
 
-	.settings-loading-section {
+	.settingsLoadingSection {
 		padding: 15px;
 		margin-bottom: 12px;
 	}
 
-	.settings-loading-header {
+	.settingsLoadingHeader {
 		width: 120px;
 		height: 20px;
 	}
 
-	.settings-loading-toggle-row {
+	.settingsLoadingToggleRow {
 		padding: 8px;
 	}
 
-	.settings-loading-toggle-label {
+	.settingsLoadingToggleLabel {
 		width: 100px;
 	}
 }
