@@ -46,12 +46,15 @@
 	border-radius: 4px;
 	font-size: 0.75rem;
 	text-transform: uppercase;
-	margin-right: 0.5rem;
+	display: inline-flex;
+	align-items: center;
+	min-width: 90px;
+	justify-content: center;
 }
 
 .header-content {
 	display: grid;
-	grid-template-columns: auto 1fr 1fr 1fr auto;
+	grid-template-columns: 110px 1fr 1fr 1fr auto;
 	gap: 1rem;
 	align-items: center;
 	width: 100%;
@@ -772,7 +775,7 @@ form-admission-row-grid {
 	}
 
 	.header-content {
-		grid-template-columns: auto 1fr 1fr auto;
+		grid-template-columns: 110px 1fr 1fr auto;
 	}
 
 	.hospital-certification-grid {
@@ -828,7 +831,7 @@ form-admission-row-grid {
 	}
 
 	.header-content {
-		grid-template-columns: auto 1fr auto;
+		grid-template-columns: 110px 1fr auto;
 		gap: 0.75rem;
 	}
 }
@@ -995,4 +998,12 @@ form-admission-row-grid {
 	border: 2px solid #ffcc00; /* Yellow border for pending */
 	background-color: #fffbe6; /* Light yellow background */
 	transition: background 0.3s ease, border 0.3s ease;
+}
+
+/* Form type icon */
+.form-type-icon {
+	width: 20px;
+	height: 20px;
+	margin-right: 8px;
+	vertical-align: middle;
 }

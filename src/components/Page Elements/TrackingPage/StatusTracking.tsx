@@ -526,8 +526,21 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 
 		if (!formData) return null;
 
+		// Define a type for normalized attachments
+		type NormalizedAttachment = {
+			type: string;
+			data: {
+				filename: string;
+				name: string;
+				[key: string]: any;
+			};
+		};
+
 		// Normalize attachment data to ensure consistent structure
-		const normalizeAttachment = (attachment: any, type: string) => {
+		const normalizeAttachment = (
+			attachment: any,
+			type: string
+		): NormalizedAttachment | null => {
 			if (!attachment) return null;
 
 			return {
@@ -561,7 +574,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			normalizeAttachment(formData.docRequest, "docRequest"),
 			normalizeAttachment(formData.hospitalInvoice, "hospitalInvoice"),
 			normalizeAttachment(formData.labInvoice, "labInvoice"),
-		].filter(Boolean); // Remove null entries
+		].filter((item): item is NormalizedAttachment => item !== null); // Remove null entries with type assertion
 
 		if (attachmentsWithLabels.length === 0) {
 			return (

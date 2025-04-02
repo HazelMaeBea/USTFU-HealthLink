@@ -4,6 +4,11 @@ import { Record } from "../PendingRequests/types";
 import { useFirebase } from "../../../contexts/firebaseContext";
 import unreadAccomplished from "../NotifBadge/unreadAccomplished";
 import useNotifications from "../NotifBadge/NotifTrigger";
+// Import icons for form types - updated to match ServiceCards path pattern
+import inpatientIcon from "../../../assets/inpatient.png";
+import admissionIcon from "../../../assets/admission.png";
+import outpatientIcon from "../../../assets/outpatient.png";
+import eyeglassesIcon from "../../../assets/eyeglasses.png";
 
 interface RecordTableProps {
 	records: Record[];
@@ -26,6 +31,49 @@ const RecordTable: React.FC<RecordTableProps> = ({
 		selectedRole: "member",
 	});
 
+	// Helper function to get form icon based on type - updated and simplified
+	const getFormIcon = (formType: string, origFormType?: string) => {
+		// Convert to lowercase for case-insensitive comparison
+		const type = formType?.toLowerCase() || "";
+		const origType = origFormType?.toLowerCase() || "";
+
+		// Hospital type logic
+		if (type === "hospital") {
+			if (origType === "inpatient") return inpatientIcon;
+			if (origType === "outpatient") return outpatientIcon;
+			return inpatientIcon; // Default
+		}
+
+		// Direct type matching
+		switch (type) {
+			case "admission":
+				return admissionIcon;
+			case "eyeglasses":
+				return eyeglassesIcon;
+			case "inpatient":
+				return inpatientIcon;
+			case "outpatient":
+				return outpatientIcon;
+			default:
+				return null;
+		}
+	};
+
+	// Helper function for display name - updated
+	const getFormTypeDisplay = (formType: string, origFormType?: string) => {
+		const type = formType?.toLowerCase() || "";
+		const origType = origFormType?.toLowerCase() || "";
+
+		if (type === "hospital") {
+			if (origType === "inpatient") return "Inpatient";
+			if (origType === "outpatient") return "Outpatient";
+			return "Hospital";
+		}
+
+		// Capitalize first letter
+		return formType.charAt(0).toUpperCase() + formType.slice(1);
+	};
+
 	return (
 		<div className={styles["table-component-container"]}>
 			<div className={styles["records-container"]}>
@@ -39,6 +87,19 @@ const RecordTable: React.FC<RecordTableProps> = ({
 					// Format the status for display and styling
 					const status = record.status || "Pending";
 					const statusClass = status.toLowerCase();
+
+					// Get form type and icon
+					const formType =
+						record.formData?.origFormType || record.typeOfForm;
+					const origFormType = record.formData?.origFormType;
+					const formIcon = getFormIcon(
+						record.typeOfForm,
+						origFormType
+					);
+					const formTypeDisplay = getFormTypeDisplay(
+						record.typeOfForm,
+						origFormType
+					);
 
 					return (
 						<div
@@ -100,7 +161,7 @@ const RecordTable: React.FC<RecordTableProps> = ({
 										</span>
 									</div>
 
-									{/* Form Type Field with Label-Value Format - Simplified */}
+									{/* Form Type Field with Label-Value Format - Updated with Icon */}
 									<div
 										className={styles["record-typeOfForm"]}
 									>
@@ -113,16 +174,32 @@ const RecordTable: React.FC<RecordTableProps> = ({
 										>
 											Form Type
 										</span>
-										<span
+										<div
 											className={
 												styles[
-													"record-typeOfForm-value"
+													"record-typeOfForm-value-container"
 												]
 											}
 										>
-											{record.formData?.origFormType ||
-												record.typeOfForm}
-										</span>
+											{formIcon && (
+												<img
+													src={formIcon}
+													alt={formTypeDisplay}
+													className={
+														styles["form-type-icon"]
+													}
+												/>
+											)}
+											<span
+												className={
+													styles[
+														"record-typeOfForm-value"
+													]
+												}
+											>
+												{formTypeDisplay}
+											</span>
+										</div>
 									</div>
 
 									{/* Status Field with Badge Format */}

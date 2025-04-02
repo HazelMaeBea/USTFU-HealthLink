@@ -163,6 +163,20 @@
 	text-transform: uppercase;
 }
 
+/* Form Type styles with icon support */
+.record-typeOfForm-value-container {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.form-type-icon {
+	height: 16px;
+	width: auto;
+	margin-right: 4px;
+	vertical-align: middle;
+}
+
 .record-typeOfForm-value {
 	font-weight: 500;
 	color: #333;
@@ -249,6 +263,10 @@
 	.record-status {
 		width: 48%;
 	}
+
+	.form-type-icon {
+		height: 15px;
+	}
 }
 
 @media screen and (max-width: 768px) {
@@ -275,6 +293,10 @@
 		width: 100%;
 		padding: 0.25rem 0;
 	}
+
+	.form-type-icon {
+		height: 14px;
+	}
 }
 
 @media screen and (max-width: 576px) {
@@ -290,5 +312,9 @@
 	.details-button {
 		padding: 5px 10px;
 		font-size: 0.8rem;
+	}
+
+	.form-type-icon {
+		height: 12px;
 	}
 }

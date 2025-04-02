@@ -25,6 +25,12 @@ import unreadPending from "../NotifBadge/unreadPending";
 import useNotifications from "../NotifBadge/NotifTrigger";
 import { useFirebase } from "../../../contexts/firebaseContext";
 
+// Import icons for form types
+import inpatientIcon from "../../../assets/inpatient.png";
+import outpatientIcon from "../../../assets/outpatient.png";
+import admissionIcon from "../../../assets/admission.png";
+import eyeglassesIcon from "../../../assets/eyeglasses.png";
+
 interface PendingRequestListProps {
 	searchQuery?: string;
 	selectedType?: string;
@@ -389,6 +395,37 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 				// Capitalize first letter
 				.replace(/^./, (str) => str.toUpperCase())
 		);
+	};
+
+	// Helper function to get form icon based on type
+	const getFormIcon = (
+		formType: string,
+		hospitalStatus?: string
+	): string | undefined => {
+		// Convert to lowercase for case-insensitive comparison
+		const type = formType?.toLowerCase() || "";
+		const status = hospitalStatus?.toLowerCase() || "";
+
+		// Hospital type logic
+		if (type === "hospital") {
+			if (status.includes("in-patient")) return inpatientIcon;
+			if (status.includes("out-patient")) return outpatientIcon;
+			return inpatientIcon; // Default
+		}
+
+		// Direct type matching
+		switch (type) {
+			case "admission":
+				return admissionIcon;
+			case "eyeglasses":
+				return eyeglassesIcon;
+			case "inpatient":
+				return inpatientIcon;
+			case "outpatient":
+				return outpatientIcon;
+			default:
+				return undefined;
+		}
 	};
 
 	const renderFormFields = (request: PendingRequest) => {
@@ -1023,10 +1060,40 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						>
 							<div className={styles["header-content"]}>
 								<div className={styles["header-item"]}>
+									<span className={styles["header-label"]}>
+										Form Type
+									</span>
 									<span className={styles["request-type"]}>
+										{/* Add icon before the text */}
+										{request.formData?.formType && (
+											<img
+												src={getFormIcon(
+													request.formData.formType,
+													isHospitalFormData(
+														request.formData
+													)
+														? request.formData
+																.hospitalStatus
+														: undefined
+												)}
+												alt=""
+												className={
+													styles["form-type-icon"]
+												}
+											/>
+										)}
 										{request.formData?.formType ===
 										"hospital"
-											? "Hospital"
+											? isHospitalFormData(
+													request.formData
+											  ) &&
+											  request.formData.hospitalStatus
+												? request.formData.hospitalStatus
+														.toLowerCase()
+														.includes("in-patient")
+													? "Inpatient"
+													: "Outpatient"
+												: "Hospital"
 											: request.formData?.formType ||
 											  "Unknown"}
 									</span>
