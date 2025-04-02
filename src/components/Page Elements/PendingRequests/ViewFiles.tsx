@@ -3,7 +3,7 @@ import styles from "./ViewFiles.module.css";
 import { HiOutlineX } from "react-icons/hi";
 
 interface ViewFilesProps {
-	file: { url?: string; filename: string };
+	file: { url?: string; filename?: string; name?: string };
 	onClose: () => void;
 }
 
@@ -34,7 +34,11 @@ const ViewFiles: React.FC<ViewFilesProps> = ({ file, onClose }) => {
 		};
 	}, [file, onClose]);
 
-	const isPdf = file.filename.toLowerCase().endsWith(".pdf");
+	// Use either filename or name property
+	const displayName = file.filename || file.name || "Unknown file";
+
+	// Determine if PDF based on file extension
+	const isPdf = displayName.toLowerCase().endsWith(".pdf");
 
 	// Handle background click to close modal
 	const handleBackgroundClick = (e: React.MouseEvent) => {
@@ -61,9 +65,9 @@ const ViewFiles: React.FC<ViewFilesProps> = ({ file, onClose }) => {
 				<div className={styles["view-file-header"]}>
 					<h3
 						className={styles["view-file-title"]}
-						title={file.filename}
+						title={displayName}
 					>
-						{file.filename}
+						{displayName}
 					</h3>
 					<button
 						className={styles["close-button"]}
@@ -77,7 +81,7 @@ const ViewFiles: React.FC<ViewFilesProps> = ({ file, onClose }) => {
 						isPdf ? (
 							<iframe
 								src={file.url}
-								title={file.filename}
+								title={displayName}
 								className={styles["pdf-preview"]}
 							/>
 						) : (
@@ -111,7 +115,7 @@ const ViewFiles: React.FC<ViewFilesProps> = ({ file, onClose }) => {
 								<div className={styles["image-wrapper"]}>
 									<img
 										src={file.url}
-										alt={file.filename}
+										alt={displayName}
 										className={styles["full-size-image"]}
 										style={{ transform: `scale(${zoom})` }}
 										onError={(e) => {

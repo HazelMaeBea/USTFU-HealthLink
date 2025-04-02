@@ -31,7 +31,7 @@
 
 /* Record Box - Updated with HistoryPage-inspired design */
 .record-box {
-	padding: 0.75rem 1rem;
+	padding: 0.5rem 1rem;
 	border-radius: 8px;
 	color: #000;
 	display: -webkit-flex;
@@ -114,7 +114,7 @@
 /* Date styles - new */
 .record-dateTime {
 	width: 25%;
-	padding: 0.5rem 0;
+	padding: 0.25rem 0;
 	font-size: 0.9rem;
 	color: #495057;
 }
@@ -134,7 +134,7 @@
 /* Transaction ID styles - new */
 .record-transactionID {
 	width: 25%;
-	padding: 0.5rem 0;
+	padding: 0.25rem 0;
 }
 
 .record-transactionID-label {
@@ -152,7 +152,7 @@
 /* Form Type styles - updated to remove yellow background */
 .record-typeOfForm {
 	width: 30%;
-	padding: 0.5rem 0;
+	padding: 0.25rem 0;
 }
 
 .record-typeOfForm-label {
@@ -174,7 +174,7 @@
 /* Status Badge styles - new */
 .record-status {
 	width: 15%;
-	padding: 0.5rem 0;
+	padding: 0.25rem 0;
 }
 
 .record-status-label {
