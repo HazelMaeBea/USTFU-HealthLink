@@ -10,7 +10,7 @@ import "./App.css";
 import Layout from "./components/Layout/Layout";
 import LoginPage from "./components/Pages/LoginPage/LoginPage";
 import RegistrationPage from "./components/Pages/RegistrationPage/RegistrationPage";
-import HospitalizationApplication from "./components/Pages/HospitalizationApplication";
+import HospitalizationApplication from "./components/Pages/FormPages/HospitalizationApplication";
 import TrackingPage from "./components/Pages/MemberHistoryPage/TrackingPage";
 import HistoryPage from "./components/Pages/AdminHistoryPage/HistoryPage";
 import FAQ from "./components/Pages/FAQPage/FAQ";

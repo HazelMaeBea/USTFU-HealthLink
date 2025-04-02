@@ -8,9 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFirebase } from "../../../contexts/firebaseContext";
 import styles from "./RegistrationPage.module.css";
 import ConfirmationMessage from "./ConfirmationMessage";
-import USTFULogo from "../../../images/USTFULogo.png";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../../config/firebase";
+import USTFULogo from "../../../assets/USTFULogo.png";
 
 const schema = z.object({
 	firstName: z.string().min(1, { message: "First name is required" }),

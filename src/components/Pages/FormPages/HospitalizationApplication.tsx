@@ -1,11 +1,11 @@
 // src/components/Pages/HospitalizationApplication.tsx
 import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import ServiceCards from "./MainPage/ServiceCards";
-import InpatientForm from "./FormPages/InpatientForm";
-import AdmissionForm from "./FormPages/AdmissionForm";
-import OutpatientForm from "./FormPages/OutpatientForm";
-import EyeglassesForm from "./FormPages/EyeglassesForm";
+import ServiceCards from "../MainPage/ServiceCards";
+import InpatientForm from "./InpatientForm";
+import AdmissionForm from "./AdmissionForm";
+import OutpatientForm from "./OutpatientForm";
+import EyeglassesForm from "./EyeglassesForm";
 
 const HospitalizationApplication: React.FC = () => {
 	const location = useLocation(); // Access current location (route)
