@@ -168,13 +168,14 @@ const Settings = () => {
 		Record<string, { old: string; new: string }>
 	>({});
 	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+	const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [isPhoneFocused, setIsPhoneFocused] = useState<boolean>(false);
 
-	const { db, currentUser, uid } = useFirebase();
+	const { db, uid } = useFirebase();
 
 	useEffect(() => {
 		setCalculatedAge(calculateAge(settings.birthdate));
@@ -321,6 +322,23 @@ const Settings = () => {
 		setSettings({ ...settings, [field]: value });
 	};
 
+	const handleCancelClick = () => {
+		if (Object.keys(changedFields).length > 0) {
+			setIsCancelConfirmOpen(true);
+		}
+	};
+
+	const handleCancel = () => {
+		setSettings({ ...originalSettings } as typeof settings);
+		setChangedFields({});
+
+		if (error) {
+			setError(null);
+		}
+
+		setIsCancelConfirmOpen(false);
+	};
+
 	const generateChangeSummary = () => {
 		if (Object.keys(changedFields).length === 0) {
 			return "No changes detected.";
@@ -360,6 +378,56 @@ const Settings = () => {
 							→{" "}
 							<span className={styles.newValue}>
 								{values.new || "(empty)"}
+							</span>
+						</li>
+					))}
+				</ul>
+			</div>
+		);
+	};
+
+	const generateCancelSummary = () => {
+		if (Object.keys(changedFields).length === 0) {
+			return "No changes to discard.";
+		}
+
+		const fieldLabels: Record<string, string> = {
+			firstname: "First Name",
+			lastname: "Last Name",
+			middlename: "Middle Name",
+			suffix: "Suffix",
+			term: "Term",
+			year: "Year",
+			load: "Load",
+			status: "Status",
+			numberID: "ID Number",
+			address: "Address",
+			dateHired: "Date Hired",
+			dateRetired: "Date Retired",
+			birthdate: "Birthdate",
+			phoneNumber: "Phone Number",
+			gender: "Gender",
+			college: "College",
+			notification: "Email Notifications",
+			autofill: "Auto-fill Information",
+		};
+
+		return (
+			<div className={styles.changesSummary}>
+				<p>
+					You have unsaved changes. Discarding will revert the
+					following:
+				</p>
+				<ul>
+					{Object.entries(changedFields).map(([field, values]) => (
+						<li key={field}>
+							<strong>{fieldLabels[field] || field}:</strong>
+							<span className={styles.newValue}>
+								{values.new || "(empty)"}
+							</span>{" "}
+							→{" "}
+							<span className={styles.oldValue}>
+								{values.old || "(empty)"}
 							</span>
 						</li>
 					))}
@@ -1052,6 +1120,17 @@ const Settings = () => {
 
 				<div className={styles.buttonDiv}>
 					<button
+						onClick={handleCancelClick}
+						className={styles.settingsBtnCancel}
+						disabled={
+							isLoading ||
+							isSaving ||
+							Object.keys(changedFields).length === 0
+						}
+					>
+						Cancel
+					</button>
+					<button
 						onClick={() => setIsConfirmOpen(true)}
 						className={styles.settingsBtnSubmit}
 						disabled={
@@ -1072,6 +1151,16 @@ const Settings = () => {
 					onConfirm={handleConfirmSave}
 					onCancel={() => setIsConfirmOpen(false)}
 					isOpen={isConfirmOpen}
+				/>
+			)}
+
+			{isCancelConfirmOpen && (
+				<Popout
+					title="Discard Changes"
+					message={generateCancelSummary()}
+					onConfirm={handleCancel}
+					onCancel={() => setIsCancelConfirmOpen(false)}
+					isOpen={isCancelConfirmOpen}
 				/>
 			)}
 		</div>
