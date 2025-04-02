@@ -35,7 +35,13 @@ export const baseFormSchema = z.object({
 	gender: z.enum(["Male", "Female"], {
 		errorMap: () => ({ message: "Please select your gender" }),
 	}),
-	contact: z.number().nullable().optional(), // Update contact to be properly typed
+	contact: z
+		.union([
+			z.string().min(1, "Contact number is required"),
+			z.number().int("Contact must be a valid phone number"),
+			z.null(),
+		])
+		.optional(),
 	college: z
 		.string({
 			required_error: "Please select your college",
@@ -69,14 +75,8 @@ export const baseFormSchema = z.object({
 	procedureSpecify: z.string().optional(),
 });
 
-// Base FormData type from schema with explicit contact field
-export type BaseFormData = z.infer<typeof baseFormSchema> & {
-	contact: number | null;
-};
+// Base FormData type from schema with updated contact field
+export type BaseFormData = z.infer<typeof baseFormSchema>;
 
 // UnifiedFormData combines all possible form fields
-export type UnifiedFormData = BaseFormData &
-	HospitalFormData & {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		contact: any;
-	};
+export type UnifiedFormData = BaseFormData & HospitalFormData;
