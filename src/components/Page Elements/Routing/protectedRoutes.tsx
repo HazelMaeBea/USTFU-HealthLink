@@ -27,7 +27,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
-import { useFirebase } from "../contexts/firebaseContext";
+import { useFirebase } from "../../../contexts/firebaseContext";
 
 const ProtectedRoute: React.FC = () => {
 	const { isLoading, isAuthenticated, isVerified, userStatus, userClaims } =

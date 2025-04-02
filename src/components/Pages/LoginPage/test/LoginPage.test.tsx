@@ -1,3 +1,38 @@
+// Summary of LoginPage.test.tsx tests:
+/*
+Key Tests Summary:
+- Renders login page correctly:
+  Checks that essential elements (Logo, "Sign in" text, account description, and the "Sign in with Google" button)
+  are rendered on the page.
+  
+- Shows loading state when logging in:
+  Simulates a delayed login and verifies that a "Signing in..." message is displayed while waiting for the login to resolve.
+  
+- Redirects to home when user is verified:
+  After a successful login with verified user status, confirms that the user is navigated to "/home".
+  
+- Shows not registered popout for unregistered users:
+  For unregistered users, ensures a popout prompting registration is displayed;
+  upon confirmation, the user is redirected to "/register".
+  
+- Shows pending verification popout:
+  If the logged-in user’s registration status is "pending",
+  the interface shows a message informing the user that verification is pending.
+  
+- Shows incomplete registration popout:
+  When the registration status is "incomplete", alerts the user to complete their registration.
+  
+- Handles login failure:
+  If the login fails (returns null), verifies that an error message "Login failed. Please try again." is displayed.
+  
+- Handles authentication error:
+  When login results in an error (thrown exception), confirms that the specific error message is showed.
+  
+- Handles keyboard shortcut for syncing claims:
+  Simulates an Alt+Shift+S keyboard event and checks that the syncing function (syncAllUserClaimsTrigger) is called.
+*/
+
+import React, { ReactNode } from "react";
 import {
 	render,
 	screen,
@@ -8,7 +43,6 @@ import {
 import { describe, test, expect, beforeEach, vi, Mock } from "vitest";
 import LoginPage from "../LoginPage";
 import "@testing-library/jest-dom";
-import React, { ReactNode } from "react";
 
 // Define mock types
 interface MockUser {

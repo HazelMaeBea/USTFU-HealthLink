@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import Layout from "./components/Layout/Layout";
+import Layout from "./components/Page Elements/Layout/Layout";
 import LoginPage from "./components/Pages/LoginPage/LoginPage";
 import RegistrationPage from "./components/Pages/RegistrationPage/RegistrationPage";
 import HospitalizationApplication from "./components/Pages/FormPages/HospitalizationApplication";
@@ -20,7 +20,7 @@ import PendingRequests from "./components/Pages/PendingRequestPage/PendingReques
 import ErrorBoundary from "./components/Pages/PendingRequestPage/ErrorBoundary";
 import { UserProvider } from "./contexts/userContext";
 import { FirebaseProvider } from "./contexts/firebaseContext";
-import ProtectedRoute from "./components/protectedRoutes";
+import ProtectedRoute from "./components/Page Elements/Routing/protectedRoutes";
 //TEMP
 import FormGenerator from "./components/Pages/FormGenerator";
 
