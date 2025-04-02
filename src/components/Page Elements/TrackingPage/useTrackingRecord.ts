@@ -7,21 +7,26 @@ import {
 	onSnapshot,
 	getDocs,
 } from "firebase/firestore";
-import { PendingRequest } from "../PendingRequests/types";
+import { PendingRequest } from "../../Pages/PendingRequestPage/types";
 import { DocumentData } from "firebase/firestore";
-import { Record } from "../PendingRequests/types";
+import { Record } from "../../Pages/PendingRequestPage/types";
 import { useFirebase } from "../../../contexts/firebaseContext";
 
 const useTrackingRecords = () => {
 	const { fullName } = useFirebase();
 	const [pendingRecords, setPendingRecords] = useState<Record[]>([]);
-	const [accomplishedRecords, setAccomplishedRecords] = useState<Record[]>([]);
+	const [accomplishedRecords, setAccomplishedRecords] = useState<Record[]>(
+		[]
+	);
 
 	useEffect(() => {
-    if (!fullName) return;
+		if (!fullName) return;
 		// Reference Firestore collections
 		const pendingRef = collection(db, "FormRequests");
-    const pendingQuery = query(pendingRef, orderBy("dateSubmitted", "desc"));
+		const pendingQuery = query(
+			pendingRef,
+			orderBy("dateSubmitted", "desc")
+		);
 
 		// Fetch and listen for pending requests
 		const unsubscribePending = onSnapshot(pendingQuery, (snapshot) => {
@@ -39,10 +44,12 @@ const useTrackingRecords = () => {
 					formData: data.formData, // Include formData
 					dateSubmitted: data.dateSubmitted, // Include dateSubmitted
 					DateDecided: data.DateDecided, // Include DateDecided
-          requester: data.requester,
+					requester: data.requester,
 				};
 			});
-      const filteredPendingData = pendingData.filter(record => record.requester === fullName);
+			const filteredPendingData = pendingData.filter(
+				(record) => record.requester === fullName
+			);
 			setPendingRecords(filteredPendingData);
 		});
 
@@ -56,8 +63,8 @@ const useTrackingRecords = () => {
 					)
 				);
 
-				const accomplishedData: Record[] = accomplishedSnapshot.docs.map(
-					(doc) => {
+				const accomplishedData: Record[] =
+					accomplishedSnapshot.docs.map((doc) => {
 						const data = doc.data() as DocumentData;
 						const dateDecided = data.DateDecided
 							? data.DateDecided.toDate()
@@ -73,12 +80,13 @@ const useTrackingRecords = () => {
 							formData: data.formData, // Include formData
 							dateSubmitted: data.dateSubmitted, // Include dateSubmitted
 							DateDecided: data.DateDecided, // Include DateDecided
-              requester: data.requester,
+							requester: data.requester,
 						};
-					}
+					});
+				const filteredAccomplishedData = accomplishedData.filter(
+					(record) => record.requester === fullName
 				);
-        const filteredAccomplishedData = accomplishedData.filter(record => record.requester === fullName);
-        setAccomplishedRecords(filteredAccomplishedData);
+				setAccomplishedRecords(filteredAccomplishedData);
 			} catch (error) {
 				console.error("Error fetching accomplished requests:", error);
 			}

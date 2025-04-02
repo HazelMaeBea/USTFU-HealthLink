@@ -11,9 +11,9 @@ import {
 	Timestamp,
 	updateDoc,
 } from "firebase/firestore";
-import { db, getFormID } from "../../../../src/config/firebase.ts";
-import type { PendingRequest } from "./types";
-import { pushAccomplishedNotification } from "../NotifBadge/NotifTrigger.ts";
+import { db, getFormID } from "../../../config/firebase.ts";
+import type { PendingRequest } from "./types.ts";
+import { pushAccomplishedNotification } from "../../Page Elements/NotifBadge/NotifTrigger.ts";
 
 const reqCollection = collection(db, "FormRequests");
 const usersCollection = collection(db, "users");
@@ -29,7 +29,7 @@ export interface PaginationInfo {
 export interface BenefitsData {
 	fullName: string;
 	remainingBenefits: number;
-  }
+}
 
 // Interface for the hook return value
 export interface PaginatedRequests {
@@ -59,7 +59,7 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 		setIsLoading(true);
 
 		try {
-			const snapshot = await getDocs(q);  // Manual fetch
+			const snapshot = await getDocs(q); // Manual fetch
 			const results: PendingRequest[] = [];
 			snapshot.forEach((doc) => {
 				const data = doc.data() as PendingRequest;
@@ -111,7 +111,10 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 				setIsLoading(false);
 			},
 			(error) => {
-				console.error("Error fetching real-time pending requests:", error);
+				console.error(
+					"Error fetching real-time pending requests:",
+					error
+				);
 				setError("Failed to load pending requests. Please try again.");
 				setIsLoading(false);
 			}
@@ -121,7 +124,14 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 		return () => unsubscribe();
 	}, [currentPage, pageSize]);
 
-	return { requests, pagination, setCurrentPage, isLoading, error, fetchData };
+	return {
+		requests,
+		pagination,
+		setCurrentPage,
+		isLoading,
+		error,
+		fetchData,
+	};
 };
 
 // Update the updateDocument function to include validUntil
@@ -145,10 +155,10 @@ export const updateDocument = async (
 
 			// Create update object with optional validUntil field
 			await updateDoc(docRef, {
-				status: status,                       // ✅ Ensure status is updated
+				status: status, // ✅ Ensure status is updated
 				statusReason: textArea,
 				DateDecided: decisionTimestamp,
-				...(validUntil ? { validUntil } : {})
+				...(validUntil ? { validUntil } : {}),
 			});
 
 			console.log(`Document with ID ${document.id} has been updated.`);
@@ -161,12 +171,14 @@ export const updateDocument = async (
 			}
 
 			// insert code to generate new ID
-			const formIDValue = await getFormID(true, docData.claimRequestCount) || 1;
-			const formIDString = formIDValue?.toString().padStart(6, "0") || "error";
+			const formIDValue =
+				(await getFormID(true, docData.claimRequestCount)) || 1;
+			const formIDString =
+				formIDValue?.toString().padStart(6, "0") || "error";
 			const currentYear: string = new Date().getFullYear().toString();
 			const formID = currentYear + "-" + formIDString + "-O";
-			console.log("Generated FormID", formID)
-			
+			console.log("Generated FormID", formID);
+
 			if (newCollection) {
 				const newDocRef = doc(db, newCollection, formID);
 
@@ -192,10 +204,15 @@ export const updateDocument = async (
 					`Document moved to ${newCollection} and deleted from FormRequests.`
 				);
 
-				if (newCollection === "AccomplishedRequests" || newCollection === "RevisionsRequests") {
-					const requester = docData.requester;  // Retrieve the requester from the docData
+				if (
+					newCollection === "AccomplishedRequests" ||
+					newCollection === "RevisionsRequests"
+				) {
+					const requester = docData.requester; // Retrieve the requester from the docData
 					await pushAccomplishedNotification(transID, requester);
-					console.log(`✅ Notification pushed for requester: ${requester}`);
+					console.log(
+						`✅ Notification pushed for requester: ${requester}`
+					);
 				}
 			}
 		}
@@ -233,14 +250,17 @@ export const updateBenefits = async (
 
 export async function getUsersBenefits() {
 	const snapshot = await getDocs(usersCollection);
-  
+
 	const result: Record<string, BenefitsData["remainingBenefits"]> = {};
 
 	snapshot.forEach((doc) => {
 		const data = {
 			fullName: doc.data().fullName,
-			remainingBenefits: doc.data().personalInfo.remainingBenefits || doc.data().remainingBenefits || 0
-		} as BenefitsData
+			remainingBenefits:
+				doc.data().personalInfo.remainingBenefits ||
+				doc.data().remainingBenefits ||
+				0,
+		} as BenefitsData;
 
 		if (data.fullName && data.remainingBenefits !== undefined) {
 			result[data.fullName] = data.remainingBenefits;

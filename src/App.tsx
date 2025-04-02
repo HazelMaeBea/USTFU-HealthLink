@@ -16,7 +16,7 @@ import HospitalizationHistory from "./components/Pages/HospitalizationHistory";
 import FAQs from "./components/Pages/Faqs";
 import Settings from "./components/Pages/SettingsPage/Settings";
 import AdminSettings from "./components/Pages/AdminSettings";
-import PendingRequests from "./components/Pages/PendingRequests";
+import PendingRequests from "./components/Pages/PendingRequestPage/PendingRequests";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { UserProvider } from "./contexts/userContext";
 import { FirebaseProvider } from "./contexts/firebaseContext";

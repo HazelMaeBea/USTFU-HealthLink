@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./RecordTable.module.css";
-import { Record } from "../PendingRequests/types";
+import { Record } from "../../Pages/PendingRequestPage/types";
 import { useFirebase } from "../../../contexts/firebaseContext";
 import unreadAccomplished from "../NotifBadge/unreadAccomplished";
 import useNotifications from "../NotifBadge/NotifTrigger";

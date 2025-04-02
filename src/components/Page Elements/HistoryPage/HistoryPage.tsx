@@ -10,8 +10,8 @@
  */
 import { useState, useEffect, useRef } from "react";
 import styles from "./HistoryPage.module.css";
-import type { PendingRequest } from "../PendingRequests/types";
-import { usePendingRequests } from "../PendingRequests/PendingRequestBackend";
+import type { PendingRequest } from "../../Pages/PendingRequestPage/types";
+import { usePendingRequests } from "../../Pages/PendingRequestPage/PendingRequestBackend";
 import {
 	FiSearch,
 	FiFilter,

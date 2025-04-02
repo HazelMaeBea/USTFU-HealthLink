@@ -16,13 +16,13 @@ import styles from "./PendingRequestList.module.css";
 import { RiArrowDownSFill, RiArrowRightSFill } from "react-icons/ri";
 import { FiCheck, FiEdit2 } from "react-icons/fi";
 import { HiOutlineX } from "react-icons/hi";
-import Popout from "../Popout/Popout";
-import ViewFiles from "./ViewFiles";
+import Popout from "../../Page Elements/Popout/Popout";
+import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles";
 import HistoryPopout from "./HistoryPopout";
-import PageButtons from "../PageButtons/PageButtons";
+import PageButtons from "../../Page Elements/PageButtons/PageButtons";
 import PendingRequestsLoadingSkeleton from "./PendingRequestsLoadingSkeleton";
-import unreadPending from "../NotifBadge/unreadPending";
-import useNotifications from "../NotifBadge/NotifTrigger";
+import unreadPending from "../../Page Elements/NotifBadge/unreadPending";
+import useNotifications from "../../Page Elements/NotifBadge/NotifTrigger";
 import { useFirebase } from "../../../contexts/firebaseContext";
 
 // Import icons for form types

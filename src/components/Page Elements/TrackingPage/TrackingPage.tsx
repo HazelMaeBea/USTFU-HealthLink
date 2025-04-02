@@ -5,7 +5,7 @@ import RecordTable from "./RecordTable";
 import PageButtons from "../PageButtons/PageButtons";
 import StatusTracking from "./StatusTracking";
 import useTrackingRecords from "./useTrackingRecord";
-import { Record } from "../PendingRequests/types";
+import { Record } from "../../Pages/PendingRequestPage/types";
 
 const TrackingPage = () => {
 	const [activeTab, setActiveTab] = useState(0);
