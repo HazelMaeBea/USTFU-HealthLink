@@ -17,7 +17,7 @@ import FAQ from "./components/Pages/FAQPage/FAQ";
 import Settings from "./components/Pages/SettingsPage/Settings";
 import AdminSettings from "./components/Pages/AdminSettingsPage/AdminSettings";
 import PendingRequests from "./components/Pages/PendingRequestPage/PendingRequests";
-import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorBoundary from "./components/Pages/PendingRequestPage/ErrorBoundary";
 import { UserProvider } from "./contexts/userContext";
 import { FirebaseProvider } from "./contexts/firebaseContext";
 import ProtectedRoute from "./components/protectedRoutes";
