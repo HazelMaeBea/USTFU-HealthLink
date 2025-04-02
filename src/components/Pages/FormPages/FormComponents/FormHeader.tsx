@@ -1,6 +1,6 @@
 import "./FormHeader.css";
-import USTFULogo from "../../../../images/USTFULogo.png";
-import USTLogo from "../../../../images/USTLogo.png";
+import USTFULogo from "../../../../assets/USTFULogo.png";
+import USTLogo from "../../../../assets/USTLogo.png";
 
 interface FormHeaderProps {
 	formType: string;

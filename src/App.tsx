@@ -13,7 +13,7 @@ import RegistrationPage from "./components/Pages/RegistrationPage/RegistrationPa
 import HospitalizationApplication from "./components/Pages/HospitalizationApplication";
 import TrackingPage from "./components/Pages/MemberHistoryPage/TrackingPage";
 import HistoryPage from "./components/Pages/AdminHistoryPage/HistoryPage";
-import FAQs from "./components/Pages/Faqs";
+import FAQ from "./components/Pages/FAQPage/FAQ";
 import Settings from "./components/Pages/SettingsPage/Settings";
 import AdminSettings from "./components/Pages/AdminSettingsPage/AdminSettings";
 import PendingRequests from "./components/Pages/PendingRequestPage/PendingRequests";
@@ -66,7 +66,7 @@ const App: React.FC = () => {
 										element={<FormGenerator />}
 									/>
 
-									<Route path="/faqs" element={<FAQs />} />
+									<Route path="/faqs" element={<FAQ />} />
 									<Route
 										path="/settings"
 										element={<Settings />}
