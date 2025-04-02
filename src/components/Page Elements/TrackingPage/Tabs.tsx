@@ -1,6 +1,7 @@
 // This component renders tab navigation with a controlled activeTab state and calls onTabChange when a tab title is clicked.
 import React, { ReactElement } from "react";
 import TabTitle from "./TabTitle";
+import styles from "./Tabs.module.css";
 
 type Props = {
 	activeTab: number;
@@ -10,8 +11,8 @@ type Props = {
 
 const Tabs: React.FC<Props> = ({ activeTab, onTabChange, children }) => {
 	return (
-		<div className="TrackingTabs">
-			<div className="tab-titles">
+		<div className={styles.tabs}>
+			<div className={styles["tab-titles"]}>
 				{children.map((item, index) => (
 					<TabTitle
 						key={index}
@@ -21,7 +22,7 @@ const Tabs: React.FC<Props> = ({ activeTab, onTabChange, children }) => {
 					/>
 				))}
 			</div>
-			{children[activeTab]}
+			<div className={styles["tab-content"]}>{children[activeTab]}</div>
 		</div>
 	);
 };

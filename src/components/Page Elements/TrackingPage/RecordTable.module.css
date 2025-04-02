@@ -9,11 +9,6 @@
 	font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.table-component-container h3 {
-	align-self: center;
-	text-transform: uppercase;
-}
-
 /* Table Footer */
 .table-footer {
 	display: -webkit-flex;
@@ -34,9 +29,9 @@
 	gap: 1rem;
 }
 
-/* Record Box */
+/* Record Box - Updated with HistoryPage-inspired design */
 .record-box {
-	padding: 0.5rem;
+	padding: 0.75rem 1rem;
 	border-radius: 8px;
 	color: #000;
 	display: -webkit-flex;
@@ -44,59 +39,55 @@
 	-webkit-flex-direction: column;
 	flex-direction: column;
 	justify-items: center;
-	-webkit-box-shadow: 1px 1px 1px 1px hsl(0, 0%, 82%);
-	box-shadow: 1px 1px 1px 1px hsl(0, 0%, 82%);
+	-webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	background-color: #fff;
+	transition: all 0.2s ease-in-out;
+}
+
+.record-box:hover {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+	transform: translateY(-2px);
 }
 
 /* Variant Backgrounds */
 .record-box.approved {
-	background-color: hsl(120, 100%, 92%);
+	border-left: 4px solid #10b981;
 }
 
 .record-box.approved:hover {
-	background-color: hsl(120, 100%, 85%); /* Darker green on hover */
-	box-shadow: 0 0 10px hsl(120, 100%, 70%); /* Soft green glow */
+	background-color: #e6f7ee;
 }
 
 .record-box.approved.highlight {
-	background-color: hsl(150, 100%, 95%); /* Light blue background */
-	border: 2px solid hsl(150, 100%, 75%); /* Slightly darker blue border */
-	box-shadow: 0 0 10px hsl(150, 100%, 85%); /* Soft glow effect */
-	transition: all 0.3s ease-in-out; /* Smooth transition */
-}
-
-.record-box.approved.highlight:hover {
-	background-color: hsl(150, 100%, 78%);
-	box-shadow: 0 0 12px hsl(150, 100%, 60%);
+	background-color: #e6f7ee;
+	border: 2px solid #10b981;
 }
 
 .record-box.rejected {
-	background-color: hsl(0, 100%, 83%);
+	border-left: 4px solid #ef4444;
 }
 
 .record-box.rejected:hover {
-	background-color: hsl(0, 100%, 75%); /* Darker red on hover */
-	box-shadow: 0 0 10px hsl(0, 100%, 60%); /* Soft red glow */
+	background-color: #fee2e2;
 }
 
 .record-box.rejected.highlight {
-	background-color: hsl(10, 100%, 95%); /* Light blue background */
-	border: 2px solid hsl(10, 100%, 75%); /* Slightly darker blue border */
-	box-shadow: 0 0 10px hsl(10, 100%, 85%); /* Soft glow effect */
-	transition: all 0.3s ease-in-out; /* Smooth transition */
-}
-
-.record-box.rejected.highlight:hover {
-	background-color: hsl(10, 100%, 78%);
-	box-shadow: 0 0 12px hsl(10, 100%, 60%);
+	background-color: #fee2e2;
+	border: 2px solid #ef4444;
 }
 
 .record-box.pending {
-	background-color: hsl(54, 100%, 88%);
+	border-left: 4px solid #ffc107;
 }
 
 .record-box.pending:hover {
-	background-color: hsl(53, 100%, 93%) !important;
+	background-color: #fff9e6;
+}
+
+.record-box.pending.highlight {
+	background-color: #fff9e6;
+	border: 2px solid #ffc107;
 }
 
 /* Record Content */
@@ -108,12 +99,7 @@
 	align-items: center;
 }
 
-.record-content.mobile {
-	-webkit-flex-direction: column;
-	flex-direction: column;
-}
-
-/* Record Detail Fields */
+/* Record Detail Fields - Updated with HistoryPage styles */
 .details-container {
 	display: -webkit-flex;
 	display: flex;
@@ -122,23 +108,105 @@
 	gap: 1rem;
 	flex-grow: 1;
 	width: 90%;
+	align-items: center;
 }
 
+/* Date styles - new */
 .record-dateTime {
 	width: 25%;
-	margin-left: 0.5rem;
+	padding: 0.5rem 0;
+	font-size: 0.9rem;
+	color: #495057;
 }
 
+.record-dateTime-label {
+	display: block;
+	font-size: 0.7rem;
+	color: #6c757d;
+	margin-bottom: 0.2rem;
+	text-transform: uppercase;
+}
+
+.record-dateTime-value {
+	font-weight: 500;
+}
+
+/* Transaction ID styles - new */
 .record-transactionID {
 	width: 25%;
+	padding: 0.5rem 0;
 }
 
+.record-transactionID-label {
+	display: block;
+	font-size: 0.7rem;
+	color: #6c757d;
+	margin-bottom: 0.2rem;
+	text-transform: uppercase;
+}
+
+.record-transactionID-value {
+	font-weight: 500;
+}
+
+/* Form Type styles - updated to remove yellow background */
 .record-typeOfForm {
 	width: 30%;
+	padding: 0.5rem 0;
 }
 
+.record-typeOfForm-label {
+	display: block;
+	font-size: 0.7rem;
+	color: #6c757d;
+	margin-bottom: 0.2rem;
+	text-transform: uppercase;
+}
+
+.record-typeOfForm-value {
+	font-weight: 500;
+	color: #333;
+	padding: 0.25rem 0;
+	font-size: 0.9rem;
+	display: inline-block;
+}
+
+/* Status Badge styles - new */
 .record-status {
 	width: 15%;
+	padding: 0.5rem 0;
+}
+
+.record-status-label {
+	display: block;
+	font-size: 0.7rem;
+	color: #6c757d;
+	margin-bottom: 0.2rem;
+	text-transform: uppercase;
+}
+
+.status-badge {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	border-radius: 20px;
+	font-size: 0.8rem;
+	font-weight: 500;
+	text-transform: capitalize;
+}
+
+.status-approved {
+	background-color: #e6f7ee;
+	color: #10b981;
+}
+
+.status-pending {
+	background-color: #fff9e6;
+	color: #ffc107;
+}
+
+.status-rejected {
+	background-color: #fee2e2;
+	color: #ef4444;
 }
 
 /* Button Container & Style */
@@ -153,81 +221,50 @@
 }
 
 .details-button {
-	padding: 5px 10px;
+	padding: 6px 12px;
 	background-color: #000;
 	color: hsl(0, 0%, 100%);
 	border: none;
-	border-radius: 20px;
+	border-radius: 6px;
 	cursor: pointer;
 	width: 100px;
-	font-size: small;
+	font-size: 0.9rem;
+	font-weight: 600;
+	transition: background-color 0.2s ease;
 }
 
 .details-button:hover {
-	background-color: hsl(45, 100%, 68%);
-	color: white;
-	border: none;
+	background-color: #333;
 }
 
 /* Responsive Adjustments */
-@media screen and (max-width: 432px) {
-	.table-component-container {
-		padding: 0.2rem;
-		font-size: small;
-	}
-
-	.record-content {
-		-webkit-flex-direction: row;
-		flex-direction: row;
-	}
-
+@media screen and (max-width: 992px) {
 	.details-container {
-		margin-left: 0.5rem;
-		-webkit-flex-direction: column;
-		flex-direction: column;
-		width: 65%;
-		gap: 0.1rem;
-	}
-
-	.button-container {
-		width: 30%;
-		align-self: center;
-		margin-right: 0.5rem;
+		flex-wrap: wrap;
 	}
 
 	.record-dateTime,
 	.record-transactionID,
 	.record-typeOfForm,
 	.record-status {
-		width: 100%;
-	}
-
-	.record-dateTime {
-		margin-left: 0;
+		width: 48%;
 	}
 }
 
 @media screen and (max-width: 768px) {
 	.table-component-container {
 		padding: 1rem;
-		font-size: 1.2rem;
-	}
-
-	.record-content {
-		-webkit-flex-direction: row;
-		flex-direction: row;
 	}
 
 	.details-container {
-		margin-left: 0.5rem;
-		-webkit-flex-direction: column;
 		flex-direction: column;
-		width: 65%;
-		gap: 0.1rem;
+		align-items: flex-start;
+		width: 70%;
+		gap: 0.5rem;
 	}
 
 	.button-container {
-		width: 20%;
+		width: 30%;
 		align-self: center;
 	}
 
@@ -236,9 +273,22 @@
 	.record-typeOfForm,
 	.record-status {
 		width: 100%;
+		padding: 0.25rem 0;
+	}
+}
+
+@media screen and (max-width: 576px) {
+	.table-component-container {
+		padding: 0.5rem;
+		font-size: 0.9rem;
 	}
 
-	.record-dateTime {
-		margin-left: 0;
+	.details-container {
+		width: 65%;
+	}
+
+	.details-button {
+		padding: 5px 10px;
+		font-size: 0.8rem;
 	}
 }

@@ -1,0 +1,102 @@
+/* Main container for tabs */
+.tabs {
+	background-color: transparent;
+	box-shadow: none;
+	overflow: visible;
+	margin-bottom: 0.75rem;
+	width: 100%;
+	max-width: 1200px; /* Increased max width to utilize more space */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* Tab navigation container */
+.tab-titles {
+	display: flex;
+	background-color: white;
+	border-radius: 10px 10px 0 0;
+	overflow: hidden;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	margin-bottom: 0;
+	border-bottom: 2px solid #ffc107;
+	justify-content: space-between; /* Spread tabs evenly */
+	flex-wrap: nowrap; /* Prevent wrapping */
+}
+
+/* Tab content area */
+.tab-content {
+	background-color: white;
+	border-radius: 0 0 10px 10px;
+	padding: 1.5rem;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	animation: fadeIn 0.3s ease-in-out;
+	min-height: 300px; /* Ensure minimum height for content */
+	width: 100%;
+	/* Remove border-top if it exists */
+	border-top: none;
+}
+
+/* Individual tab title styling */
+.tab-title {
+	padding: 0.85rem 1rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-weight: 600;
+	color: #495057;
+	text-align: center;
+	flex: 1;
+	border-bottom: 2px solid transparent;
+	min-width: 120px; /* Ensure tabs have minimum width */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.tab-title:hover {
+	background-color: #f8f9fa;
+}
+
+/* Active tab styling */
+.active {
+	color: black;
+	background-color: #f8f9fa;
+	border-bottom: 2px solid #ffc107;
+}
+
+/* Animation for tab content */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+	.tabs {
+		max-width: 95%;
+	}
+}
+
+@media (max-width: 768px) {
+	.tab-titles {
+		flex-direction: row;
+		overflow-x: auto;
+	}
+}
+
+@media (max-width: 576px) {
+	.tab-title {
+		padding: 0.75rem 0.5rem;
+		font-size: 0.9rem;
+		min-width: 100px;
+	}
+
+	.tab-content {
+		padding: 1rem;
+	}
+}

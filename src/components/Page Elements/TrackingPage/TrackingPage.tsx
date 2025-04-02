@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./TrackingPage.css";
+import styles from "./TrackingPage.module.css"; // Updated import to use module CSS
 import Tabs from "./Tabs";
 import RecordTable from "./RecordTable";
 import PageButtons from "../PageButtons/PageButtons";
@@ -27,12 +27,10 @@ const TrackingPage = () => {
 	);
 
 	const pendingCurrentRecords: Record[] = pendingRecords.slice(
-		// Use the shared type
 		(pendingCurrentPage - 1) * recordsPerPage,
 		pendingCurrentPage * recordsPerPage
 	);
 	const previousCurrentRecords: Record[] = accomplishedRecords.slice(
-		// Use the shared type
 		(previousCurrentPage - 1) * recordsPerPage,
 		previousCurrentPage * recordsPerPage
 	);
@@ -48,7 +46,7 @@ const TrackingPage = () => {
 	};
 
 	return (
-		<section className="TrackingPage">
+		<div className={styles["tracking-page"]}>
 			<Tabs
 				activeTab={activeTab}
 				onTabChange={(tabIndex) => {
@@ -56,15 +54,14 @@ const TrackingPage = () => {
 					setSelectedRecord(null);
 				}}
 			>
-				<div title="PENDING REQUESTS" className="Tabby">
+				<div title="Current Records" className="Tabby">
 					<section className="tab-content">
-						<h3>PENDING REQUESTS</h3>
 						{selectedRecord ? (
 							<StatusTracking
 								onBack={() => setSelectedRecord(null)}
 								transactionID={selectedRecord.transactionID}
 								status={selectedRecord.status}
-								dateTime={selectedRecord.dateTime} // Pass the Date object
+								dateTime={selectedRecord.dateTime}
 							/>
 						) : (
 							<>
@@ -99,15 +96,14 @@ const TrackingPage = () => {
 						)}
 					</section>
 				</div>
-				<div title="PREVIOUS RECORDS" className="Tabby">
+				<div title="Completed Records" className="Tabby">
 					<section className="tab-content">
-						<h3>PREVIOUS RECORDS</h3>
 						{selectedRecord ? (
 							<StatusTracking
 								onBack={() => setSelectedRecord(null)}
 								transactionID={selectedRecord.transactionID}
 								status={selectedRecord.status}
-								dateTime={selectedRecord.dateTime} // Pass the Date object
+								dateTime={selectedRecord.dateTime}
 							/>
 						) : (
 							<>
@@ -145,7 +141,7 @@ const TrackingPage = () => {
 					</section>
 				</div>
 			</Tabs>
-		</section>
+		</div>
 	);
 };
 

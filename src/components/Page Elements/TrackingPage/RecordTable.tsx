@@ -9,7 +9,7 @@ interface RecordTableProps {
 	records: Record[];
 	onDetailsClick: (
 		transactionID: string,
-		dateTime: Date, // Pass a Date object
+		dateTime: Date,
 		status: string
 	) => void;
 }
@@ -32,52 +32,142 @@ const RecordTable: React.FC<RecordTableProps> = ({
 				{records.map((record, index) => {
 					const date = new Date(record.dateTime);
 					const isValidDate = !isNaN(date.getTime());
+					const isUnread = unreadAccomplishedIds.includes(
+						record.transactionID
+					);
 
-					const isUnread = unreadAccomplishedIds.includes(record.transactionID);
+					// Format the status for display and styling
+					const status = record.status || "Pending";
+					const statusClass = status.toLowerCase();
 
 					return (
 						<div
 							key={index}
 							className={`${styles["record-box"]} 
-								${record.status === "Pending" ? styles.pending : ""} 
-								${record.status === "Approved" ? styles.approved : ""} 
-								${record.status === "Rejected" ? styles.rejected : ""} 
-								${isUnread ? styles.highlight : ""} // ✅ Add highlight for unread
-							`}
+								${styles[statusClass]} 
+								${isUnread ? styles.highlight : ""}`}
 						>
 							<div className={styles["record-content"]}>
 								<div className={styles["details-container"]}>
+									{/* Date/Time Field with Label-Value Format */}
 									<div className={styles["record-dateTime"]}>
-										{isValidDate ? date.toLocaleString() : "Invalid Date"}
+										<span
+											className={
+												styles["record-dateTime-label"]
+											}
+										>
+											Date
+										</span>
+										<span
+											className={
+												styles["record-dateTime-value"]
+											}
+										>
+											{isValidDate
+												? date.toLocaleDateString() +
+												  " " +
+												  date.toLocaleTimeString([], {
+														hour: "2-digit",
+														minute: "2-digit",
+												  })
+												: "Invalid Date"}
+										</span>
 									</div>
-									<div className={styles["record-transactionID"]}>
-										{record.transactionID}
+
+									{/* Transaction ID Field with Label-Value Format */}
+									<div
+										className={
+											styles["record-transactionID"]
+										}
+									>
+										<span
+											className={
+												styles[
+													"record-transactionID-label"
+												]
+											}
+										>
+											Transaction ID
+										</span>
+										<span
+											className={
+												styles[
+													"record-transactionID-value"
+												]
+											}
+										>
+											{record.transactionID}
+										</span>
 									</div>
-									<div className={styles["record-typeOfForm"]}>
-										{record.formData.origFormType}
+
+									{/* Form Type Field with Label-Value Format - Simplified */}
+									<div
+										className={styles["record-typeOfForm"]}
+									>
+										<span
+											className={
+												styles[
+													"record-typeOfForm-label"
+												]
+											}
+										>
+											Form Type
+										</span>
+										<span
+											className={
+												styles[
+													"record-typeOfForm-value"
+												]
+											}
+										>
+											{record.formData?.origFormType ||
+												record.typeOfForm}
+										</span>
 									</div>
-									<div className={styles["record-status"]}>{record.status}</div>
+
+									{/* Status Field with Badge Format */}
+									<div className={styles["record-status"]}>
+										<span
+											className={
+												styles["record-status-label"]
+											}
+										>
+											Status
+										</span>
+										<span
+											className={`${
+												styles["status-badge"]
+											} ${
+												styles[`status-${statusClass}`]
+											}`}
+										>
+											{status}
+										</span>
+									</div>
 								</div>
+
 								<div className={styles["button-container"]}>
 									<button
 										className={styles["details-button"]}
 										onClick={async () => {
-											// ✅ Clear the notification when clicked
 											if (isUnread) {
 												await clearAccomplishedNotifications(
 													record.transactionID
 												);
-
-												// ✅ Instantly remove highlight locally
-												setUnreadAccomplishedIds((prev: string[]) =>
-													prev.filter(
-														(id: string) => id !== record.transactionID
-													)
+												setUnreadAccomplishedIds(
+													(prev: string[]) =>
+														prev.filter(
+															(id: string) =>
+																id !==
+																record.transactionID
+														)
 												);
 											}
-
-											// ✅ Trigger details click
-											onDetailsClick(record.transactionID, date, record.status);
+											onDetailsClick(
+												record.transactionID,
+												date,
+												record.status
+											);
 										}}
 									>
 										DETAILS

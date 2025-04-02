@@ -1,14 +1,20 @@
 import React from "react";
+import styles from "./Tabs.module.css"; // Updated to use the consolidated CSS file
 
-interface TabTitleProps {
+type Props = {
 	title: string;
 	isActive: boolean;
 	onClick: () => void;
-}
+};
 
-const TabTitle: React.FC<TabTitleProps> = ({ title, isActive, onClick }) => {
+const TabTitle: React.FC<Props> = ({ title, isActive, onClick }) => {
 	return (
-		<div className={`tab-title ${isActive ? "active" : ""}`} onClick={onClick}>
+		<div
+			className={`${styles["tab-title"]} ${
+				isActive ? styles.active : ""
+			}`}
+			onClick={onClick}
+		>
 			{title}
 		</div>
 	);

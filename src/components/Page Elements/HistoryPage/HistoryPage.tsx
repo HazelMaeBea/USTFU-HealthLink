@@ -1,5 +1,14 @@
+/**
+ * HistoryPage Component - Displays transaction history with filtering and export capabilities
+ *
+ * Features:
+ * - Displays transaction records in a sortable, filterable table
+ * - Filtering by form type, date range, college, term, academic year, load, and status
+ * - Search functionality by name
+ * - CSV export with customizable filename
+ * - Responsive pagination
+ */
 import { useState, useEffect, useRef } from "react";
-import "../TrackingPage/TrackingPage.css";
 import styles from "./HistoryPage.module.css";
 import type { PendingRequest } from "../PendingRequests/types";
 import { usePendingRequests } from "../PendingRequests/PendingRequestBackend";
@@ -11,49 +20,49 @@ import {
 	FiX,
 	FiCheck,
 } from "react-icons/fi";
-import PageButtons from "../PageButtons/PageButtons";
 
 const HistoryPage = () => {
+	// State for filters and data
 	const [selectedType, setSelectedType] = useState("All");
 	const [filters, setFilters] = useState<string[]>([]);
 	const [showFilterOptions, setShowFilterOptions] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
-	const [showDateRangePopup, setShowDateRangePopup] = useState(false);
 	const [dateRange, setDateRange] = useState({ start: "", end: "" });
+	const [currentPage, setCurrentPage] = useState(1);
+	const recordsPerPage = 10;
+
+	// UI state
+	const [showDateRangePopup, setShowDateRangePopup] = useState(false);
 	const [showFilterPopup, setShowFilterPopup] = useState<string | null>(null);
 	const [showExportPopup, setShowExportPopup] = useState(false);
 	const [exportFilename, setExportFilename] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const recordsPerPage = 10;
-	// Add export success notification state
 	const [showExportSuccess, setShowExportSuccess] = useState(false);
 	const [showClearAllConfirmation, setShowClearAllConfirmation] =
 		useState(false);
 	const [showFormTypeDropdown, setShowFormTypeDropdown] = useState(false);
-	const [loadInput, setLoadInput] = useState(""); // Add state for the Load input
-	const [loadRange, setLoadRange] = useState(false); // State to track if range input is added
-	const [loadEndInput, setLoadEndInput] = useState(""); // State for the second input in the range
-	const [loadFilterMode, setLoadFilterMode] = useState("exact"); // "exact" or "range"
 
-	// Refs for the dropdown containers
+	// Load filter state
+	const [loadInput, setLoadInput] = useState("");
+	const [loadEndInput, setLoadEndInput] = useState("");
+	const [loadFilterMode, setLoadFilterMode] = useState("exact");
+	const [loadRange, setLoadRange] = useState(false);
+
+	// Error handling
+	const [error, setError] = useState<string | null>(null);
+
+	// Refs for click-outside handling
 	const formTypeDropdownRef = useRef<HTMLDivElement>(null);
 	const filterDropdownRef = useRef<HTMLDivElement>(null);
 
-	// Fix destructuring from the hook
-	const { requests: pendingRequestsData, pagination } = usePendingRequests(
-		1,
-		100
-	); // Get more items for history
+	// Fetch data
+	const { requests: pendingRequestsData } = usePendingRequests(1, 100);
 
-	// Add error handling state
-	const [error, setError] = useState<string | null>(null);
-
-	// Reset to page 1 when filters change
+	// Reset page when filters change
 	useEffect(() => {
 		setCurrentPage(1);
 	}, [selectedType, filters, searchQuery]);
 
-	// Hide export success notification after timeout
+	// Auto-hide export success message
 	useEffect(() => {
 		if (showExportSuccess) {
 			const timer = setTimeout(() => {
@@ -63,10 +72,9 @@ const HistoryPage = () => {
 		}
 	}, [showExportSuccess]);
 
-	// Close dropdowns when clicking outside
+	// Handle clicking outside dropdowns
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
-			// Close form type dropdown when clicking outside
 			if (
 				formTypeDropdownRef.current &&
 				!formTypeDropdownRef.current.contains(event.target as Node)
@@ -74,7 +82,6 @@ const HistoryPage = () => {
 				setShowFormTypeDropdown(false);
 			}
 
-			// Close filter options dropdown when clicking outside
 			if (
 				filterDropdownRef.current &&
 				!filterDropdownRef.current.contains(event.target as Node)
@@ -84,9 +91,8 @@ const HistoryPage = () => {
 		}
 
 		document.addEventListener("mousedown", handleClickOutside);
-		return () => {
+		return () =>
 			document.removeEventListener("mousedown", handleClickOutside);
-		};
 	}, []);
 
 	// Format data for the table
@@ -95,15 +101,14 @@ const HistoryPage = () => {
 			const { formData, dateSubmitted, requester } = request;
 
 			let formTypeDisplay;
-			let formTypeValue; // For filtering
-			let formTypeText; // Added for CSV export - plain text representation
+			let formTypeValue;
+			let formTypeText;
 
 			if (formData?.formType === "hospital" && formData?.origFormType) {
 				const origType = formData.origFormType;
 				formTypeValue = origType;
 
 				if (formData.hospital) {
-					// Create JSX for display
 					formTypeDisplay = (
 						<>
 							{origType}{" "}
@@ -112,7 +117,6 @@ const HistoryPage = () => {
 							</span>
 						</>
 					);
-					// Create plain text for export
 					formTypeText = `${origType} (done as ${formData.hospitalStatus})`;
 				} else {
 					formTypeDisplay = origType;
@@ -129,7 +133,7 @@ const HistoryPage = () => {
 			return {
 				formType: formTypeDisplay,
 				formTypeValue: formTypeValue,
-				formTypeText: formTypeText, // Added for CSV export
+				formTypeText: formTypeText,
 				dateApproved: dateSubmitted || "-",
 				name: requester || "Unknown",
 				age: formData?.age || "-",
@@ -173,10 +177,10 @@ const HistoryPage = () => {
 		}
 	};
 
+	// Filter option arrays
 	const tableData = pendingRequestsData
 		.map(formatTableData)
-		.filter((item) => item !== null); // Filter out any null items from errors
-
+		.filter((item) => item !== null);
 	const termOptions = ["1st", "2nd"];
 	const collegeOptions = [
 		"College of Accountancy",
@@ -199,48 +203,6 @@ const HistoryPage = () => {
 		"College of Science",
 		"College of Tourism and Hospitality Management",
 	];
-
-	// Get current academic year using same logic as FormTeachingInfo.tsx
-	const getCurrentAcademicYear = () => {
-		const today = new Date();
-		const currentMonth = today.getMonth();
-		const currentYear = today.getFullYear();
-
-		let academicYearStart: number;
-
-		if (currentMonth >= 7) {
-			// August or later
-			academicYearStart = currentYear;
-		} else {
-			// Before August
-			academicYearStart = currentYear - 1;
-		}
-		return `${academicYearStart}-${academicYearStart + 1}`;
-	};
-
-	// Generate academic year options dynamically
-	const generateAcademicYearOptions = () => {
-		const today = new Date();
-		const currentAcademicYear = getCurrentAcademicYear();
-		const [currentStart] = currentAcademicYear.split("-").map(Number);
-
-		// Generate options starting from 2024 up to current academic year
-		const options: string[] = [];
-
-		// Start from 2024 or current year, whichever is later
-		const startYear = Math.max(2024, currentStart - 10);
-
-		for (let year = startYear; year <= currentStart; year++) {
-			options.push(`${year}-${year + 1}`);
-		}
-
-		// Sort in descending order (most recent first)
-		return options.reverse();
-	};
-
-	// Replace hardcoded array with dynamically generated options
-	const academicYearOptions = generateAcademicYearOptions();
-
 	const statusOptions = [
 		"Tenured",
 		"Tenured-Track",
@@ -249,6 +211,42 @@ const HistoryPage = () => {
 		"Retiree",
 	];
 
+	// Form type filter options
+	const formTypeOptions = [
+		{ value: "All", label: "All Forms" },
+		{ value: "inpatient", label: "Inpatient" },
+		{ value: "outpatient", label: "Outpatient" },
+		{ value: "eyeglasses", label: "Eyeglasses" },
+		{ value: "admission", label: "Admission" },
+	];
+
+	// Get current academic year
+	const getCurrentAcademicYear = () => {
+		const today = new Date();
+		const currentMonth = today.getMonth();
+		const currentYear = today.getFullYear();
+		const academicYearStart =
+			currentMonth >= 7 ? currentYear : currentYear - 1;
+		return `${academicYearStart}-${academicYearStart + 1}`;
+	};
+
+	// Generate academic year options
+	const generateAcademicYearOptions = () => {
+		const currentAcademicYear = getCurrentAcademicYear();
+		const [currentStart] = currentAcademicYear.split("-").map(Number);
+		const startYear = Math.max(2024, currentStart - 10);
+		const options: string[] = [];
+
+		for (let year = startYear; year <= currentStart; year++) {
+			options.push(`${year}-${year + 1}`);
+		}
+
+		return options.reverse();
+	};
+
+	const academicYearOptions = generateAcademicYearOptions();
+
+	// Filter handling functions
 	const removeFilter = (filterToRemove: string) => {
 		setFilters((prev) =>
 			prev.filter((filter) => filter !== filterToRemove)
@@ -257,7 +255,7 @@ const HistoryPage = () => {
 
 	const applyFilters = (data: any[]) => {
 		return data.filter((row) => {
-			if (!row) return false; // Skip null rows
+			if (!row) return false;
 
 			const matchesType =
 				selectedType === "All" ||
@@ -275,45 +273,40 @@ const HistoryPage = () => {
 				matchesSearch &&
 				filters.every((filter) => {
 					const [filterType, filterValue] = filter.split(": ");
+
 					if (filterType === "Date") {
 						const [startDateStr, endDateStr] =
 							filterValue.split(" - ");
-
-						// Parse the date strings to get month, day, year
 						const startParts = startDateStr.split("/");
 						const endParts = endDateStr.split("/");
 
 						if (startParts.length === 3 && endParts.length === 3) {
-							// Create Date objects with time set to beginning and end of day
 							const startDate = new Date(
-								parseInt(startParts[2]), // year
-								parseInt(startParts[0]) - 1, // month (0-indexed)
-								parseInt(startParts[1]), // day
+								parseInt(startParts[2]),
+								parseInt(startParts[0]) - 1,
+								parseInt(startParts[1]),
 								0,
 								0,
 								0,
-								0 // time set to 00:00:00.000
+								0
 							);
 
 							const endDate = new Date(
-								parseInt(endParts[2]), // year
-								parseInt(endParts[0]) - 1, // month (0-indexed)
-								parseInt(endParts[1]), // day
+								parseInt(endParts[2]),
+								parseInt(endParts[0]) - 1,
+								parseInt(endParts[1]),
 								23,
 								59,
 								59,
-								999 // time set to 23:59:59.999
+								999
 							);
 
-							// Parse the row's date
 							const rowDate =
 								row.dateApproved !== "-"
 									? new Date(row.dateApproved)
 									: null;
-
 							if (!rowDate) return false;
 
-							// Compare using proper Date objects
 							return rowDate >= startDate && rowDate <= endDate;
 						}
 						return false;
@@ -326,15 +319,15 @@ const HistoryPage = () => {
 							.split(", ")
 							.includes(row.academicYear);
 					} else if (filterType === "Load") {
-						// Handle range for Load filter
 						const [startValue, endValue] = filterValue
 							.split(" - ")
 							.map(Number);
 						const rowLoad = parseFloat(row.load);
+
 						if (!isNaN(startValue) && isNaN(endValue)) {
-							// Only start value is provided
 							return rowLoad === startValue;
 						}
+
 						return (
 							!isNaN(startValue) &&
 							!isNaN(endValue) &&
@@ -352,19 +345,19 @@ const HistoryPage = () => {
 	};
 
 	const filteredData = applyFilters(tableData);
-
 	const isDateRangeValid =
 		dateRange.start !== "" &&
 		dateRange.end !== "" &&
 		dateRange.start <= dateRange.end;
 
+	// Sort data by date (newest first)
 	const sortedData = [...filteredData].sort((a, b) => {
-		if (!a || !b) return 0; // Handle null values
+		if (!a || !b) return 0;
 		const dateA =
 			a.dateApproved !== "-" ? new Date(a.dateApproved).getTime() : 0;
 		const dateB =
 			b.dateApproved !== "-" ? new Date(b.dateApproved).getTime() : 0;
-		return dateB - dateA; // Descending order (latest date first)
+		return dateB - dateA;
 	});
 
 	// Pagination logic
@@ -379,15 +372,14 @@ const HistoryPage = () => {
 		indexOfLastRecord
 	);
 
-	// Handle page change
 	const handlePageChange = (pageNumber: number) => {
 		setCurrentPage(pageNumber);
 	};
 
-	// Create a function to render page numbers - simplified version
+	// Page buttons rendering
 	const renderPageButtons = () => {
 		const pageNumbers = [];
-		const maxButtonsToShow = 5; // Show max 5 buttons at a time
+		const maxButtonsToShow = 5;
 
 		let startPage = Math.max(
 			1,
@@ -395,7 +387,6 @@ const HistoryPage = () => {
 		);
 		const endPage = Math.min(totalPages, startPage + maxButtonsToShow - 1);
 
-		// Adjust if we're near the end
 		if (endPage - startPage + 1 < maxButtonsToShow) {
 			startPage = Math.max(1, endPage - maxButtonsToShow + 1);
 		}
@@ -414,11 +405,10 @@ const HistoryPage = () => {
 
 		// Page numbers
 		for (let i = 1; i <= totalPages; i++) {
-			// Only show certain pages to prevent too many buttons
 			if (
-				i === 1 || // First page
-				i === totalPages || // Last page
-				(i >= startPage && i <= endPage) // Pages in the middle range
+				i === 1 ||
+				i === totalPages ||
+				(i >= startPage && i <= endPage)
 			) {
 				pageNumbers.push(
 					<button
@@ -435,7 +425,6 @@ const HistoryPage = () => {
 				(i === startPage - 1 && startPage > 2) ||
 				(i === endPage + 1 && endPage < totalPages - 1)
 			) {
-				// Add ellipsis where needed
 				pageNumbers.push(
 					<span key={`ellipsis-${i}`} className={styles.pageEllipsis}>
 						&hellip;
@@ -461,6 +450,7 @@ const HistoryPage = () => {
 		return pageNumbers;
 	};
 
+	// Content rendering
 	const renderContent = () => {
 		if (error) {
 			return (
@@ -557,21 +547,11 @@ const HistoryPage = () => {
 		);
 	};
 
-	// Form type options
-	const formTypeOptions = [
-		{ value: "All", label: "All Forms" },
-		{ value: "inpatient", label: "Inpatient" },
-		{ value: "outpatient", label: "Outpatient" },
-		{ value: "eyeglasses", label: "Eyeglasses" },
-		{ value: "admission", label: "Admission" },
-	];
-
-	// Generate descriptive filename based on applied filters - Enhanced version
+	// Export functions
 	const generateFilename = () => {
-		const datePart = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+		const datePart = new Date().toISOString().split("T")[0];
 		const nameComponents = ["HealthLink-History"];
 
-		// Add form type if specific
 		if (selectedType !== "All") {
 			const formType =
 				formTypeOptions.find((opt) => opt.value === selectedType)
@@ -579,38 +559,26 @@ const HistoryPage = () => {
 			nameComponents.push(formType);
 		}
 
-		// Add filter details
 		if (filters.length > 0) {
-			// Create a shortened representation of the filters
 			const filterSummary = [];
-
-			// Check for date filter
 			const dateFilter = filters.find((f) => f.startsWith("Date:"));
-			if (dateFilter) {
-				filterSummary.push("DateRange");
-			}
+			if (dateFilter) filterSummary.push("DateRange");
 
-			// Check for status filter
 			const statusFilter = filters.find((f) => f.startsWith("Status:"));
 			if (statusFilter) {
 				const statusValue = statusFilter.split(": ")[1];
 				filterSummary.push(statusValue.replace(/, /g, "-"));
 			}
 
-			// Check for college filter
 			const collegeFilter = filters.find((f) => f.startsWith("College:"));
-			if (collegeFilter) {
-				filterSummary.push("College");
-			}
+			if (collegeFilter) filterSummary.push("College");
 
-			// Add term filter if present
 			const termFilter = filters.find((f) => f.startsWith("Term:"));
 			if (termFilter) {
 				const termValue = termFilter.split(": ")[1];
 				filterSummary.push(`Term-${termValue}`);
 			}
 
-			// Add academic year filter if present
 			const yearFilter = filters.find((f) =>
 				f.startsWith("Academic Year:")
 			);
@@ -619,30 +587,24 @@ const HistoryPage = () => {
 				filterSummary.push(`AY-${yearValue}`);
 			}
 
-			// If we have filter info, add to filename
 			if (filterSummary.length > 0) {
 				nameComponents.push(filterSummary.join("_"));
 			}
 		}
 
-		// If search query is present
 		if (searchQuery) {
 			nameComponents.push(
 				`Search-${searchQuery.substring(0, 10).replace(/\s+/g, "-")}`
 			);
 		}
 
-		// Add export date
 		nameComponents.push(datePart);
-
 		return nameComponents.join("_").replace(/\s+/g, "-") + ".csv";
 	};
 
-	// Get descriptive info for the filename hint
 	const getExportFileDescription = () => {
 		const descriptions = [];
 
-		// Add form type info
 		if (selectedType !== "All") {
 			descriptions.push(
 				`Form type: ${
@@ -652,17 +614,14 @@ const HistoryPage = () => {
 			);
 		}
 
-		// Add filter descriptions
 		if (filters.length > 0) {
 			descriptions.push(`Filters: ${filters.length} active`);
 		}
 
-		// Add search info
 		if (searchQuery) {
 			descriptions.push(`Search: "${searchQuery}"`);
 		}
 
-		// If no specific filters, mention it includes all records
 		if (selectedType === "All" && filters.length === 0 && !searchQuery) {
 			return "Includes all history records.";
 		}
@@ -676,11 +635,8 @@ const HistoryPage = () => {
 		setShowExportPopup(true);
 	};
 
-	// Improved CSV export with better handling of special characters
 	const exportToCSV = (filename: string) => {
-		// Helper function to format cell data safely for CSV
 		const escapeCSV = (field: string) => {
-			// If the field contains quotes, commas, or newlines, wrap in quotes and escape inner quotes
 			if (/[",\n\r]/.test(field)) {
 				return `"${field.replace(/"/g, '""')}"`;
 			}
@@ -709,7 +665,7 @@ const HistoryPage = () => {
 				if (!row) return "";
 				return [
 					escapeCSV(row.dateApproved || ""),
-					escapeCSV(row.formTypeText || ""), // Use formTypeText instead of formType
+					escapeCSV(row.formTypeText || ""),
 					escapeCSV(row.name || ""),
 					escapeCSV(row.age?.toString() || ""),
 					escapeCSV(row.college || ""),
@@ -741,6 +697,7 @@ const HistoryPage = () => {
 		setShowExportSuccess(true);
 	};
 
+	// Filter handling functions
 	const handleAddFilter = (filter: string) => {
 		if (filter === "Date") {
 			setShowDateRangePopup(true);
@@ -759,12 +716,12 @@ const HistoryPage = () => {
 				);
 				const formatDate = (date: string) => {
 					const [year, month, day] = date.split("-");
-					// Ensure month is 1-2 digits without leading zero for consistency
 					return `${parseInt(month)}/${parseInt(day)}/${year}`;
 				};
 				const dateFilterValue = `Date: ${formatDate(
 					dateRange.start
 				)} - ${formatDate(dateRange.end)}`;
+
 				if (dateFilterIndex !== -1) {
 					newFilters[dateFilterIndex] = dateFilterValue;
 				} else {
@@ -785,7 +742,6 @@ const HistoryPage = () => {
 			let filterValue = "";
 
 			if (filter === "Load") {
-				// Handle both exact value and range for Load filter
 				filterValue =
 					loadFilterMode === "range" && loadEndInput
 						? `${filter}: ${loadInput} - ${loadEndInput}`
@@ -826,6 +782,7 @@ const HistoryPage = () => {
 	return (
 		<div className={styles.historyPageContainer}>
 			<div className={styles.historyCard}>
+				{/* Header */}
 				<div className={styles.historyCardHeader}>
 					<h3 className={styles.historyTitle}>Transaction History</h3>
 					<p className={styles.historySubtitle}>
@@ -833,6 +790,7 @@ const HistoryPage = () => {
 					</p>
 				</div>
 
+				{/* Controls */}
 				<div className={styles.historyControls}>
 					<div className={styles.searchControls}>
 						<div className={styles.searchInputContainer}>
@@ -846,7 +804,6 @@ const HistoryPage = () => {
 							/>
 						</div>
 
-						{/* This is your current dropdown implementation which should work */}
 						<div
 							className={styles.formTypeFilter}
 							ref={formTypeDropdownRef}
@@ -922,7 +879,6 @@ const HistoryPage = () => {
 								);
 							})}
 
-							{/* Add clear all filters button if there are any filters */}
 							{(filters.length > 0 ||
 								selectedType !== "All" ||
 								searchQuery) && (
@@ -993,8 +949,10 @@ const HistoryPage = () => {
 					</div>
 				</div>
 
+				{/* Content */}
 				<div className={styles.historyContent}>{renderContent()}</div>
 
+				{/* Footer */}
 				<div className={styles.historyFooter}>
 					<div className={styles.recordsCount}>
 						{sortedData.length > 0
@@ -1005,7 +963,6 @@ const HistoryPage = () => {
 							: "No records to display"}
 					</div>
 
-					{/* Replace PageButtons component with our custom pagination */}
 					{sortedData.length > 0 && (
 						<div className={styles.historyPagination}>
 							{renderPageButtons()}
@@ -1113,7 +1070,7 @@ const HistoryPage = () => {
 											</label>
 										</div>
 									))}
-								{/* ...existing code... */}
+
 								{showFilterPopup === "College" &&
 									collegeOptions.map((option) => (
 										<div
@@ -1134,6 +1091,7 @@ const HistoryPage = () => {
 											</label>
 										</div>
 									))}
+
 								{showFilterPopup === "Academic Year" &&
 									academicYearOptions.map((option) => (
 										<div
@@ -1154,6 +1112,7 @@ const HistoryPage = () => {
 											</label>
 										</div>
 									))}
+
 								{showFilterPopup === "Load" && (
 									<div className={styles.numberInputOption}>
 										<label
@@ -1291,6 +1250,7 @@ const HistoryPage = () => {
 										</div>
 									</div>
 								)}
+
 								{showFilterPopup === "Status" &&
 									statusOptions.map((option) => (
 										<div
