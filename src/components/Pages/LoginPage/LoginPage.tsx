@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
-import USTFULogo from "../../assets/2.png";
-import GoogleLogo from "../../assets/signin.png";
-import { useFirebase } from "../../contexts/firebaseContext";
+import USTFULogo from "../../../assets/website-header.png";
+import GoogleLogo from "../../../assets/signin.png";
+import { useFirebase } from "../../../../src/contexts/firebaseContext";
 import {
 	callFunction,
 	isRegistered,
 	getUserStatus,
 	auth,
-} from "../../config/firebase";
-import Popout from "../Page Elements/Popout/Popout";
+} from "../../../config/firebase";
+import Popout from "../../Page Elements/Popout/Popout";
 
 const LoginPage: React.FC = () => {
 	const { login } = useFirebase();
@@ -38,7 +38,9 @@ const LoginPage: React.FC = () => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			// Alt+Shift+S to sync claims
 			if (event.altKey && event.shiftKey && event.key === "S") {
-				console.log("TEMPORARY: Triggering syncUserClaims cloud function...");
+				console.log(
+					"TEMPORARY: Triggering syncUserClaims cloud function..."
+				);
 				callFunction("syncAllUserClaimsTrigger")
 					.then(() => {
 						console.log("✅ Claims sync complete");
@@ -48,10 +50,13 @@ const LoginPage: React.FC = () => {
 					});
 			} else if (event.altKey && event.shiftKey && event.key === "R") {
 				console.log("Opening video in new tab...");
-				window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
+				window.open(
+					"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+					"_blank"
+				);
 			}
 		};
-	
+
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, []);
@@ -84,7 +89,8 @@ const LoginPage: React.FC = () => {
 			if (!registered) {
 				setPopoutData({
 					title: "Not Registered",
-					message: "You are not yet registered. Proceed to registration?",
+					message:
+						"You are not yet registered. Proceed to registration?",
 					onConfirm: () => {
 						setShowPopout(false);
 						navigate("/register");
@@ -132,16 +138,22 @@ const LoginPage: React.FC = () => {
 					<h1 className="sign-in-title">Sign in</h1>
 					{error && <div className="error-message">{error}</div>}
 					<p className="sign-in-description">
-						To access MyUSTFU HealthLink, please make sure you meet the
-						following requirement:
+						To access MyUSTFU HealthLink, please make sure you meet
+						the following requirement:
 					</p>
-					<p className="requirement">UST Google Workspace Personal Account</p>
+					<p className="requirement">
+						UST Google Workspace Personal Account
+					</p>
 					<button
 						className="google-signin"
 						onClick={handleLogin}
 						disabled={isLoggingIn}
 					>
-						<img src={GoogleLogo} alt="Google Logo" className="google-logo" />
+						<img
+							src={GoogleLogo}
+							alt="Google Logo"
+							className="google-logo"
+						/>
 						{isLoggingIn ? "Signing in..." : "Sign in with Google"}
 					</button>
 				</div>

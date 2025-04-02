@@ -8,8 +8,8 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import Layout from "./components/Layout/Layout";
-import LoginPage from "./components/Pages/LoginPage";
-import Registration from "./components/Pages/Registration";
+import LoginPage from "./components/Pages/LoginPage/LoginPage";
+import RegistrationPage from "./components/Pages/RegistrationPage/RegistrationPage";
 import HospitalizationApplication from "./components/Pages/HospitalizationApplication";
 import HospitalizationTracking from "./components/Pages/HospitalizationTracking";
 import HospitalizationHistory from "./components/Pages/HospitalizationHistory";
@@ -35,7 +35,7 @@ const App: React.FC = () => {
 							<Route path="/login" element={<LoginPage />} />
 							<Route
 								path="/register"
-								element={<Registration />}
+								element={<RegistrationPage />}
 							/>
 
 							{/* Protected routes */}
