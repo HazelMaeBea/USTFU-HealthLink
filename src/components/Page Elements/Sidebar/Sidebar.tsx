@@ -1,20 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useUser } from "../../contexts/userContext";
-import { useFirebase } from "../../contexts/firebaseContext";
-import { MdOutlineMenu } from "react-icons/md";
+import { useUser } from "../../../contexts/userContext";
+import { useFirebase } from "../../../contexts/firebaseContext";
+import Profile from "../Profile/Profile";
+import Popout from "../Popout/Popout";
+import NotifBadge from "../NotifBadge/NotifBadge";
+import useNotifications from "../NotifBadge/NotifTrigger";
+import {
+	MdOutlineMenu,
+	MdHistory,
+	MdOutlineAdminPanelSettings,
+} from "react-icons/md";
 import { TbHomeEdit, TbLogout } from "react-icons/tb";
-import { MdHistory } from "react-icons/md";
-import { AiOutlineQuestionCircle } from "react-icons/ai";
+import { AiOutlineQuestionCircle, AiOutlineFileDone } from "react-icons/ai";
 import { RiSettings5Line } from "react-icons/ri";
 import { FaRegFolderOpen } from "react-icons/fa";
-import { AiOutlineFileDone } from "react-icons/ai";
-import { MdOutlineAdminPanelSettings } from "react-icons/md";
-import Profile from "./Profile";
-import Popout from "../Page Elements/Popout/Popout";
-import NotifBadge from "../Page Elements/NotifBadge/NotifBadge";
 import "./Sidebar.css";
-import useNotifications from "../Page Elements/NotifBadge/NotifTrigger";
 
 interface SidebarProps {
 	onLogout: () => Promise<void>;
@@ -23,7 +24,9 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const [activeItem, setActiveItem] = useState<string>(() => {
-		return localStorage.getItem("activePage") || "HOSPITALIZATION APPLICATION";
+		return (
+			localStorage.getItem("activePage") || "HOSPITALIZATION APPLICATION"
+		);
 	});
 	const [isPopoutOpen, setIsPopoutOpen] = useState(false);
 
@@ -94,8 +97,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 		}
 		return () => {
 			if (sidebarElement) {
-				sidebarElement.removeEventListener("mouseenter", handleMouseEnter);
-				sidebarElement.removeEventListener("mouseleave", handleMouseLeave);
+				sidebarElement.removeEventListener(
+					"mouseenter",
+					handleMouseEnter
+				);
+				sidebarElement.removeEventListener(
+					"mouseleave",
+					handleMouseLeave
+				);
 			}
 		};
 	}, []);
@@ -103,7 +112,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	useEffect(() => {
 		// Update active item based on URL path on refresh
 		const currentPath = location.pathname;
-		const matchingItem = menuItems.find((item) => item.path === currentPath);
+		const matchingItem = menuItems.find(
+			(item) => item.path === currentPath
+		);
 		if (matchingItem) {
 			setActiveItem(matchingItem.name);
 			localStorage.setItem("activePage", matchingItem.name);
@@ -125,10 +136,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
 	const handleCancel = () => setIsPopoutOpen(false);
 
-	const { hasNewPendingRequest, hasNewAccomplishedRecord } = useNotifications({
-		uid,
-		selectedRole,
-	});
+	const { hasNewPendingRequest, hasNewAccomplishedRecord } = useNotifications(
+		{
+			uid,
+			selectedRole,
+		}
+	);
 
 	const handleMenuClick = (name: string, action?: () => void) => {
 		setActiveItem(name);
@@ -254,24 +267,38 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 								{item.path ? (
 									<Link
 										to={item.path}
-										onClick={() => handleMenuClick(item.name)}
+										onClick={() =>
+											handleMenuClick(item.name)
+										}
 									>
 										{item.name === "PENDING REQUESTS" ? (
-											<NotifBadge show={hasNewPendingRequest}>
+											<NotifBadge
+												show={hasNewPendingRequest}
+											>
 												{item.icon}
 											</NotifBadge>
 										) : (
 											item.icon
 										)}
-										<span className="menu-text">{item.name}</span>
+										<span className="menu-text">
+											{item.name}
+										</span>
 									</Link>
 								) : (
 									<Link
 										to="#"
 										className="logout-item"
-										onClick={() => handleMenuClick(item.name, item.action)}
+										onClick={() =>
+											handleMenuClick(
+												item.name,
+												item.action
+											)
+										}
 									>
-										{item.icon} <span className="menu-text">{item.name}</span>
+										{item.icon}{" "}
+										<span className="menu-text">
+											{item.name}
+										</span>
 									</Link>
 								)}
 							</div>

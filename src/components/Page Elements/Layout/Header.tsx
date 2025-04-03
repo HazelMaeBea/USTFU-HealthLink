@@ -1,5 +1,5 @@
 import "./Header.css";
-import USTFULogo from "../../assets/USTFUheader.png";
+import USTFULogo from "../../../assets/USTFUheader.png";
 
 const Header = () => {
 	return (

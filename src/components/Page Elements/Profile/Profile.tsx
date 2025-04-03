@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Profile.css";
 import { useUser } from "../../../contexts/userContext";
-import blankprofile from "../../assets/blankprofile.png";
+import blankprofile from "../../../assets/blankprofile.png";
 interface ProfileProps {
 	isCollapsed: boolean;
 	onRoleChange: (newRole: string) => void;
