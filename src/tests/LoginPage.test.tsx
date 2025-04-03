@@ -41,7 +41,7 @@ import {
 	act,
 } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi, Mock } from "vitest";
-import LoginPage from "../LoginPage";
+import LoginPage from "../../src/components/Pages/LoginPage/LoginPage";
 import "@testing-library/jest-dom";
 
 // Define mock types

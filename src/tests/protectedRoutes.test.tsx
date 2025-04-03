@@ -87,7 +87,9 @@ describe("ProtectedRoute Component", () => {
 		localStorage.clear();
 
 		// Dynamically import the component in each test
-		const module = await import("../protectedRoutes");
+		const module = await import(
+			"../components/Page Elements/Routing/protectedRoutes"
+		);
 		ProtectedRoute = module.default;
 	});
 

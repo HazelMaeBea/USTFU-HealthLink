@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import {
 	render,
 	screen,
@@ -121,7 +121,7 @@ vi.mock("../../Page Elements/Popout/Popout", () => ({
 }));
 
 // Import ServiceCards after all mocks are setup
-import ServiceCards from "../ServiceCards";
+import ServiceCards from "../../src/components/Pages/MainPage/ServiceCards";
 
 // Helper factory function for timestamps
 const createMockTimestamp = (milliseconds: number) => ({
