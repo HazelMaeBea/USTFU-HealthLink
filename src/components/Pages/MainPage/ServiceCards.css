@@ -17,7 +17,7 @@
 			rgba(234, 234, 234, 0.2),
 			rgba(0, 0, 0, 0.8)
 		),
-		url("../../../../assets/ustmain.jpg");
+		url("../../../assets/ustmain.jpg");
 	display: flex;
 	flex-direction: column;
 	align-items: center;
