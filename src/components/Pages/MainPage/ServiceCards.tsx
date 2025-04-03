@@ -7,7 +7,7 @@ import eyeglassesIcon from "../../../assets/eyeglasses.png";
 import { useUser } from "../../../contexts/userContext";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../../../contexts/firebase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Popout from "../../Page Elements/Popout/Popout";
 
 const ServiceCards = () => {
@@ -15,126 +15,162 @@ const ServiceCards = () => {
 	const usersRef = collection(db, "users");
 	const userQuery = query(usersRef, where("fullName", "==", displayName));
 	const [lastRequestFlag, setRequestFlag] = useState(false);
-	const [isPopoutOpen, setPopoutOpen] = useState<boolean>(false); // Type explicitly defined for state
+	const [isPopoutOpen, setPopoutOpen] = useState<boolean>(false);
 	const [oldEyeglassesDate, setOldEyeglassesDate] = useState<
 		string | undefined
 	>();
 	const [newEyeglassesDate, setNewEyeGlassesDate] = useState<
 		string | undefined
 	>();
+	const [userStatus, setUserStatus] = useState<string>("");
 
 	const handleConfirm = (): void => {
-		console.log("User clicked Confirm");
 		setPopoutOpen(false); // Close the Popout after confirmation
 	};
 
 	const handleCancel = (): void => {
-		console.log("User clicked Cancel");
 		setPopoutOpen(false); // Close the Popout
 	};
 
-	onSnapshot(
-		userQuery,
-		(snapshot) => {
-			try {
-				if (!snapshot.empty) {
-					const doc = snapshot.docs[0];
-					if (doc.data().eyeglassesFlag !== undefined) {
-						const eyeglassDate = doc.data().eyeglassesFlag;
-						const eyeglassDateMils = eyeglassDate.toMillis();
-						const twoYearsInMillis = 2 * 365 * 24 * 60 * 60 * 1000; // 2 years in milliseconds
-						const updatedEyeglassDateMils =
-							eyeglassDateMils + twoYearsInMillis;
+	useEffect(() => {
+		const unsubscribe = onSnapshot(
+			userQuery,
+			(snapshot) => {
+				try {
+					if (!snapshot.empty) {
+						const doc = snapshot.docs[0];
+						const userData = doc.data();
 
-						// const currentTime = Date.now() + 65995820897; //plus around 2 years to test if eyeglasses are requestable
-						const currentTime = Date.now();
-						const timeDifference = currentTime - eyeglassDateMils;
-						const differenceInYears =
-							timeDifference / (1000 * 60 * 60 * 24 * 365);
-						// console.log(`Time difference in years: ${differenceInYears} years`);
-						const oldFormattedDate = eyeglassDate
-							.toDate()
-							.toLocaleDateString("en-US", {
+						// Get user status
+						setUserStatus(userData.personalInfo?.status || "");
+
+						// Check for eyeglasses benefit claimed date
+						if (
+							userData.personalInfo
+								?.eyeglassesBenefitClaimedDate !== undefined
+						) {
+							const eyeglassDate =
+								userData.personalInfo
+									.eyeglassesBenefitClaimedDate;
+							const eyeglassDateMils = eyeglassDate.toMillis();
+							const twoYearsInMillis =
+								2 * 365 * 24 * 60 * 60 * 1000; // 2 years in milliseconds
+							const updatedEyeglassDateMils =
+								eyeglassDateMils + twoYearsInMillis;
+
+							const currentTime = Date.now();
+							const timeDifference =
+								currentTime - eyeglassDateMils;
+							const differenceInYears =
+								timeDifference / (1000 * 60 * 60 * 24 * 365);
+
+							const oldFormattedDate = eyeglassDate
+								.toDate()
+								.toLocaleDateString("en-US", {
+									timeZone: "Asia/Manila",
+									month: "long",
+									day: "numeric",
+									year: "numeric",
+								}) as string;
+							setOldEyeglassesDate(oldFormattedDate);
+
+							const newFormattedDate = new Date(
+								updatedEyeglassDateMils
+							).toLocaleDateString("en-US", {
 								timeZone: "Asia/Manila",
 								month: "long",
 								day: "numeric",
 								year: "numeric",
 							}) as string;
-						setOldEyeglassesDate(oldFormattedDate);
-						const newFormattedDate = new Date(
-							updatedEyeglassDateMils
-						).toLocaleDateString("en-US", {
-							timeZone: "Asia/Manila",
-							month: "long",
-							day: "numeric",
-							year: "numeric",
-						}) as string;
-						setNewEyeGlassesDate(newFormattedDate);
-						if (differenceInYears >= 2) setRequestFlag(false);
-						else setRequestFlag(true);
-					} else {
-						console.log("Field does not exist");
+							setNewEyeGlassesDate(newFormattedDate);
+
+							// Check if 2 years have passed and if user is tenured
+							const isTenured = userStatus
+								.toLowerCase()
+								.includes("tenured");
+							if (differenceInYears < 2 || !isTenured) {
+								setRequestFlag(true);
+							} else {
+								setRequestFlag(false);
+							}
+						} else {
+							// No previous eyeglasses claim, check only tenure status
+							const isTenured = userStatus
+								.toLowerCase()
+								.includes("tenured");
+							if (!isTenured) {
+								setRequestFlag(true);
+							} else {
+								setRequestFlag(false);
+							}
+						}
 					}
-				} else {
-					console.log("No matching document found.");
+				} catch (error) {
+					console.error("Error processing snapshot:", error);
 				}
-			} catch (error) {
-				console.error(
-					"An error occurred while processing the snapshot:",
-					error
-				);
+			},
+			(error) => {
+				console.error("Error with Firestore query:", error);
 			}
-		},
-		(error) => {
-			console.error("An error occurred with the Firestore query:", error);
-		}
-	);
+		);
+
+		return () => unsubscribe();
+	}, [displayName, userQuery]);
 
 	const navigate = useNavigate();
 	const cards = [
 		{
 			title: "Inpatient Application Form",
 			icon: inpatientIcon,
-			path: "/home/inpatient", // Update paths to be relative to /home
+			path: "/home/inpatient",
 		},
 		{
 			title: "Admission Application Form",
 			icon: admissionIcon,
-			path: "/home/admission", // Update paths to be relative to /home
+			path: "/home/admission",
 		},
 		{
 			title: "Outpatient Application Form",
 			icon: outpatientIcon,
-			path: "/home/outpatient", // Update paths to be relative to /home
+			path: "/home/outpatient",
 		},
 		{
 			title: "Eyeglasses Reimbursement Form",
 			icon: eyeglassesIcon,
-			path: "/home/eyeglasses", // Update paths to be relative to /home
+			path: "/home/eyeglasses",
 			disabled: lastRequestFlag,
 		},
 	];
+
+	const getPopoutMessage = () => {
+		if (userStatus.toLowerCase().includes("tenured")) {
+			return `You've recently requested for Eyeglasses Benefits on ${oldEyeglassesDate}. 
+			These benefits can only be availed once every 2 years. You may next avail on ${newEyeglassesDate}`;
+		} else {
+			return "Eyeglasses benefits are only available to tenured faculty members.";
+		}
+	};
 
 	return (
 		<div className="HospiAppli">
 			<div className="WelcomeSection">
 				<h1>
-					{" "}
 					Welcome to the USTFU HealthLink!
-					<br></br> Choose your desired service below.{" "}
+					<br />
+					Choose your desired service below.
 				</h1>
 			</div>
 			<div className="service-cards">
 				{cards.map((card, index) => (
 					<div
-						className="card"
+						className={`card ${
+							card.disabled ? "card-disabled" : ""
+						}`}
 						key={index}
 						onClick={() => {
 							if (!card.disabled) {
-								console.log("Navigating to:", card.path);
 								navigate(card.path);
 							} else {
-								console.log(`${card.title} is disabled.`);
 								setPopoutOpen(true);
 							}
 						}}
@@ -149,16 +185,13 @@ const ServiceCards = () => {
 				))}
 			</div>
 			<Popout
-				title="Sorry, you are unable to request for Eyeglasses Benefits at this time [PLS help with this popup ang panget ng two buttons sa baba]"
-				message={
-					"You've recently requested for Eyeglasses Benefits on " +
-					oldEyeglassesDate +
-					". These benefits can only be availed once every 2 years. You may next avail on " +
-					newEyeglassesDate
-				}
+				title="Eyeglasses Benefits Unavailable"
+				message={getPopoutMessage()}
 				onConfirm={handleConfirm}
 				onCancel={handleCancel}
 				isOpen={isPopoutOpen}
+				confirmText="Okay"
+				showCancelButton={false}
 			/>
 		</div>
 	);

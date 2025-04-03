@@ -25,6 +25,7 @@ export interface BaseFormData {
 	docRequest?: FormAttachment;
 	hospitalInvoice?: FormAttachment;
 	labInvoice?: FormAttachment;
+	reimbursementAmount?: number; // Added here for access across all form types
 }
 
 export interface HospitalFormData extends BaseFormData {
@@ -51,6 +52,8 @@ export interface EyeglassesFormData extends BaseFormData {
 	ORNumber?: string;
 	issuedBy?: string;
 	amountPaid?: string;
+	reimbursementAmount?: number;
+	eyeglassesBenefitClaimedDate?: Date | string | null;
 }
 
 export interface AdmissionFormData extends BaseFormData {

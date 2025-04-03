@@ -8,6 +8,8 @@ interface PopoutProps {
 	onConfirm: () => void;
 	onCancel: () => void;
 	isOpen: boolean;
+	confirmText?: string; // New prop to customize confirmation button text
+	showCancelButton?: boolean; // New prop to control whether cancel button is shown
 }
 
 const Popout: React.FC<PopoutProps> = ({
@@ -16,6 +18,8 @@ const Popout: React.FC<PopoutProps> = ({
 	onConfirm,
 	onCancel,
 	isOpen,
+	confirmText = "Confirm", // Default text for confirm button
+	showCancelButton = true, // Show cancel button by default
 }) => {
 	const popoutRef = useRef<HTMLDivElement>(null);
 
@@ -55,14 +59,16 @@ const Popout: React.FC<PopoutProps> = ({
 						className={`${styles.popoutButton} ${styles.confirm}`}
 						onClick={onConfirm}
 					>
-						Confirm
+						{confirmText}
 					</button>
-					<button
-						className={`${styles.popoutButton} ${styles.cancel}`}
-						onClick={onCancel}
-					>
-						Cancel
-					</button>
+					{showCancelButton && (
+						<button
+							className={`${styles.popoutButton} ${styles.cancel}`}
+							onClick={onCancel}
+						>
+							Cancel
+						</button>
+					)}
 				</div>
 			</div>
 		</div>,

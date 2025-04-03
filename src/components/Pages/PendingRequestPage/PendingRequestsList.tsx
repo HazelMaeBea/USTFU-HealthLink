@@ -45,7 +45,6 @@ function isHospitalFormData(
 	return formData?.formType === "hospital";
 }
 
-// const [getAllBenefits, setAllBenefits] = useState<Record<string, number>>({});
 let globalBenefitsData: Record<string, BenefitsData["remainingBenefits"]>;
 
 async function initializeBenefitsData() {
@@ -97,7 +96,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const [signatureImage, setSignatureImage] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	// Hooks to access benefits
+	// Additional state for different signature images
 	const [getBenefits, setBenefits] = useState<number>(0);
 	const [getEditBenefits, setEditBenefits] = useState<number>(1);
 	const [getText, setText] = useState<string | null>(null);
@@ -105,6 +104,14 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const [getStatus, setStatus] = useState<string | null>(null);
 	const [getCurrentUser, setCurrentUser] = useState<string | null>(null);
 	const [validUntil, setValidUntil] = useState<string>("");
+	const [reimbursementAmount, setReimbursementAmount] = useState<number>(0);
+
+	// New state variables for hospital certification
+	const [benefitPercentage, setBenefitPercentage] = useState<string>("100");
+	const [officialRep, setOfficialRep] = useState<string>(
+		"Emerito C. Gonzales"
+	);
+	const [originalBenefit, setOriginalBenefit] = useState<number>(0);
 
 	// for notifs
 	const { uid } = useFirebase();
@@ -304,7 +311,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		} else {
 			setShowCommentBox("Additional Comments..."); // Hide comment box when approving
 			setStatus("approved");
-			// setShowPopout(true);
 		}
 	};
 
@@ -322,8 +328,23 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			const transID = getTransID || "empty";
 			const textArea = getText || "empty";
 			const updateStatus = getStatus || "pending";
+
+			// Create an object with all the data we need to pass to updateDocument
+			const formData = {
+				validUntil,
+				reimbursementAmount,
+				benefitPercentage,
+				officialRep,
+				signatureImage,
+				benefitUsed: originalBenefit - getEditBenefits,
+				originalBenefit,
+				remainingBenefit: getEditBenefits,
+			};
+
 			// Include validUntil when updating the document
-			updateDocument(transID, textArea, updateStatus, validUntil);
+			await updateDocument(transID, textArea, updateStatus, formData);
+
+			// Update user's remaining benefit if changed
 			if (
 				globalBenefitsData[getCurrentUser || "null"] !== getEditBenefits
 			) {
@@ -337,7 +358,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			console.error(error);
 		}
 
-		// console.log(getText);
 		setShowPopout(false);
 		setShowCommentBox(null);
 	};
@@ -385,6 +405,25 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		}
 	};
 
+	const handleRequestClick = async (request: PendingRequest) => {
+		const isExpanding = expandedId !== request.transactionId;
+
+		setExpandedId(isExpanding ? request.transactionId : null);
+
+		if (isExpanding) {
+			const currentBenefit = globalBenefitsData[request.requester] || 0;
+			setEditBenefits(currentBenefit);
+			setOriginalBenefit(currentBenefit);
+			setCurrentUser(request.requester);
+		}
+
+		await clearPendingNotifications(request.transactionId);
+		// ✅ Locally remove highlight
+		setUnreadTransactionIds((prev) =>
+			prev.filter((id) => id !== request.transactionId)
+		);
+	};
+
 	// Helper function to convert camelCase to Title Case with spaces
 	const formatDocumentType = (camelCaseKey: string): string => {
 		if (camelCaseKey === "employeeID") return "Employee ID";
@@ -428,6 +467,44 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		}
 	};
 
+	// Helper function to render thumbnails
+	const renderThumbnail = (attachment: FormAttachment) => {
+		const ext = attachment.filename.split(".").pop()?.toLowerCase();
+		const imageTypes = ["png", "jpg", "jpeg", "gif", "svg"];
+
+		if (ext && imageTypes.includes(ext) && attachment.url) {
+			return (
+				<img
+					src={attachment.url}
+					alt={attachment.filename}
+					className={styles["file-thumbnail"]}
+				/>
+			);
+		} else if (ext === "pdf") {
+			return (
+				<div
+					className={styles["default-thumbnail"]}
+					data-label="PDF"
+				></div>
+			);
+		} else if (ext === "docx") {
+			return (
+				<div
+					className={styles["default-thumbnail"]}
+					data-label="DOCX"
+				></div>
+			);
+		} else {
+			return (
+				<div
+					className={styles["default-thumbnail"]}
+					data-label="FILE"
+				></div>
+			);
+		}
+	};
+
+	// Modify the renderFormFields function to ensure fields display properly
 	const renderFormFields = (request: PendingRequest) => {
 		const { formData } = request;
 
@@ -435,7 +512,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 		const baseFields = (
 			<>
-				<hr className={styles.yellow}></hr>
 				<div className={styles["form-grid"]}>
 					<div className={styles["form-group"]}>
 						<label>Last Name</label>
@@ -484,7 +560,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 					>
 						<label>College Affiliation</label>
 						<p className={styles["field-value"]}>
-							{formData?.college}
+							{formData?.college || "-"}
 						</p>
 					</div>
 					<div
@@ -492,7 +568,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 					>
 						<label>Contact No.</label>
 						<p className={styles["field-value"]}>
-							{formData?.contact}
+							{formData?.contact || "-"}
 						</p>
 					</div>
 				</div>
@@ -603,6 +679,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 				return (
 					<>
 						{baseFields}
+						<hr />
 						<div className={styles["form-eyeglasses-row-grid"]}>
 							<div className={styles["form-group"]}>
 								<label>OR Number</label>
@@ -631,6 +708,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								</p>
 							</div>
 						</div>
+						<hr></hr>
 					</>
 				);
 
@@ -638,6 +716,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 				return (
 					<>
 						{baseFields}
+						<hr></hr>
 						<div className={styles["form-admission-row-grid"]}>
 							<div className={styles["form-group"]}>
 								<label>Load</label>
@@ -654,6 +733,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								</p>
 							</div>
 						</div>
+						<hr></hr>
 					</>
 				);
 
@@ -662,15 +742,14 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		}
 	};
 
+	// Update renderAttachments function to remove USTFU section
 	const renderAttachments = (request: PendingRequest) => {
 		const { formData } = request;
 
 		if (!formData) return null;
 
 		// Create an array of objects that include both the attachment and its type
-		// Only include attachments that exist
 		const attachmentsWithLabels = [
-			// Common attachments for all form types
 			...(formData.employeeID
 				? [{ type: "employeeID", data: formData.employeeID }]
 				: []),
@@ -682,8 +761,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						},
 				  ]
 				: []),
-
-			// Conditionally include form-specific attachments
 			...(formData.docRequest
 				? [{ type: "docRequest", data: formData.docRequest }]
 				: []),
@@ -695,89 +772,76 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 				: []),
 		].filter((item) => item.data && item.data.filename);
 
-		// If no attachments, don't render this section
-		if (attachmentsWithLabels.length === 0) return null;
-
-		// Helper: check file extension and return appropriate content
-		const renderThumbnail = (attachment: FormAttachment) => {
-			const ext = attachment.filename.split(".").pop()?.toLowerCase();
-			const imageTypes = ["png", "jpg", "jpeg", "gif", "svg"];
-			if (ext && imageTypes.includes(ext) && attachment.url) {
-				return (
-					<img
-						src={attachment.url}
-						alt={attachment.filename}
-						className={styles["file-thumbnail"]}
-					/>
-				);
-			} else if (ext === "pdf") {
-				return (
-					<div
-						className={styles["default-thumbnail"]}
-						data-label="PDF"
-					></div>
-				);
-			} else if (ext === "docx") {
-				return (
-					<div
-						className={styles["default-thumbnail"]}
-						data-label="DOCX"
-					></div>
-				);
-			} else {
-				return (
-					<div
-						className={styles["default-thumbnail"]}
-						data-label="FILE"
-					></div>
-				);
-			}
-		};
-
-		return (
-			<>
-				<hr />
-				<div className={styles["attachments-section"]}>
-					<h4>UPLOADED ATTACHMENTS</h4>
+		// Function to render attachments section
+		const renderAttachmentsSection = () => (
+			<div className={styles["attachments-section"]}>
+				<h4>UPLOADED ATTACHMENTS</h4>
+				<div className={styles["attachment-container-row"]}>
 					<div className={styles["attachment-preview-container"]}>
-						{attachmentsWithLabels.map((item, index) => (
-							<div
-								key={index}
-								className={styles["attachment-preview"]}
-								onClick={() => setPreviewFile(item.data)}
-								title={item.data?.filename}
-							>
-								<div className={styles["thumbnail-container"]}>
-									{renderThumbnail(item.data)}
+						{attachmentsWithLabels.length > 0 ? (
+							attachmentsWithLabels.map((item, index) => (
+								<div
+									key={index}
+									className={styles["attachment-preview"]}
+									onClick={() => setPreviewFile(item.data)}
+									title={item.data?.filename}
+								>
+									<div
+										className={
+											styles["thumbnail-container"]
+										}
+									>
+										{renderThumbnail(item.data)}
+									</div>
+									<div className={styles["file-info"]}>
+										<p className={styles["document-type"]}>
+											{formatDocumentType(item.type)}
+										</p>
+										<p className={styles["file-name"]}>
+											{item.data?.filename}
+										</p>
+									</div>
 								</div>
-								<div className={styles["file-info"]}>
-									<p className={styles["document-type"]}>
-										{formatDocumentType(item.type)}
-									</p>
-									<p className={styles["file-name"]}>
-										{item.data?.filename}
-									</p>
-								</div>
+							))
+						) : (
+							<div className={styles["no-attachments"]}>
+								<p>No attachments uploaded</p>
 							</div>
-						))}
+						)}
 					</div>
 				</div>
-			</>
+			</div>
+		);
+
+		// Just return attachments section for all form types
+		return (
+			<div className={styles["attachments-ustfu-container"]}>
+				<div className={styles["attachments-column"]}>
+					{renderAttachmentsSection()}
+				</div>
+			</div>
 		);
 	};
 
+	// Update renderHospitalCertification function to also handle admission forms
 	const renderHospitalCertification = (request: PendingRequest) => {
-		// Only render hospital certification for hospital type requests
-		if (!request.formData || request.formData.formType !== "hospital") {
+		// Only render for hospital and admission type requests
+		if (
+			!request.formData ||
+			(request.formData.formType !== "hospital" &&
+				request.formData.formType !== "admission")
+		) {
 			return null;
 		}
+
+		const isAdmission = request.formData.formType === "admission";
 
 		return (
 			<>
 				<hr></hr>
 				<div className={styles["hospital-certification"]}>
 					<h4 className={styles["section-header"]}>
-						To UST HOSPITAL
+						To UST Hospital
 					</h4>
 					<div className={styles["certification-content"]}>
 						<p className="text-center">
@@ -789,29 +853,49 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						</p>
 
 						<div className={styles["hospital-certification-grid"]}>
-							{/* Benefit Options */}
+							{/* Benefits section */}
 							<div
 								className={styles["benefit-options-container"]}
 							>
 								<div className={styles["benefit-options"]}>
-									<label className={styles["radio-option"]}>
-										<input
-											type="radio"
-											name="benefit"
-											value="50"
-										/>
-										<span>50% of net hospital bill</span>
-									</label>
-									<label className={styles["radio-option"]}>
-										<input
-											type="radio"
-											name="benefit"
-											value="100"
-											checked
-											readOnly
-										/>
-										<span>100% of net hospital bill</span>
-									</label>
+									<>
+										<label
+											className={styles["radio-option"]}
+										>
+											<input
+												type="radio"
+												name="benefit"
+												value="50"
+												checked={
+													benefitPercentage === "50"
+												}
+												onChange={() =>
+													setBenefitPercentage("50")
+												}
+											/>
+											<span>
+												50% of net hospital bill
+											</span>
+										</label>
+										<label
+											className={styles["radio-option"]}
+										>
+											<input
+												type="radio"
+												name="benefit"
+												value="100"
+												checked={
+													benefitPercentage === "100"
+												}
+												onChange={() =>
+													setBenefitPercentage("100")
+												}
+											/>
+											<span>
+												100% of net hospital bill
+											</span>
+										</label>
+									</>
 								</div>
 								{/* Valid Until Date Field */}
 								<div
@@ -834,6 +918,12 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 							{/* Amount section */}
 							<div className={styles["amount-section"]}>
+								<div className={styles["benefit-history"]}>
+									<span className="mb-2">
+										Original benefit: ₱{" "}
+										{originalBenefit.toLocaleString()}
+									</span>
+								</div>
 								<span className="mb-2">but not to exceed:</span>
 								<div
 									className={`${styles["amount-container"]} p-3 rounded shadow`}
@@ -943,7 +1033,10 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 											className={
 												styles["signature-name-input"]
 											}
-											defaultValue="Emerito C. Gonzales"
+											value={officialRep}
+											onChange={(e) =>
+												setOfficialRep(e.target.value)
+											}
 											aria-label="USTFU President"
 										/>
 										<p
@@ -967,6 +1060,83 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 					</div>
 				</div>
 			</>
+		);
+	};
+
+	const renderApprovalSection = (request: PendingRequest) => {
+		return (
+			<div className={styles["approval-section"]}>
+				<h4 className={styles["section-header"]}>APPROVAL STEP</h4>
+
+				<div className={styles["approval-actions-container"]}>
+					<div className={styles["approval-actions"]}>
+						<button
+							className={`${
+								styles["approve-btn"]
+							} d-flex align-items-center justify-content-center ${
+								activeDecision === "approval"
+									? styles.selected
+									: ""
+							}`}
+							onClick={() => handleAction("approval")}
+						>
+							<FiCheck size={25} />
+							<span className="ms-2">Approve</span>
+						</button>
+						<button
+							className={`${
+								styles["reject-btn"]
+							} d-flex align-items-center justify-content-center ${
+								activeDecision === "rejection"
+									? styles.selected
+									: ""
+							}`}
+							onClick={() => handleAction("rejection")}
+						>
+							<HiOutlineX size={25} />
+							<span className="ms-2">Reject</span>
+						</button>
+						<button
+							className={`${
+								styles["revise-btn"]
+							} d-flex align-items-center justify-content-center ${
+								activeDecision === "for revision"
+									? styles.selected
+									: ""
+							}`}
+							onClick={() => handleAction("for revision")}
+						>
+							<FiEdit2 size={23} />
+							<span className="ms-2">To Revise</span>
+						</button>
+					</div>
+
+					{/* Always show the comment box regardless of action */}
+					<textarea
+						className={styles["comment-box"]}
+						placeholder={showCommentBox || "Additional Comments..."}
+						onChange={handleTextArea}
+					/>
+
+					<div className={styles["send-section"]}>
+						<div className={styles["send-box"]}>
+							<p className={styles["send-note"]}>
+								** Clicking the send button will finalize the
+								decision and notify the requester. This action
+								is irreversible.
+							</p>
+							<button
+								className={styles["send-btn"]}
+								onClick={() => {
+									handleSendClick(request.transactionId);
+								}}
+							>
+								SEND
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		);
 	};
 
@@ -1036,27 +1206,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									? styles.highlight
 									: ""
 							}`}
-							onClick={async () => {
-								setExpandedId(
-									expandedId === request.transactionId
-										? null
-										: request.transactionId
-								);
-								setEditBenefits(
-									globalBenefitsData[request.requester]
-								);
-								setCurrentUser(request.requester);
-
-								await clearPendingNotifications(
-									request.transactionId
-								);
-								// ✅ Locally remove highlight
-								setUnreadTransactionIds((prev) =>
-									prev.filter(
-										(id) => id !== request.transactionId
-									)
-								);
-							}}
+							onClick={async () => handleRequestClick(request)}
 						>
 							<div className={styles["header-content"]}>
 								<div className={styles["header-item"]}>
@@ -1190,115 +1340,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								{renderHospitalCertification(request)}
 
 								<hr></hr>
-								<div className={styles["approval-section"]}>
-									<h4 className={styles["section-header"]}>
-										APPROVAL STEP
-									</h4>
-
-									<div
-										className={
-											styles["approval-actions-container"]
-										}
-									>
-										<div
-											className={
-												styles["approval-actions"]
-											}
-										>
-											<button
-												className={`${
-													styles["approve-btn"]
-												} d-flex align-items-center justify-content-center ${
-													activeDecision ===
-													"approval"
-														? styles.selected
-														: ""
-												}`}
-												onClick={() =>
-													handleAction("approval")
-												}
-											>
-												<FiCheck size={25} />
-												<span className="ms-2">
-													Approve
-												</span>
-											</button>
-											<button
-												className={`${
-													styles["reject-btn"]
-												} d-flex align-items-center justify-content-center ${
-													activeDecision ===
-													"rejection"
-														? styles.selected
-														: ""
-												}`}
-												onClick={() =>
-													handleAction("rejection")
-												}
-											>
-												<HiOutlineX size={25} />
-												<span className="ms-2">
-													Reject
-												</span>
-											</button>
-											<button
-												className={`${
-													styles["revise-btn"]
-												} d-flex align-items-center justify-content-center ${
-													activeDecision ===
-													"for revision"
-														? styles.selected
-														: ""
-												}`}
-												onClick={() =>
-													handleAction("for revision")
-												}
-											>
-												<FiEdit2 size={23} />
-												<span className="ms-2">
-													To Revise
-												</span>
-											</button>
-										</div>
-
-										{showCommentBox && (
-											<textarea
-												className={
-													styles["comment-box"]
-												}
-												placeholder={showCommentBox}
-												onChange={handleTextArea}
-											/>
-										)}
-
-										<div className={styles["send-section"]}>
-											<div className={styles["send-box"]}>
-												<p
-													className={
-														styles["send-note"]
-													}
-												>
-													** Clicking the send button
-													will finalize the decision
-													and notify the requester.
-													This action is irreversible.
-												</p>
-												<button
-													className={
-														styles["send-btn"]
-													}
-													onClick={() => {
-														handleSendClick(
-															request.transactionId
-														);
-													}}
-												>
-													SEND
-												</button>
-											</div>
-										</div>
-									</div>
-								</div>
+								{renderApprovalSection(request)}
 							</div>
 						)}
 					</div>
@@ -1310,14 +1352,12 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			{/* Updated pagination layout */}
 			{sortedRequests.length > 0 && (
 				<div className={styles.paginationContainer}>
-					{/* Record info moved to the side */}
 					<div className={styles.recordInfo}>
 						Showing {indexOfFirstRecord + 1} to{" "}
 						{Math.min(indexOfLastRecord, sortedRequests.length)} of{" "}
 						{sortedRequests.length} results
 					</div>
 
-					{/* Page buttons centered in their own container */}
 					<div className={styles.pageButtonsContainer}>
 						<PageButtons
 							currentPage={clientCurrentPage}

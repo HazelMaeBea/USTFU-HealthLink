@@ -31,6 +31,18 @@ export interface BenefitsData {
 	remainingBenefits: number;
 }
 
+// Interface for form data
+export interface FormProcessingData {
+	validUntil?: string;
+	reimbursementAmount?: number;
+	benefitPercentage?: string;
+	officialRep?: string;
+	signatureImage?: string | null;
+	benefitUsed?: number;
+	originalBenefit?: number;
+	remainingBenefit?: number;
+}
+
 // Interface for the hook return value
 export interface PaginatedRequests {
 	requests: PendingRequest[];
@@ -134,12 +146,12 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 	};
 };
 
-// Update the updateDocument function to include validUntil
+// Update the updateDocument function to handle all form data
 export const updateDocument = async (
 	transID: string,
 	textArea: string,
 	status: string,
-	validUntil?: string // Add optional validUntil parameter
+	formData: FormProcessingData
 ) => {
 	try {
 		const userQuery = query(
@@ -150,19 +162,70 @@ export const updateDocument = async (
 		for (const document of querySnapshot.docs) {
 			const docRef = doc(db, "FormRequests", document.id);
 			const docData = document.data();
+			const formType = docData.formData?.formType;
 
 			const decisionTimestamp = Timestamp.now();
-
-			// Create update object with optional validUntil field
-			await updateDoc(docRef, {
-				status: status, // ✅ Ensure status is updated
+			const updateObj: any = {
+				status: status,
 				statusReason: textArea,
 				DateDecided: decisionTimestamp,
-				...(validUntil ? { validUntil } : {}),
-			});
+			};
 
+			// Add validUntil if provided
+			if (formData.validUntil) {
+				updateObj.validUntil = formData.validUntil;
+			}
+
+			// Store benefit history data for all approved forms that modify benefits
+			if (status === "approved") {
+				// Create a benefit history record to track changes
+				const benefitHistory = {
+					transactionId: transID,
+					date: decisionTimestamp,
+					originalBenefit: formData.originalBenefit || 0,
+					benefitUsed: formData.benefitUsed || 0,
+					remainingBenefit: formData.remainingBenefit || 0,
+					formType: formType || "unknown",
+				};
+
+				updateObj.benefitHistory = benefitHistory;
+			}
+
+			// Form-specific updates
+			if (formType === "eyeglasses" && status === "approved") {
+				// For eyeglasses forms, add reimbursement data
+				updateObj["formData.reimbursementAmount"] =
+					formData.reimbursementAmount;
+				updateObj["formData.eyeglassesBenefitClaimedDate"] =
+					decisionTimestamp;
+
+				// Update user's eyeglasses reimbursement record
+				if (formData.reimbursementAmount) {
+					await updateUserEyeglassesReimbursement(
+						docData.requester,
+						formData.reimbursementAmount
+					);
+				}
+			} else if (formType === "hospital" && status === "approved") {
+				// For hospital forms, add hospital certification data
+				updateObj["formData.benefitPercentage"] =
+					formData.benefitPercentage || "100";
+				updateObj["formData.officialRep"] = formData.officialRep || "";
+
+				// If signature is provided, convert base64 to storage URL (placeholder for now)
+				if (formData.signatureImage) {
+					updateObj["formData.ustfuSig"] = {
+						url: formData.signatureImage, // In production, you'd upload this to storage
+						filename: `signature_${Date.now()}.png`,
+					};
+				}
+			}
+
+			// Apply updates to the document
+			await updateDoc(docRef, updateObj);
 			console.log(`Document with ID ${document.id} has been updated.`);
 
+			// Determine which collection to move the document to
 			let newCollection = "";
 			if (["approved", "rejected"].includes(status)) {
 				newCollection = "AccomplishedRequests"; // Approved & Rejected go here
@@ -170,7 +233,7 @@ export const updateDocument = async (
 				newCollection = "RevisionsRequests";
 			}
 
-			// insert code to generate new ID
+			// Generate new ID for the document in its new collection
 			const formIDValue =
 				(await getFormID(true, docData.claimRequestCount)) || 1;
 			const formIDString =
@@ -183,17 +246,71 @@ export const updateDocument = async (
 				const newDocRef = doc(db, newCollection, formID);
 
 				// Create new document data with all fields
-				const newDocData = {
+				const newDocData: {
+					formData?: any;
+					status: string;
+					statusReason: string;
+					DateDecided: Timestamp;
+					pdfProcessed?: boolean;
+					validUntil?: string;
+					benefitHistory?: any;
+					[key: string]: any;
+				} = {
 					...docData,
 					status,
 					statusReason: textArea,
 					DateDecided: decisionTimestamp,
-					...(validUntil ? { validUntil } : {}), // Include validUntil if available
-					...(newCollection === "AccomplishedRequests" &&
-					status === "approved"
-						? { pdfProcessed: false }
-						: {}),
+					pdfProcessed:
+						newCollection === "AccomplishedRequests" &&
+						status === "approved"
+							? false
+							: undefined,
 				};
+
+				// Add form-specific data to the new document
+				if (formData.validUntil) {
+					newDocData.validUntil = formData.validUntil;
+				}
+
+				// Add benefit history to the document
+				if (status === "approved") {
+					newDocData.benefitHistory = {
+						transactionId: transID,
+						date: decisionTimestamp,
+						originalBenefit: formData.originalBenefit || 0,
+						benefitUsed: formData.benefitUsed || 0,
+						remainingBenefit: formData.remainingBenefit || 0,
+						formType: formType || "unknown",
+					};
+				}
+
+				// Form-specific data for the new document
+				if (formType === "eyeglasses") {
+					if (!newDocData.formData)
+						newDocData.formData = { formType: "eyeglasses" };
+					if (formData.reimbursementAmount !== undefined) {
+						newDocData.formData.reimbursementAmount =
+							formData.reimbursementAmount;
+						newDocData.formData.eyeglassesBenefitClaimedDate =
+							decisionTimestamp;
+					}
+				} else if (formType === "hospital") {
+					if (!newDocData.formData)
+						newDocData.formData = { formType: "hospital" };
+					if (formData.benefitPercentage) {
+						newDocData.formData.benefitPercentage =
+							formData.benefitPercentage;
+					}
+					if (formData.officialRep) {
+						newDocData.formData.officialRep = formData.officialRep;
+					}
+					if (formData.signatureImage) {
+						newDocData.formData.ustfuSig = {
+							url: formData.signatureImage,
+							filename: `signature_${Date.now()}.png`,
+						};
+					}
+				}
 
 				// Copy document to the new collection
 				await setDoc(newDocRef, newDocData);
@@ -204,14 +321,17 @@ export const updateDocument = async (
 					`Document moved to ${newCollection} and deleted from FormRequests.`
 				);
 
+				// Send notification to requester
 				if (
 					newCollection === "AccomplishedRequests" ||
 					newCollection === "RevisionsRequests"
 				) {
-					const requester = docData.requester; // Retrieve the requester from the docData
-					await pushAccomplishedNotification(transID, requester);
+					await pushAccomplishedNotification(
+						transID,
+						docData.requester
+					);
 					console.log(
-						`✅ Notification pushed for requester: ${requester}`
+						`✅ Notification pushed for requester: ${docData.requester}`
 					);
 				}
 			}
@@ -221,11 +341,50 @@ export const updateDocument = async (
 	}
 };
 
+// Update the updateUserEyeglassesReimbursement function to use direct date tracking
+export const updateUserEyeglassesReimbursement = async (
+	userName: string,
+	reimbursementAmount: number
+) => {
+	try {
+		const userQuery = query(
+			usersCollection,
+			where("fullName", "==", userName)
+		);
+
+		const querySnapshot = await getDocs(userQuery);
+		querySnapshot.forEach(async (document) => {
+			const docRef = doc(db, "users", document.id);
+
+			// Only store the direct fields without using history array
+			await setDoc(
+				docRef,
+				{
+					personalInfo: {
+						lastReimbursementAmount: reimbursementAmount,
+						eyeglassesBenefitClaimedDate: Timestamp.now(),
+					},
+				},
+				{ merge: true }
+			);
+
+			console.log(
+				`Updated eyeglasses reimbursement data for user: ${userName}`
+			);
+		});
+	} catch (error) {
+		console.error("Error updating user eyeglasses data:", error);
+	}
+};
+
+// Update the updateBenefits function to focus on remaining benefit without history array
 export const updateBenefits = async (
 	newValue: number,
 	userName: string | null
 ) => {
 	try {
+		if (!userName) return;
+
 		const userQuery = query(
 			usersCollection,
 			where("fullName", "==", userName)
@@ -238,13 +397,18 @@ export const updateBenefits = async (
 			await setDoc(
 				docRef,
 				{
-					personalInfo: { remainingBenefits: newValue },
+					personalInfo: {
+						remainingBenefits: newValue,
+						lastBenefitUpdate: Timestamp.now(),
+					},
 				},
 				{ merge: true }
 			);
+
+			console.log(`Updated benefits for user ${userName}: ${newValue}`);
 		});
 	} catch (error) {
-		console.error(error);
+		console.error("Error updating benefits:", error);
 	}
 };
 
