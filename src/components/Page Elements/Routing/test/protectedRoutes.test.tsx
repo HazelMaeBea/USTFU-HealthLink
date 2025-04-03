@@ -1,34 +1,94 @@
 import { render, screen, act, waitFor } from "@testing-library/react";
 import { describe, test, expect, beforeEach, vi, afterEach } from "vitest";
-import ProtectedRoute from "../protectedRoutes";
 import "@testing-library/jest-dom";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import React, { ReactNode } from "react";
 
-// Mock the useNavigate hook
+// 1. Define proper types for mocked components and context
+interface MockNavigateProps {
+	to: string;
+	children?: ReactNode;
+}
+
+interface MockFirebaseContext {
+	isLoading: boolean;
+	isAuthenticated: boolean;
+	isVerified: boolean;
+	userStatus: string | null;
+	userClaims: { role?: string };
+}
+
+// 2. Mock the useNavigate hook with proper typing
 const mockNavigate = vi.hoisted(() => vi.fn());
 vi.mock("react-router-dom", async () => {
-	const actual = await vi.importActual("react-router-dom");
+	const actual = await vi.importActual<typeof import("react-router-dom")>(
+		"react-router-dom"
+	);
 	return {
-		...(actual as object),
+		...actual,
 		useNavigate: () => mockNavigate,
-		Navigate: ({ to }: { to: string }) => (
-			<div data-testid="navigate" data-to={to}></div>
+		Navigate: ({ to, children }: MockNavigateProps) => (
+			<div data-testid="navigate" data-to={to}>
+				{children}
+			</div>
 		),
 	};
 });
 
-// Mock the useFirebase hook with different authentication states
-const mockUseFirebase = vi.hoisted(() => vi.fn());
-vi.mock("../contexts/firebaseContext", () => ({
-	useFirebase: () => mockUseFirebase(),
-}));
+// 3. Create a more comprehensive mock for Firebase context
+const mockUseFirebase = vi.hoisted(() => vi.fn<() => MockFirebaseContext>());
+
+// Try multiple potential import paths
+vi.mock("../../../contexts/firebaseContext", () => {
+	return {
+		useFirebase: mockUseFirebase,
+		FirebaseProvider: ({ children }: { children: ReactNode }) => (
+			<>{children}</>
+		),
+	};
+});
+
+// Also mock alternate potential import paths
+vi.mock("../../../../contexts/firebaseContext", () => {
+	return {
+		useFirebase: mockUseFirebase,
+		FirebaseProvider: ({ children }: { children: ReactNode }) => (
+			<>{children}</>
+		),
+	};
+});
+
+vi.mock("src/contexts/firebaseContext", () => {
+	return {
+		useFirebase: mockUseFirebase,
+		FirebaseProvider: ({ children }: { children: ReactNode }) => (
+			<>{children}</>
+		),
+	};
+});
+
+// Create a wrapper component that will provide the mocked context
+const FirebaseWrapper = ({ children }: { children: ReactNode }) => {
+	return <>{children}</>;
+};
+
+// Import the component after all mocks are set up
+// Use dynamic import to ensure mocks are applied first
+let ProtectedRoute: React.ComponentType;
+
+// Helper component for testing Outlet rendering
+const TestComponent = () => (
+	<div data-testid="protected-content">Protected Content</div>
+);
 
 describe("ProtectedRoute Component", () => {
-	beforeEach(() => {
+	beforeEach(async () => {
 		vi.clearAllMocks();
-
-		// Clear localStorage for each test
 		localStorage.clear();
+
+		// Dynamically import the component in each test
+		const module = await import("../protectedRoutes");
+		ProtectedRoute = module.default;
 	});
 
 	afterEach(() => {
@@ -46,12 +106,13 @@ describe("ProtectedRoute Component", () => {
 
 		render(
 			<MemoryRouter>
-				<ProtectedRoute />
+				<FirebaseWrapper>
+					<ProtectedRoute />
+				</FirebaseWrapper>
 			</MemoryRouter>
 		);
 
-		// Should show loading spinner
-		expect(screen.getByClass("spinner")).toBeInTheDocument();
+		expect(screen.getByTestId("spinner")).toBeInTheDocument();
 	});
 
 	test("redirects to login page when user is not authenticated", async () => {
@@ -65,14 +126,16 @@ describe("ProtectedRoute Component", () => {
 
 		render(
 			<MemoryRouter>
-				<ProtectedRoute />
+				<FirebaseWrapper>
+					<ProtectedRoute />
+				</FirebaseWrapper>
 			</MemoryRouter>
 		);
 
-		// Wait for grace period to end
-		await act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 600));
+		});
 
-		// Should redirect to login
 		const navigate = screen.getByTestId("navigate");
 		expect(navigate.getAttribute("data-to")).toBe("/login");
 	});
@@ -81,18 +144,22 @@ describe("ProtectedRoute Component", () => {
 		mockUseFirebase.mockReturnValue({
 			isLoading: false,
 			isAuthenticated: true,
-			isVerified: false, // Not verified
+			isVerified: false,
 			userStatus: "active",
 			userClaims: { role: "member" },
 		});
 
 		render(
 			<MemoryRouter>
-				<ProtectedRoute />
+				<FirebaseWrapper>
+					<ProtectedRoute />
+				</FirebaseWrapper>
 			</MemoryRouter>
 		);
 
-		await act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 600));
+		});
 
 		const navigate = screen.getByTestId("navigate");
 		expect(navigate.getAttribute("data-to")).toBe("/login");
@@ -103,17 +170,21 @@ describe("ProtectedRoute Component", () => {
 			isLoading: false,
 			isAuthenticated: true,
 			isVerified: true,
-			userStatus: "pending", // Not active
+			userStatus: "pending",
 			userClaims: { role: "member" },
 		});
 
 		render(
 			<MemoryRouter>
-				<ProtectedRoute />
+				<FirebaseWrapper>
+					<ProtectedRoute />
+				</FirebaseWrapper>
 			</MemoryRouter>
 		);
 
-		await act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 600));
+		});
 
 		const navigate = screen.getByTestId("navigate");
 		expect(navigate.getAttribute("data-to")).toBe("/login");
@@ -130,18 +201,19 @@ describe("ProtectedRoute Component", () => {
 
 		render(
 			<MemoryRouter>
-				<ProtectedRoute />
+				<FirebaseWrapper>
+					<ProtectedRoute />
+				</FirebaseWrapper>
 			</MemoryRouter>
 		);
 
-		await act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 600));
+		});
 
-		// Should have redirected to pending requests
 		expect(mockNavigate).toHaveBeenCalledWith("/pendingrequests", {
 			replace: true,
 		});
-
-		// Should have set localStorage flag
 		expect(localStorage.getItem("redirected")).toBe("true");
 	});
 
@@ -156,19 +228,21 @@ describe("ProtectedRoute Component", () => {
 
 		render(
 			<MemoryRouter>
-				<ProtectedRoute />
+				<FirebaseWrapper>
+					<ProtectedRoute />
+				</FirebaseWrapper>
 			</MemoryRouter>
 		);
 
-		await act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 600));
+		});
 
-		// Should have redirected to home
 		expect(mockNavigate).toHaveBeenCalledWith("/home", { replace: true });
 		expect(localStorage.getItem("redirected")).toBe("true");
 	});
 
 	test("doesn't redirect if already redirected", async () => {
-		// Set localStorage to indicate already redirected
 		localStorage.setItem("redirected", "true");
 
 		mockUseFirebase.mockReturnValue({
@@ -181,13 +255,16 @@ describe("ProtectedRoute Component", () => {
 
 		render(
 			<MemoryRouter>
-				<ProtectedRoute />
+				<FirebaseWrapper>
+					<ProtectedRoute />
+				</FirebaseWrapper>
 			</MemoryRouter>
 		);
 
-		await act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 600));
+		});
 
-		// Should not have navigated again
 		expect(mockNavigate).not.toHaveBeenCalled();
 	});
 
@@ -202,30 +279,32 @@ describe("ProtectedRoute Component", () => {
 			userClaims: { role: "member" },
 		});
 
-		const TestComponent = () => (
-			<div data-testid="protected-content">Protected Content</div>
-		);
-
 		render(
 			<MemoryRouter initialEntries={["/protected"]}>
 				<Routes>
-					<Route element={<ProtectedRoute />}>
+					<Route
+						element={
+							<FirebaseWrapper>
+								<ProtectedRoute />
+							</FirebaseWrapper>
+						}
+					>
 						<Route path="/protected" element={<TestComponent />} />
 					</Route>
 				</Routes>
 			</MemoryRouter>
 		);
 
-		await act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 600));
+		});
 
-		// Should render the protected content
 		await waitFor(() => {
 			expect(screen.getByTestId("protected-content")).toBeInTheDocument();
 		});
 	});
 
 	test("clears redirected flag when user logs out", async () => {
-		// Set localStorage flag
 		localStorage.setItem("redirected", "true");
 
 		let firebaseState = {
@@ -240,24 +319,25 @@ describe("ProtectedRoute Component", () => {
 
 		const { rerender } = render(
 			<MemoryRouter>
-				<ProtectedRoute />
+				<FirebaseWrapper>
+					<ProtectedRoute />
+				</FirebaseWrapper>
 			</MemoryRouter>
 		);
 
-		// Update the authentication state to simulate logout
 		firebaseState = {
 			...firebaseState,
 			isAuthenticated: false,
 		};
 
-		// Re-render with updated auth state
 		rerender(
 			<MemoryRouter>
-				<ProtectedRoute />
+				<FirebaseWrapper>
+					<ProtectedRoute />
+				</FirebaseWrapper>
 			</MemoryRouter>
 		);
 
-		// Flag should be cleared
 		expect(localStorage.getItem("redirected")).toBeNull();
 	});
 });
