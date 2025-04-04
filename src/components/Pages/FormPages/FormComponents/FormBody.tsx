@@ -88,7 +88,7 @@ const schema = baseFormSchema
 			.optional(),
 		benefits: z.preprocess(
 			(val) => (val === null ? "" : val),
-			z.string().nonempty("Please select your health benefits")
+			z.string().optional()
 		),
 		hmo: z.string().nullable().optional(),
 		docRequest: z.any().refine((files) => files && files.length > 0, {
@@ -97,9 +97,7 @@ const schema = baseFormSchema
 		hospitalInvoice: z.any().refine((files) => files && files.length > 0, {
 			message: "Please upload the hospital invoice",
 		}),
-		labInvoice: z.any().refine((files) => files && files.length > 0, {
-			message: "Please upload the laboratory invoice",
-		}),
+		labInvoice: z.any().optional(),
 		hospitalStatus: z.enum(
 			["In-Patient", "Out-Patient", "ER Consultation"],
 			{

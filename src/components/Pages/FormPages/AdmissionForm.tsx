@@ -67,9 +67,7 @@ const schema = baseFormSchema
 		hospitalInvoice: z.any().refine((files) => files && files.length > 0, {
 			message: "Hospital invoice is required",
 		}),
-		labInvoice: z.any().refine((files) => files && files.length > 0, {
-			message: "Laboratory invoice is required",
-		}),
+		labInvoice: z.any().optional(),
 		employeeID: z.any().nullable().optional(),
 		applicantSignature: z
 			.any()
@@ -432,9 +430,7 @@ const AdmissionForm = () => {
 										<tr>
 											<td>
 												Laboratory Receipt/Invoice{" "}
-												<span className="required-asterisk">
-													*
-												</span>
+
 											</td>
 											<td className="d-flex justify-content-center">
 												<input
