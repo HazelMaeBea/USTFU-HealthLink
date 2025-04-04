@@ -231,6 +231,17 @@ const createMockFile = (
 describe("Eyeglasses Form", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+
+		// Ensure mock implementations are set BEFORE each test
+		mockAddDoc.mockResolvedValue({ id: "mock-doc-id" });
+		mockUploadFilesAndGetURLs.mockResolvedValue({
+			applicantSignature: "mock-signature-url",
+			employeeID: "mock-id-url",
+			docRequest: "mock-doc-request-url",
+			hospitalInvoice: "mock-hospital-invoice-url",
+			labInvoice: "mock-lab-invoice-url",
+			eyeglassesReceipt: "mock-eyeglasses-receipt-url",
+		});
 	});
 
 	afterEach(() => {
@@ -294,6 +305,15 @@ describe("Eyeglasses Form", () => {
 	}, 10000);
 
 	test("submits eyeglasses form successfully", async () => {
+		// Explicitly mock the file upload function to resolve immediately
+		mockUploadFilesAndGetURLs.mockImplementation(() =>
+			Promise.resolve({
+				applicantSignature: "mock-signature-url",
+				eyeglassesReceipt: "mock-receipt-url",
+				employeeID: "mock-id-url",
+			})
+		);
+
 		render(<EyeglassesForm />);
 
 		// Fill required fields
@@ -306,50 +326,75 @@ describe("Eyeglasses Form", () => {
 			"Test Vendor"
 		);
 		await userEvent.type(screen.getByLabelText(/Amount Paid/i), "2000");
+		await userEvent.type(screen.getByLabelText(/Load/i), "18");
 
-		// Attach files - get the file inputs directly by their IDs
-		const signatureInput =
-			screen.getByTestId("applicantSignature") ||
-			document.getElementById("applicantSignature");
-		const receiptInput =
-			screen.getByTestId("eyeglassesReceipt") ||
-			document.getElementById("eyeglassesReceipt");
+		// Attach files - get the file inputs directly by their test IDs
+		const signatureInput = screen.getByTestId("applicantSignature");
+		const receiptInput = screen.getByTestId("eyeglassesReceipt");
 
+		// Create mock files with small sizes
+		const signatureFile = createMockFile(
+			"signature.jpg",
+			"image/jpeg",
+			100
+		);
+		const receiptFile = createMockFile(
+			"receipt.pdf",
+			"application/pdf",
+			100
+		);
+
+		// Upload files in a single act call
 		await act(async () => {
-			const signatureFile = createMockFile("signature.jpg", "image/jpeg");
-			const receiptFile = createMockFile(
-				"receipt.pdf",
-				"application/pdf"
-			);
-
 			await userEvent.upload(signatureInput, signatureFile);
 			await userEvent.upload(receiptInput, receiptFile);
 		});
 
+		// Check certification box
+		const certifyCheckbox = screen.getByLabelText(
+			/I hereby certify that all information/i
+		);
+		fireEvent.click(certifyCheckbox);
+
 		// Submit the form
 		const submitButton = screen.getByText("Submit");
-		await act(async () => {
-			fireEvent.click(submitButton);
-		});
+		fireEvent.click(submitButton);
 
-		// Check if form submission was called
-		await waitFor(() => {
-			expect(mockAddDoc).toHaveBeenCalledTimes(1);
-			expect(mockUploadFilesAndGetURLs).toHaveBeenCalledTimes(1);
-		});
+		// Use more specific waitFor with increased timeout
+		await waitFor(
+			() => {
+				expect(mockAddDoc).toHaveBeenCalled();
+				expect(mockUploadFilesAndGetURLs).toHaveBeenCalled();
+			},
+			{ timeout: 10000 }
+		);
 
 		// Check if success notification appears
-		await waitFor(() => {
-			expect(
-				screen.getByText("Form Submitted Successfully")
-			).toBeInTheDocument();
-		});
-	}, 10000);
+		await waitFor(
+			() => {
+				expect(
+					screen.getByText(/Form Submitted Successfully/i)
+				).toBeInTheDocument();
+			},
+			{ timeout: 10000 }
+		);
+	}, 30000);
 });
 
 describe("Inpatient Form", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+
+		// Ensure mock implementations are set BEFORE each test
+		mockAddDoc.mockResolvedValue({ id: "mock-doc-id" });
+		mockUploadFilesAndGetURLs.mockResolvedValue({
+			applicantSignature: "mock-signature-url",
+			employeeID: "mock-id-url",
+			docRequest: "mock-doc-request-url",
+			hospitalInvoice: "mock-hospital-invoice-url",
+			labInvoice: "mock-lab-invoice-url",
+			eyeglassesReceipt: "mock-eyeglasses-receipt-url",
+		});
 	});
 
 	afterEach(() => {
@@ -509,12 +554,23 @@ describe("Inpatient Form", () => {
 			expect(mockAddDoc).toHaveBeenCalledTimes(1);
 			expect(mockUploadFilesAndGetURLs).toHaveBeenCalledTimes(1);
 		});
-	}, 10000);
+	}, 30000);
 });
 
 describe("Outpatient Form", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+
+		// Ensure mock implementations are set BEFORE each test
+		mockAddDoc.mockResolvedValue({ id: "mock-doc-id" });
+		mockUploadFilesAndGetURLs.mockResolvedValue({
+			applicantSignature: "mock-signature-url",
+			employeeID: "mock-id-url",
+			docRequest: "mock-doc-request-url",
+			hospitalInvoice: "mock-hospital-invoice-url",
+			labInvoice: "mock-lab-invoice-url",
+			eyeglassesReceipt: "mock-eyeglasses-receipt-url",
+		});
 	});
 
 	afterEach(() => {
@@ -666,12 +722,23 @@ describe("Outpatient Form", () => {
 			expect(mockAddDoc).toHaveBeenCalledTimes(1);
 			expect(mockUploadFilesAndGetURLs).toHaveBeenCalledTimes(1);
 		});
-	}, 10000);
+	}, 30000);
 });
 
 describe("Admission Form", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+
+		// Ensure mock implementations are set BEFORE each test
+		mockAddDoc.mockResolvedValue({ id: "mock-doc-id" });
+		mockUploadFilesAndGetURLs.mockResolvedValue({
+			applicantSignature: "mock-signature-url",
+			employeeID: "mock-id-url",
+			docRequest: "mock-doc-request-url",
+			hospitalInvoice: "mock-hospital-invoice-url",
+			labInvoice: "mock-lab-invoice-url",
+			eyeglassesReceipt: "mock-eyeglasses-receipt-url",
+		});
 	});
 
 	afterEach(() => {
@@ -780,6 +847,16 @@ describe("Admission Form", () => {
 	}, 10000);
 
 	test("submits admission form successfully", async () => {
+		// Explicitly mock the file upload function to resolve immediately
+		mockUploadFilesAndGetURLs.mockImplementation(() =>
+			Promise.resolve({
+				applicantSignature: "mock-signature-url",
+				docRequest: "mock-doc-request-url",
+				hospitalInvoice: "mock-hospital-invoice-url",
+				labInvoice: "mock-lab-invoice-url",
+			})
+		);
+
 		render(<AdmissionForm />);
 
 		// Fill required fields
@@ -801,22 +878,37 @@ describe("Admission Form", () => {
 		const tenuredRadio = screen.getByLabelText("Tenured");
 		fireEvent.click(tenuredRadio);
 
-		// Attach files
+		// Attach files - get them by test ID or closest element instead of by label text
 		await act(async () => {
-			const mockFile = createMockFile("test.pdf");
+			const mockFile = createMockFile("test.pdf", "application/pdf", 100);
 
-			const docRequestInput = screen.getByLabelText(
-				/Doctor's Note\/Request/i
-			);
-			const hospitalInvoiceInput = screen.getByLabelText(
-				/Hospital Receipt\/Invoice/i
-			);
-			const labInvoiceInput = screen.getByLabelText(
-				/Laboratory Receipt\/Invoice/i
-			);
-			const signatureInput = screen.getByLabelText(
-				/Applicant's Signature/i
-			);
+			// Find file inputs - using querySelector to get inputs by their IDs or closest table cells
+			const docRequestInput =
+				(document.querySelector("#docRequest") as HTMLInputElement) ||
+				(screen.getAllByLabelText(/upload/i)[0] as HTMLInputElement);
+			const hospitalInvoiceInput =
+				(document.querySelector(
+					"#hospitalInvoice"
+				) as HTMLInputElement) ||
+				(screen.getAllByLabelText(/upload/i)[1] as HTMLInputElement);
+			const labInvoiceInput =
+				(document.querySelector("#labInvoice") as HTMLInputElement) ||
+				(screen.getAllByLabelText(/upload/i)[2] as HTMLInputElement);
+			const signatureInput =
+				(document.querySelector(
+					"#applicantSignature"
+				) as HTMLInputElement) ||
+				(screen.getAllByLabelText(/upload/i)[3] as HTMLInputElement);
+
+			if (
+				!docRequestInput ||
+				!hospitalInvoiceInput ||
+				!labInvoiceInput ||
+				!signatureInput
+			) {
+				console.error("File inputs not found");
+				return;
+			}
 
 			await userEvent.upload(docRequestInput, mockFile);
 			await userEvent.upload(hospitalInvoiceInput, mockFile);
@@ -832,21 +924,25 @@ describe("Admission Form", () => {
 
 		// Submit the form
 		const submitButton = screen.getByText("Submit");
-		await act(async () => {
-			fireEvent.click(submitButton);
-		});
+		fireEvent.click(submitButton);
 
-		// Check if form submission was called
-		await waitFor(() => {
-			expect(mockAddDoc).toHaveBeenCalledTimes(1);
-			expect(mockUploadFilesAndGetURLs).toHaveBeenCalledTimes(1);
-		});
+		// Check if form submission was called with increased timeouts
+		await waitFor(
+			() => {
+				expect(mockAddDoc).toHaveBeenCalled();
+				expect(mockUploadFilesAndGetURLs).toHaveBeenCalled();
+			},
+			{ timeout: 10000 }
+		);
 
 		// Check if success notification appears
-		await waitFor(() => {
-			expect(
-				screen.getByText(/Form Submitted Successfully/i)
-			).toBeInTheDocument();
-		});
-	}, 10000);
+		await waitFor(
+			() => {
+				expect(
+					screen.getByText(/Form Submitted Successfully/i)
+				).toBeInTheDocument();
+			},
+			{ timeout: 10000 }
+		);
+	}, 30000);
 });

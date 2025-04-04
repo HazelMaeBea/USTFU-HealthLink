@@ -149,11 +149,15 @@ vi.mock("../../src/components/Page Elements/NotifBadge/NotifBadge", () => ({
 	),
 }));
 
-// Mock NotifTrigger hook with different notification scenarios
-const mockUseNotifications = vi.fn();
+// Mock NotifTrigger hook with proper values
 vi.mock("../../src/components/Page Elements/NotifBadge/NotifTrigger", () => ({
-	useNotifications: () => mockUseNotifications(),
+	useNotifications: () => ({
+		hasNewPendingRequest: true,
+		hasNewAccomplishedRecord: false,
+		pendingRequestType: "hospital",
+	}),
 	pushAccomplishedNotification: vi.fn(),
+	pushPendingNotification: vi.fn(),
 }));
 
 // Mock localStorage
@@ -194,13 +198,6 @@ describe("Sidebar Component", () => {
 		};
 
 		mockLocation.pathname = "/home";
-
-		// Update the mock to consistently return the notification data
-		mockUseNotifications.mockReturnValue({
-			hasNewPendingRequest: true,
-			hasNewAccomplishedRecord: false,
-			pendingRequestType: "hospital",
-		});
 	});
 
 	test("renders sidebar with correct menu items for member role", () => {
@@ -385,14 +382,20 @@ describe("Sidebar Component", () => {
 			"inpatient",
 		];
 
+		// Store original mock implementation to restore it later
+		const originalMockImplementation = vi
+			.mocked(useNotifications)
+			.getMockImplementation();
+
 		formTypes.forEach((formType) => {
-			// Set up mock to return true for hasNewPendingRequest with this form type
-			mockUseNotifications.mockReturnValue({
+			// Set mock implementation for this specific form type
+			vi.mocked(useNotifications).mockImplementation(() => ({
 				hasNewPendingRequest: true,
 				hasNewAccomplishedRecord: false,
 				pendingRequestType: formType,
-			});
+			}));
 
+			// Render for each form type
 			const { unmount } = render(<Sidebar onLogout={mockLogout} />);
 
 			// Should show notification badge for pending requests
@@ -408,6 +411,13 @@ describe("Sidebar Component", () => {
 			// Clean up to prepare for next iteration
 			unmount();
 		});
+
+		// Restore original mock implementation
+		if (originalMockImplementation) {
+			vi.mocked(useNotifications).mockImplementation(
+				originalMockImplementation
+			);
+		}
 	});
 
 	test("sidebar collapse behavior with mouse events", async () => {
