@@ -5,7 +5,7 @@ import { useFirebase } from "../../../contexts/firebaseContext";
 import Profile from "../Profile/Profile";
 import Popout from "../Popout/Popout";
 import NotifBadge from "../NotifBadge/NotifBadge";
-import { useNotifications } from "../NotifBadge/NotifTrigger";
+import useNotifications from "../NotifBadge/NotifTrigger";
 import {
 	MdOutlineMenu,
 	MdHistory,
@@ -137,12 +137,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 	const handleCancel = () => setIsPopoutOpen(false);
 
 	// Use the hook with optional chaining to prevent errors if it returns undefined
-	const { hasNewPendingRequest = false, hasNewAccomplishedRecord = false } = useNotifications?.(
-		{
+	const { hasNewPendingRequest = false, hasNewAccomplishedRecord = false } =
+		useNotifications?.({
 			uid,
 			selectedRole,
-		}
-	) || {};
+		}) || {};
 
 	const handleMenuClick = (name: string, action?: () => void) => {
 		setActiveItem(name);
