@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
 	render,
 	screen,
@@ -10,30 +10,85 @@ import { describe, test, expect, beforeEach, vi } from "vitest";
 import "@testing-library/jest-dom";
 import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 
-// Mock the asset imports first (must be before any imports that use them)
+// FIRST - Mock all modules before importing anything
+// This is critical - we need to intercept the imports before the components use them
+
+// Mock firebaseContext module - THIS IS THE KEY PART
+// We need to completely replace how the useFirebase hook works
+vi.mock("../../src/contexts/firebaseContext", () => {
+	const mockFirebaseValue = {
+		uid: "test-user-123",
+		isAuthenticated: true,
+		db: "mockDb",
+		displayName: "Test User",
+		photoURL: null,
+		userClaims: { role: "member" },
+		isLoading: false,
+		login: vi.fn(),
+		logout: vi.fn(),
+		isVerified: true,
+		userStatus: "active",
+		email: "test@test.com",
+		fullName: "Test User",
+		getFormID: vi.fn().mockResolvedValue(123),
+		auth: {},
+		app: {},
+		storage: {},
+		storageRef: {},
+		callFunction: vi.fn(),
+		currentUser: { uid: "test-user-123" },
+	};
+
+	return {
+		useFirebase: () => mockFirebaseValue,
+		FirebaseProvider: ({ children }: { children: ReactNode }) => children,
+	};
+});
+
+// Be sure to mock the user context too
+vi.mock("../../src/contexts/userContext", () => {
+	const mockUserValue = {
+		displayName: "Test User",
+		selectedRole: "member",
+		setSelectedRole: vi.fn(),
+		availableRoles: ["member"],
+		switchRole: vi.fn(),
+		loading: false,
+		photoURL: null,
+	};
+
+	return {
+		useUser: () => mockUserValue,
+		UserProvider: ({ children }: { children: ReactNode }) => children,
+	};
+});
+
+// Mock the asset imports
 vi.mock("../../../../assets/inpatient.png", () => ({
 	default: "mock-inpatient-icon",
 }));
+
 vi.mock("../../../../assets/admission.png", () => ({
 	default: "mock-admission-icon",
 }));
+
 vi.mock("../../../../assets/outpatient.png", () => ({
 	default: "mock-outpatient-icon",
 }));
+
 vi.mock("../../../../assets/eyeglasses.png", () => ({
 	default: "mock-eyeglasses-icon",
 }));
 
 // Create mock functions
 const mockNavigate = vi.fn();
-const mockDisplayName = "Test User";
 
 // Mock react-router-dom
 vi.mock("react-router-dom", () => ({
 	useNavigate: () => mockNavigate,
 }));
 
-// Mock firebase context
+// Mock firebase constants
 vi.mock("../../../../contexts/firebase", () => ({
 	db: "mockDb",
 }));
@@ -71,34 +126,6 @@ interface UserData {
 	};
 }
 
-// Mock user context
-vi.mock("../../../../contexts/userContext", () => ({
-	useUser: () => ({
-		displayName: mockDisplayName,
-		selectedRole: "member",
-		setSelectedRole: vi.fn(),
-		availableRoles: ["member"],
-		switchRole: vi.fn(),
-		loading: false,
-		photoURL: null,
-	}),
-	UserProvider: ({ children }: { children: ReactNode }) => children,
-}));
-
-// Mock firebase context
-vi.mock("../../../../contexts/firebaseContext", () => ({
-	useFirebase: () => ({
-		uid: "test-user-123",
-		isAuthenticated: true,
-		db: "mockDb",
-		displayName: mockDisplayName,
-		photoURL: null,
-		userClaims: { role: "member" },
-		isLoading: false,
-	}),
-	FirebaseProvider: ({ children }: { children: ReactNode }) => children,
-}));
-
 // Mock Popout component
 interface PopoutProps {
 	title: string;
@@ -120,7 +147,7 @@ vi.mock("../../Page Elements/Popout/Popout", () => ({
 		) : null,
 }));
 
-// Import ServiceCards after all mocks are setup
+// Import after ALL mocks are setup
 import ServiceCards from "../../src/components/Pages/MainPage/ServiceCards";
 
 // Helper factory function for timestamps
@@ -141,7 +168,7 @@ const triggerSnapshotWithData = (data: UserData) => {
 						exists: () => true,
 						id: "test-doc",
 						metadata: { hasPendingWrites: false, fromCache: false },
-						ref: null as unknown as any, // This is a mock, so we can't fully type it
+						ref: null as unknown as QueryDocumentSnapshot["ref"],
 					} as unknown as QueryDocumentSnapshot<DocumentData>,
 				],
 			});
