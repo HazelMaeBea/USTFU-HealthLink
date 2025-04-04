@@ -10,6 +10,7 @@ import {
 	query,
 	where,
 	getDocs,
+	addDoc,
 } from "firebase/firestore";
 import { db, auth } from "../../../contexts/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -121,6 +122,17 @@ const VerificationPage = () => {
 		setRequests(newRequests);
 	};
 
+	const mailCollection = collection(db, "mail");
+	const sendEmail = async (email:string, name:string) => {
+		addDoc(mailCollection, {
+			to: [email],
+			message: {
+				subject: "Your verification has been approved!",
+				html: "<h2>Welcome to USTFU Healthlink " + name + "!</h2><p>Your verification to access the USTFU Healthlink webapp has been approved.\nLook forward to being able to avail for your benefits anytime and anywhere.</p>"
+			}
+		})
+	}
+
 	const handleApprove = async (request: VerificationRequest) => {
 		try {
 			const userQuery = query(
@@ -137,6 +149,7 @@ const VerificationPage = () => {
 					role: request.role,
 				});
 				console.log("Approved:", request.name);
+				sendEmail(request.email, request.name);
 			} else {
 				console.log(
 					"No user found with the given fullName:",
@@ -205,6 +218,7 @@ const VerificationPage = () => {
 					role: rolesArray[doc.data().fullName],
 				});
 				// console.log(rolesArray[doc.data().fullName]);
+				sendEmail(doc.data().email, doc.data().name);
 			});
 		});
 		setPopoutOpen(true);

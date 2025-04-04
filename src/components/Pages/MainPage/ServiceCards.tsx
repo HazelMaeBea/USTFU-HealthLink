@@ -50,7 +50,6 @@ const ServiceCards = () => {
 						) {
 							const eyeglassDate =
 								userData.eyeglassesFlag;
-							console.log(eyeglassDate);
 							const eyeglassDateMils = eyeglassDate.toMillis();
 							const twoYearsInMillis =
 								2 * 365 * 24 * 60 * 60 * 1000; // 2 years in milliseconds
