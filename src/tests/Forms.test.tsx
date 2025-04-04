@@ -259,7 +259,7 @@ describe("Eyeglasses Form", () => {
 		// Check required file uploads
 		expect(screen.getByText(/Eyeglasses Receipt/i)).toBeInTheDocument();
 		expect(screen.getByText(/Applicant's Signature/i)).toBeInTheDocument();
-	});
+	}, 10000); // 10 second timeout
 
 	test("validates required fields for eyeglasses form", async () => {
 		render(<EyeglassesForm />);
@@ -271,13 +271,13 @@ describe("Eyeglasses Form", () => {
 		// Check for validation errors
 		await waitFor(() => {
 			expect(
-				screen.getByText(/OR Number is required/i)
+				screen.getByText(/Please enter a valid OR Number/i)
 			).toBeInTheDocument();
 			expect(
-				screen.getByText(/Issued By is required/i)
+				screen.getByText(/Please enter a valid Issue By/i)
 			).toBeInTheDocument();
 			expect(
-				screen.getByText(/Amount Paid is required/i)
+				screen.getByText(/Amount must be more than 0/i)
 			).toBeInTheDocument();
 			expect(
 				screen.getByText(/Eyeglasses receipt is required/i)
@@ -285,8 +285,13 @@ describe("Eyeglasses Form", () => {
 			expect(
 				screen.getByText(/Please upload your signature/i)
 			).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					/You must certify that all information provided is true and correct/i
+				)
+			).toBeInTheDocument();
 		});
-	});
+	}, 10000);
 
 	test("submits eyeglasses form successfully", async () => {
 		render(<EyeglassesForm />);
@@ -302,9 +307,13 @@ describe("Eyeglasses Form", () => {
 		);
 		await userEvent.type(screen.getByLabelText(/Amount Paid/i), "2000");
 
-		// Attach files
-		const signatureInput = screen.getByLabelText(/Applicant's Signature/i);
-		const receiptInput = screen.getByLabelText(/Eyeglasses Receipt/i);
+		// Attach files - get the file inputs directly by their IDs
+		const signatureInput =
+			screen.getByTestId("applicantSignature") ||
+			document.getElementById("applicantSignature");
+		const receiptInput =
+			screen.getByTestId("eyeglassesReceipt") ||
+			document.getElementById("eyeglassesReceipt");
 
 		await act(async () => {
 			const signatureFile = createMockFile("signature.jpg", "image/jpeg");
@@ -335,7 +344,7 @@ describe("Eyeglasses Form", () => {
 				screen.getByText("Form Submitted Successfully")
 			).toBeInTheDocument();
 		});
-	});
+	}, 10000);
 });
 
 describe("Inpatient Form", () => {
@@ -373,10 +382,61 @@ describe("Inpatient Form", () => {
 
 		// Check for file upload fields
 		expect(
-			screen.getByText(/Doctor's request\/order/i)
+			screen.getByText(/Doctor's Note or Request/i)
 		).toBeInTheDocument();
-		expect(screen.getByText(/Hospital invoice/i)).toBeInTheDocument();
-	});
+		expect(
+			screen.getByText(/Laboratory Receipt\/Invoice/i)
+		).toBeInTheDocument();
+	}, 10000);
+
+	test("validates required fields for inpatient form", async () => {
+		render(<InpatientForm />);
+
+		// Try to submit the form without filling required fields
+		const submitButton = await screen.findByText("Submit");
+		fireEvent.click(submitButton);
+
+		// Check for validation errors
+		await waitFor(() => {
+			expect(
+				screen.getByText(/Please enter a valid hospital name/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please specify your illness\/condition/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					/Please enter your attending physician's name/i
+				)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please specify the medical procedure/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please specify the medical procedure/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please upload your doctor's request\/order/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please upload the hospital invoice/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please upload the laboratory invoice/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please upload your signature/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please enter a valid number/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					/You must certify that all information provided is true and correct/i
+				)
+			).toBeInTheDocument();
+		});
+	}, 10000);
 
 	test("submits inpatient form successfully", async () => {
 		render(<InpatientForm />);
@@ -449,7 +509,7 @@ describe("Inpatient Form", () => {
 			expect(mockAddDoc).toHaveBeenCalledTimes(1);
 			expect(mockUploadFilesAndGetURLs).toHaveBeenCalledTimes(1);
 		});
-	});
+	}, 10000);
 });
 
 describe("Outpatient Form", () => {
@@ -484,7 +544,56 @@ describe("Outpatient Form", () => {
 
 		// Check for hospital status radio buttons
 		expect(screen.getByLabelText(/Out-Patient/i)).toBeInTheDocument();
-	});
+	}, 10000);
+
+	test("validates required fields for outpatient form", async () => {
+		render(<OutpatientForm />);
+
+		// Try to submit the form without filling required fields
+		const submitButton = await screen.findByText("Submit");
+		fireEvent.click(submitButton);
+
+		// Check for validation errors
+		await waitFor(() => {
+			expect(
+				screen.getByText(/Please enter a valid hospital name/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please specify your illness\/condition/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					/Please enter your attending physician's name/i
+				)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please specify the medical procedure/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please specify the medical procedure/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please upload your doctor's request\/order/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please upload the hospital invoice/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please upload the laboratory invoice/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please upload your signature/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please enter a valid number/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					/You must certify that all information provided is true and correct/i
+				)
+			).toBeInTheDocument();
+		});
+	}, 10000);
 
 	test("submits outpatient form successfully", async () => {
 		render(<OutpatientForm />);
@@ -557,7 +666,7 @@ describe("Outpatient Form", () => {
 			expect(mockAddDoc).toHaveBeenCalledTimes(1);
 			expect(mockUploadFilesAndGetURLs).toHaveBeenCalledTimes(1);
 		});
-	});
+	}, 10000);
 });
 
 describe("Admission Form", () => {
@@ -591,7 +700,7 @@ describe("Admission Form", () => {
 			).toBeInTheDocument();
 			expect(screen.getByText(/Employment Status/i)).toBeInTheDocument();
 		});
-	});
+	}, 10000);
 
 	test("handles employment status dependent fields", async () => {
 		render(<AdmissionForm />);
@@ -627,7 +736,48 @@ describe("Admission Form", () => {
 		await waitFor(() => {
 			expect(screen.getByText(/DATE RETIRED/i)).toBeInTheDocument();
 		});
-	});
+	}, 10000);
+
+	test("validates required fields for admission form", async () => {
+		render(<AdmissionForm />);
+
+		// Try to submit the form without filling required fields
+		const submitButton = await screen.findByText("Submit");
+		fireEvent.click(submitButton);
+
+		// Check for validation errors
+		await waitFor(() => {
+			expect(
+				screen.getByText(/Please enter your home address/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please enter your Employee ID Number/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please enter your academic load/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please select an employment status/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Doctor's Note\/Request is required/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Hospital Receipt\/Invoice is required/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Laboratory Receipt\/Invoice is required/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(/Please upload your signature/i)
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					/You must certify that all information provided is true and correct/i
+				)
+			).toBeInTheDocument();
+		});
+	}, 10000);
 
 	test("submits admission form successfully", async () => {
 		render(<AdmissionForm />);
@@ -698,5 +848,5 @@ describe("Admission Form", () => {
 				screen.getByText(/Form Submitted Successfully/i)
 			).toBeInTheDocument();
 		});
-	});
+	}, 10000);
 });

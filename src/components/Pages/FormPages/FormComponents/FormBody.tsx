@@ -31,10 +31,10 @@ const schema = baseFormSchema
 	.extend({
 		hospital: z
 			.string({
-				required_error: "Please enter the hospital name",
+				required_error: "Please enter a valid hospital name",
 				invalid_type_error: "Hospital name must be text",
 			})
-			.min(1, "Please enter the hospital name"),
+			.min(1, "Please enter a valid hospital name"),
 		illness: z
 			.string({
 				required_error: "Please specify your illness/condition",
@@ -49,13 +49,13 @@ const schema = baseFormSchema
 			.min(1, "Please enter your attending physician's name"),
 		procedures: z
 			.string({
-				required_error: "Please specify the medical procedures",
+				required_error: "Please specify the medical procedure",
 				invalid_type_error: "Medical procedures must be text",
 			})
-			.min(1, "Please specify the medical procedures"),
+			.min(1, "Please specify the medical procedure"),
 		procedureSpecify: z
 			.string({
-				required_error: "Please specify the procedure",
+				required_error: "Please specify the medical procedure",
 				invalid_type_error: "Procedure specification must be text",
 			})
 			.min(1, "Please specify the procedure"),
