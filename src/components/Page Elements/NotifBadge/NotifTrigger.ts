@@ -19,11 +19,16 @@ interface UseNotificationsProps {
 	selectedRole: string;
 }
 
-const useNotifications = ({ uid, selectedRole }: UseNotificationsProps) => {
+export const useNotifications = ({
+	uid,
+	selectedRole,
+}: UseNotificationsProps) => {
 	const { fullName } = useFirebase();
 	const [hasNewPendingRequest, setHasNewPendingRequest] = useState(false);
 	const [hasNewAccomplishedRecord, setHasNewAccomplishedRecord] =
 		useState(false);
+	const [pendingRequestType, setPendingRequestType] =
+		useState<string>("hospital");
 
 	useEffect(() => {
 		if (!uid) return;
@@ -158,10 +163,9 @@ const useNotifications = ({ uid, selectedRole }: UseNotificationsProps) => {
 		hasNewAccomplishedRecord,
 		clearPendingNotifications,
 		clearAccomplishedNotifications,
+		pendingRequestType,
 	};
 };
-
-export default useNotifications;
 
 export const pushPendingNotification = async (transactionId: string) => {
 	try {

@@ -1,38 +1,3 @@
-// Summary of LoginPage.test.tsx tests:
-/*
-Key Tests Summary:
-- Renders login page correctly:
-  Checks that essential elements (Logo, "Sign in" text, account description, and the "Sign in with Google" button)
-  are rendered on the page.
-  
-- Shows loading state when logging in:
-  Simulates a delayed login and verifies that a "Signing in..." message is displayed while waiting for the login to resolve.
-  
-- Redirects to home when user is verified:
-  After a successful login with verified user status, confirms that the user is navigated to "/home".
-  
-- Shows not registered popout for unregistered users:
-  For unregistered users, ensures a popout prompting registration is displayed;
-  upon confirmation, the user is redirected to "/register".
-  
-- Shows pending verification popout:
-  If the logged-in user’s registration status is "pending",
-  the interface shows a message informing the user that verification is pending.
-  
-- Shows incomplete registration popout:
-  When the registration status is "incomplete", alerts the user to complete their registration.
-  
-- Handles login failure:
-  If the login fails (returns null), verifies that an error message "Login failed. Please try again." is displayed.
-  
-- Handles authentication error:
-  When login results in an error (thrown exception), confirms that the specific error message is showed.
-  
-- Handles keyboard shortcut for syncing claims:
-  Simulates an Alt+Shift+S keyboard event and checks that the syncing function (syncAllUserClaimsTrigger) is called.
-*/
-
-import React, { ReactNode } from "react";
 import {
 	render,
 	screen,
@@ -40,82 +5,70 @@ import {
 	waitFor,
 	act,
 } from "@testing-library/react";
-import { describe, test, expect, beforeEach, vi, Mock } from "vitest";
-import LoginPage from "../../src/components/Pages/LoginPage/LoginPage";
+import { describe, test, expect, beforeEach, vi } from "vitest";
 import "@testing-library/jest-dom";
+import type { ReactNode } from "react";
 
-// Define mock types
-interface MockUser {
-	uid: string;
-	reload: Mock;
-}
-
-// Create mock implementations using vi.hoisted to avoid hoisting issues
+// Create mock implementations using vi.hoisted
 const mockNavigate = vi.hoisted(() => vi.fn());
 const mockLogin = vi.hoisted(() => vi.fn());
 const mockIsRegistered = vi.hoisted(() => vi.fn());
 const mockGetUserStatus = vi.hoisted(() => vi.fn());
 const mockCallFunction = vi.hoisted(() => vi.fn());
-const mockUser = vi.hoisted(
-	() =>
-		({
-			uid: "test-user-123",
-			reload: vi.fn().mockResolvedValue(undefined),
-		} as MockUser)
-);
+const mockUser = vi.hoisted(() => ({
+	uid: "test-user-123",
+	reload: vi.fn().mockResolvedValue(undefined),
+}));
 
-// Mock FirebaseContext
-const FirebaseContext = React.createContext({
-	login: mockLogin,
+// Mock the firebaseContext module with the correct import path
+// The key is to match the exact import path used by LoginPage
+vi.mock("../../src/contexts/firebaseContext", () => {
+	return {
+		useFirebase: () => ({
+			login: mockLogin,
+			isAuthenticated: false,
+			isLoading: false,
+			uid: null,
+			displayName: null,
+			photoURL: null,
+			userClaims: {},
+			logout: vi.fn(),
+			isVerified: false,
+			userStatus: null,
+			email: null,
+			fullName: null,
+			app: {},
+			auth: {},
+			db: {},
+			storage: {},
+			storageRef: {},
+			callFunction: vi.fn(),
+			currentUser: null,
+			getFormID: vi.fn(),
+		}),
+		FirebaseProvider: ({ children }: { children: ReactNode }) => children,
+	};
 });
 
-// Mock FirebaseProvider component
-const MockFirebaseProvider: React.FC<{ children: ReactNode }> = ({
-	children,
-}) => {
-	return (
-		<FirebaseContext.Provider value={{ login: mockLogin }}>
-			{children}
-		</FirebaseContext.Provider>
-	);
-};
-
-// Setup a custom render function that includes the FirebaseProvider
-const customRender = (ui: React.ReactElement) => {
-	return render(<MockFirebaseProvider>{ui}</MockFirebaseProvider>);
-};
-
-// Mock modules
-vi.mock("react-router-dom", () => ({
-	useNavigate: () => mockNavigate,
-}));
-
-vi.mock("../../../../contexts/firebaseContext", () => ({
-	useFirebase: () => ({ login: mockLogin }),
-	FirebaseProvider: ({ children }: { children: React.ReactNode }) => children,
-}));
-
-vi.mock("../../../../contexts/firebase", () => ({
+// Mock additional modules
+vi.mock("../../src/contexts/firebase", () => ({
 	isRegistered: mockIsRegistered,
 	getUserStatus: mockGetUserStatus,
 	callFunction: mockCallFunction,
 	auth: { currentUser: mockUser },
 }));
 
-vi.mock("../../../Page Elements/Popout/Popout", () => ({
-	default: ({
-		title,
-		message,
-		onConfirm,
-		onCancel,
-		isOpen,
-	}: {
-		title: string;
-		message: string;
-		onConfirm: () => void;
-		onCancel?: () => void;
-		isOpen: boolean;
-	}) =>
+// Mock Popout component
+interface PopoutProps {
+	title: string;
+	message: string;
+	onConfirm: () => void;
+	onCancel?: () => void;
+	isOpen: boolean;
+}
+
+vi.mock("../../src/components/Page Elements/Popout/Popout", () => ({
+	default: ({ title, message, onConfirm, onCancel, isOpen }: PopoutProps) =>
 		isOpen ? (
 			<div data-testid="popout">
 				<h2>{title}</h2>
@@ -126,13 +79,21 @@ vi.mock("../../../Page Elements/Popout/Popout", () => ({
 		) : null,
 }));
 
+// Mock react-router-dom
+vi.mock("react-router-dom", () => ({
+	useNavigate: () => mockNavigate,
+}));
+
+// Import component after ALL mocks
+import LoginPage from "../../src/components/Pages/LoginPage/LoginPage";
+
 describe("LoginPage Component", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
 	test("renders login page correctly", () => {
-		customRender(<LoginPage />);
+		render(<LoginPage />);
 
 		expect(screen.getByAltText("Logo")).toBeInTheDocument();
 		expect(screen.getByText("Sign in")).toBeInTheDocument();
@@ -150,7 +111,7 @@ describe("LoginPage Component", () => {
 				)
 		);
 
-		customRender(<LoginPage />);
+		render(<LoginPage />);
 
 		await act(async () => {
 			fireEvent.click(screen.getByText("Sign in with Google"));
@@ -165,7 +126,7 @@ describe("LoginPage Component", () => {
 		mockIsRegistered.mockResolvedValue(true);
 		mockGetUserStatus.mockResolvedValue("verified");
 
-		customRender(<LoginPage />);
+		render(<LoginPage />);
 
 		await act(async () => {
 			fireEvent.click(screen.getByText("Sign in with Google"));
@@ -183,7 +144,7 @@ describe("LoginPage Component", () => {
 		mockLogin.mockResolvedValue(mockUser);
 		mockIsRegistered.mockResolvedValue(false);
 
-		customRender(<LoginPage />);
+		render(<LoginPage />);
 
 		await act(async () => {
 			fireEvent.click(screen.getByText("Sign in with Google"));
@@ -209,7 +170,7 @@ describe("LoginPage Component", () => {
 		mockIsRegistered.mockResolvedValue(true);
 		mockGetUserStatus.mockResolvedValue("pending");
 
-		customRender(<LoginPage />);
+		render(<LoginPage />);
 
 		await act(async () => {
 			fireEvent.click(screen.getByText("Sign in with Google"));
@@ -232,7 +193,7 @@ describe("LoginPage Component", () => {
 		mockIsRegistered.mockResolvedValue(true);
 		mockGetUserStatus.mockResolvedValue("incomplete");
 
-		customRender(<LoginPage />);
+		render(<LoginPage />);
 
 		await act(async () => {
 			fireEvent.click(screen.getByText("Sign in with Google"));
@@ -253,7 +214,7 @@ describe("LoginPage Component", () => {
 	test("handles login failure", async () => {
 		mockLogin.mockResolvedValue(null);
 
-		customRender(<LoginPage />);
+		render(<LoginPage />);
 
 		await act(async () => {
 			fireEvent.click(screen.getByText("Sign in with Google"));
@@ -270,7 +231,7 @@ describe("LoginPage Component", () => {
 		const errorMsg = "Authentication error occurred";
 		mockLogin.mockRejectedValue(new Error(errorMsg));
 
-		customRender(<LoginPage />);
+		render(<LoginPage />);
 
 		await act(async () => {
 			fireEvent.click(screen.getByText("Sign in with Google"));
@@ -284,7 +245,7 @@ describe("LoginPage Component", () => {
 	test("handles keyboard shortcut for syncing claims", async () => {
 		mockCallFunction.mockResolvedValue(undefined);
 
-		customRender(<LoginPage />);
+		render(<LoginPage />);
 
 		await act(async () => {
 			fireEvent.keyDown(document, {

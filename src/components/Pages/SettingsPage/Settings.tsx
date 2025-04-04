@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./Settings.module.css";
 import Popout from "../../Page Elements/Popout/Popout";
 import { useFirebase } from "../../../contexts/firebaseContext";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, FieldValue } from "firebase/firestore";
 
 const suffixOptions = ["", "Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"];
 const genderOptions = ["Male", "Female", "Other"];
@@ -45,16 +45,6 @@ const currentTerm =
 		new Date().getMonth() >= 7 ? 0 : new Date().getMonth() <= 4 ? 1 : 2
 	];
 
-const getAcademicYears = () => {
-	const currentYear = new Date().getFullYear();
-	return [
-		`${currentYear - 1}-${currentYear}`,
-		`${currentYear}-${currentYear + 1}`,
-	];
-};
-
-getAcademicYears();
-
 const calculateAge = (birthdateStr: string): string => {
 	if (!birthdateStr) return "";
 
@@ -83,49 +73,6 @@ const calculateAge = (birthdateStr: string): string => {
 	return age.toString();
 };
 
-const formatDateInput = (value: string): string => {
-	const cleaned = value.replace(/\D/g, "");
-	let formatted = "";
-	if (cleaned.length > 0) {
-		let month = parseInt(cleaned.substring(0, 2), 10);
-		if (isNaN(month) || month < 1) month = 1;
-		if (month > 12) month = 12;
-		formatted += month < 10 ? "0" + month : month.toString();
-	}
-	if (cleaned.length >= 3) {
-		let day = parseInt(cleaned.substring(2, 4), 10);
-		if (isNaN(day) || day < 1) day = 1;
-		if (day > 31) day = 31;
-		formatted += "/" + (day < 10 ? "0" + day : day.toString());
-	}
-	if (cleaned.length >= 5) {
-		const year = cleaned.substring(4, 8);
-		formatted += "/" + year;
-	}
-	return formatted;
-};
-
-const processDateField = (value: string): string => {
-	const formatted = formatDateInput(value);
-	if (formatted.length === 10) {
-		const parts = formatted.split("/");
-		const month = parseInt(parts[0], 10);
-		const day = parseInt(parts[1], 10);
-		const year = parseInt(parts[2], 10);
-		const inputDate = new Date(year, month - 1, day);
-		const today = new Date();
-		if (inputDate > today) {
-			const m = today.getMonth() + 1;
-			const d = today.getDate();
-			const y = today.getFullYear();
-			const mm = m < 10 ? "0" + m : m.toString();
-			const dd = d < 10 ? "0" + d : d.toString();
-			return mm + "/" + dd + "/" + y;
-		}
-	}
-	return formatted;
-};
-
 const formatBirthdate = (value: string): string => {
 	const digits = value.replace(/\D/g, "").slice(0, 8);
 	return digits.length >= 5
@@ -139,6 +86,9 @@ const formatIDNumber = (value: string): string => {
 		? `${digits.slice(0, 4)}-${digits.slice(4)}`
 		: digits;
 };
+
+// Define type for Firestore compatible field values
+type FirestoreFieldValue = string | number | boolean | null | FieldValue;
 
 const Settings = () => {
 	const [settings, setSettings] = useState({
@@ -162,7 +112,11 @@ const Settings = () => {
 		autofill: false,
 	});
 
-	const [originalSettings, setOriginalSettings] = useState({});
+	type SettingsType = typeof settings;
+
+	const [originalSettings, setOriginalSettings] = useState<SettingsType>(
+		{} as SettingsType
+	);
 	const [calculatedAge, setCalculatedAge] = useState("");
 	const [changedFields, setChangedFields] = useState<
 		Record<string, { old: string; new: string }>
@@ -173,9 +127,37 @@ const Settings = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
-	const [isPhoneFocused, setIsPhoneFocused] = useState<boolean>(false);
 
 	const { db, uid } = useFirebase();
+
+	const formatPhoneNumberDisplay = (value: string) => {
+		if (!value.startsWith("+63")) {
+			value = "+63" + value;
+		}
+
+		let formattedValue = value;
+
+		// Improve regex to handle various input lengths properly
+		if (value.length > 3) {
+			const mainNumber = value.substring(3);
+
+			// Use more robust regex that works with different number lengths
+			const formatted = mainNumber.replace(
+				/^(\d{3})(\d{3})?(\d+)?$/,
+				(_, p1, p2, p3) => {
+					let result = p1;
+					if (p2) result += "-" + p2;
+					if (p3) result += "-" + p3;
+					return result;
+				}
+			);
+
+			formattedValue = "+63-" + formatted;
+		}
+
+		setPhoneInputValue(formattedValue);
+		return formattedValue;
+	};
 
 	useEffect(() => {
 		setCalculatedAge(calculateAge(settings.birthdate));
@@ -193,49 +175,92 @@ const Settings = () => {
 				const userDocRef = doc(db, "users", uid);
 				const userDoc = await getDoc(userDocRef);
 
+				const updatedSettings: SettingsType = {
+					firstname: "",
+					lastname: "",
+					middlename: "",
+					suffix: "",
+					term: currentTerm || "",
+					year: currentAcademicYear || "",
+					load: "",
+					status: "",
+					numberID: "",
+					address: "",
+					dateHired: "",
+					dateRetired: "",
+					birthdate: "",
+					phoneNumber: "",
+					gender: "",
+					college: "",
+					notification: false,
+					autofill: false,
+				};
+
 				if (userDoc.exists()) {
 					const userData = userDoc.data();
 					const personalInfo = userData.personalInfo || {};
 
-					const updatedSettings = {
-						firstname: personalInfo.firstName || "",
-						lastname: personalInfo.lastName || "",
-						middlename: personalInfo.middleName || "",
-						suffix: personalInfo.suffix || "",
-						term: personalInfo.term || "",
-						year: personalInfo.year || "",
-						load: personalInfo.load || "",
-						status: personalInfo.status || "",
-						numberID: personalInfo.idNumber || "",
-						address: personalInfo.address || "",
-						dateHired: personalInfo.dateHired || "",
-						dateRetired: personalInfo.dateRetired || "",
-						birthdate: personalInfo.birthdate || "",
-						phoneNumber: personalInfo.phoneNumber || "",
-						gender: personalInfo.gender || "",
-						college: personalInfo.college || "",
-						notification:
-							userData.notification !== undefined
-								? userData.notification
-								: userData.settings?.notification !== undefined
-								? userData.settings.notification
-								: false,
-						autofill:
-							userData.autofill !== undefined
-								? userData.autofill
-								: userData.settings?.autofill !== undefined
-								? userData.settings.autofill
-								: false,
-					};
+					if (personalInfo.firstName)
+						updatedSettings.firstname = personalInfo.firstName;
+					if (personalInfo.lastName)
+						updatedSettings.lastname = personalInfo.lastName;
+					if (personalInfo.middleName)
+						updatedSettings.middlename = personalInfo.middleName;
+					if (personalInfo.suffix)
+						updatedSettings.suffix = personalInfo.suffix;
+					if (personalInfo.term)
+						updatedSettings.term = personalInfo.term;
+					if (personalInfo.year)
+						updatedSettings.year = personalInfo.year;
+					if (personalInfo.load)
+						updatedSettings.load = personalInfo.load;
+					if (personalInfo.status)
+						updatedSettings.status = personalInfo.status;
+					if (personalInfo.idNumber)
+						updatedSettings.numberID = personalInfo.idNumber;
+					if (personalInfo.address)
+						updatedSettings.address = personalInfo.address;
+					if (personalInfo.dateHired)
+						updatedSettings.dateHired = personalInfo.dateHired;
+					if (personalInfo.dateRetired)
+						updatedSettings.dateRetired = personalInfo.dateRetired;
+					if (personalInfo.birthdate)
+						updatedSettings.birthdate = personalInfo.birthdate;
+					if (personalInfo.phoneNumber)
+						updatedSettings.phoneNumber = personalInfo.phoneNumber;
+					if (personalInfo.gender)
+						updatedSettings.gender = personalInfo.gender;
+					if (personalInfo.college)
+						updatedSettings.college = personalInfo.college;
 
-					setSettings(updatedSettings);
-					setOriginalSettings({ ...updatedSettings });
-					setCalculatedAge(
-						calculateAge(personalInfo.birthdate || "")
-					);
-					setChangedFields({});
+					updatedSettings.notification =
+						userData.notification !== undefined
+							? userData.notification
+							: userData.settings?.notification !== undefined
+							? userData.settings.notification
+							: false;
+
+					updatedSettings.autofill =
+						userData.autofill !== undefined
+							? userData.autofill
+							: userData.settings?.autofill !== undefined
+							? userData.settings.autofill
+							: false;
 				} else {
-					console.log("No such document!");
+					console.log("No such document, using default empty fields");
+				}
+
+				setSettings(updatedSettings);
+				setOriginalSettings({ ...updatedSettings });
+				setCalculatedAge(calculateAge(updatedSettings.birthdate));
+				setChangedFields({});
+
+				if (updatedSettings.phoneNumber) {
+					formatPhoneNumberDisplay(
+						"+63" + updatedSettings.phoneNumber
+					);
+				} else {
+					setPhoneInputValue("+63");
 				}
 			} catch (err) {
 				console.error("Error fetching user data:", err);
@@ -249,29 +274,6 @@ const Settings = () => {
 
 		fetchUserData();
 	}, [db, uid]);
-
-	const handleFieldBlur = async (
-		field: string,
-		e: React.FocusEvent<HTMLDivElement>
-	) => {
-		const newValue = e.currentTarget.innerText;
-
-		if (newValue !== (originalSettings as any)[field]) {
-			setChangedFields((prev) => ({
-				...prev,
-				[field]: {
-					old: (originalSettings as any)[field] || "",
-					new: newValue,
-				},
-			}));
-		} else {
-			const updatedChanges = { ...changedFields };
-			delete updatedChanges[field];
-			setChangedFields(updatedChanges);
-		}
-
-		setSettings({ ...settings, [field]: newValue });
-	};
 
 	const handleToggleChange = async (field: string, checked: boolean) => {
 		try {
@@ -290,9 +292,10 @@ const Settings = () => {
 				const hasSettingsObject =
 					userData && userData.settings !== undefined;
 
-				const updateData: Record<string, any> = hasSettingsObject
-					? { [`settings.${field}`]: checked }
-					: { [field]: checked };
+				const updateData: Record<string, FirestoreFieldValue> =
+					hasSettingsObject
+						? { [`settings.${field}`]: checked }
+						: { [field]: checked };
 
 				await updateDoc(userDocRef, updateData);
 
@@ -305,12 +308,12 @@ const Settings = () => {
 		}
 	};
 
-	const handleFieldChange = (field: string, value: string) => {
-		if (value !== (originalSettings as any)[field]) {
+	const handleFieldChange = (field: keyof SettingsType, value: string) => {
+		if (value !== originalSettings[field]) {
 			setChangedFields((prev) => ({
 				...prev,
 				[field]: {
-					old: (originalSettings as any)[field] || "",
+					old: originalSettings[field]?.toString() || "",
 					new: value,
 				},
 			}));
@@ -329,7 +332,7 @@ const Settings = () => {
 	};
 
 	const handleCancel = () => {
-		setSettings({ ...originalSettings } as typeof settings);
+		setSettings({ ...originalSettings });
 		setChangedFields({});
 
 		if (error) {
@@ -451,9 +454,9 @@ const Settings = () => {
 			setIsSaving(true);
 			const userDocRef = doc(db, "users", uid);
 
-			const updateData: Record<string, any> = {};
+			const updateData: Record<string, FirestoreFieldValue> = {};
 
-			const fieldMappings: Record<string, string> = {
+			const fieldMappings: Record<keyof SettingsType, string> = {
 				firstname: "firstName",
 				lastname: "lastName",
 				middlename: "middleName",
@@ -469,22 +472,19 @@ const Settings = () => {
 				birthdate: "birthdate",
 				phoneNumber: "phoneNumber",
 				gender: "gender",
+				college: "college",
+				notification: "notification",
+				autofill: "autofill",
 			};
 
 			for (const [settingKey, firestoreKey] of Object.entries(
 				fieldMappings
-			)) {
-				if (
-					settings[settingKey as keyof typeof settings] !==
-					(originalSettings as any)[settingKey]
-				) {
-					updateData[`personalInfo.${firestoreKey}`] =
-						settings[settingKey as keyof typeof settings];
+			) as [keyof SettingsType, string][]) {
+				if (settings[settingKey] !== originalSettings[settingKey]) {
+					updateData[`personalInfo.${firestoreKey}`] = settings[
+						settingKey
+					] as FirestoreFieldValue;
 				}
-			}
-
-			if (settings.college !== (originalSettings as any).college) {
-				updateData["personalInfo.college"] = settings.college;
 			}
 
 			if (Object.keys(updateData).length === 0) {
@@ -512,26 +512,6 @@ const Settings = () => {
 		}
 	};
 
-	const formatPhoneNumberDisplay = (value: string) => {
-		if (!value.startsWith("+63")) {
-			value = "+63" + value;
-		}
-
-		let formattedValue = value;
-
-		if (value.length > 3) {
-			const mainNumber = value.substring(3);
-
-			const formatted = mainNumber.replace(
-				/(\d{3})(\d{3})(\d+)/,
-				"$1-$2-$3"
-			);
-			formattedValue = "+63-" + formatted;
-		}
-
-		setPhoneInputValue(formattedValue);
-	};
-
 	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		let value = e.target.value;
 
@@ -543,8 +523,8 @@ const Settings = () => {
 			}
 		}
 
+		// Only keep the digits for internal state
 		const digitsOnly = "+" + value.substring(1).replace(/\D/g, "");
-
 		setPhoneInputValue(digitsOnly);
 
 		if (digitsOnly.length > 3) {
@@ -556,7 +536,6 @@ const Settings = () => {
 	};
 
 	const handlePhoneFocus = () => {
-		setIsPhoneFocused(true);
 		if (settings.phoneNumber) {
 			const rawValue = "+63" + settings.phoneNumber;
 			setPhoneInputValue(rawValue);
@@ -566,25 +545,23 @@ const Settings = () => {
 	};
 
 	const handlePhoneBlur = () => {
-		setIsPhoneFocused(false);
-
 		if (phoneInputValue.length > 3) {
+			// Extract only the digits from the current phone input value
 			const numericPart = phoneInputValue.substring(3).replace(/\D/g, "");
+
 			if (numericPart) {
+				// Apply formatting on blur to ensure consistent display
 				formatPhoneNumberDisplay("+63" + numericPart);
 			}
 		}
 	};
 
-	useEffect(() => {
-		if (settings.phoneNumber) {
-			formatPhoneNumberDisplay("+63" + settings.phoneNumber);
-		}
-	}, [settings.phoneNumber]);
-
 	if (isLoading) {
 		return (
-			<div className={styles.settingsLoadingContainer}>
+			<div
+				className={styles.settingsLoadingContainer}
+				data-testid="settings-skeleton-loader"
+			>
 				<div className={styles.settingsLoadingSection}>
 					<div
 						className={`${styles.settingsLoadingHeader} ${styles.settingsSkeleton}`}

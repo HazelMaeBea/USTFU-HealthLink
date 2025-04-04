@@ -13,7 +13,10 @@ const NotifBadge: React.FC<NotifBadgeProps> = ({
 	children,
 }) => {
 	return (
-		<div className={`notif-badge-wrapper ${className || ""}`}>
+		<div
+			className={`notif-badge-wrapper ${className || ""}`}
+			data-testid={show ? "notification-active" : "notification-inactive"}
+		>
 			{children}
 			{show && <span className="notif-badge-dot" />}
 		</div>

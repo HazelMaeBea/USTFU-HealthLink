@@ -457,6 +457,7 @@ const EyeglassesForm = () => {
 														"eyeglassesReceipt"
 													)}
 													name="eyeglassesReceipt"
+													data-testid="eyeglassesReceipt"
 													onChange={(e) => {
 														register(
 															"eyeglassesReceipt"
@@ -503,6 +504,7 @@ const EyeglassesForm = () => {
 														"applicantSignature"
 													)}
 													name="applicantSignature"
+													data-testid="applicantSignature"
 													onChange={(e) => {
 														register(
 															"applicantSignature"
