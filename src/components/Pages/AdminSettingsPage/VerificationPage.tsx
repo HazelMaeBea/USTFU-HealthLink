@@ -123,14 +123,24 @@ const VerificationPage = () => {
 	};
 
 	const mailCollection = collection(db, "mail");
-	const sendEmail = async (email:string, name:string) => {
-		addDoc(mailCollection, {
-			to: [email],
-			message: {
-				subject: "Your verification has been approved!",
-				html: "<h2>Welcome to USTFU Healthlink " + name + "!</h2><p>Your verification to access the USTFU Healthlink webapp has been approved.\nLook forward to being able to avail for your benefits anytime and anywhere.</p>"
-			}
-		})
+	const sendEmail = async (email:string, name:string, isApproved:boolean) => {
+		if(isApproved) {
+			addDoc(mailCollection, {
+				to: [email],
+				message: {
+					subject: "Your verification has been approved!",
+					html: "<h2>Welcome to USTFU Healthlink " + name + "!</h2><p>Your verification to access the USTFU Healthlink webapp has been approved.\nLook forward to being able to avail for your benefits anytime and anywhere.</p>"
+				}
+			})
+		} else {
+			addDoc(mailCollection, {
+				to: [email],
+				message: {
+					subject: "Your verification has been rejected.",
+					html: "<h2>Apologies " + name + ".</h2><p>Your verification to access the USTFU Healthlink webapp has been rejected.\nWe sincerely apologize as you might not be able to avail for our current benefits at this time.</p>"
+				}
+			})
+		}
 	}
 
 	const handleApprove = async (request: VerificationRequest) => {
@@ -149,7 +159,7 @@ const VerificationPage = () => {
 					role: request.role,
 				});
 				console.log("Approved:", request.name);
-				sendEmail(request.email, request.name);
+				sendEmail(request.email, request.name, true);
 			} else {
 				console.log(
 					"No user found with the given fullName:",
@@ -175,6 +185,7 @@ const VerificationPage = () => {
 				//await deleteDoc(userDoc);
 				console.log("To delete", userDoc);
 				console.log("Denied:", request.name);
+				sendEmail(request.email, request.name, false);
 			} else {
 				console.log(
 					"No user found with the given fullName:",
@@ -218,7 +229,7 @@ const VerificationPage = () => {
 					role: rolesArray[doc.data().fullName],
 				});
 				// console.log(rolesArray[doc.data().fullName]);
-				sendEmail(doc.data().email, doc.data().name);
+				sendEmail(doc.data().email, doc.data().name, true);
 			});
 		});
 		setPopoutOpen(true);
@@ -245,6 +256,7 @@ const VerificationPage = () => {
 			querySnapshot.forEach(async (doc) => {
 				// await deleteDoc(doc.ref);
 				console.log("Rejected the following docs", doc.data());
+				sendEmail(doc.data().email, doc.data().name, false);
 			});
 		});
 		setPopoutOpen(true);
