@@ -3,7 +3,7 @@ import styles from "./RecordTable.module.css";
 import { Record } from "../PendingRequestPage/types";
 import { useFirebase } from "../../../contexts/firebaseContext";
 import unreadAccomplished from "../../Page Elements/NotifBadge/unreadAccomplished";
-import useNotifications from "../../Page Elements/NotifBadge/NotifTrigger";
+import { useNotifications } from "../../Page Elements/NotifBadge/NotifTrigger";
 // Import icons for form types - updated to match ServiceCards path pattern
 import inpatientIcon from "../../../assets/inpatient.png";
 import admissionIcon from "../../../assets/admission.png";

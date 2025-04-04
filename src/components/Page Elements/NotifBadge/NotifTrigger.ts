@@ -200,3 +200,6 @@ export const pushAccomplishedNotification = async (
 		console.error("Error adding accomplished notification:", error);
 	}
 };
+
+
+export default useNotifications
