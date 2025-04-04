@@ -10,6 +10,7 @@ import {
 	deleteDoc,
 	Timestamp,
 	updateDoc,
+	addDoc,
 } from "firebase/firestore";
 import { db, getFormID } from "../../../contexts/firebase.ts";
 import type { PendingRequest } from "./types.ts";
@@ -148,6 +149,7 @@ export const usePendingRequests = (initialPage = 1, pageSize = 1000) => {
 
 // Update the updateDocument function to handle all form data
 export const updateDocument = async (
+	requester: string | null,
 	transID: string,
 	textArea: string,
 	status: string,
@@ -158,12 +160,31 @@ export const updateDocument = async (
 			reqCollection,
 			where("transactionId", "==", transID)
 		);
+
+		const requesterQuery = query(
+			usersCollection,
+			where("fullName", "==", requester)
+		)
+
+		const requesterSnapshot = await getDocs(requesterQuery)
+
+		
 		const querySnapshot = await getDocs(userQuery);
 		for (const document of querySnapshot.docs) {
 			const docRef = doc(db, "FormRequests", document.id);
 			const docData = document.data();
 			const formType = docData.formData?.formType;
-
+			
+			if (!requesterSnapshot.empty) {
+				requesterSnapshot.forEach((doc) => {
+					// console.log("Printing out requesterSnapshot: ");
+					// console.log(doc.data().email, doc.data().fullName, status, textArea, formType);
+					sendEmail(doc.data().email, doc.data().fullName, status, formType, textArea);
+				});
+				} else {
+					console.log("No matching documents found.");
+			}		  
+			
 			const decisionTimestamp = Timestamp.now();
 			const updateObj: any = {
 				status: status,
@@ -431,4 +452,56 @@ export async function getUsersBenefits() {
 		}
 	});
 	return result;
+}
+
+const emailCollection = collection(db, "mail");
+export async function sendEmail(email:string, name:string, action:string, formType: string, reason?:string) {
+	console.log("Inside sendEmail function");
+	let reasonFlag = true;
+	let reasonValue = "";
+	console.log(reason)
+	const formName = formType.toLocaleLowerCase()
+	if (reason == 'empty') {
+		reasonFlag = false;
+	  }
+
+	console.log(reasonFlag)
+
+	if (action.toLowerCase() == 'approved') {
+		console.log("Inside approved function");
+		if (reasonFlag) {
+			reasonValue = "<p>The following reason for your approval has been given:" + reason + "</p>"
+		}
+		addDoc(emailCollection, {
+			to: [email],
+			message: {
+				subject: "Your " + formName + " form has been approved!",
+				html: "<h2>Congratulations " + name + "!</h2><p>Your requested benefits form has been approved.</p>" + reasonValue
+			}
+		})
+	} else if(action.toLowerCase() == 'rejected') {
+		console.log("Inside rejected function");
+		if (reasonFlag) {
+			reasonValue = "<p>The following reason for your rejection has been given:" + reason + "</p>"
+		}
+		addDoc(emailCollection, {
+			to: [email],
+			message: {
+				subject: "Your " + formName + " has been rejected",
+				html: "<h2>Apologies " + name + "!</h2><p>Your requested benefits form has been rejected.</p>" + reasonValue
+			}
+		})
+	} else {
+		console.log("Inside revisons function");
+		if (reasonFlag) {
+			reasonValue = "<p>The following reason for revisions have been given :" + reason + "</p>"
+		}
+		addDoc(emailCollection, {
+			to: [email],
+			message: {
+				subject: "Your " + formName + " requires revisions!",
+				html: "<h2>Apologies " + name + "!</h2><p>But your requested benefits form requires some revisions.</p>" + reasonValue
+			}
+		})
+	}
 }
