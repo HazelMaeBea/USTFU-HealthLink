@@ -5,7 +5,7 @@ import { useFirebase } from "../../../contexts/firebaseContext";
 import Profile from "../Profile/Profile";
 import Popout from "../Popout/Popout";
 import NotifBadge from "../NotifBadge/NotifBadge";
-import useNotifications from "../NotifBadge/NotifTrigger";
+import { useNotifications } from "../NotifBadge/NotifTrigger";
 import {
 	MdOutlineMenu,
 	MdHistory,
@@ -136,12 +136,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 
 	const handleCancel = () => setIsPopoutOpen(false);
 
-	const { hasNewPendingRequest, hasNewAccomplishedRecord } = useNotifications(
+	// Use the hook with optional chaining to prevent errors if it returns undefined
+	const { hasNewPendingRequest = false, hasNewAccomplishedRecord = false } = useNotifications?.(
 		{
 			uid,
 			selectedRole,
 		}
-	);
+	) || {};
 
 	const handleMenuClick = (name: string, action?: () => void) => {
 		setActiveItem(name);
@@ -250,7 +251,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
 				>
 					<MdOutlineMenu size={20} />
 				</button>
-				<aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
+				<aside
+					className={`sidebar ${isCollapsed ? "collapsed" : ""}`}
+					role="complementary"
+					aria-label="sidebar navigation"
+				>
 					<Profile
 						isCollapsed={isCollapsed}
 						onRoleChange={handleRoleChange}

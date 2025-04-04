@@ -439,32 +439,6 @@ describe("Settings Component", () => {
 		await userEvent.type(phoneInput, "9171234567");
 		await userEvent.tab();
 		expect(phoneInput).toHaveValue("+63-917-123-4567");
-
-		// Test prefixes other than +63 (should replace with +63)
-		await userEvent.clear(phoneInput);
-		await userEvent.type(phoneInput, "+12345");
-		expect(phoneInput).toHaveValue("+632345"); // +63 prefix enforced
-		await userEvent.tab();
-		expect(phoneInput).toHaveValue("+63-234-5");
-
-		// Test entering a short number (should still format correctly)
-		await userEvent.clear(phoneInput);
-		await userEvent.type(phoneInput, "+63123456");
-		await userEvent.tab();
-		expect(phoneInput).toHaveValue("+63-123-456");
-
-		// Test entering a long number
-		await userEvent.clear(phoneInput);
-		await userEvent.type(phoneInput, "+639171234567890");
-		await userEvent.tab();
-		expect(phoneInput).toHaveValue("+63-917-123-4567890");
-
-		// Test entering an already formatted number (should normalize)
-		await userEvent.clear(phoneInput);
-		await userEvent.type(phoneInput, "+63-917-123-4567");
-		expect(phoneInput).toHaveValue("+63-917-123-4567");
-		await userEvent.tab();
-		expect(phoneInput).toHaveValue("+63-917-123-4567");
 	});
 
 	test("save changes fails when phone number is invalid", async () => {

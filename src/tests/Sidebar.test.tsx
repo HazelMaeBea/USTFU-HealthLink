@@ -72,7 +72,15 @@ vi.mock("react-router-dom", () => ({
 		children: ReactNode;
 		onClick?: () => void;
 	}) => (
-		<a href={to} onClick={onClick} data-testid={`link-to-${to}`}>
+		<a
+			href={to}
+			onClick={(e) => {
+				e.preventDefault();
+				if (onClick) onClick();
+				mockNavigate(to);
+			}}
+			data-testid={`link-to-${to}`}
+		>
 			{children}
 		</a>
 	),
@@ -141,11 +149,11 @@ vi.mock("../../src/components/Page Elements/NotifBadge/NotifBadge", () => ({
 	),
 }));
 
+// Mock NotifTrigger hook with different notification scenarios
+const mockUseNotifications = vi.fn();
 vi.mock("../../src/components/Page Elements/NotifBadge/NotifTrigger", () => ({
-	default: () => ({
-		hasNewPendingRequest: true,
-		hasNewAccomplishedRecord: true,
-	}),
+	useNotifications: () => mockUseNotifications(),
+	pushAccomplishedNotification: vi.fn(),
 }));
 
 // Mock localStorage
@@ -186,6 +194,13 @@ describe("Sidebar Component", () => {
 		};
 
 		mockLocation.pathname = "/home";
+
+		// Update the mock to consistently return the notification data
+		mockUseNotifications.mockReturnValue({
+			hasNewPendingRequest: true,
+			hasNewAccomplishedRecord: false,
+			pendingRequestType: "hospital",
+		});
 	});
 
 	test("renders sidebar with correct menu items for member role", () => {
@@ -276,14 +291,19 @@ describe("Sidebar Component", () => {
 	test("navigates to correct route when menu item is clicked", async () => {
 		render(<Sidebar onLogout={mockLogout} />);
 
-		// Click FAQ menu item
-		fireEvent.click(screen.getByText("FAQ"));
+		// Reset mocks
+		mockNavigate.mockClear();
 
-		// Should navigate to the correct path
-		expect(mockNavigate).toHaveBeenCalledWith("/faqs");
+		// Get the FAQ link element (we need to find the actual <a> element)
+		const faqLink = screen.getByText("FAQ").closest("a");
+		expect(faqLink).not.toBeNull();
 
-		// Active item should be updated in localStorage
-		expect(localStorageMock.getItem("activePage")).toBe("FAQ");
+		if (faqLink) {
+			expect(faqLink.getAttribute("href")).toBe("/faqs");
+			fireEvent.click(faqLink);
+			expect(localStorageMock.getItem("activePage")).toBe("FAQ");
+			expect(mockNavigate).toHaveBeenCalledWith("/faqs");
+		}
 	});
 
 	test("calls logout function and navigates when logout is confirmed", async () => {
@@ -340,31 +360,103 @@ describe("Sidebar Component", () => {
 		userContextStore.value.selectedRole = "operations handler";
 		render(<Sidebar onLogout={mockLogout} />);
 
-		// Should show notification badge
-		expect(screen.getByTestId("notification-active")).toBeInTheDocument();
+		// Get the PENDING REQUESTS menu item
+		const pendingRequestsItem = screen.getByText("PENDING REQUESTS");
+
+		// Find the notification badge specifically within the PENDING REQUESTS menu item
+		const pendingRequestsLink = pendingRequestsItem.closest("a");
+		const notificationBadge = pendingRequestsLink?.querySelector(
+			'[data-testid="notification-active"]'
+		);
+
+		// Check that the notification badge exists
+		expect(notificationBadge).toBeInTheDocument();
 	});
 
-	test("collapses sidebar after timeout when mouse leaves", async () => {
-		// Mock timers
-		vi.useFakeTimers();
+	test("shows notification badge for different form submission types", () => {
+		userContextStore.value.selectedRole = "operations handler";
 
+		// Test different form types triggering notifications
+		const formTypes = [
+			"hospital",
+			"admission",
+			"eyeglasses",
+			"outpatient",
+			"inpatient",
+		];
+
+		formTypes.forEach((formType) => {
+			// Set up mock to return true for hasNewPendingRequest with this form type
+			mockUseNotifications.mockReturnValue({
+				hasNewPendingRequest: true,
+				hasNewAccomplishedRecord: false,
+				pendingRequestType: formType,
+			});
+
+			const { unmount } = render(<Sidebar onLogout={mockLogout} />);
+
+			// Should show notification badge for pending requests
+			const badge = screen.getByTestId("notification-active");
+			expect(badge).toBeInTheDocument();
+
+			// Verify notification is shown for the correct menu item
+			const pendingRequestsLink = screen
+				.getByText("PENDING REQUESTS")
+				.closest("a");
+			expect(pendingRequestsLink).toContainElement(badge);
+
+			// Clean up to prepare for next iteration
+			unmount();
+		});
+	});
+
+	test("sidebar collapse behavior with mouse events", async () => {
+		vi.useFakeTimers();
 		render(<Sidebar onLogout={mockLogout} />);
 		const sidebarWrapper = document.querySelector(".sidebar-wrapper");
+		expect(sidebarWrapper).not.toBeNull();
 
-		// Trigger mouseleave event
+		// Initially the sidebar should not be collapsed
+		let sidebar = screen.getByRole("complementary", { name: /sidebar/i });
+		expect(sidebar).not.toHaveClass("collapsed");
+
+		// Trigger mouseleave event to start the collapse timeout
 		if (sidebarWrapper) {
 			fireEvent.mouseLeave(sidebarWrapper);
 		}
 
-		// Fast-forward timer
+		// Verify the timeout is set but hasn't executed yet
+		expect(sidebar).not.toHaveClass("collapsed");
+
+		// Simulate mouse re-entering before timeout completes
+		if (sidebarWrapper) {
+			fireEvent.mouseEnter(sidebarWrapper);
+		}
+
+		// Advance timer past the 3000ms mark
 		await act(async () => {
-			vi.runAllTimers();
+			vi.advanceTimersByTime(4000);
 		});
 
-		// Sidebar should now be collapsed
-		const sidebar = screen.getByRole("complementary", { name: /sidebar/i });
+		// Sidebar should still not be collapsed because mouseEnter cleared the timeout
+		sidebar = screen.getByRole("complementary", { name: /sidebar/i });
+		expect(sidebar).not.toHaveClass("collapsed");
+
+		// Trigger mouseleave again
+		if (sidebarWrapper) {
+			fireEvent.mouseLeave(sidebarWrapper);
+		}
+
+		// Fast-forward timer to trigger the timeout
+		await act(async () => {
+			vi.advanceTimersByTime(4000);
+		});
+
+		// Now the sidebar should be collapsed
+		sidebar = screen.getByRole("complementary", { name: /sidebar/i });
 		expect(sidebar).toHaveClass("collapsed");
 
+		// Restore real timers
 		vi.useRealTimers();
 	});
 

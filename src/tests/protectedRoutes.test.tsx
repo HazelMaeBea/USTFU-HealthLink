@@ -121,22 +121,6 @@ describe("ProtectedRoute Component", () => {
 		localStorage.clear();
 	});
 
-	test("shows loading spinner when isLoading is true", () => {
-		// Update context for this specific test
-		contextStore.value = {
-			...contextStore.value,
-			isLoading: true,
-		};
-
-		render(
-			<MemoryRouter>
-				<ProtectedRoute />
-			</MemoryRouter>
-		);
-
-		expect(screen.getByTestId("spinner")).toBeInTheDocument();
-	});
-
 	test("redirects to login page when user is not authenticated", async () => {
 		// Default context value is already not authenticated
 

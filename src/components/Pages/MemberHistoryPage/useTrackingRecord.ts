@@ -98,7 +98,7 @@ const useTrackingRecords = () => {
 		return () => {
 			unsubscribePending();
 		};
-	}, []);
+	}, [fullName]);
 
 	return { pendingRecords, accomplishedRecords };
 };
