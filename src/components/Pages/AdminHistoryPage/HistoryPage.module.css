@@ -1137,3 +1137,45 @@
 		min-height: 200px;
 	}
 }
+
+/* View Archive button styles */
+.viewArchiveButton {
+	background-color: var(--light-yellow);
+	border: 1px solid var(--primary-yellow);
+	color: #333;
+	padding: 7px 16px;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+}
+
+.viewArchiveButton:hover {
+	background-color: var(--hover-yellow);
+	border-color: var(--primary-yellow);
+}
+
+.viewArchiveButton:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px var(--yellow-shadow);
+}
+
+/* Updated the handle view details button design */
+.detailsButton {
+	background-color: #ffe494;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 1px 16px;
+	font-size: 0.9rem;
+	color: #333;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.detailsButton:hover {
+	background-color: #ffd966;
+	border-color: #ccc;
+}
+
+.detailsButton:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(255, 228, 148, 0.5);
+}
