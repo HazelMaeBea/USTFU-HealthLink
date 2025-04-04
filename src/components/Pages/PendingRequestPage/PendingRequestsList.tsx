@@ -22,7 +22,7 @@ import HistoryPopout from "./HistoryPopout";
 import PageButtons from "../../Page Elements/PageButtons/PageButtons";
 import PendingRequestsLoadingSkeleton from "./PendingRequestsLoadingSkeleton";
 import unreadPending from "../../Page Elements/NotifBadge/unreadPending";
-import useNotifications from "../../Page Elements/NotifBadge/NotifTrigger";
+import { useNotifications } from "../../Page Elements/NotifBadge/NotifTrigger";
 import { useFirebase } from "../../../contexts/firebaseContext";
 
 // Import icons for form types
@@ -342,7 +342,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			};
 
 			// Include validUntil when updating the document
-			await updateDocument(transID, textArea, updateStatus, formData);
+			await updateDocument(getCurrentUser, transID, textArea, updateStatus, formData);
 
 			// Update user's remaining benefit if changed
 			if (
@@ -360,6 +360,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 		setShowPopout(false);
 		setShowCommentBox(null);
+		setText(null);
 	};
 
 	const handleCancel = () => {
@@ -422,6 +423,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		setUnreadTransactionIds((prev) =>
 			prev.filter((id) => id !== request.transactionId)
 		);
+		setText(null);
 	};
 
 	// Helper function to convert camelCase to Title Case with spaces
