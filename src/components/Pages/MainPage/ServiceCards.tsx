@@ -46,10 +46,10 @@ const ServiceCards = () => {
 
 						// Check for eyeglasses benefit claimed date
 						if (
-							userData?.eyeglassesFlag !== undefined
+							userData?.personalInfo.eyeglassesBenefitClaimedDate !== undefined
 						) {
 							const eyeglassDate =
-								userData.eyeglassesFlag;
+								userData.personalInfo.eyeglassesBenefitClaimedDate;
 							console.log(eyeglassDate);
 							const eyeglassDateMils = eyeglassDate.toMillis();
 							const twoYearsInMillis =
