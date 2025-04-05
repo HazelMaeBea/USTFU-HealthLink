@@ -437,13 +437,12 @@ export async function getUsersBenefits() {
 	const snapshot = await getDocs(usersCollection);
 
 	const result: Record<string, BenefitsData["remainingBenefits"]> = {};
-
 	snapshot.forEach((doc) => {
 		const data = {
 			fullName: doc.data().fullName,
 			remainingBenefits:
-				doc.data().personalInfo.remainingBenefits ||
-				doc.data().remainingBenefits ||
+				doc.data()?.personalInfo?.remainingBenefits ??
+				doc.data()?.remainingBenefits ??
 				0,
 		} as BenefitsData;
 
