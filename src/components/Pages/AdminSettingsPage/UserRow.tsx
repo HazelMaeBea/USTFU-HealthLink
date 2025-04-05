@@ -156,40 +156,27 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
 		}
 		setIsEditing(false);
 		onSave(editedUser, editOption!);
-		const changes = [];
+		// Compute and update lastEdited only after changes are saved:
+		const changes: string[] = [];
 		if (user.college !== editedUser.college)
-			changes.push(
-				`College from '${user.college}' to '${editedUser.college}'`
-			);
+			changes.push(`College from '${user.college}' to '${editedUser.college}'`);
 		if (user.role !== editedUser.role)
 			changes.push(`Role from '${user.role}' to '${editedUser.role}'`);
 		if (user.status !== editedUser.status)
-			changes.push(`Status from ${user.status} to ${editedUser.status}`);
+			changes.push(`Status from '${user.status}' to '${editedUser.status}'`);
 		if (user.retirementDate !== editedUser.retirementDate)
-			changes.push(
-				`Retirement Date was set from ${user.retirementDate} to ${editedUser.retirementDate}`
-			);
+			changes.push(`Retirement Date from '${user.retirementDate}' to '${editedUser.retirementDate}'`);
 		if (user.deactivationDate !== editedUser.deactivationDate)
-			changes.push(
-				`Deactivation Date was set from ${user.deactivationDate} to ${editedUser.deactivationDate}`
-			);
+			changes.push(`Deactivation Date from '${user.deactivationDate}' to '${editedUser.deactivationDate}'`);
 		if (user.leaveReason !== editedUser.leaveReason)
-			changes.push(
-				`Leave Reason from '${user.leaveReason}' to '${editedUser.leaveReason}'`
-			);
+			changes.push(`Leave Reason from '${user.leaveReason}' to '${editedUser.leaveReason}'`);
 		if (user.leaveStartDate !== editedUser.leaveStartDate)
-			changes.push(
-				`Leave Start Date from '${user.leaveStartDate}' to '${editedUser.leaveStartDate}'`
-			);
+			changes.push(`Leave Start Date from '${user.leaveStartDate}' to '${editedUser.leaveStartDate}'`);
 		if (user.leaveEndDate !== editedUser.leaveEndDate)
-			changes.push(
-				`Leave End Date from '${user.leaveEndDate}' to '${editedUser.leaveEndDate}'`
-			);
-		setLastEdited(
-			`Last edited on ${new Date().toLocaleString()}: ${changes.join(
-				", "
-			)}`
-		);
+			changes.push(`Leave End Date from '${user.leaveEndDate}' to '${editedUser.leaveEndDate}'`);
+		if (changes.length > 0) {
+			setLastEdited(`Last edited on ${new Date().toLocaleString()}: ${changes.join(", ")}`);
+		}
 	};
 
 	const handleCancel = () => {
@@ -467,10 +454,10 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
 														}
 														endDate={
 															editedUser.leaveEndDate
-																? new Date(
-																		editedUser.leaveEndDate
-																  )
-																: null
+																	? new Date(
+																			editedUser.leaveEndDate
+																	  )
+																	: null
 														}
 														minDate={
 															editedUser.leaveStartDate
@@ -594,7 +581,9 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave }) => {
 							)}
 
 						{lastEdited && (
-							<p className="text-muted">{lastEdited}</p>
+							<div style={{ marginTop: "1rem" }}>
+								<p className="text-muted">{lastEdited}</p>
+							</div>
 						)}
 						<Button color="success" onClick={handleSave}>
 							Save

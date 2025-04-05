@@ -104,18 +104,33 @@ const AdminSettings = () => {
 	}, []);
 
 	const handleSaveConfirm = async () => {
+		if (!editUser) {
+			alert("No user data to save.");
+			return;
+		}
 		console.log("Saving changes...");
 		console.log(editUser);
 		setShowPopout(false);
 		try {
-			await setDoc(
-				doc(db, "users", editDocument),
-				{
-					...editUser,
-					createdAt: editCreatedAt,
-				},
-				{ merge: true }
-			);
+			if (editOption === "college") {
+				await setDoc(
+					doc(db, "users", editDocument),
+					{
+						personalInfo: { college: editUser.college },
+						createdAt: editCreatedAt,
+					},
+					{ merge: true }
+				);
+			} else {
+				await setDoc(
+					doc(db, "users", editDocument),
+					{
+						...editUser,
+						createdAt: editCreatedAt,
+					},
+					{ merge: true }
+				);
+			}
 			alert("Changes saved successfully!");
 		} catch (error) {
 			console.log(error);
