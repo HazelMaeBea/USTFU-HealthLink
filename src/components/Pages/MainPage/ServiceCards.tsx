@@ -50,7 +50,6 @@ const ServiceCards = () => {
 						) {
 							const eyeglassDate =
 								userData.personalInfo.eyeglassesBenefitClaimedDate;
-							console.log(eyeglassDate);
 							const eyeglassDateMils = eyeglassDate.toMillis();
 							const twoYearsInMillis =
 								2 * 365 * 24 * 60 * 60 * 1000; // 2 years in milliseconds
@@ -58,10 +57,6 @@ const ServiceCards = () => {
 								eyeglassDateMils + twoYearsInMillis;
 
 							const currentTime = Date.now();
-							const timeDifference =
-								currentTime - eyeglassDateMils;
-							const differenceInYears =
-								timeDifference / (1000 * 60 * 60 * 24 * 365);
 
 							const oldFormattedDate = eyeglassDate
 								.toDate()
@@ -87,7 +82,7 @@ const ServiceCards = () => {
 							const isTenured = userStatus
 								.toLowerCase()
 								.includes("tenured");
-							if (differenceInYears < 2 || !isTenured) {
+							if (currentTime >= updatedEyeglassDateMils || !isTenured) {
 								setRequestFlag(false);
 							} else {
 								setRequestFlag(true);
