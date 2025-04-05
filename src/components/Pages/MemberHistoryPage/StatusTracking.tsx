@@ -3,6 +3,7 @@ import styles from "./TrackingPage.module.css";
 import useTrackingRecords from "./useTrackingRecord";
 import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles";
 import { IoIosArrowBack } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 interface StatusTrackingProps {
   onBack: () => void;
@@ -42,6 +43,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
   status,
   dateTime,
 }) => {
+  const navigate = useNavigate();
   const { pendingRecords, accomplishedRecords, revisionRecords } =
     useTrackingRecords();
 
@@ -191,6 +193,13 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
         time: timestamp,
       };
     });
+  };
+
+  const handleRevisionClick = () => {
+    // Navigate to the path /home/{formData.formType}
+    if (request && request.formData.formType) {
+      navigate(`/home/${request.formData.formType}`);
+    }
   };
 
   const fields = (request: RecordType) => {
@@ -641,6 +650,17 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
             {getAttachments(request)}
           </div>
         </div>
+        {/* Conditionally render button if the status is "For Revision" */}
+        {status === "For Revision" && (
+          <div className={styles.revisionButtonContainer}>
+            <button
+              className={styles.revisionButton}
+              onClick={handleRevisionClick}
+            >
+              PROCEED TO REVISIONG
+            </button>
+          </div>
+        )}
       </div>
       {previewFile && (
         <ViewFiles file={previewFile} onClose={handleClosePreview} />

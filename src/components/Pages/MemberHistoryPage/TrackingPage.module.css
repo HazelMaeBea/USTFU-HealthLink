@@ -451,6 +451,34 @@ button:disabled {
   max-width: 100%;
 }
 
+/* Container for the revision button */
+.revisionButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Styling for the revision button */
+.revisionButton {
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  padding: 12px 24px; /* Padding */
+  border: none; /* Remove default border */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 16px; /* Font size */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for background-color */
+}
+
+.revisionButton:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.revisionButton:focus {
+  outline: none; /* Remove outline when focused */
+  box-shadow: 0 0 0 3px rgba(38, 143, 255, 0.5); /* Add focus shadow */
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .formContainer,
