@@ -1431,6 +1431,7 @@ const Settings = () => {
 					onConfirm={handleConfirmSave}
 					onCancel={() => setIsConfirmOpen(false)}
 					isOpen={isConfirmOpen}
+					aria-label="confirm changes dialog"
 				/>
 			)}
 
@@ -1441,6 +1442,7 @@ const Settings = () => {
 					onConfirm={handleCancel}
 					onCancel={() => setIsCancelConfirmOpen(false)}
 					isOpen={isCancelConfirmOpen}
+					aria-label="discard changes dialog"
 				/>
 			)}
 		</div>

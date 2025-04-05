@@ -117,7 +117,11 @@ vi.mock("../../src/components/Page Elements/Popout/Popout", () => ({
 		"data-testid"?: string;
 	}) =>
 		isOpen ? (
-			<div data-testid={testId || "popout"} aria-label={ariaLabel}>
+			<div
+				data-testid={testId || "popout"}
+				aria-label={ariaLabel}
+				role="dialog"
+			>
 				<h2 data-testid="popout-title">{title}</h2>
 				<div data-testid="popout-message">{message}</div>
 				<div className="popout-buttons">
@@ -337,9 +341,8 @@ describe("Settings Component", () => {
 		});
 
 		// Popout should show warning about discarding changes
-		expect(
-			screen.getByTestId("discard-changes-popout")
-		).toBeInTheDocument();
+		const popout = screen.getByLabelText("discard changes dialog");
+		expect(popout).toBeInTheDocument();
 		expect(screen.getByText(/Discarding will revert/)).toBeInTheDocument();
 
 		// Confirm discard
