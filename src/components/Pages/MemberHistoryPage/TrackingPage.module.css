@@ -1,508 +1,549 @@
 /* Tracking Page Styles */
 .tracking-page {
-	padding: 1rem;
-	max-width: 1200px;
-	margin: 0 auto;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Tab Styles */
 .TrackingTabs {
-	margin-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .tab-titles {
-	display: flex;
-	border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 /* Form Container Styles */
 .form-container {
-	margin-top: 20px;
-	background-color: #fff;
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .form-row {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 15px;
-	margin-bottom: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
 .form-group {
-	flex: 1 1 300px;
+  flex: 1 1 300px;
 }
 
 .form-group label {
-	display: block;
-	margin-bottom: 5px;
-	font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-	width: 100%;
-	padding: 8px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	font-size: 14px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
 .form-group textarea {
-	min-height: 100px;
+  min-height: 100px;
 }
 
 .form-actions {
-	display: flex;
-	justify-content: flex-end;
-	margin-top: 20px;
-	gap: 10px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 10px;
 }
 
 .btn-primary {
-	background-color: #000;
-	color: white;
-	padding: 10px 15px;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
+  background-color: #000;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .btn-primary:hover {
-	background-color: #333;
+  background-color: #333;
 }
 
 .btn-secondary {
-	background-color: #f5f5f5;
-	color: #333;
-	padding: 10px 15px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	cursor: pointer;
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .btn-secondary:hover {
-	background-color: #e5e5e5;
+  background-color: #e5e5e5;
 }
 
 /* Status Tracking Styles (Migrated from StatusTracking.css) */
 .statusTrackingContainer {
-	background: white;
-	border-radius: 8px;
-	padding: 15px;
-	max-width: auto;
-	margin: 20px auto;
-	box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  max-width: auto;
+  margin: 20px auto;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
 }
 
 .transactionHeader {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	width: 100%;
-	padding: 5px 10px;
-	border-bottom: 2px solid #f5c100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 5px 10px;
+  border-bottom: 2px solid #f5c100;
 }
 
 .transactionId {
-	font-size: 1.4rem;
-	text-align: left;
-	padding-bottom: 5px;
-	color: black;
+  font-size: 1.4rem;
+  text-align: left;
+  padding-bottom: 5px;
+  color: black;
 }
 
 .backButton {
-	background: black;
-	color: white;
-	border: none;
-	padding: 6px 12px;
-	font-size: 14px;
-	font-weight: bold;
-	border-radius: 4px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 5px;
+  background: black;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .backButton:hover {
-	background-color: #333;
+  background-color: #333;
 }
 
 .statusTitle {
-	text-align: center;
-	font-size: 18px;
-	font-weight: bold;
-	margin: 25px 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 25px 0;
 }
 
 .statusUpdates {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 0;
 }
 
 .statusItem {
-	display: flex;
-	align-items: center;
-	padding: 12px 15px;
-	border-radius: 6px;
-	font-weight: bold;
-	font-size: 1.1rem;
-	width: 65%;
-	max-width: 100%;
-	margin-bottom: 15px;
-	margin-top: 5px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  width: 65%;
+  max-width: 100%;
+  margin-bottom: 15px;
+  margin-top: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .approved {
-	background-color: rgb(214, 255, 214);
-	color: rgb(34, 139, 34);
+  background-color: rgb(214, 255, 214);
+  color: rgb(34, 139, 34);
 }
 
 .rejected {
-	background-color: rgb(255, 167, 167);
-	color: rgb(139, 0, 0);
+  background-color: rgb(255, 167, 167);
+  color: rgb(139, 0, 0);
 }
 
 .pending {
-	background-color: #e7e7e2;
-	color: #5a5a54;
+  background-color: #e7e7e2;
+  color: #5a5a54;
+}
+
+.revision {
+  background-color: #faedc3;
+  color: #bf9106;
 }
 
 .pending .checkmark {
-	display: none;
+  display: none;
 }
 
 .checkmark {
-	font-size: 20px;
-	color: green;
-	margin-right: 12px;
+  font-size: 20px;
+  color: green;
+  margin-right: 12px;
 }
 
 .rejected .checkmark {
-	color: red;
-	content: "✘";
+  color: red;
+  content: "✘";
+}
+
+.approved .checkmark {
+  color: green;
+}
+
+.revision .checkmark {
+  color: #b9952c;
 }
 
 .statusText {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
 }
 
 .timestamp {
-	font-weight: 700;
+  font-weight: 700;
 }
 
 .actionButtons {
-	display: flex;
-	justify-content: center;
-	margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
 }
 
 .printButton {
-	background: black;
-	color: white;
-	border: none;
-	padding: 6px 12px;
-	font-size: 14px;
-	font-weight: bold;
-	border-radius: 5px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	margin-bottom: 15px;
+  background: black;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 15px;
 }
 
 .printButton:hover {
-	background: #333;
+  background: #333;
 }
 
 button:disabled {
-	cursor: not-allowed;
-	opacity: 0.5;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .submissionInfoContainer {
-	background: white;
-	border-radius: 10px;
-	padding: 15px;
-	max-width: auto;
-	margin: 20px auto;
-	box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  max-width: auto;
+  margin: 20px auto;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
 }
 
 .submissionHeader {
-	display: flex !important;
-	justify-content: space-between !important;
-	align-items: center !important;
-	width: 100% !important;
-	padding: 5px 10px !important;
-	border-bottom: 2px solid #f5c100 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: 5px 10px !important;
+  border-bottom: 2px solid #f5c100 !important;
 }
 
 .submissionTitle {
-	font-size: 1.4rem !important;
-	text-align: left !important;
-	color: black !important;
+  font-size: 1.4rem !important;
+  text-align: left !important;
+  color: black !important;
 }
 
 .submissionContents {
-	max-width: 100%;
-	margin: 10px;
-	align-items: center;
-	justify-content: center;
+  max-width: 100%;
+  margin: 10px;
+  align-items: center;
+  justify-content: center;
 }
 
 .formContainer {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 1rem;
-	align-items: center;
-	width: 100%;
-	margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1.5rem;
 }
 
 .formContainer2 {
-	display: grid;
-	grid-template-columns: repeat(8, 1fr);
-	gap: 1rem;
-	margin-bottom: 0.8rem;
-	width: 100%;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+  width: 100%;
 }
 
 .age,
 .gender {
-	grid-column: span 1;
+  grid-column: span 1;
 }
 
 .contact {
-	grid-column: span 2;
+  grid-column: span 2;
 }
 
 .college {
-	grid-column: span 4;
+  grid-column: span 4;
 }
 
 .formContents {
-	display: flex;
-	flex-direction: column;
-	align-items: start;
-	width: 100%;
-	gap: 0.3rem;
-	color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  width: 100%;
+  gap: 0.3rem;
+  color: black;
 }
 
 .formContents label {
-	font-weight: bold;
-	margin-bottom: 4px;
+  font-weight: bold;
+  margin-bottom: 4px;
 }
 
 .fieldContent {
-	padding: 0.3rem;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	background: #f8f9fa;
-	width: 100%;
+  padding: 0.3rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f8f9fa;
+  width: 100%;
 }
 
 /* Attachments section */
 .attachmentsSection {
-	margin: 2rem auto;
-	text-align: center;
-	color: black;
-	width: 100%;
-	overflow: hidden;
-	box-sizing: border-box;
+  margin: 2rem auto;
+  text-align: center;
+  color: black;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .attachmentsSection h4 {
-	font-size: 1.1rem;
-	font-weight: 600;
-	margin-bottom: 1.25rem;
-	color: #495057;
-	text-transform: uppercase;
-	text-align: center;
-	border-bottom: 1px solid #e9ecef;
-	padding-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: #495057;
+  text-transform: uppercase;
+  text-align: center;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 0.5rem;
 }
 
 .attachmentPreviewContainer {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-	gap: 1rem;
-	width: 100%;
-	box-sizing: border-box;
-	overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .attachmentPreview {
-	border: 1px solid #e9ecef;
-	border-radius: 8px;
-	padding: 0.75rem;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	background-color: #f8f9fa;
-	width: 100%;
-	min-width: auto;
-	max-width: none;
-	flex: none;
-	position: relative;
-	overflow: hidden;
-	box-sizing: border-box;
-	height: 100%;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #f8f9fa;
+  width: 100%;
+  min-width: auto;
+  max-width: none;
+  flex: none;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  height: 100%;
 }
 
 .attachmentPreview:hover {
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	border-color: #ced4da;
-	transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: #ced4da;
+  transform: translateY(-2px);
 }
 
 .thumbnailContainer {
-	height: 100px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: #fff;
-	border-radius: 4px;
-	margin-bottom: 0.75rem;
-	overflow: hidden;
-	position: relative;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  position: relative;
 }
 
 .fileThumbnail {
-	max-width: 100%;
-	max-height: 100%;
-	object-fit: contain;
-	border-radius: 4px;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
 }
 
 .defaultThumbnail {
-	width: 60px;
-	height: 70px;
-	background-color: #e2e8f0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: #6c757d;
-	font-weight: bold;
-	position: relative;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
-	overflow: hidden;
+  width: 60px;
+  height: 70px;
+  background-color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-weight: bold;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
 }
 
 .defaultThumbnail::before {
-	content: attr(data-label);
-	position: absolute;
-	font-size: 0.9rem;
+  content: attr(data-label);
+  position: absolute;
+  font-size: 0.9rem;
 }
 
 /* File Info Styling */
 .fileInfo {
-	text-align: center;
-	width: 100%;
-	padding: 0 5px;
-	box-sizing: border-box;
+  text-align: center;
+  width: 100%;
+  padding: 0 5px;
+  box-sizing: border-box;
 }
 
 .documentType {
-	font-weight: 600;
-	font-size: 0.9rem;
-	margin-bottom: 0.25rem;
-	color: #495057;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	width: 100%;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  color: #495057;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .fileName {
-	font-size: 0.8rem;
-	color: #6c757d;
-	margin: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	width: 100%;
-	max-width: 100%;
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Container for the revision button */
+.revisionButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* Styling for the revision button */
+.revisionButton {
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  padding: 12px 24px; /* Padding */
+  border: none; /* Remove default border */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 16px; /* Font size */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for background-color */
+}
+
+.revisionButton:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.revisionButton:focus {
+  outline: none; /* Remove outline when focused */
+  box-shadow: 0 0 0 3px rgba(38, 143, 255, 0.5); /* Add focus shadow */
 }
 
 /* Responsive */
 @media (max-width: 992px) {
-	.formContainer,
-	.formContainer2 {
-		grid-template-columns: repeat(2, 1fr);
-	}
+  .formContainer,
+  .formContainer2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-	.form-group {
-		flex: 0 0 100%;
-	}
+  .form-group {
+    flex: 0 0 100%;
+  }
 
-	.form-actions {
-		flex-direction: column;
-	}
+  .form-actions {
+    flex-direction: column;
+  }
 
-	.btn-primary,
-	.btn-secondary {
-		width: 100%;
-		margin-bottom: 10px;
-	}
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 
-	.statusItem {
-		width: 100%;
-		display: flex;
-		font-size: 1rem;
-	}
+  .statusItem {
+    width: 100%;
+    display: flex;
+    font-size: 1rem;
+  }
 
-	.transactionHeader,
-	.transactionId {
-		font-size: 1rem;
-	}
+  .transactionHeader,
+  .transactionId {
+    font-size: 1rem;
+  }
 
-	.statusText #dash {
-		display: none;
-	}
+  .statusText #dash {
+    display: none;
+  }
 
-	.attachmentPreviewContainer {
-		grid-template-columns: repeat(2, 1fr);
-	}
+  .attachmentPreviewContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 576px) {
-	.formContainer,
-	.formContainer2 {
-		grid-template-columns: 1fr;
-		gap: 0.8rem;
-	}
+  .formContainer,
+  .formContainer2 {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
 
-	.age,
-	.gender,
-	.contact,
-	.college {
-		grid-column: span 1;
-		width: 100%;
-	}
+  .age,
+  .gender,
+  .contact,
+  .college {
+    grid-column: span 1;
+    width: 100%;
+  }
 
-	.attachmentPreviewContainer {
-		grid-template-columns: 1fr;
-	}
+  .attachmentPreviewContainer {
+    grid-template-columns: 1fr;
+  }
 
-	.attachmentItem {
-		flex-wrap: wrap;
-		text-align: center;
-		justify-content: center;
-	}
+  .attachmentItem {
+    flex-wrap: wrap;
+    text-align: center;
+    justify-content: center;
+  }
 }
