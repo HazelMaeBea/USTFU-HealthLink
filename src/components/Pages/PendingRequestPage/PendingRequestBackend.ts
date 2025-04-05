@@ -423,24 +423,23 @@ export const updateBenefits = async (
 };
 
 export async function getUsersBenefits() {
-  const snapshot = await getDocs(usersCollection);
+	const snapshot = await getDocs(usersCollection);
 
-  const result: Record<string, BenefitsData["remainingBenefits"]> = {};
+	const result: Record<string, BenefitsData["remainingBenefits"]> = {};
+	snapshot.forEach((doc) => {
+		const data = {
+			fullName: doc.data().fullName,
+			remainingBenefits:
+				doc.data()?.personalInfo?.remainingBenefits ??
+				doc.data()?.remainingBenefits ??
+				0,
+		} as BenefitsData;
 
-  snapshot.forEach((doc) => {
-    const data = {
-      fullName: doc.data().fullName,
-      remainingBenefits:
-        doc.data().personalInfo.remainingBenefits ||
-        doc.data().remainingBenefits ||
-        0,
-    } as BenefitsData;
-
-    if (data.fullName && data.remainingBenefits !== undefined) {
-      result[data.fullName] = data.remainingBenefits;
-    }
-  });
-  return result;
+		if (data.fullName && data.remainingBenefits !== undefined) {
+			result[data.fullName] = data.remainingBenefits;
+		}
+	});
+	return result;
 }
 
 const emailCollection = collection(db, "mail");
