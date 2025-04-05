@@ -1,0 +1,73 @@
+/* Mobile Card Styles */
+.mobile-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #fff;
+}
+
+.mobile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-card-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.mobile-card-email {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.mobile-card-body {
+  margin-top: 0.5rem;
+}
+
+.mobile-card-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+
+.mobile-card-label {
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.mobile-card-value {
+  font-size: 0.85rem;
+}
+
+.mobile-card-edit {
+  margin-top: 0.5rem;
+}
+
+.mobile-edit-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .user-mngmnt-table {
+    display: none;
+  }
+  .mobile-card {
+    display: block;
+  }
+}
+
+/* For tablets and larger screens, use table view */
+@media (min-width: 769px) {
+  .mobile-card {
+    display: none;
+  }
+  .user-mngmnt-table {
+    display: table;
+  }
+}
