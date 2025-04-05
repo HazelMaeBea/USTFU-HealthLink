@@ -1,0 +1,63 @@
+/* User Management Table */
+.user-mngmnt-table {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
+.user-mngmnt-table-header {
+	background-color: hsl(210, 10%, 23%);
+	color: #fff;
+	text-align: center;
+}
+.user-mngmnt-table th,
+.user-mngmnt-table td {
+	border: 1px solid #ddd;
+	padding: 8px;
+}
+
+/* Mobile Card Styles */
+.mobile-card-container {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+.mobile-card {
+	background-color: #fff;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	padding: 1rem;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mobile-card:hover {
+	transform: scale(1.02);
+	box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.mobile-card-header,
+.mobile-card-body,
+.mobile-card-row,
+.mobile-card-label,
+.mobile-card-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #374151;
+}
+/* Edit Options and Controls */
+.edit-options-menu {
+    display: block;
+}
+.controls-container,
+.pagination-container,
+.audit-logs-btn {
+    color:#374151;
+}
+
+
+
+/* NEW STYLNG */
+
+.user-mngmnt-table {
+    width: 100%;
+    border-collapse: collapse;
+}

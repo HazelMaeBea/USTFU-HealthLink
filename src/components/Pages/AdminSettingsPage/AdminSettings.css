@@ -101,106 +101,12 @@
 	padding: 10px;
 }
 
-/* User Management Table */
-.admin-settings-container .user-mngmnt-table {
-	width: 100%;
-	border-collapse: separate;
-	border-spacing: 0;
-	margin-top: 1rem;
-	border: 1px solid hsl(220, 13%, 91%);
-	border-radius: 0.5rem;
-	overflow: hidden;
-	table-layout: fixed; /* Ensure fixed layout */
-}
-
-.admin-settings-container .user-mngmnt-table tbody {
-	height: calc(100% - 50px); /* Adjust height to account for the header */
+/* User management styles have been moved to UserManagement.css */
+.admin-settings-container .user-mngmnt-table { 
 	display: block;
-	overflow-y: auto;
-}
-
-.admin-settings-container .user-mngmnt-table thead,
-.admin-settings-container .user-mngmnt-table tbody tr {
-	display: table;
-	width: 100%;
-	table-layout: fixed;
-}
-
-.user-mngmnt-table-header {
-	background-color: hsl(210, 10%, 23%);
-	color: hsl(0, 0%, 100%);
-}
-
-.admin-settings-container .user-mngmnt-table th,
-.admin-settings-container .user-mngmnt-table td {
-	padding: 0.5rem 1rem;
-	border-bottom: 1px solid hsl(220, 13%, 91%);
-	font-size: 0.875rem;
-	vertical-align: middle;
-	text-align: left;
-	overflow-wrap: break-word;
-	white-space: normal;
-	word-break: break-word;
-}
-
-.admin-settings-container .user-mngmnt-table th {
-	text-align: center;
-}
-
-.admin-settings-container .user-mngmnt-table th:first-child,
-.admin-settings-container .user-mngmnt-table td:first-child {
-	width: 8%; /* Adjust width for id num column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(2),
-.admin-settings-container .user-mngmnt-table td:nth-child(2) {
-	width: 15%; /* Adjust width for name column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(3),
-.admin-settings-container .user-mngmnt-table td:nth-child(3) {
-	width: 20%; /* Adjust width for email column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(4),
-.admin-settings-container .user-mngmnt-table td:nth-child(4) {
-	width: 20%; /* Adjust width for college column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(5),
-.admin-settings-container .user-mngmnt-table td:nth-child(5) {
-	width: 8%; /* Adjust width for birthdate column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(6),
-.admin-settings-container .user-mngmnt-table td:nth-child(6) {
-	width: 10%; /* Adjust width for phone num column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(7),
-.admin-settings-container .user-mngmnt-table td:nth-child(7) {
-	width: 10%; /* Adjust width for role column */
-	text-transform: capitalize;
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(9),
-.admin-settings-container .user-mngmnt-table td:nth-child(9),
-.admin-settings-container .user-mngmnt-table th:nth-child(8),
-.admin-settings-container .user-mngmnt-table td:nth-child(8) {
-	white-space: nowrap; /* Prevent word break */
-}
-
-.admin-settings-container .user-mngmnt-table tbody tr:last-child td {
-	border-bottom: none;
-}
-
-/* Zebra stripes for readability */
-.admin-settings-container .user-mngmnt-table tbody tr:nth-child(even) {
-	background-color: hsl(0, 0%, 98%);
-}
-
-.admin-settings-container .user-mngmnt-table tbody tr:hover {
-	background-color: hsl(0, 0%, 91%);
+ }
+.admin-settings-container .mobile-card-container { 
+	display: block;
 }
 
 /* Badges */
@@ -349,16 +255,17 @@ p {
 
 /* Dropdown Styles */
 .edit-options-menu {
-	position: fixed;
-	background: white;
-	border: none;
+	position: absolute;
+	right: 0;
+	top: 45px;
+	background-color: white;
 	border-radius: 8px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-	z-index: 1050;
-	overflow: hidden;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	z-index: 10;
 	width: 180px;
+	overflow: hidden;
 	animation: fadeIn 0.2s ease-out;
-}
+  }
 
 @keyframes fadeIn {
 	from {
@@ -379,19 +286,16 @@ p {
 }
 
 .edit-options-menu button {
-	display: flex;
-	align-items: center;
 	width: 100%;
-	padding: 10px 16px;
-	background: white;
-	border: none;
+	padding: 0.75rem 1rem;
 	text-align: left;
-	cursor: pointer;
-	font-size: 14px;
-	color: #424242;
+	background: none;
+	border: none;
+	font-size: 0.9rem;
+	color: #4b5563;
 	transition: all 0.15s ease;
-	line-height: 1.5;
-}
+	border-left: 3px solid transparent;
+  }
 
 .edit-options-menu button:hover {
 	background-color: rgba(255, 193, 7, 0.1); /* Lighter yellow background */
@@ -819,14 +723,7 @@ p {
 	color: #6b7280;
 	margin: 0;
 }
-.mobile-edit-button {
-	background-color:  hsl(45, 100%, 90%);
-	border: none;
-	cursor: pointer;
-	font-size: 1.5rem;
-	border-radius: 12px;
-	align-items: center;
-}
+
 .mobile-card-body {
 	display: flex;
 	flex-direction: column;
@@ -852,46 +749,50 @@ p {
 	text-transform: capitalize;
 }
 
-/* New inline editing section for mobile cards */
-.mobile-card-edit {
-	padding: 1rem;
-	border-top: 1px solid #ddd;
-	margin-top: 1rem;
+#mobile-edit-button {
+	background-color:  hsl(45, 100%, 90%) !important;
+	box-shadow: none;
+	border-radius: 8px;
 }
-.mobile-card-edit label {
-	display: block;
-	font-size: 0.85rem;
-	margin-bottom: 0.25rem;
-	color: #444;
-}
-.mobile-card-edit select {
-	width: 100%;
-	padding: 0.5rem;
-	font-size: 0.9rem;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	margin-bottom: 0.75rem;
-}
+
 .mobile-card-edit button {
-	padding: 0.5rem 1rem;
-	margin-right: 0.5rem;
-	font-size: 0.9rem;
+	padding: 0.75rem 1rem;
 	border: none;
-	border-radius: 4px;
+	border-radius: 6px;
+	font-weight: 600;
+	font-size: 0.9rem;
 	cursor: pointer;
-	transition: background-color 0.2s ease;
-}
-.mobile-card-edit button:first-of-type {
-	background-color: #28a745;
-	color: white;
-}
-.mobile-card-edit button:first-of-type:hover {
-	background-color: #218838;
-}
-.mobile-card-edit button:last-of-type {
-	background-color: #6c757d;
-	color: white;
-}
-.mobile-card-edit button:last-of-type:hover {
-	background-color: #5a6268;
-}
+	transition: all 0.2s ease;
+	margin-right: 0.75rem;
+  }
+
+  .mobile-card-edit button:first-of-type {
+	background-color: hsl(45, 100%, 51%);
+	color: #000;
+  }
+  .mobile-card-edit button:last-of-type {
+	background-color: #f3f4f6;
+	color: #4b5563;
+  }
+
+  .mobile-card-edit {
+	background-color: transparent !important;
+	border-top: 1px solid hsl(210, 14%, 83%);
+	margin-top: 1rem;
+	padding: 1rem 0;
+  }
+  
+  .mobile-card-edit label, select {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+  }
+
+  .mobile-card-edit select {
+	border: 1px solid hsl(210, 14%, 83%);
+	padding: 0.4rem;
+	width: 100%;
+	border-radius: 8px;
+	margin-bottom: 1rem;
+
+  }
