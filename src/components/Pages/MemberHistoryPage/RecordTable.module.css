@@ -1,320 +1,328 @@
 /* Base Container Styles */
 .table-component-container {
-	padding: 1rem 2rem;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
-	gap: 1rem;
-	font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding: 1rem 2rem;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 /* Table Footer */
 .table-footer {
-	display: -webkit-flex;
-	display: flex;
-	-webkit-justify-content: space-between;
-	justify-content: space-between;
-	-webkit-align-items: center;
-	align-items: center;
-	margin-top: 16px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+  -webkit-align-items: center;
+  align-items: center;
+  margin-top: 16px;
 }
 
 /* Records List */
 .records-container {
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
-	gap: 1rem;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 /* Record Box - Updated with HistoryPage-inspired design */
 .record-box {
-	padding: 0.5rem 1rem;
-	border-radius: 8px;
-	color: #000;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: column;
-	flex-direction: column;
-	justify-items: center;
-	-webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-	background-color: #fff;
-	transition: all 0.2s ease-in-out;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: #000;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  justify-items: center;
+  -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+  transition: all 0.2s ease-in-out;
 }
 
 .record-box:hover {
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-	transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 /* Variant Backgrounds */
 .record-box.approved {
-	border-left: 4px solid #10b981;
+  border-left: 4px solid #10b981;
 }
 
 .record-box.approved:hover {
-	background-color: #e6f7ee;
+  background-color: #e6f7ee;
 }
 
 .record-box.approved.highlight {
-	background-color: #e6f7ee;
-	border: 2px solid #10b981;
+  background-color: #e6f7ee;
+  border: 2px solid #10b981;
 }
 
 .record-box.rejected {
-	border-left: 4px solid #ef4444;
+  border-left: 4px solid #ef4444;
 }
 
 .record-box.rejected:hover {
-	background-color: #fee2e2;
+  background-color: #fee2e2;
 }
 
 .record-box.rejected.highlight {
-	background-color: #fee2e2;
-	border: 2px solid #ef4444;
+  background-color: #fee2e2;
+  border: 2px solid #ef4444;
 }
 
-.record-box.pending {
-	border-left: 4px solid #ffc107;
+.record-box.pending,
+.record-box.for-revision {
+  border-left: 4px solid #ffc107;
 }
 
-.record-box.pending:hover {
-	background-color: #fff9e6;
+.record-box.pending:hover,
+.record-box.for-revision:hover {
+  background-color: #fff9e6;
 }
 
-.record-box.pending.highlight {
-	background-color: #fff9e6;
-	border: 2px solid #ffc107;
+.record-box.pending.highlight,
+.record-box.for-revision.highlight {
+  background-color: #fff9e6;
+  border: 2px solid #ffc107;
 }
 
 /* Record Content */
 .record-content {
-	display: -webkit-flex;
-	display: flex;
-	gap: 1rem;
-	-webkit-align-items: center;
-	align-items: center;
+  display: -webkit-flex;
+  display: flex;
+  gap: 1rem;
+  -webkit-align-items: center;
+  align-items: center;
 }
 
 /* Record Detail Fields - Updated with HistoryPage styles */
 .details-container {
-	display: -webkit-flex;
-	display: flex;
-	-webkit-flex-direction: row;
-	flex-direction: row;
-	gap: 1rem;
-	flex-grow: 1;
-	width: 90%;
-	align-items: center;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  gap: 1rem;
+  flex-grow: 1;
+  width: 90%;
+  align-items: center;
 }
 
 /* Date styles - new */
 .record-dateTime {
-	width: 25%;
-	padding: 0.25rem 0;
-	font-size: 0.9rem;
-	color: #495057;
+  width: 25%;
+  padding: 0.25rem 0;
+  font-size: 0.9rem;
+  color: #495057;
 }
 
 .record-dateTime-label {
-	display: block;
-	font-size: 0.7rem;
-	color: #6c757d;
-	margin-bottom: 0.2rem;
-	text-transform: uppercase;
+  display: block;
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
 }
 
 .record-dateTime-value {
-	font-weight: 500;
+  font-weight: 500;
 }
 
 /* Transaction ID styles - new */
 .record-transactionID {
-	width: 25%;
-	padding: 0.25rem 0;
+  width: 25%;
+  padding: 0.25rem 0;
 }
 
 .record-transactionID-label {
-	display: block;
-	font-size: 0.7rem;
-	color: #6c757d;
-	margin-bottom: 0.2rem;
-	text-transform: uppercase;
+  display: block;
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
 }
 
 .record-transactionID-value {
-	font-weight: 500;
+  font-weight: 500;
 }
 
 /* Form Type styles - updated to remove yellow background */
 .record-typeOfForm {
-	width: 30%;
-	padding: 0.25rem 0;
+  width: 30%;
+  padding: 0.25rem 0;
 }
 
 .record-typeOfForm-label {
-	display: block;
-	font-size: 0.7rem;
-	color: #6c757d;
-	margin-bottom: 0.2rem;
-	text-transform: uppercase;
+  display: block;
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
 }
 
 /* Form Type styles with icon support */
 .record-typeOfForm-value-container {
-	display: flex;
-	align-items: center;
-	gap: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .form-type-icon {
-	height: 16px;
-	width: auto;
-	margin-right: 4px;
-	vertical-align: middle;
+  height: 16px;
+  width: auto;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .record-typeOfForm-value {
-	font-weight: 500;
-	color: #333;
-	padding: 0.25rem 0;
-	font-size: 0.9rem;
-	display: inline-block;
+  font-weight: 500;
+  color: #333;
+  padding: 0.25rem 0;
+  font-size: 0.9rem;
+  display: inline-block;
 }
 
 /* Status Badge styles - new */
 .record-status {
-	width: 15%;
-	padding: 0.25rem 0;
+  width: 15%;
+  padding: 0.25rem 0;
 }
 
 .record-status-label {
-	display: block;
-	font-size: 0.7rem;
-	color: #6c757d;
-	margin-bottom: 0.2rem;
-	text-transform: uppercase;
+  display: block;
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
 }
 
 .status-badge {
-	display: inline-block;
-	padding: 0.25rem 0.75rem;
-	border-radius: 20px;
-	font-size: 0.8rem;
-	font-weight: 500;
-	text-transform: capitalize;
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
 }
 
 .status-approved {
-	background-color: #e6f7ee;
-	color: #10b981;
+  background-color: #e6f7ee;
+  color: #10b981;
 }
 
 .status-pending {
-	background-color: #fff9e6;
-	color: #ffc107;
+  background-color: #fff9e6;
+  color: #ffc107;
 }
 
 .status-rejected {
-	background-color: #fee2e2;
-	color: #ef4444;
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.status-for-revision {
+  background-color: #fff9e6;
+  color: #ffc107;
 }
 
 /* Button Container & Style */
 .button-container {
-	width: 10%;
-	display: -webkit-flex;
-	display: flex;
-	-webkit-align-items: center;
-	align-items: center;
-	-webkit-justify-content: center;
-	justify-content: center;
+  width: 10%;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
 }
 
 .details-button {
-	padding: 6px 12px;
-	background-color: #000;
-	color: hsl(0, 0%, 100%);
-	border: none;
-	border-radius: 6px;
-	cursor: pointer;
-	width: 100px;
-	font-size: 0.9rem;
-	font-weight: 600;
-	transition: background-color 0.2s ease;
+  padding: 6px 12px;
+  background-color: #000;
+  color: hsl(0, 0%, 100%);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
 }
 
 .details-button:hover {
-	background-color: #333;
+  background-color: #333;
 }
 
 /* Responsive Adjustments */
 @media screen and (max-width: 992px) {
-	.details-container {
-		flex-wrap: wrap;
-	}
+  .details-container {
+    flex-wrap: wrap;
+  }
 
-	.record-dateTime,
-	.record-transactionID,
-	.record-typeOfForm,
-	.record-status {
-		width: 48%;
-	}
+  .record-dateTime,
+  .record-transactionID,
+  .record-typeOfForm,
+  .record-status {
+    width: 48%;
+  }
 
-	.form-type-icon {
-		height: 15px;
-	}
+  .form-type-icon {
+    height: 15px;
+  }
 }
 
 @media screen and (max-width: 768px) {
-	.table-component-container {
-		padding: 1rem;
-	}
+  .table-component-container {
+    padding: 1rem;
+  }
 
-	.details-container {
-		flex-direction: column;
-		align-items: flex-start;
-		width: 70%;
-		gap: 0.5rem;
-	}
+  .details-container {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 70%;
+    gap: 0.5rem;
+  }
 
-	.button-container {
-		width: 30%;
-		align-self: center;
-	}
+  .button-container {
+    width: 30%;
+    align-self: center;
+  }
 
-	.record-dateTime,
-	.record-transactionID,
-	.record-typeOfForm,
-	.record-status {
-		width: 100%;
-		padding: 0.25rem 0;
-	}
+  .record-dateTime,
+  .record-transactionID,
+  .record-typeOfForm,
+  .record-status {
+    width: 100%;
+    padding: 0.25rem 0;
+  }
 
-	.form-type-icon {
-		height: 14px;
-	}
+  .form-type-icon {
+    height: 14px;
+  }
 }
 
 @media screen and (max-width: 576px) {
-	.table-component-container {
-		padding: 0.5rem;
-		font-size: 0.9rem;
-	}
+  .table-component-container {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
 
-	.details-container {
-		width: 65%;
-	}
+  .details-container {
+    width: 65%;
+  }
 
-	.details-button {
-		padding: 5px 10px;
-		font-size: 0.8rem;
-	}
+  .details-button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
 
-	.form-type-icon {
-		height: 12px;
-	}
+  .form-type-icon {
+    height: 12px;
+  }
 }
