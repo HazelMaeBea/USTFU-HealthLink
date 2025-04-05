@@ -392,6 +392,19 @@ hr {
 	min-height: 38px;
 }
 
+/* Invalid field styling */
+.invalidField {
+	border-color: #dc3545 !important;
+	background-color: rgba(220, 53, 69, 0.05) !important;
+}
+
+.errorMessage {
+	color: #dc3545;
+	font-size: 0.8rem;
+	margin-top: 5px;
+	font-weight: 500;
+}
+
 /* Changes summary styling */
 .changesSummary ul {
 	max-height: 300px;
@@ -546,11 +559,37 @@ hr {
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
+/* Add cursor styles for interactive form elements */
+.formControl:hover,
+.formSelect:hover,
+input[type="date"]:hover {
+	cursor: pointer;
+	border-color: #ccc;
+}
+
 .formControl:focus,
 .formSelect:focus {
 	border-color: hsl(45, 100%, 51%);
 	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.2);
 	outline: none;
+}
+
+/* Date picker specific styling */
+input[type="date"] {
+	cursor: pointer;
+	position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+	cursor: pointer;
+	position: absolute;
+	right: 8px;
+	opacity: 0.6;
+	transition: opacity 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+	opacity: 1;
 }
 
 /* Placeholder styling */

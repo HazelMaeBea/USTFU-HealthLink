@@ -88,9 +88,9 @@ const ServiceCards = () => {
 								.toLowerCase()
 								.includes("tenured");
 							if (differenceInYears < 2 || !isTenured) {
-								setRequestFlag(true);
-							} else {
 								setRequestFlag(false);
+							} else {
+								setRequestFlag(true);
 							}
 						} else {
 							// No previous eyeglasses claim, check only tenure status
@@ -98,9 +98,9 @@ const ServiceCards = () => {
 								.toLowerCase()
 								.includes("tenured");
 							if (!isTenured) {
-								setRequestFlag(true);
-							} else {
 								setRequestFlag(false);
+							} else {
+								setRequestFlag(true);
 							}
 						}
 					}
