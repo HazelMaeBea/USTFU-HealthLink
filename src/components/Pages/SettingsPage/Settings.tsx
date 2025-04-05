@@ -426,6 +426,16 @@ const Settings = () => {
 		setSettings({ ...originalSettings });
 		setChangedFields({});
 
+		// Clear all validation errors when canceling
+		setValidationErrors({});
+
+		// Reset phone input value to match original state
+		if (originalSettings.phoneNumber) {
+			formatPhoneNumberDisplay("+63" + originalSettings.phoneNumber);
+		} else {
+			setPhoneInputValue("+63");
+		}
+
 		if (error) {
 			setError(null);
 		}
@@ -1365,7 +1375,7 @@ const Settings = () => {
 				</div>
 
 				<div className={styles.formRow}>
-					<div className={styles.formGroupHalf}>
+					<div className={styles.formGroupFlex}>
 						<label>Address</label>
 						<input
 							type="text"
