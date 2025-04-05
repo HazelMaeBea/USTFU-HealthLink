@@ -113,6 +113,7 @@ describe("RegistrationPage Component", () => {
 		expect(screen.getByLabelText(/Birthdate/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/Gender/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/Phone Number/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/UST Email/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/Load/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/Status/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/College/i)).toBeInTheDocument();
@@ -132,8 +133,14 @@ describe("RegistrationPage Component", () => {
 
 		expect(termField).toHaveAttribute("readOnly");
 		expect(yearField).toHaveAttribute("readOnly");
-		expect(termField).toHaveValue(expect.stringMatching(/^(1st|2nd)$/));
-		expect(yearField).toHaveValue(expect.stringMatching(/^\d{4}-\d{4}$/));
+
+		// Fix the assertion to properly check the term value
+		const termValue = termField.getAttribute("value");
+		expect(termValue === "1st" || termValue === "2nd").toBeTruthy();
+
+		// Use a regex test directly on the value attribute for year
+		const yearValue = yearField.getAttribute("value");
+		expect(/^\d{4}-\d{4}$/.test(yearValue || "")).toBeTruthy();
 	});
 
 	test("ID number is formatted correctly", async () => {
@@ -162,7 +169,7 @@ describe("RegistrationPage Component", () => {
 		const phoneField = screen.getByLabelText(/Phone Number/i);
 
 		await userEvent.clear(phoneField);
-		await userEvent.type(phoneField, "+639171234567");
+		await userEvent.type(phoneField, "9171234567");
 		await userEvent.tab(); // Trigger blur event
 
 		expect(phoneField).toHaveValue("+63-917-123-4567");
@@ -236,6 +243,12 @@ describe("RegistrationPage Component", () => {
 			"+639171234567"
 		);
 
+		// Add UST email
+		await userEvent.type(
+			screen.getByLabelText(/UST Email/i),
+			"john.doe@ust.edu.ph"
+		);
+
 		await userEvent.type(screen.getByLabelText(/Load/i), "18");
 		await userEvent.selectOptions(
 			screen.getByLabelText(/Status/i),
@@ -270,6 +283,7 @@ describe("RegistrationPage Component", () => {
 						birthdate: "01/01/1990",
 						gender: "Male",
 						phoneNumber: expect.stringMatching(/^63/), // Should start with 63
+						ustEmail: "john.doe@ust.edu.ph", // Added UST email
 						load: "18",
 						status: "Tenured",
 						college: "College of Science",
@@ -288,6 +302,23 @@ describe("RegistrationPage Component", () => {
 				screen.getByTestId("confirmation-message")
 			).toBeInTheDocument();
 		});
+	});
+
+	// Add a new test for autopopulated UST email
+	test("auto-populates UST email when available from auth", () => {
+		// Temporarily modify context email to be a UST email
+		const originalEmail = firebaseContextValue.email;
+		firebaseContextValue.email = "test.user@ust.edu.ph";
+
+		render(<RegistrationPage />);
+
+		// Check that UST email field is pre-filled
+		expect(screen.getByLabelText(/UST Email/i)).toHaveValue(
+			"test.user@ust.edu.ph"
+		);
+
+		// Restore original email for other tests
+		firebaseContextValue.email = originalEmail;
 	});
 
 	test("navigates back to login when 'Go back to sign in' is clicked", () => {

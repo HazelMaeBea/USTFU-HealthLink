@@ -26,7 +26,17 @@ const schema = z.object({
 	}),
 	term: z.string().min(1, { message: "Term is required" }),
 	year: z.string().min(1, { message: "Year is required" }),
-	load: z.string().min(1, { message: "Load is required" }),
+	load: z
+		.string()
+		.refine((val) => !isNaN(Number(val)), {
+			message: "Load must be a number",
+		})
+		.refine((val) => Number(val) > 0, {
+			message: "Load must be greater than 0",
+		})
+		.refine((val) => Number(val) <= 30, {
+			message: "Load cannot exceed 30 units",
+		}),
 	status: z.string().min(1, { message: "Status is required" }),
 	address: z.string().min(1, { message: "Address is required" }),
 	dateHired: z.string().min(1, { message: "Date Hired is required" }),
@@ -110,7 +120,7 @@ const RegistrationPage: React.FC = () => {
 	});
 
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
-	const [isPhoneFocused, setIsPhoneFocused] = useState<boolean>(false);
+	const [setIsPhoneFocused] = useState<boolean>(false);
 
 	useEffect(() => {
 		const year = calculateAcademicYear();
@@ -162,15 +172,6 @@ const RegistrationPage: React.FC = () => {
 		e.target.value = formattedValue;
 	};
 
-	const formatBirthdate = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value.replace(/\D/g, "").slice(0, 8);
-		const formattedValue =
-			value.length > 2
-				? `${value.slice(0, 2)}/${value.slice(2, 4)}/${value.slice(4)}`
-				: value;
-		e.target.value = formattedValue;
-	};
-
 	const formatPhoneNumberDisplay = (value: string) => {
 		if (value.startsWith("+63+63")) {
 			value = "+63" + value.substring(6);
@@ -182,7 +183,7 @@ const RegistrationPage: React.FC = () => {
 
 		if (value.length > 3) {
 			const mainNumber = value.substring(3);
-			let formatted = mainNumber.replace(
+			const formatted = mainNumber.replace(
 				/(\d{3})(\d{3})(\d+)/,
 				"$1-$2-$3"
 			);
@@ -272,6 +273,45 @@ const RegistrationPage: React.FC = () => {
 				formatPhoneNumberDisplay("+63" + numericPart);
 			}
 		}
+	};
+
+	// Function to convert date string from input[type="date"] to MM/DD/YYYY format
+	const formatDateFromPicker = (dateString: string): string => {
+		if (!dateString) return "";
+
+		try {
+			const date = new Date(dateString);
+			const month = (date.getMonth() + 1).toString().padStart(2, "0");
+			const day = date.getDate().toString().padStart(2, "0");
+			const year = date.getFullYear();
+
+			return `${month}/${day}/${year}`;
+		} catch (e) {
+			return dateString;
+		}
+	};
+
+	// Convert MM/DD/YYYY to YYYY-MM-DD for date picker input
+	const formatDateForPicker = (dateString: string): string => {
+		if (!dateString) return "";
+
+		const parts = dateString.split("/");
+		if (parts.length !== 3) return "";
+
+		const month = parts[0].padStart(2, "0");
+		const day = parts[1].padStart(2, "0");
+		const year = parts[2];
+
+		return `${year}-${month}-${day}`;
+	};
+
+	// Handle date picker change
+	const handleDateChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+		fieldName: string
+	) => {
+		const formattedDate = formatDateFromPicker(e.target.value);
+		setValue(fieldName as any, formattedDate);
 	};
 
 	if (submitted) {
@@ -435,13 +475,16 @@ const RegistrationPage: React.FC = () => {
 							</label>
 							<input
 								id="birthdate"
-								type="text"
+								type="date"
 								className={`form-control ${
 									errors.birthdate ? "is-invalid" : ""
 								}`}
 								{...register("birthdate")}
-								placeholder="MM/DD/YYYY"
-								onChange={formatBirthdate}
+								onChange={(e) =>
+									handleDateChange(e, "birthdate")
+								}
+								max={new Date().toISOString().split("T")[0]} // Prevents future dates
+								required
 							/>
 							{errors.birthdate && (
 								<p className="invalid-feedback">
@@ -500,6 +543,27 @@ const RegistrationPage: React.FC = () => {
 						</div>
 					</div>
 					<div className="row">
+						<div className="mb-3 col-md-12">
+							<label htmlFor="address" className="form-label">
+								Address
+							</label>
+							<input
+								id="address"
+								type="text"
+								className={`form-control ${
+									errors.address ? "is-invalid" : ""
+								}`}
+								{...register("address")}
+								placeholder="Enter address"
+							/>
+							{errors.address && (
+								<p className="invalid-feedback">
+									{errors.address.message}
+								</p>
+							)}
+						</div>
+					</div>
+					<div className="row">
 						<div className="mb-3 col-md-3">
 							<label htmlFor="term" className="form-label">
 								Term
@@ -528,16 +592,18 @@ const RegistrationPage: React.FC = () => {
 						</div>
 						<div className="mb-3 col-md-3">
 							<label htmlFor="load" className="form-label">
-								Load
+								Load (Units)
 							</label>
 							<input
 								id="load"
-								type="text"
+								type="number"
+								min="0"
+								max="30"
 								className={`form-control ${
 									errors.load ? "is-invalid" : ""
 								}`}
 								{...register("load")}
-								placeholder="Enter Units"
+								placeholder="Enter Units (0-30)"
 							/>
 							{errors.load && (
 								<p className="invalid-feedback">
@@ -599,25 +665,6 @@ const RegistrationPage: React.FC = () => {
 								</p>
 							)}
 						</div>
-						<div className="mb-3 col-md-6">
-							<label htmlFor="address" className="form-label">
-								Address
-							</label>
-							<input
-								id="address"
-								type="text"
-								className={`form-control ${
-									errors.address ? "is-invalid" : ""
-								}`}
-								{...register("address")}
-								placeholder="Enter address"
-							/>
-							{errors.address && (
-								<p className="invalid-feedback">
-									{errors.address.message}
-								</p>
-							)}
-						</div>
 					</div>
 					<div className="row">
 						<div className="mb-3 col-md-6">
@@ -626,13 +673,16 @@ const RegistrationPage: React.FC = () => {
 							</label>
 							<input
 								id="dateHired"
-								type="text"
+								type="date"
 								className={`form-control ${
 									errors.dateHired ? "is-invalid" : ""
 								}`}
 								{...register("dateHired")}
-								placeholder="MM/DD/YYYY"
-								onChange={formatBirthdate}
+								onChange={(e) =>
+									handleDateChange(e, "dateHired")
+								}
+								max={new Date().toISOString().split("T")[0]} // Prevents future dates
+								required
 							/>
 							{errors.dateHired && (
 								<p className="invalid-feedback">
@@ -646,13 +696,21 @@ const RegistrationPage: React.FC = () => {
 							</label>
 							<input
 								id="dateRetired"
-								type="text"
+								type="date"
 								className={`form-control ${
 									errors.dateRetired ? "is-invalid" : ""
 								}`}
 								{...register("dateRetired")}
-								placeholder="MM/DD/YYYY"
-								onChange={formatBirthdate}
+								onChange={(e) =>
+									handleDateChange(e, "dateRetired")
+								}
+								min={
+									watch("dateHired")
+										? formatDateForPicker(
+												watch("dateHired")
+										  )
+										: undefined
+								}
 							/>
 							{errors.dateRetired && (
 								<p className="invalid-feedback">

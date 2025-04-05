@@ -167,7 +167,42 @@ describe("Settings Component", () => {
 			expect(
 				screen.getByText(/Failed to load your profile data/)
 			).toBeInTheDocument();
+			expect(screen.getByText("Try Again")).toBeInTheDocument();
+			expect(screen.getByText("Dismiss")).toBeInTheDocument();
 		});
+	});
+
+	test("handles case where user data doesn't exist", async () => {
+		// Setup mock to return empty data
+		setupMockGetDoc(false);
+
+		render(<Settings />);
+
+		// Should still render but with empty fields
+		await waitFor(() => {
+			expect(
+				screen.getByText("Personal Information")
+			).toBeInTheDocument();
+			expect(screen.getByLabelText("First Name")).toHaveValue("");
+			expect(screen.getByLabelText("Last Name")).toHaveValue("");
+		});
+	});
+
+	test("handles case where user is deleted from console", async () => {
+		// Temporarily remove the UID to simulate deleted user
+		const originalUid = firebaseContextValue.uid;
+		firebaseContextValue.uid = "";
+
+		render(<Settings />);
+
+		await waitFor(() => {
+			expect(
+				screen.getByText(/User not found or not authenticated/)
+			).toBeInTheDocument();
+		});
+
+		// Restore UID for other tests
+		firebaseContextValue.uid = originalUid;
 	});
 
 	test("renders user settings when data is loaded successfully", async () => {
@@ -182,13 +217,13 @@ describe("Settings Component", () => {
 
 		// Now check all the form fields individually with separate waitFor calls
 		await waitFor(() =>
-			expect(screen.getByDisplayValue("John")).toBeInTheDocument()
+			expect(screen.getByLabelText("First Name")).toHaveValue("John")
 		);
 		await waitFor(() =>
-			expect(screen.getByDisplayValue("Doe")).toBeInTheDocument()
+			expect(screen.getByLabelText("Last Name")).toHaveValue("Doe")
 		);
 		await waitFor(() =>
-			expect(screen.getByDisplayValue("Smith")).toBeInTheDocument()
+			expect(screen.getByLabelText("Middle Name")).toHaveValue("Smith")
 		);
 		await waitFor(() =>
 			expect(screen.getByDisplayValue("Jr.")).toBeInTheDocument()
@@ -228,9 +263,11 @@ describe("Settings Component", () => {
 			expect(screen.getByDisplayValue("01/01/2015")).toBeInTheDocument()
 		); // dateHired
 
-		// Age calculation
+		// Age calculation - Fix the ambiguous regex match by being more specific
 		await waitFor(() => {
-			expect(screen.getByText(/\d+/)).toBeInTheDocument(); // Age field
+			const ageElement = screen.getByText("Age").nextElementSibling;
+			expect(ageElement).toBeInTheDocument();
+			expect(ageElement).toHaveTextContent(/^\d+$/);
 		});
 	});
 
@@ -471,19 +508,83 @@ describe("Settings Component", () => {
 		expect(mockUpdateDoc).not.toHaveBeenCalled();
 	});
 
-	test("handles case where user data doesn't exist", async () => {
-		// Setup mock to return empty data
-		setupMockGetDoc(false);
+	test("prevents saving when fields are empty", async () => {
+		render(<Settings />);
+
+		await waitFor(() => {
+			expect(screen.getByLabelText("First Name")).toHaveValue("John");
+		});
+
+		// Clear first name field
+		const firstNameInput = screen.getByLabelText("First Name");
+		await userEvent.clear(firstNameInput);
+
+		// Clear last name field
+		const lastNameInput = screen.getByLabelText("Last Name");
+		await userEvent.clear(lastNameInput);
+
+		// Try to save
+		await act(async () => {
+			fireEvent.click(screen.getByText("Save Changes"));
+		});
+
+		// Should show validation errors for empty fields
+		await waitFor(() => {
+			expect(
+				screen.getByText("First Name is required")
+			).toBeInTheDocument();
+			expect(
+				screen.getByText("Last Name is required")
+			).toBeInTheDocument();
+		});
+
+		// Should not have called updateDoc
+		expect(mockUpdateDoc).not.toHaveBeenCalled();
+
+		// Should not show confirmation popout
+		expect(screen.queryByTestId("popout")).not.toBeInTheDocument();
+	});
+
+	test("shows all validation errors when multiple fields are empty", async () => {
+		// Start with empty mock data
+		setupMockGetDoc(true, {
+			personalInfo: {
+				firstName: "",
+				lastName: "",
+				middleName: "",
+				// Other fields empty as well
+			},
+			notification: false,
+			autofill: false,
+		});
 
 		render(<Settings />);
 
-		// Should still render but with empty fields
 		await waitFor(() => {
 			expect(
 				screen.getByText("Personal Information")
 			).toBeInTheDocument();
-			expect(screen.getByLabelText("First Name")).toHaveValue("");
-			expect(screen.getByLabelText("Last Name")).toHaveValue("");
 		});
+
+		// Try to save with all empty fields
+		await act(async () => {
+			fireEvent.click(screen.getByText("Save Changes"));
+		});
+
+		// Should show multiple validation errors
+		await waitFor(() => {
+			const errorMessages = screen.getAllByText(/is required$/i);
+			// We expect multiple error messages for required fields
+			expect(errorMessages.length).toBeGreaterThan(3);
+		});
+
+		// Verify at least some specific required fields
+		expect(screen.getByText("First Name is required")).toBeInTheDocument();
+		expect(screen.getByText("Last Name is required")).toBeInTheDocument();
+		expect(screen.getByText("ID Number is required")).toBeInTheDocument();
+		expect(screen.getByText("College is required")).toBeInTheDocument();
+
+		// No update should be performed
+		expect(mockUpdateDoc).not.toHaveBeenCalled();
 	});
 });

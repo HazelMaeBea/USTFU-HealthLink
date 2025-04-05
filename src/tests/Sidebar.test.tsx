@@ -149,13 +149,15 @@ vi.mock("../../src/components/Page Elements/NotifBadge/NotifBadge", () => ({
 	),
 }));
 
-// Mock NotifTrigger hook with proper values
+// Update the mock for NotifTrigger to export a mocked function that we can control
+const useNotificationsMock = vi.fn().mockReturnValue({
+	hasNewPendingRequest: true,
+	hasNewAccomplishedRecord: false,
+	pendingRequestType: "hospital",
+});
+
 vi.mock("../../src/components/Page Elements/NotifBadge/NotifTrigger", () => ({
-	useNotifications: () => ({
-		hasNewPendingRequest: true,
-		hasNewAccomplishedRecord: false,
-		pendingRequestType: "hospital",
-	}),
+	useNotifications: () => useNotificationsMock(),
 	pushAccomplishedNotification: vi.fn(),
 	pushPendingNotification: vi.fn(),
 }));
@@ -368,6 +370,11 @@ describe("Sidebar Component", () => {
 
 		// Check that the notification badge exists
 		expect(notificationBadge).toBeInTheDocument();
+
+		// Verify notification is shown for the correct menu item - with proper type assertion
+		if (pendingRequestsLink && notificationBadge) {
+			expect(pendingRequestsLink.contains(notificationBadge)).toBe(true);
+		}
 	});
 
 	test("shows notification badge for different form submission types", () => {
@@ -382,41 +389,72 @@ describe("Sidebar Component", () => {
 			"inpatient",
 		];
 
-		// Store original mock implementation to restore it later
-		const originalMockImplementation = vi
-			.mocked(useNotifications)
-			.getMockImplementation();
+		// Store original mock return value
+		const originalMockValue = { ...useNotificationsMock() };
 
 		formTypes.forEach((formType) => {
-			// Set mock implementation for this specific form type
-			vi.mocked(useNotifications).mockImplementation(() => ({
+			// Update mock return value for this specific form type
+			useNotificationsMock.mockReturnValue({
 				hasNewPendingRequest: true,
 				hasNewAccomplishedRecord: false,
 				pendingRequestType: formType,
-			}));
+			});
 
 			// Render for each form type
 			const { unmount } = render(<Sidebar onLogout={mockLogout} />);
 
-			// Should show notification badge for pending requests
-			const badge = screen.getByTestId("notification-active");
-			expect(badge).toBeInTheDocument();
-
-			// Verify notification is shown for the correct menu item
+			// Find the PENDING REQUESTS menu item first
 			const pendingRequestsLink = screen
 				.getByText("PENDING REQUESTS")
 				.closest("a");
-			expect(pendingRequestsLink).toContainElement(badge);
+
+			// Now look for the notification badge within this link's descendants
+			const badge = pendingRequestsLink?.querySelector(
+				'[data-testid="notification-active"]'
+			);
+			expect(badge).toBeInTheDocument();
+
+			// Verify notification is shown for the correct menu item - with proper type assertion
+			if (pendingRequestsLink && badge) {
+				expect(pendingRequestsLink.contains(badge)).toBe(true);
+			}
 
 			// Clean up to prepare for next iteration
 			unmount();
 		});
 
-		// Restore original mock implementation
-		if (originalMockImplementation) {
-			vi.mocked(useNotifications).mockImplementation(
-				originalMockImplementation
-			);
+		// Restore original mock return value
+		useNotificationsMock.mockReturnValue(originalMockValue);
+	});
+
+	test("shows notification badge for accomplished records in tracking tab", () => {
+		// Set to member role since HOSPITALIZATION TRACKING is a member-specific tab
+		userContextStore.value.selectedRole = "member";
+
+		// Configure mock to show accomplished record notifications
+		useNotificationsMock.mockReturnValue({
+			hasNewPendingRequest: false,
+			hasNewAccomplishedRecord: true,
+			pendingRequestType: null,
+		});
+
+		render(<Sidebar onLogout={mockLogout} />);
+
+		// Get the HOSPITALIZATION TRACKING menu item
+		const trackingItem = screen.getByText("HOSPITALIZATION TRACKING");
+
+		// Find the notification badge within the tracking menu item
+		const trackingLink = trackingItem.closest("a");
+		const notificationBadge = trackingLink?.querySelector(
+			'[data-testid="notification-active"]'
+		);
+
+		// Check that the notification badge exists
+		expect(notificationBadge).toBeInTheDocument();
+
+		// Verify notification is shown for the correct menu item - with proper type assertion
+		if (trackingLink && notificationBadge) {
+			expect(trackingLink.contains(notificationBadge)).toBe(true);
 		}
 	});
 
