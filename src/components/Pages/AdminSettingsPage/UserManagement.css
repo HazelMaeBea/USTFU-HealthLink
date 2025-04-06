@@ -1,3 +1,135 @@
+/* User Management Table */
+.admin-settings-container .user-mngmnt-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	margin-top: 1rem;
+	border: 1px solid hsl(220, 13%, 91%);
+	border-radius: 0.5rem;
+	overflow: hidden;
+	table-layout: fixed; /* Ensure fixed layout */
+}
+
+.admin-settings-container .user-mngmnt-table tbody {
+	height: calc(100% - 50px); /* Adjust height to account for the header */
+	display: block;
+	overflow-y: auto;
+}
+
+.admin-settings-container .user-mngmnt-table thead,
+.admin-settings-container .user-mngmnt-table tbody tr {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.user-mngmnt-table-header {
+	background-color: hsl(210, 10%, 23%);
+	color: hsl(0, 0%, 100%);
+}
+
+.admin-settings-container .user-mngmnt-table th,
+.admin-settings-container .user-mngmnt-table td {
+	padding: 0.5rem 1rem;
+	border-bottom: 1px solid hsl(220, 13%, 91%);
+	font-size: 0.875rem;
+	vertical-align: middle;
+	text-align: left;
+	overflow-wrap: break-word;
+	white-space: normal;
+	word-break: break-word;
+}
+
+.admin-settings-container .user-mngmnt-table th {
+	text-align: center;
+}
+
+.admin-settings-container .user-mngmnt-table th:first-child,
+.admin-settings-container .user-mngmnt-table td:first-child {
+	width: 8%; /* Adjust width for id num column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(2),
+.admin-settings-container .user-mngmnt-table td:nth-child(2) {
+	width: 15%; /* Adjust width for name column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(3),
+.admin-settings-container .user-mngmnt-table td:nth-child(3) {
+	width: 20%; /* Adjust width for email column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(4),
+.admin-settings-container .user-mngmnt-table td:nth-child(4) {
+	width: 20%; /* Adjust width for college column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(5),
+.admin-settings-container .user-mngmnt-table td:nth-child(5) {
+	width: 8%; /* Adjust width for birthdate column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(6),
+.admin-settings-container .user-mngmnt-table td:nth-child(6) {
+	width: 10%; /* Adjust width for phone num column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(7),
+.admin-settings-container .user-mngmnt-table td:nth-child(7) {
+	width: 10%; /* Adjust width for role column */
+	text-transform: capitalize;
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(9),
+.admin-settings-container .user-mngmnt-table td:nth-child(9),
+.admin-settings-container .user-mngmnt-table th:nth-child(8),
+.admin-settings-container .user-mngmnt-table td:nth-child(8) {
+	white-space: nowrap; /* Prevent word break */
+}
+
+.admin-settings-container .user-mngmnt-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+/* Zebra stripes for readability */
+.admin-settings-container .user-mngmnt-table tbody tr:nth-child(even) {
+	background-color: hsl(0, 0%, 98%);
+}
+
+.admin-settings-container .user-mngmnt-table tbody tr:hover {
+	background-color: hsl(0, 0%, 91%);
+}
+
+/* Badges */
+.admin-settings-container .ustfu-badge {
+	display: inline-block;
+	padding: 0.25em 0.4em;
+	font-size: 75%;
+	font-weight: 700;
+	border-radius: 0.25rem;
+	text-transform: uppercase;
+}
+
+.badge {
+	font-size: 1rem; /* Increase font size */
+	padding: 0.5em 0.75em; /* Increase padding */
+}
+
+.edit-options-menu button {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: 10px 16px;
+	background: white;
+	border: none;
+	text-align: left;
+	cursor: pointer;
+	font-size: 14px;
+	color: #424242;
+	transition: all 0.15s ease;
+	line-height: 1.5;
+} 
+
 /* Mobile Card Styles */
 .mobile-card {
   border: 1px solid #ddd;
@@ -34,7 +166,7 @@
 }
 
 .mobile-card-label {
-  font-weight: bold;
+  /* font-weight: bold; */
   font-size: 0.85rem;
 }
 
@@ -120,7 +252,7 @@ margin: 0;
 }
 .mobile-card-email {
 font-size: 0.9rem;
-color: #6b7280;
+color: #0d6efd;
 margin: 0;
 }
 
@@ -166,10 +298,7 @@ transition: all 0.2s ease;
 margin-right: 0.75rem;
 }
 
-.mobile-card-edit button:first-of-type {
-background-color: hsl(45, 100%, 51%);
-color: #000;
-}
+
 .mobile-card-edit button:last-of-type {
 background-color: #f3f4f6;
 color: #4b5563;

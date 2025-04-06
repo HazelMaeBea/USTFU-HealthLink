@@ -238,9 +238,11 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 		return (
 			<div className="mobile-card">
 				<div className="mobile-card-header">
-					<div className="mobile-card-header-left">				
+					<div className="mobile-card-header-left">
 						<h3 className="mobile-card-title">{user.name}</h3>
-						<p className="mobile-card-email">{user.email}</p>
+						<a href={`mailto:${user.email}`} className="mobile-card-email">
+							{user.email}
+						</a>
 					</div>
 					<div ref={containerRef} style={{ position: "relative" }}>
 						<HiOutlineDotsVertical
@@ -334,6 +336,40 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 									<option value="operations handler">Operations Handler</option>
 									<option value="retiree">Retiree</option>
 								</Input>
+									{editedUser.role === "retiree" && editOption === "role" && (
+									<Row className="mt-3">
+										<Col md={6}>
+											<FormGroup>
+												<Label for="retirementDate">Retirement Date</Label>
+												<br />
+												<DatePicker
+													selected={editedUser.retirementDate ? new Date(editedUser.retirementDate) : null}
+													onChange={(date) => handleDateChange(date, "retirementDate")}
+													className="form-control"
+													required
+													maxDate={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : undefined}
+												/>
+												<p>* The date when the employee officially retires.</p>
+											</FormGroup>
+										</Col>
+										<Col md={6}>
+											<FormGroup>
+												<Label for="deactivationDate">Deactivation Date</Label>
+												<br />
+												<DatePicker
+													selected={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : null}
+													onChange={(date) => handleDateChange(date, "deactivationDate")}
+													className="form-control"
+													required
+													minDate={new Date()}
+													excludeDates={[new Date()]}
+												/>
+												<p>* Account remains accessible until this date.</p>
+											</FormGroup>
+										</Col>
+									</Row>
+								)}
+								
 							</FormGroup>
 						)}
 						{editOption === "status" && (
@@ -351,6 +387,67 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 									<option>INACTIVE</option>
 									<option>ON-LEAVE</option>
 								</Input>
+								{editedUser.status === "ON-LEAVE" && (
+									<>
+										<Row>
+											<Col md={6}>
+												<FormGroup>
+													<Label for="leaveStartDate">Start Date</Label>
+													<br />
+													<DatePicker
+														selected={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
+														onChange={(date) => handleDateChange(date, "leaveStartDate")}
+														className="form-control"
+														required
+														selectsStart
+														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
+														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
+														maxDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : undefined}
+													/>
+												</FormGroup>
+											</Col>
+											<Col md={6}>
+												<FormGroup>
+													<Label for="leaveEndDate">End Date</Label>
+													<br />
+													<DatePicker
+														selected={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
+														onChange={(date) => handleDateChange(date, "leaveEndDate")}
+														className="form-control"
+														required
+														selectsEnd
+														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
+														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
+														minDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : undefined}
+													/>
+												</FormGroup>
+											</Col>
+										</Row>
+										<Row>
+											<Col md={8}>
+												<p>
+													Duration:{" "}
+													{calculateDuration(editedUser.leaveStartDate, editedUser.leaveEndDate)}
+												</p>
+											</Col>
+										</Row>
+										<Row>
+											<Col md={8}>
+												<FormGroup>
+													<Label for="leaveReason">Reason for Leave</Label>
+													<Input
+														type="textarea"
+														name="leaveReason"
+														id="leaveReason"
+														value={editedUser.leaveReason || ""}
+														onChange={handleChange}
+														required
+													/>
+												</FormGroup>
+											</Col>
+										</Row>
+									</>
+								)}
 							</FormGroup>
 						)}
 						<div className="mobile-card-edit-buttons">

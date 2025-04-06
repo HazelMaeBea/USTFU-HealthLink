@@ -175,9 +175,9 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 		<div className="admin-settings-container">
 			{isMobile ? (
 				<div className="mobile-card-container">
-					{filteredUsers.map((user) => (
-						<UserRow key={user.document} user={user} onSave={handleSave} isMobile={true} />
-					))}
+						{currentUsers.map((user) => (
+							<UserRow key={user.document} user={user} onSave={handleSave} isMobile={true} />
+						))}
 				</div>
 			) : (
 				<div style={{ overflowX: "auto", width: "100%" }}>
