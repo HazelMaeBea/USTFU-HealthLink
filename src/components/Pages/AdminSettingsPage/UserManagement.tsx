@@ -54,7 +54,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 	const [isMobile, setIsMobile] = useState(false);
 
 	useEffect(() => {
-		const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+		const checkMobile = () => setIsMobile(window.innerWidth <= 768); //the width for mobile smthe
 		checkMobile();
 		window.addEventListener("resize", checkMobile);
 		return () => window.removeEventListener("resize", checkMobile);
@@ -174,7 +174,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 	return (
 		<div className="admin-settings-container">
 			{isMobile ? (
-				<div className="space-y-4">
+				<div className="mobile-card-container">
 					{filteredUsers.map((user) => (
 						<UserRow key={user.document} user={user} onSave={handleSave} isMobile={true} />
 					))}

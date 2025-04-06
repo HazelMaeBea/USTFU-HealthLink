@@ -125,10 +125,11 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 		}
 	};
 
-	const handleEdit = (option: "college" | "role" | "status") => {
+	const handleEditAndExpand = (option: "college" | "role" | "status") => {
 		setIsEditing(true);
 		setEditOption(option);
 		setEditedUser(user);
+		setShowOptions(false); // Close the options menu when editing starts
 	};
 
 	const handleSave = () => {
@@ -235,11 +236,11 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 
 	if (isMobile) {
 		return (
-			<div className="bg-white rounded-lg shadow-sm border p-4 mb-4">
-				<div className="flex justify-between items-start mb-2">
-					<div>
-						<h3 className="font-medium text-gray-900">{user.name}</h3>
-						<p className="text-sm text-gray-500">{user.email}</p>
+			<div className="mobile-card">
+				<div className="mobile-card-header">
+					<div className="mobile-card-header-left">				
+						<h3 className="mobile-card-title">{user.name}</h3>
+						<p className="mobile-card-email">{user.email}</p>
 					</div>
 					<div ref={containerRef} style={{ position: "relative" }}>
 						<HiOutlineDotsVertical
@@ -252,14 +253,14 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 							createPortal(
 								<div className="edit-options-menu" style={popupStyle} ref={menuRef} onClick={(e) => e.stopPropagation()}>
 									<div className="edit-options-menu-inner">
-										<button onClick={() => { handleEdit("college"); setShowOptions(false); }}>
+										<button onClick={() => handleEditAndExpand("college")}>
 											<FiUsers style={{ marginRight: "10px" }} /> Edit College
 										</button>
-										<button onClick={() => { handleEdit("role"); setShowOptions(false); }}>
+										<button onClick={() => handleEditAndExpand("role")}>
 											<FiEdit2 style={{ marginRight: "10px" }} /> Edit Role
 										</button>
 										{editedUser.role !== "retiree" && (
-											<button onClick={() => { handleEdit("status"); setShowOptions(false); }}>
+											<button onClick={() => handleEditAndExpand("status")}>
 												<FiToggleLeft style={{ marginRight: "10px" }} /> Edit Status
 											</button>
 										)}
@@ -270,37 +271,35 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 						}
 					</div>
 				</div>
-				<div className="grid grid-cols-2 gap-2 mt-3">
-					<div>
-						<p className="text-xs text-gray-500">ID</p>
-						<p className="text-sm">{user.id}</p>
+				<div className="mobile-card-body">
+					<div className="mobile-card-row">
+						<span className="mobile-card-label">ID:</span>
+						<span className="mobile-card-value">{user.id}</span>
 					</div>
-					<div>
-						<p className="text-xs text-gray-500">College</p>
-						<p className="text-sm truncate" title={user.college}>
-							{user.college.length > 20 ? `${user.college.substring(0, 20)}...` : user.college}
-						</p>
+					<div className="mobile-card-row">
+						<span className="mobile-card-label">College:</span>
+						<span className="mobile-card-value">{user.college}</span>
 					</div>
-					<div>
-						<p className="text-xs text-gray-500">Birthdate</p>
-						<p className="text-sm">{user.birthdate}</p>
+					<div className="mobile-card-row">
+						<span className="mobile-card-label">Birthdate:</span>
+						<span className="mobile-card-value">{user.birthdate}</span>
 					</div>
-					<div>
-						<p className="text-xs text-gray-500">Contact #</p>
-						<p className="text-sm">{user.phoneNumber}</p>
+					<div className="mobile-card-row">
+						<span className="mobile-card-label">Contact #:</span>
+						<span className="mobile-card-value">{user.phoneNumber}</span>
 					</div>
-					<div>
-						<p className="text-xs text-gray-500">Role</p>
-						<p className="text-sm capitalize">{user.role}</p>
+					<div className="mobile-card-row">
+						<span className="mobile-card-label">Role:</span>
+						<span className="mobile-card-value">{user.role}</span>
 					</div>
-					<div>
-						<p className="text-xs text-gray-500">Status</p>
-						<div className="mt-1">{getStatusBadge(user.status)}</div>
+					<div className="mobile-card-row">
+						<span className="mobile-card-label">Status:</span>
+						<span className="mobile-card-value">{getStatusBadge(user.status)}</span>
 					</div>
 				</div>
 				{isEditing && (
-				<tr>
-					<td colSpan={10}>
+					<div className="mobile-card-edit">
+						{/* Render the editing form based on the selected option */}
 						{editOption === "college" && (
 							<FormGroup>
 								<Label for="college">College</Label>
@@ -338,134 +337,32 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 							</FormGroup>
 						)}
 						{editOption === "status" && (
-							<>
-								<FormGroup>
-									<Label for="status">Status</Label>
-									<Input
-										type="select"
-										name="status"
-										id="edit_status"
-										className="dropdown-select"
-										value={editedUser.status}
-										onChange={handleChange}
-									>
-										<option>ACTIVE</option>
-										<option>INACTIVE</option>
-										<option>ON-LEAVE</option>
-									</Input>
-								</FormGroup>
-								{editedUser.status === "ON-LEAVE" && (
-									<>
-										<Row>
-											<Col md={6}>
-												<FormGroup>
-													<Label for="leaveStartDate">Start Date</Label>
-													<br />
-													<DatePicker
-														selected={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-														onChange={(date) => handleDateChange(date, "leaveStartDate")}
-														className="form-control"
-														required
-														selectsStart
-														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-														maxDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : undefined}
-													/>
-												</FormGroup>
-											</Col>
-											<Col md={6}>
-												<FormGroup>
-													<Label for="leaveEndDate">End Date</Label>
-													<br />
-													<DatePicker
-														selected={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-														onChange={(date) => handleDateChange(date, "leaveEndDate")}
-														className="form-control"
-														required
-														selectsEnd
-														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-														minDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : undefined}
-													/>
-												</FormGroup>
-											</Col>
-										</Row>
-										<Row>
-											<Col md={8}>
-												<p>
-													Duration:{" "}
-													{calculateDuration(editedUser.leaveStartDate, editedUser.leaveEndDate)}
-												</p>
-											</Col>
-										</Row>
-										<Row>
-											<Col md={8}>
-												<FormGroup>
-													<Label for="leaveReason">Reason for Leave</Label>
-													<Input
-														type="textarea"
-														name="leaveReason"
-														id="leaveReason"
-														value={editedUser.leaveReason || ""}
-														onChange={handleChange}
-														required
-													/>
-												</FormGroup>
-											</Col>
-										</Row>
-									</>
-								)}
-							</>
+							<FormGroup>
+								<Label for="status">Status</Label>
+								<Input
+									type="select"
+									name="status"
+									id="edit_status"
+									className="dropdown-select"
+									value={editedUser.status}
+									onChange={handleChange}
+								>
+									<option>ACTIVE</option>
+									<option>INACTIVE</option>
+									<option>ON-LEAVE</option>
+								</Input>
+							</FormGroup>
 						)}
-
-						{editedUser.role === "retiree" && editOption === "role" && (
-							<Row className="mt-3">
-								<Col md={6}>
-									<FormGroup>
-										<Label for="retirementDate">Retirement Date</Label>
-										<br />
-										<DatePicker
-											selected={editedUser.retirementDate ? new Date(editedUser.retirementDate) : null}
-											onChange={(date) => handleDateChange(date, "retirementDate")}
-											className="form-control"
-											required
-											maxDate={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : undefined}
-										/>
-										<p>* The date when the employee officially retires.</p>
-									</FormGroup>
-								</Col>
-								<Col md={6}>
-									<FormGroup>
-										<Label for="deactivationDate">Deactivation Date</Label>
-										<br />
-										<DatePicker
-											selected={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : null}
-											onChange={(date) => handleDateChange(date, "deactivationDate")}
-											className="form-control"
-											required
-											minDate={new Date()}
-											excludeDates={[new Date()]}
-										/>
-										<p>* Account remains accessible until this date.</p>
-									</FormGroup>
-								</Col>
-							</Row>
-						)}
-
-						{lastEdited && (
-							<div style={{ marginTop: "1rem" }}>
-								<p className="text-muted">{lastEdited}</p>
-							</div>
-						)}
-						<Button color="success" onClick={handleSave}>
-							Save
-						</Button>
-						<Button color="secondary" onClick={handleCancel} className="ms-2">
-							Cancel
-						</Button>
-					</td>
-				</tr>
-			)}
+						<div className="mobile-card-edit-buttons">
+							<Button color="success" onClick={handleSave}>
+								Save
+							</Button>
+							<Button color="secondary" onClick={handleCancel} className="ms-2">
+								Cancel
+							</Button>
+						</div>
+					</div>
+				)}
 			</div>
 		);
 	}
@@ -495,14 +392,14 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 							createPortal(
 								<div className="edit-options-menu" style={popupStyle} ref={menuRef} onClick={(e) => e.stopPropagation()}>
 									<div className="edit-options-menu-inner">
-										<button onClick={() => { handleEdit("college"); setShowOptions(false); }}>
+										<button onClick={() => { handleEditAndExpand("college"); }}>
 											<FiUsers style={{ marginRight: "10px" }} /> Edit College
 										</button>
-										<button onClick={() => { handleEdit("role"); setShowOptions(false); }}>
+										<button onClick={() => { handleEditAndExpand("role"); }}>
 											<FiEdit2 style={{ marginRight: "10px" }} /> Edit Role
 										</button>
 										{editedUser.role !== "retiree" && (
-											<button onClick={() => { handleEdit("status"); setShowOptions(false); }}>
+											<button onClick={() => { handleEditAndExpand("status"); }}>
 												<FiToggleLeft style={{ marginRight: "10px" }} /> Edit Status
 											</button>
 										)}

@@ -71,3 +71,134 @@
     display: table;
   }
 }
+
+
+/* Improved styling for mobile card view */
+.mobile-card {
+background-color: #ffffff;
+border: 1px solid hsl(210, 14%, 83%);
+border-radius: 0.5rem;
+padding: 1rem;
+margin-bottom: 1rem;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mobile-card:hover {
+transform: scale(1.02);
+box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-card-container {
+display: flex;
+flex-direction: column;
+gap: 1rem;
+}
+.mobile-card {
+background-color: #ffffff;
+border: 1px solid #d1d5db; 
+border-radius: 8px;
+padding: 1rem;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mobile-card:hover {
+transform: scale(1.02);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.mobile-card-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 0.75rem;
+}
+.mobile-card-title {
+font-size: 1.1rem;
+font-weight: bold;
+color: #111827;
+margin: 0;
+}
+.mobile-card-email {
+font-size: 0.9rem;
+color: #6b7280;
+margin: 0;
+}
+
+.mobile-card-body {
+display: flex;
+flex-direction: column;
+gap: 0.5rem;
+}
+.mobile-card-row {
+display: flex;
+justify-content: space-between;
+}
+.mobile-card-label {
+font-size: 0.8rem;
+color: #6b7280;
+}
+.mobile-card-value {
+font-size: 0.9rem;
+color: #374151;
+font-weight: 500;
+}
+
+.mobile-card-value:nth-child(2) {
+font-size: 0.9rem;
+color: #374151;
+text-transform: capitalize;
+}
+
+#mobile-edit-button {
+background-color: hsl(45, 100%, 90%) !important;
+box-shadow: none;
+border-radius: 8px;
+}
+
+.mobile-card-edit button {
+padding: 0.75rem 1rem;
+border: none;
+border-radius: 6px;
+font-weight: 600;
+font-size: 0.9rem;
+cursor: pointer;
+transition: all 0.2s ease;
+margin-right: 0.75rem;
+}
+
+.mobile-card-edit button:first-of-type {
+background-color: hsl(45, 100%, 51%);
+color: #000;
+}
+.mobile-card-edit button:last-of-type {
+background-color: #f3f4f6;
+color: #4b5563;
+}
+
+.mobile-card-edit {
+background-color: transparent !important;
+border-top: 1px solid hsl(210, 14%, 83%);
+margin-top: 1rem;
+padding: 1rem 0;
+}
+
+.mobile-card-edit label, select {
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+}
+
+.mobile-card-edit select {
+border: 1px solid hsl(210, 14%, 83%);
+padding: 0.4rem;
+width: 100%;
+border-radius: 8px;
+margin-bottom: 1rem;
+transition: width 0.2s ease;
+}
+
+.mobile-card-edit select:focus {
+width: 180%; /* Increase width when focused ITS NOT WORKING*/
+outline: none;
+}
+
