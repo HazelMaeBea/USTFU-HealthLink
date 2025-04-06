@@ -1,4 +1,4 @@
-import "./AdminSettings.css";
+// import "./AdminSettings.css";
 import "./VerificationPage.css";
 import { useState, useEffect, useRef } from "react";
 import Popout from "../../Page Elements/Popout/Popout";
@@ -38,6 +38,16 @@ const VerificationPage = () => {
 	const [popoutTitle, setPopoutTitle] = useState("");
 	const [popoutMessage, setPopoutMessage] = useState("");
 	const [pendingAction, setPendingAction] = useState<() => void>(() => {});
+
+	// Detect if the screen size is mobile
+	const [isMobile, setIsMobile] = useState(false);
+
+	useEffect(() => {
+		const checkMobile = () => setIsMobile(window.innerWidth <= 768); // Detect mobile screen width
+		checkMobile();
+		window.addEventListener("resize", checkMobile);
+		return () => window.removeEventListener("resize", checkMobile);
+	}, []);
 
 	useEffect(() => {
 		const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -252,66 +262,55 @@ const VerificationPage = () => {
 	const totalPages = Math.ceil(requests.length / requestsPerPage);
 
 	return (
-		<div className="verification-page-container">
-			{/* Wrap the table in a responsive container */}
-			<div style={{ overflowX: "auto", width: "100%" }}>
-				<table
-					style={{ minWidth: "600px", borderCollapse: "collapse" }}
-					className="verification-table"
-				>
-					<thead className="verification-page-header">
-						<tr className="verification-tr">
-							<th className="first-column">
-								<label
-									className="custom-checkbox"
-									title={
-										selectAll
-											? "Deselect all"
-											: "Select all"
-									}
-								>
+		<div className="verification-page">
+			{/* Conditionally render table or card layout */}
+			{isMobile ? (
+				<div className="verification-mobile-container">
+					<div className="verification-mobile-select-all">
+						<label className="verification-checkbox-label">
+							<input
+								type="checkbox"
+								checked={selectAll}
+								onChange={handleSelectAll}
+								className="verification-mobile-checkbox"
+							/>
+							<span className="verification-checkmark"></span>
+							<span className="verification-mobile-text">
+								Select All
+							</span>
+						</label>
+					</div>
+					{currentRequests.map((request, index) => (
+						<div className="verification-mobile-card" key={index}>
+							<div className="verification-mobile-card-header">
+								<label className="verification-checkbox-label">
 									<input
 										type="checkbox"
-										checked={selectAll}
-										ref={headerCheckboxRef}
-										onChange={handleSelectAll}
+										checked={request.selected}
+										onChange={() => handleSelect(index)}
+										className="verification-mobile-checkbox"
 									/>
-									<span className="checkmark"></span>
+									<span className="verification-checkmark"></span>
 								</label>
-							</th>
-							<th className="verification-header">UST ID</th>
-							<th className="verification-header">Name</th>
-							<th className="verification-header">
-								Email Address
-							</th>
-							<th className="verification-header">Role</th>
-							<th className="verification-header">Action</th>
-						</tr>
-					</thead>
-					<tbody className="verfication-tbody">
-						{currentRequests.map((request, index) => (
-							<tr className="verification-tr" key={index}>
-								<td className="first-column">
-									<label className="custom-checkbox">
-										<input
-											type="checkbox"
-											checked={request.selected}
-											onChange={() => handleSelect(index)}
-											aria-label="select this user"
-										/>
-										<span className="checkmark"></span>
-									</label>
-								</td>
-								<td className="verfication-td">{request.id}</td>
-								<td className="verfication-td">
+								<span className="verification-mobile-title">
 									{request.name}
-								</td>
-								<td className="verfication-td">
-									{request.email}
-								</td>
-								<td className="verfication-td">
+								</span>
+							</div>
+							<div className="verification-mobile-card-body">
+								<div className="verification-mobile-row">
+									<span className="verification-mobile-label">
+										Email:
+									</span>
+									<span className="verification-mobile-value">
+										{request.email}
+									</span>
+								</div>
+								<div className="verification-mobile-row">
+									<span className="verification-mobile-label">
+										Role:
+									</span>
 									<select
-										className="item-select verfication-role"
+										className="verification-mobile-select"
 										value={request.role}
 										onChange={(e) =>
 											handleRoleChange(
@@ -319,81 +318,193 @@ const VerificationPage = () => {
 												e.target.value
 											)
 										}
-										aria-label="Select Role"
 									>
 										<option value="member">member</option>
 										<option value="operations handler">
 											operations handler
 										</option>
 										<option value="retiree">retiree</option>
-										{/* Add more options as needed */}
 									</select>
-								</td>
-								<td className="verfication-td">
-									<div className="d-flex justify-content-center gap-3">
-										<button
-											className="verification-btn verification-approve-btn"
-											onClick={() => {
-												setPopoutTitle(
-													"Confirm Approval"
-												);
-												setPopoutMessage(
-													`Are you sure you want to approve ${request.name}?`
-												);
-												setPendingAction(
-													() => () =>
-														handleApprove(request)
-												);
-												setPopoutOpen(true);
-											}}
-										>
-											APPROVE
-										</button>
-
-										<button
-											className="verification-btn deny-btn"
-											onClick={() => {
-												setPopoutTitle(
-													"Confirm Denial"
-												);
-												setPopoutMessage(
-													`Are you sure you want to deny ${request.name}?`
-												);
-												setPendingAction(
-													() => () =>
-														handleDeny(request)
-												);
-												setPopoutOpen(true);
-											}}
-										>
-											DENY
-										</button>
-									</div>
-								</td>
+								</div>
+							</div>
+							<div className="verification-mobile-actions">
+								<button
+									className="verification-btn verification-approve-btn"
+									onClick={() => {
+										setPopoutTitle("Confirm Approval");
+										setPopoutMessage(
+											`Are you sure you want to approve ${request.name}?`
+										);
+										setPendingAction(
+											() => () => handleApprove(request)
+										);
+										setPopoutOpen(true);
+									}}
+								>
+									APPROVE
+								</button>
+								<button
+									className="verification-btn verification-deny-btn"
+									onClick={() => {
+										setPopoutTitle("Confirm Denial");
+										setPopoutMessage(
+											`Are you sure you want to deny ${request.name}?`
+										);
+										setPendingAction(
+											() => () => handleDeny(request)
+										);
+										setPopoutOpen(true);
+									}}
+								>
+									DENY
+								</button>
+							</div>
+						</div>
+					))}
+				</div>
+			) : (
+				<div style={{ overflowX: "auto", width: "100%" }}>
+					<table
+						style={{ minWidth: "600px", borderCollapse: "collapse" }}
+						className="verification-table"
+					>
+						<thead className="verification-header">
+							<tr className="verification-tr">
+								<th className="verification-first-column">
+										<label className="verification-checkbox">
+											<input
+												type="checkbox"
+												checked={selectAll}
+												ref={headerCheckboxRef}
+												onChange={handleSelectAll}
+											/>
+											<span className="verification-checkmark"></span>
+										</label>
+								</th>
+								<th className="verification-header">UST ID</th>
+								<th className="verification-header">Name</th>
+								<th className="verification-header">
+									Email Address
+								</th>
+								<th className="verification-header">Role</th>
+								<th className="verification-header">Action</th>
 							</tr>
-						))}
-					</tbody>
-				</table>
-			</div>
+						</thead>
+						<tbody className="verification-tbody">
+							{currentRequests.map((request, index) => (
+								<tr className="verification-tr" key={index}>
+									<td className="verification-first-column">
+										<label className="verification-checkbox">
+											<input
+												type="checkbox"
+												checked={request.selected}
+												onChange={() =>
+													handleSelect(index)
+													}
+											/>
+											<span className="verification-checkmark"></span>
+										</label>
+									</td>
+									<td className="verification-td">
+										{request.id}
+									</td>
+									<td className="verification-td">
+										{request.name}
+									</td>
+									<td className="verification-td">
+										{request.email}
+									</td>
+									<td className="verification-td">
+										<select
+											className="verification-role"
+											value={request.role}
+											onChange={(e) =>
+												handleRoleChange(
+													index,
+													e.target.value
+												)
+											}
+											aria-label="Select Role"
+										>
+											<option value="member">
+												member
+											</option>
+											<option value="operations handler">
+												operations handler
+											</option>
+											<option value="retiree">
+												retiree
+											</option>
+										</select>
+									</td>
+									<td className="verification-td">
+										<div className="verification-actions">
+											<button
+												className="verification-btn verification-approve-btn"
+												onClick={() => {
+													setPopoutTitle(
+														"Confirm Approval"
+													);
+													setPopoutMessage(
+														`Are you sure you want to approve ${request.name}?`
+													);
+													setPendingAction(
+														() => () =>
+															handleApprove(
+																request
+															)
+													);
+													setPopoutOpen(true);
+												}}
+											>
+												APPROVE
+											</button>
+
+											<button
+												className="verification-btn verification-deny-btn"
+												onClick={() => {
+													setPopoutTitle(
+														"Confirm Denial"
+													);
+													setPopoutMessage(
+														`Are you sure you want to deny ${request.name}?`
+													);
+													setPendingAction(
+														() => () =>
+															handleDeny(request)
+													);
+													setPopoutOpen(true);
+												}}
+											>
+												DENY
+											</button>
+										</div>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			)}
 
 			{/* Controls container - No changes needed */}
-			<div className="controls-container">
-				<div className="pagination-container">
+			<div className="verification-controls">
+				<div className="verification-pagination">
 					<PageButtons
 						currentPage={currentPage}
 						totalPages={totalPages}
 						onPageChange={(page) => setCurrentPage(page)}
 					/>
 				</div>
-				<div className="action-buttons">
+				<div className="verification-actions">
 					<button
-						className="bulk-btn bulk-approve"
+						className="verification-bulk-btn verification-bulk-approve"
 						onClick={handleBulkApprove}
 					>
 						APPROVE ALL
 					</button>
 					<button
-						className="bulk-btn bulk-deny"
+						className="verification-bulk-btn verification-bulk-deny"
 						onClick={handleBulkDeny}
 					>
 						DENY ALL
