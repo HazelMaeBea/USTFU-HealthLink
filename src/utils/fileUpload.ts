@@ -7,10 +7,6 @@ interface FileUploadResult {
 	filename: string;
 }
 
-interface FileUploadMap {
-	[key: string]: FileUploadResult;
-}
-
 // Maximum file size in MB
 const MAX_FILE_SIZE_MB = 5;
 // Maximum file size in bytes (5MB)
@@ -129,77 +125,85 @@ const validateFileSizeLegacy = (file: File): boolean => {
  * Upload multiple files to Firebase Storage and return their download URLs
  *
  * @param email User's email for path construction
- * @param formIDString Form ID for path construction
- * @param files Object with field names as keys and File objects as values
- * @returns Object with field names as keys and {url, filename} objects as values
+ * @param transactionId Transaction ID for path construction
+ * @param files Object with field names as keys and FileList or File[] or undefined as values
+ * @returns Object with field names as keys and download URLs as values
  */
 export const uploadFilesAndGetURLs = async (
 	email: string | null | undefined,
-	formIDString: string,
-	files: Record<string, FileList>
-): Promise<FileUploadMap> => {
-	const currentYear = new Date().getFullYear().toString();
-	const basePath = `FormRequests/${email}/${currentYear}-${formIDString}-O`;
+	transactionId: string,
+	files: {
+		[key: string]: FileList | File[] | undefined;
+	}
+): Promise<{ [key: string]: string }> => {
+	const results: { [key: string]: string } = {};
 
-	// Create batches of promises to avoid overwhelming Firebase
-	const resultMap: FileUploadMap = {};
-	const validFiles: { field: string; file: File }[] = [];
+	console.log("Files to upload:", Object.keys(files));
 
-	// First validate all files
-	for (const [field, fileList] of Object.entries(files)) {
-		if (fileList && fileList.length > 0) {
-			const file = fileList[0];
-			if (validateFileSizeLegacy(file)) {
-				validFiles.push({ field, file });
-			} else {
-				// Skip this file but provide a placeholder
-				resultMap[field] = {
-					url: "",
-					filename: "File too large - skipped",
-				};
+	// Process each file in the files object
+	for (const [fieldName, fileListOrArray] of Object.entries(files)) {
+		console.log(`Processing ${fieldName}:`, fileListOrArray);
+
+		// Skip if fileListOrArray is undefined or empty
+		if (!fileListOrArray) {
+			console.log(`Skipping ${fieldName} - no file provided (undefined)`);
+			continue;
+		}
+
+		if (fileListOrArray.length === 0) {
+			console.log(`Skipping ${fieldName} - no file provided (length 0)`);
+			continue;
+		}
+
+		try {
+			// Get the first file from the FileList or array
+			const file = fileListOrArray[0];
+
+			// Skip if the actual file is undefined
+			if (!file) {
+				console.log(`Skipping ${fieldName} - file is undefined`);
+				continue;
 			}
+
+			console.log(
+				`Processing ${fieldName}: ${file.name} (${file.size} bytes)`
+			);
+
+			// Optimize the file if it's an image
+			const optimizedFile = await optimizeImageIfNeeded(file);
+			console.log(
+				`File ${
+					optimizedFile === file ? "not optimized" : "optimized"
+				}: ${optimizedFile.size} bytes`
+			);
+
+			// Create reference path for the file
+			const storagePath = `${email}/${transactionId}/${fieldName}/${file.name}`;
+			const storageRef = ref(storage, storagePath);
+
+			// Upload the optimized file
+			await uploadBytes(storageRef, optimizedFile);
+
+			// Get download URL
+			const downloadURL = await getDownloadURL(storageRef);
+			console.log(
+				`Successfully uploaded ${fieldName}, URL: ${downloadURL.substring(
+					0,
+					50
+				)}...`
+			);
+
+			// Store the download URL in the results
+			results[fieldName] = downloadURL;
+		} catch (error) {
+			console.error(`Error uploading ${fieldName}:`, error);
+			// Add empty string for failed uploads to ensure the property exists
+			results[fieldName] = "";
 		}
 	}
 
-	// Process files in batches of 2
-	const BATCH_SIZE = 2;
-	for (let i = 0; i < validFiles.length; i += BATCH_SIZE) {
-		const batch = validFiles.slice(i, i + BATCH_SIZE);
-
-		// Process batch in parallel
-		const batchPromises = batch.map(async ({ field, file }) => {
-			try {
-				// Optimize file if it's an image
-				const optimizedFile = await optimizeImageIfNeeded(file);
-
-				// Upload to Firebase
-				const filePath = `${basePath}/${file.name}`;
-				const storageRef = ref(storage, filePath);
-
-				await uploadBytes(storageRef, optimizedFile);
-				const url = await getDownloadURL(storageRef);
-
-				// Store result
-				resultMap[field] = {
-					url,
-					filename: file.name,
-				};
-			} catch (error) {
-				console.error(`Error uploading ${field}:`, error);
-				resultMap[field] = {
-					url: "",
-					filename: `Upload failed: ${
-						error instanceof Error ? error.message : "Unknown error"
-					}`,
-				};
-			}
-		});
-
-		// Wait for all files in this batch to finish
-		await Promise.all(batchPromises);
-	}
-
-	return resultMap;
+	console.log("Upload results:", Object.keys(results));
+	return results;
 };
 
 /**
@@ -221,5 +225,5 @@ export const uploadSingleFileWithProgress = async (
 		[fieldName]: { 0: file, length: 1 } as unknown as FileList,
 	};
 	const results = await uploadFilesAndGetURLs(email, formIDString, files);
-	return results[fieldName];
+	return { url: results[fieldName], filename: file.name };
 };

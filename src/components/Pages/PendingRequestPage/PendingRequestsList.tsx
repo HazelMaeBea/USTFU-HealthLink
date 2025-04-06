@@ -88,7 +88,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		"approval"
 	);
 	const [showPopout, setShowPopout] = useState<boolean>(false);
-	const [previewFile, setPreviewFile] = useState<any>(null);
+	const [previewFile, setPreviewFile] = useState<FormAttachment | null>(null);
 	const [showHistoryPopout, setShowHistoryPopout] = useState<boolean>(false);
 	const [currentRequester, setCurrentRequester] = useState<string | null>(
 		null
@@ -97,7 +97,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	// Additional state for different signature images
-	const [getBenefits, setBenefits] = useState<number>(0);
+	// const [getBenefits, setBenefits] = useState<number>(0);
 	const [getEditBenefits, setEditBenefits] = useState<number>(1);
 	const [getText, setText] = useState<string | null>(null);
 	const [getTransID, setTransID] = useState<string | null>(null);
@@ -112,6 +112,14 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		"Emerito C. Gonzales"
 	);
 	const [originalBenefit, setOriginalBenefit] = useState<number>(0);
+
+	// Validation state
+	const [validationErrors, setValidationErrors] = useState<{
+		validUntil?: string;
+		editBenefits?: string;
+		officialRep?: string;
+		signature?: string;
+	}>({});
 
 	// for notifs
 	const { uid } = useFirebase();
@@ -314,10 +322,55 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		}
 	};
 
+	const validateForm = () => {
+		const errors: {
+			validUntil?: string;
+			editBenefits?: string;
+			officialRep?: string;
+			signature?: string;
+		} = {};
+
+		// Only validate these fields if the active decision is "approval"
+		if (activeDecision === "approval") {
+			// Validate date
+			if (!validUntil) {
+				errors.validUntil = "select a valid date";
+			}
+
+			// Validate remaining benefits
+			if (getEditBenefits <= 0) {
+				errors.editBenefits = "Enter a valid amount";
+			}
+
+			// Validate official representative
+			if (!officialRep.trim()) {
+				errors.officialRep = "Representative name is required";
+			}
+
+			// Validate signature
+			if (!signatureImage) {
+				errors.signature = "Signature is required";
+			}
+		}
+
+		setValidationErrors(errors);
+		return Object.keys(errors).length === 0;
+	};
+
 	const handleSendClick = (transactionID: string) => {
 		if (!activeDecision) return; // Prevent sending if no action is selected
+
+		if (activeDecision === "approval" && !validateForm()) {
+			// Don't proceed if validation fails for approval
+			return;
+		}
+
+		// For rejection or revision, we don't need the same validation
+		if (activeDecision !== "approval") {
+			setValidationErrors({});
+		}
+
 		setTransID(transactionID);
-		// Include validUntil in the data to be sent
 		setShowPopout(true); // Open confirmation popout
 	};
 
@@ -342,7 +395,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			};
 
 			// Include validUntil when updating the document
-			await updateDocument(getCurrentUser, transID, textArea, updateStatus, formData);
+			await updateDocument(
+				getCurrentUser,
+				transID,
+				textArea,
+				updateStatus,
+				formData
+			);
 
 			// Update user's remaining benefit if changed
 			if (
@@ -836,8 +895,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			return null;
 		}
 
-		const isAdmission = request.formData.formType === "admission";
-
 		return (
 			<>
 				<hr></hr>
@@ -909,12 +966,27 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									<input
 										type="date"
 										id="valid-until"
-										className={styles["valid-until-input"]}
+										className={`${
+											styles["valid-until-input"]
+										} ${
+											validationErrors.validUntil
+												? styles["invalid-field"]
+												: ""
+										}`}
 										value={validUntil}
 										onChange={(e) =>
 											setValidUntil(e.target.value)
 										}
 									/>
+									{validationErrors.validUntil && (
+										<div
+											className={
+												styles["validation-error"]
+											}
+										>
+											{validationErrors.validUntil}
+										</div>
+									)}
 								</div>
 							</div>
 
@@ -928,7 +1000,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 								</div>
 								<span className="mb-2">but not to exceed:</span>
 								<div
-									className={`${styles["amount-container"]} p-3 rounded shadow`}
+									className={`${
+										styles["amount-container"]
+									} p-3 rounded shadow ${
+										validationErrors.editBenefits
+											? styles["invalid-field"]
+											: ""
+									}`}
 								>
 									<div
 										className={`${styles["amount-input-wrapper"]} d-flex align-items-center`}
@@ -947,7 +1025,8 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 											className={styles["amount-input"]}
 											onChange={(e) => {
 												setEditBenefits(
-													parseInt(e.target.value)
+													parseInt(e.target.value) ||
+														0
 												);
 											}}
 										/>
@@ -955,6 +1034,15 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									<span className={styles["amount-label"]}>
 										(Remaining benefit)
 									</span>
+									{validationErrors.editBenefits && (
+										<div
+											className={
+												styles["validation-error"]
+											}
+										>
+											{validationErrors.editBenefits}
+										</div>
+									)}
 								</div>
 								<button
 									className={`${styles["check-history-btn"]} mt-3`}
@@ -969,7 +1057,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 							{/* Signature Upload */}
 							<div className={styles["signature-container"]}>
 								<div className={styles["signature-section"]}>
-									<div className={styles["upload-box"]}>
+									<div
+										className={`${styles["upload-box"]} ${
+											validationErrors.signature
+												? styles["invalid-field"]
+												: ""
+										}`}
+									>
 										{signatureImage ? (
 											<div
 												className={
@@ -1024,6 +1118,19 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 													accept="image/*"
 													onChange={handleFileChange}
 												/>
+												{validationErrors.signature && (
+													<div
+														className={
+															styles[
+																"validation-error"
+															]
+														}
+													>
+														{
+															validationErrors.signature
+														}
+													</div>
+												)}
 											</>
 										)}
 									</div>
@@ -1032,15 +1139,28 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									>
 										<input
 											type="text"
-											className={
+											className={`${
 												styles["signature-name-input"]
-											}
+											} ${
+												validationErrors.officialRep
+													? styles["invalid-field"]
+													: ""
+											}`}
 											value={officialRep}
 											onChange={(e) =>
 												setOfficialRep(e.target.value)
 											}
 											aria-label="USTFU President"
 										/>
+										{validationErrors.officialRep && (
+											<div
+												className={
+													styles["validation-error"]
+												}
+											>
+												{validationErrors.officialRep}
+											</div>
+										)}
 										<p
 											className={
 												styles["signature-title"]

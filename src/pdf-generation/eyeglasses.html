@@ -4,13 +4,13 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>UST Faculty Union - Eyeglasses Benefit Availment Form</title>
-		<link rel="stylesheet" href="Eyeglasses-pdfGen.css" />
+		<link rel="stylesheet" href="eyeglasses.css" />
 	</head>
 	<body>
 		<div class="eyeglasses-form-container">
 			<div class="eyeglasses-form-header">
 				<img
-					src="./images-pdfGen/USTFULogo.png"
+					src="https://storage.googleapis.com/ustfuhealthlink-dev.firebasestorage.app/templates/logo/USTFULogo.png"
 					alt="USTFU Logo"
 					class="eyeglasses-logo-left"
 				/>
@@ -25,35 +25,6 @@
 				</p>
 			</div>
 
-			<div class="eyeglasses-term-field">
-				<!-- term: string -->
-				<input
-					type="text"
-					class="center-align-text"
-					name="term"
-					style="width: 50px"
-					aria-label="term"
-				/>
-				<label for="term" style="font-size: 15px">Term, AY</label>
-				<!-- year:string (first part only) -->
-				<input
-					type="text"
-					class="center-align-text"
-					id="acad-year"
-					name="year-start"
-					style="width: 60px"
-					aria-label="acad-year-start"
-				/>
-				<span>-</span>
-				<!-- year:string (second part) -->
-				<input
-					type="text"
-					class="center-align-text"
-					style="width: 60px"
-					aria-label="acad-year-end"
-				/>
-			</div>
-
 			<div class="eyeglasses-form-body">
 				<div class="eyeglasses-form-field">
 					<label for="name">Name:</label>
@@ -63,8 +34,9 @@
 						id="name"
 						name="name"
 						style="width: 170px"
+						value="{{fullName}}"
 					/>
-
+			
 					<label for="age" style="margin-left: 3px">Age:</label>
 					<!-- birthdate: string (to be computed) -->
 					<input
@@ -73,8 +45,9 @@
 						id="age"
 						name="age"
 						style="width: 20px"
+						value="{{age}}"
 					/>
-
+			
 					<label for="sex" style="margin-left: 3px">Sex:</label>
 					<!-- gender: string -->
 					<input
@@ -82,20 +55,20 @@
 						id="sex"
 						name="sex"
 						style="width: 40px"
+						value="{{gender}}"
 					/>
-
-					<label for="affiliation" style="margin-left: 3px"
-						>Affiliation:</label
-					>
+			
+					<label for="affiliation" style="margin-left: 3px">Affiliation:</label>
 					<!-- college: string -->
 					<input
 						type="text"
 						id="affiliation"
 						name="affiliation"
 						style="width: 140px; font-size: 10px"
+						value="{{college}}"
 					/>
 				</div>
-
+			
 				<div class="eyeglasses-form-field">
 					<label for="initial-employment">Initial Employment:</label>
 					<!-- dateHired: string NOT SURE -->
@@ -104,73 +77,69 @@
 						id="initial-employment"
 						name="initial-employment"
 						style="width: 50px"
+						value="{{dateHired}}"
 					/>
-
-					<label for="teaching-load" style="margin-left: 3px"
-						>Current Teaching Load:</label
-					>
+			
+					<label for="teaching-load" style="margin-left: 3px">Current Teaching Load:</label>
 					<!-- load: string -->
 					<input
 						type="text"
 						id="teaching-load"
 						name="teaching-load"
 						style="width: 20px"
+						value="{{load}}"
 					/>
-
-					<label for="contact" style="margin-left: 3px"
-						>Contact No.</label
-					>
+			
+					<label for="contact" style="margin-left: 3px">Contact No.</label>
 					<!-- contact: string -->
 					<input
 						type="text"
 						id="contact"
 						name="contact"
 						style="width: 150px"
+						value="{{contact}}"
 					/>
 				</div>
-
+			
 				<div class="eyeglasses-form-field">
-					<label for="receipt-details"
-						>(Official Receipt Details) Issued By:</label
-					>
+					<label for="receipt-details">(Official Receipt Details) Issued By:</label>
 					<!-- issueBy: string -->
-					<!-- not in db -->
 					<input
 						type="text"
 						id="receipt-details"
 						name="receipt-details"
 						style="width: 100px"
+						value="{{issuedBy}}"
 					/>
-
+			
 					<label for="number" style="margin-left: 3px">Number:</label>
-					<!-- idk pa -->
+					<!-- ORNumber: string -->
 					<input
 						type="text"
 						id="number"
 						name="number"
 						style="width: 50px"
+						value="{{ORNumber}}"
 					/>
-
-					<label for="amount" style="margin-left: 3px"
-						>Amount Paid:</label
-					>
+			
+					<label for="amount" style="margin-left: 3px">Amount Paid:</label>
 					<!-- amountPaid: number -->
-					<!-- not in db -->
 					<input
 						type="text"
 						id="amount"
 						name="amount"
 						style="width: 50px"
+						value="{{amountPaid}}"
 					/>
 				</div>
-
+			
 				<div class="eyeglasses-certification">
 					I hereby certify that all information in this application
 					are true and correct<br />
 					and any misrepresentation of fact/s shall be sufficient
 					cause for denial of this benefit.
 				</div>
-
+			
 				<div class="eyeglasses-signature-container">
 					<div class="eyeglasses-signature-block">
 						<!-- applicantSignature: map {
@@ -187,7 +156,7 @@
 							aria-label="uploaded-signature"
 						/> -->
 						<img
-							src="./images-pdfGen/Reyes_sig_w name.png"
+							src="{{applicantSignature.url}}"
 							alt=""
 							class="uploaded-image"
 						/>
@@ -206,6 +175,7 @@
 							type="text"
 							class="eyeglasses-signature-line"
 							aria-label=""
+							value="{{DateDecided}}"
 						/>
 						<span class="eyeglasses-signature-label">Date</span>
 					</div>
@@ -214,44 +184,45 @@
 
 			<div class="eyeglasses-ustfu-section">
 				<h3 class="eyeglasses-section-title">USTFU Section</h3>
-
-				<!-- reimbursementAmount: number -->
-				<!-- Not in eyeglasses form -->
 				<p style="font-size: 14px; margin-left: 20px">
 					The faculty is entitled to a reimbursement of ₱<input
 						type="text"
 						class="center-align-text"
 						style="width: 150px; font-size: 16px"
 						aria-label="reimbursement-amount"
+						value="{{reimbursementAmount}}"
 					/>
 					for his/her eyeglasses benefit.
 				</p>
-
-				<div style="text-align: right; margin-top: 10px">
-					<!-- idk pa dito, maybe representative signature? -->
-					<!-- <input type="file" /> -->
-					<input
-						type="text"
-						class="eyeglasses-signature-line"
-						aria-label="signature"
+			
+				<div class="official-rep-container">
+					<img
+						src="{{ustfuSig.url}}"
+						alt=""
+						class="official-rep-signature"
 					/>
-					<span class="eyeglasses-signature-label"
-						>OIC for Hospitalization and Medical Benefits</span
-					>
+					<div class="official-rep-details">
+						<input
+							type="text"
+							class="eyeglasses-ustfu-signature-line"
+							aria-label="signature"
+							value="{{officialRep}}"
+						/>
+						<span class="eyeglasses-ustfu-signature-label">
+							OIC for Hospitalization and Medical Benefits
+						</span>
+					</div>
 				</div>
 			</div>
-
+			
 			<div class="eyeglasses-notes">
 				<p><strong>NOTE:</strong></p>
 				<ol>
 					<li class="eyeglasses-note-item">
-						This form should be accomplished fully and personally by
-						the faculty member.
+						This form should be accomplished fully and personally by the faculty member.
 					</li>
 					<li class="eyeglasses-note-item">
-						Submit this form to USTFU together with the
-						OPHTHALMOLOGIST'S FINDINGS/VISIONAL RESULTS and OFFICIAL
-						RECEIPT OF THE EYEGLASSES.
+						Submit this form to USTFU together with the OPHTHALMOLOGIST'S FINDINGS/VISIONAL RESULTS and OFFICIAL RECEIPT OF THE EYEGLASSES.
 					</li>
 				</ol>
 			</div>
@@ -262,6 +233,7 @@
 					style="float: right"
 					class="eyeglasses-document-id"
 					aria-label="document-id"
+					value = "{{formId}}"
 				/>
 			</div>
 		</div>

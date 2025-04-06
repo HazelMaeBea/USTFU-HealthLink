@@ -4,18 +4,18 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>UST Faculty Union - Letter of Authority</title>
-		<link rel="stylesheet" href="Admission-pdfGen.css" />
+		<link rel="stylesheet" href="admission.css" />
 	</head>
 	<body>
 		<div class="admission-form-container">
 			<div class="admission-form-header">
 				<img
-					src="./images-pdfGen/USTLogo.png"
+					src="https://storage.googleapis.com/ustfuhealthlink-dev.firebasestorage.app/templates/logo/USTLogo.png"
 					alt="UST Logo"
 					class="admission-logo-left"
 				/>
 				<img
-					src="./images-pdfGen/USTFULogo.png"
+					src="https://storage.googleapis.com/ustfuhealthlink-dev.firebasestorage.app/templates/logo/USTFULogo.png"
 					alt="USTFU Logo"
 					class="admission-logo-right"
 				/>
@@ -48,12 +48,13 @@
 						text-align: center;
 						font-weight: bold;
 					"
+					value = "{{validUntil}}"
 				/>
 			</div>
 			<div class="admission-form-field">
 				<label for="name" style="margin-left: 20px">NAME:</label>
 				<!-- User Full Name firstname, middlename, lastname: string -->
-				<input type="text" id="name" name="name" style="width: 350px" />
+				<input type="text" id="name" name="name" style="width: 350px" value = "{{fullName}}" />
 
 				<label for="id-no" style="margin-left: 5px">ID No.</label>
 				<!-- idNumber: string (Registration Page) -->
@@ -62,6 +63,7 @@
 					id="id-no"
 					name="id-no"
 					style="width: 95px"
+					value = "{{idNumber}}"
 				/>
 			</div>
 
@@ -73,6 +75,7 @@
 					id="address"
 					name="address"
 					style="width: 82%"
+					value = "{{address}}"
 				/>
 			</div>
 
@@ -86,6 +89,7 @@
 					id="college"
 					name="college"
 					style="width: 66.5%"
+					value = "{{college}}"
 				/>
 			</div>
 
@@ -99,6 +103,7 @@
 					id="teaching-load"
 					name="teaching-load"
 					style="width: 50px; text-align: center"
+					value = "{{load}}"
 				/>
 				<span>units</span>
 			</div>
@@ -109,81 +114,72 @@
 					<div class="admission-checkbox-item">
 						<!-- status: string in db -->
 						<input
-							type="checkbox"
+							type="radio"
 							id="tenured"
 							name="status"
 							value="tenured"
 							style="margin-left: 20px"
+							{{#if (eq status "Tenured")}}checked{{/if}}
 						/>
 						<label for="tenured">Tenured</label>
-
+					
 						<!-- status: string in db -->
 						<input
-							type="checkbox"
+							type="radio"
 							id="lecturer"
 							name="status"
 							value="lecturer"
 							style="margin-left: 160px"
+							{{#if (eq status "Lecturer Before 2001")}}checked{{/if}}
 						/>
 						<label for="lecturer">Lecturer before 2001</label>
-
+					
 						<!-- status: string in db -->
 						<input
-							type="checkbox"
+							type="radio"
 							id="extendee"
 							name="status"
 							value="extendee"
 							style="margin-left: 90px"
+							{{#if (eq status "Extendee")}}checked{{/if}}
 						/>
 						<label for="extendee">Extendee</label>
 					</div>
-
+					
 					<div class="admission-checkbox-item">
 						<!-- status: string in db -->
 						<input
-							type="checkbox"
-							id="probationary"
+							type="radio"
+							id="tenure-track"
 							name="status"
-							value="probationary"
+							value="tenure-track"
 							style="margin-left: 20px"
+							{{#if (eq status "Tenure-Track")}}checked{{/if}}
 						/>
-						<label for="probationary"
-							>Probationary (Date Hired:</label
-						>
+						<label for="tenure-track">Probationary (Date Hired:</label>
 						<!-- dateHired: string -->
 						<input
 							type="text"
 							style="width: 65px; margin-right: 2px"
+							value = "{{dateHired}}"
 						/>)
-
+					
 						<!-- status: string in db -->
 						<input
-							type="checkbox"
+							type="radio"
 							id="retiree"
 							name="status"
 							value="retiree"
 							style="margin-left: 5px"
+							{{#if (eq status "Retiree")}}checked{{/if}}
 						/>
 						<label for="retiree">Retiree (Date Retired:</label>
-
 						<!-- dateRetired: string -->
 						<input
 							type="text"
 							style="width: 65px; margin-right: 2px"
+							value = "{{dateRetired}}"
 						/>)
-
-						<input
-							type="checkbox"
-							id="others"
-							name="status"
-							value="others"
-							style="margin-left: 10px"
-						/>
-						<label for="others">Others:</label>
-
-						<!-- otherStatus: string -->
-						<!-- not in db -->
-						<input type="text" style="width: 75px" />
 					</div>
 				</div>
 			</div>
@@ -208,6 +204,7 @@
 						class="admission-input-field"
 						type="text"
 						style="width: 300px"
+						value = "{{fullName}}"
 					/>
 					is University of Santo Tomas academic personnel and is
 					allowed to charge his/her hospital bill up to the limit
@@ -228,10 +225,11 @@
 						<!-- netHospitalBill50: boolean -->
 						<!-- not in db-->
 						<input
-							type="checkbox"
+							type="radio"
 							id="fifty-percent"
 							name="hospital-bill"
 							value="50"
+							{{#if (eq benefitPercentage "50")}}checked{{/if}}
 						/>
 						<label for="fifty-percent"
 							>50% of net hospital bill</label
@@ -241,11 +239,12 @@
 						<!-- not in db -->
 
 						<input
-							type="checkbox"
+							type="radio"
 							id="hundred-percent"
 							name="hospital-bill"
 							value="100"
 							style="margin-left: 20px"
+							{{#if (eq benefitPercentage "100")}}checked{{/if}}
 						/>
 						<label for="hundred-percent"
 							>100% of net hospital bill</label
@@ -260,6 +259,7 @@
 								type="text"
 								class="admission-input-field"
 								style="width: 110px; margin-right: 3px"
+								value = "{{originalBenefit}}"
 							/>
 							)
 						</span>
@@ -280,10 +280,11 @@
 						style="margin-top: 16px"
 					/> -->
 					<img
-						src="./images-pdfGen/Reyes_sig_w name.png"
+						src="{{ustfuSig.url}}"
 						alt=""
 						class="admission-file"
 					/>
+					
 					<div
 						class="admission-signature-line"
 						style="margin-top: 40px"
@@ -300,6 +301,7 @@
 						type="text"
 						class="admission-date-line admission-input-field"
 						style="margin-right: 20px"
+						value = "{{DateDecided}}"
 					/>
 					<span class="admission-signature-label">Date</span>
 				</div>
@@ -333,7 +335,7 @@
 				USTFU Med-3 Form<br />
 				Revised: 03/16/2020<br />
 				<!-- Document ID idk the specific name  -->
-				<input type="text" style="border: none" />
+				<input type="text" style="border: none" value = "{{formId}}" />
 			</div>
 		</div>
 	</body>

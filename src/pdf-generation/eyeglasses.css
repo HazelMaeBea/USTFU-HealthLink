@@ -164,3 +164,39 @@ input[type="text"] {
 	z-index: 5; /* Ensure it appears on top */
 	mix-blend-mode: multiply; /* Better blending with background */
 }
+
+.official-rep-container {
+    text-align: right; /* Align all content to the right */
+    margin-top: 10px;
+    position: relative;
+}
+
+.official-rep-signature {
+    max-width: 200px;
+    max-height: 40px;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 70px 0 auto; /* Align the image to the right and add spacing below */
+    object-fit: contain;
+}
+
+.official-rep-details {
+    text-align: right; /* Ensure the input and label are aligned to the right */
+}
+
+.eyeglasses-ustfu-signature-line {
+    margin-top: 5px; /* Add spacing between the image and the input */
+    display: inline-block;
+	margin-right: 20px;
+    width: 200px; /* Ensure consistent width */
+    text-align: center;
+}
+
+.eyeglasses-ustfu-signature-label {
+    display: block;
+    margin-top: 5px; /* Add spacing between the input and the label */
+    font-size: 12px;
+    text-align: right; /* Align the label to the right */
+}
+

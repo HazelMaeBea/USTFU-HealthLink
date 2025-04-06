@@ -4,6 +4,9 @@ import useTrackingRecords from "./useTrackingRecord";
 import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles";
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { FaCheck } from "react-icons/fa6";
+import { FiEdit3 } from "react-icons/fi";
+import { MdCancel } from "react-icons/md";
 
 interface StatusTrackingProps {
   onBack: () => void;
@@ -156,33 +159,51 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
     }
 
     if (stat === "For Revision") {
-      baseUpdates.push({ label: "MARKED FOR REVISION", key: "for revision" });
+      baseUpdates.push({
+        label: "MARKED FOR REVISION",
+        key: "for revision",
+      });
     }
 
     return baseUpdates.map((update, index) => {
       let bgClass = "pending";
       let textColor = "pending";
-      let icon = "";
+      let icon = null;
       const timestamp = timestamps[update.key];
 
-      if (stat === "Approved") {
-        bgClass = "approved";
-        textColor = "approved";
-        icon = "✔";
-      } else if (stat === "Rejected") {
-        bgClass = "rejected";
-        textColor = "rejected";
-        icon = "✘";
-      } else if (stat === "For Revision") {
-        bgClass = "revision";
-        textColor = "revision";
-        icon = "✔";
-      } else if (stat === "Pending") {
-        if (index === 0) {
-          icon = "✔";
+      // Define icons based on the step in the workflow, not just the overall status
+      if (update.key === "submitted" && timestamp !== "...") {
+        // Form Submitted always gets check if there's a timestamp
+        icon = <FaCheck />;
+        if (stat !== "Pending" || index === 0) {
           bgClass = "approved";
           textColor = "approved";
         }
+      } else if (
+        (update.key === "reviewed" || update.key === "processing") &&
+        timestamp !== "..."
+      ) {
+        // Reviewed and Processing get check if there's a timestamp
+        icon = <FaCheck />;
+        if (stat !== "Pending") {
+          bgClass = "approved";
+          textColor = "approved";
+        }
+      } else if (update.key === "approved" && timestamp !== "...") {
+        // Approved gets check
+        icon = <FaCheck />;
+        bgClass = "approved";
+        textColor = "approved";
+      } else if (update.key === "rejected" && timestamp !== "...") {
+        // Rejected gets cancel
+        icon = <MdCancel />;
+        bgClass = "rejected";
+        textColor = "rejected";
+      } else if (update.key === "for revision" && timestamp !== "...") {
+        // For revision gets edit icon
+        icon = <FiEdit3 />;
+        bgClass = "revision";
+        textColor = "revision";
       }
 
       return {
@@ -657,7 +678,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
               className={styles.revisionButton}
               onClick={handleRevisionClick}
             >
-              PROCEED TO REVISIONG
+              PROCEED TO REVISIONS
             </button>
           </div>
         )}
