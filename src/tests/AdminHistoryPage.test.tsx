@@ -3,48 +3,113 @@ import { describe, test, expect, beforeEach, vi } from "vitest";
 import "@testing-library/jest-dom";
 import type { ReactNode } from "react";
 
-// Mock navigate function
-const mockNavigate = vi.fn();
+// Create mock implementations using vi.hoisted
+const mockNavigate = vi.hoisted(() => vi.fn());
+const mockCallFunction = vi.hoisted(() => vi.fn());
+const mockCreateObjectURL = vi.hoisted(() =>
+	vi.fn().mockReturnValue("mock-blob-url")
+);
+const mockRevokeObjectURL = vi.hoisted(() => vi.fn());
+const mockClickAnchor = vi.hoisted(() => vi.fn());
 
-// Mock the Firestore functions
-const mockCollection = vi.fn().mockReturnValue("mockCollection");
-const mockQuery = vi.fn().mockReturnValue("mockQuery");
-const mockOrderBy = vi.fn().mockReturnValue("mockOrderBy");
-const mockWhere = vi.fn().mockReturnValue("mockWhere");
-const mockLimit = vi.fn().mockReturnValue("mockLimit");
-const mockOnSnapshot = vi.fn();
-const mockDoc = vi.fn().mockReturnValue("mockDocRef");
-const mockGetDoc = vi.fn();
-
-// Create a store for firebase context values
-const firebaseContextStore = {
-	value: {
-		uid: "admin-user-123",
-		isAuthenticated: true,
-		db: "mockDb",
-		displayName: "Admin User",
-		photoURL: null,
-		userClaims: { role: "operations handler" },
-		isLoading: false,
-		login: vi.fn(),
-		logout: vi.fn(),
-		isVerified: true,
-		userStatus: "active",
-		email: "admin@example.com",
-		fullName: "Admin User",
-		getFormID: vi.fn().mockResolvedValue(123),
-		auth: {},
-		app: {},
-		storage: {},
-		storageRef: {},
-		callFunction: vi.fn(),
-		currentUser: { uid: "admin-user-123" },
+// Mock data
+const mockPendingRequests = [
+	{
+		id: "request1",
+		requester: "John Doe",
+		dateSubmitted: "2023-10-15T00:00:00.000Z",
+		formData: {
+			formType: "inpatient",
+			age: "45",
+			college: "College of Science",
+			term: "1st",
+			year: "2023-2024",
+			load: "21",
+			status: "Tenured",
+			illness: "Pneumonia",
+			physician: "Dr. Smith",
+			procedures: "X-ray, Medication",
+			hospital: true,
+			hospitalStatus: "Completed",
+		},
 	},
-};
+	{
+		id: "request2",
+		requester: "Jane Smith",
+		dateSubmitted: "2023-09-20T00:00:00.000Z",
+		formData: {
+			formType: "outpatient",
+			age: "38",
+			college: "College of Education",
+			term: "2nd",
+			year: "2023-2024",
+			load: "18",
+			status: "Lecturer Before 2001",
+			illness: "Influenza",
+			physician: "Dr. Jones",
+			procedures: "Blood test, Medication",
+			hospital: true,
+			hospitalStatus: "Pending",
+		},
+	},
+	{
+		id: "request3",
+		requester: "Mark Johnson",
+		dateSubmitted: "2023-11-05T00:00:00.000Z",
+		formData: {
+			formType: "eyeglasses",
+			age: "52",
+			college: "Faculty of Engineering",
+		},
+	},
+];
 
-// Create a store for user context values
-const userContextStore = {
-	value: {
+// Mock the usePendingRequests hook
+vi.mock(
+	"../../src/components/Pages/PendingRequestPage/PendingRequestBackend",
+	() => ({
+		usePendingRequests: () => ({
+			requests: mockPendingRequests,
+			loading: false,
+			error: null,
+			fetchMoreRequests: vi.fn(),
+			totalRequests: mockPendingRequests.length,
+		}),
+	})
+);
+
+// Mock the firebaseContext
+vi.mock("../../src/contexts/firebaseContext", () => {
+	return {
+		useFirebase: () => ({
+			uid: "admin-user-123",
+			isAuthenticated: true,
+			isLoading: false,
+			db: "mockDb",
+			displayName: "Admin User",
+			photoURL: null,
+			userClaims: { role: "operations handler" },
+			login: vi.fn(),
+			logout: vi.fn(),
+			isVerified: true,
+			userStatus: "active",
+			email: "admin@example.com",
+			fullName: "Admin User",
+			getFormID: vi.fn().mockResolvedValue(123),
+			auth: {},
+			app: {},
+			storage: {},
+			storageRef: {},
+			callFunction: mockCallFunction,
+			currentUser: { uid: "admin-user-123" },
+		}),
+		FirebaseProvider: ({ children }: { children: ReactNode }) => children,
+	};
+});
+
+// Mock userContext
+vi.mock("../../src/contexts/userContext", () => ({
+	useUser: () => ({
 		selectedRole: "operations handler",
 		setSelectedRole: vi.fn(),
 		availableRoles: ["operations handler"],
@@ -52,43 +117,39 @@ const userContextStore = {
 		loading: false,
 		displayName: "Admin User",
 		photoURL: null,
-	},
-};
-
-// Mock all required context modules
-vi.mock("../../src/contexts/firebaseContext", () => ({
-	useFirebase: () => firebaseContextStore.value,
-	FirebaseProvider: ({ children }: { children: ReactNode }) => children,
-}));
-
-vi.mock("../../src/contexts/userContext", () => ({
-	useUser: () => userContextStore.value,
+	}),
 	UserProvider: ({ children }: { children: ReactNode }) => children,
-}));
-
-// Mock Firebase modules
-vi.mock("firebase/firestore", () => ({
-	collection: (db: unknown, path: string) => mockCollection(db, path),
-	query: (...args: unknown[]) => mockQuery(...args),
-	orderBy: (field: string, direction: string) =>
-		mockOrderBy(field, direction),
-	where: (field: string, op: string, value: unknown) =>
-		mockWhere(field, op, value),
-	limit: (n: number) => mockLimit(n),
-	onSnapshot: (...args: unknown[]) => mockOnSnapshot(...args),
-	doc: (db: unknown, collection: string, id: string) =>
-		mockDoc(db, collection, id),
-	getDoc: (docRef: unknown) => mockGetDoc(docRef),
-	getFirestore: vi.fn().mockReturnValue("mockFirestore"),
-	startAfter: vi.fn().mockReturnValue("mockStartAfter"),
-	getDocs: vi.fn().mockResolvedValue({ docs: [] }),
-	serverTimestamp: vi.fn().mockReturnValue("mockServerTimestamp"),
 }));
 
 // Mock react-router-dom
 vi.mock("react-router-dom", () => ({
 	useNavigate: () => mockNavigate,
-	useLocation: () => ({ pathname: "/hospitalizationhistory" }),
+	useLocation: () => ({ pathname: "/admin/history" }),
+}));
+
+// Mock Firebase modules
+vi.mock("firebase/firestore", () => ({
+	collection: vi.fn().mockReturnValue("mockCollection"),
+	query: vi.fn().mockReturnValue("mockQuery"),
+	where: vi.fn().mockReturnValue("mockWhere"),
+	orderBy: vi.fn().mockReturnValue("mockOrderBy"),
+	limit: vi.fn().mockReturnValue("mockLimit"),
+	onSnapshot: vi.fn().mockImplementation((_, callback) => {
+		// Simulate snapshot callback with data
+		callback({
+			docs: mockPendingRequests.map((request) => ({
+				id: request.id,
+				data: () => request,
+			})),
+		});
+		return vi.fn(); // Unsubscribe function
+	}),
+	getFirestore: vi.fn().mockReturnValue("mockFirestore"),
+	serverTimestamp: vi.fn().mockReturnValue("mockTimestamp"),
+	getDocs: vi.fn().mockResolvedValue({ docs: [] }),
+	startAfter: vi.fn().mockReturnValue("mockStartAfter"),
+	doc: vi.fn().mockReturnValue("mockDocRef"),
+	getDoc: vi.fn().mockResolvedValue({ exists: () => true, data: () => ({}) }),
 }));
 
 // Mock date-fns
@@ -103,420 +164,198 @@ vi.mock("date-fns", () => ({
 	}),
 }));
 
-// Mock hospitalization record data for testing
-const mockHospitalizationRecords = [
-	{
-		id: "record1",
-		userId: "user1",
-		userName: "John Doe",
-		hospitalName: "St. Luke's Medical Center",
-		dateSubmitted: { toDate: () => new Date("2023-10-15") },
-		dateProcessed: { toDate: () => new Date("2023-10-16") },
-		status: "Approved",
-		type: "Inpatient",
-		amount: 15000,
-		processedBy: "Admin User",
-	},
-	{
-		id: "record2",
-		userId: "user2",
-		userName: "Jane Smith",
-		hospitalName: "UST Hospital",
-		dateSubmitted: { toDate: () => new Date("2023-09-20") },
-		dateProcessed: { toDate: () => new Date("2023-09-22") },
-		status: "Rejected",
-		type: "Outpatient",
-		amount: 5000,
-		processedBy: "Admin User",
-	},
-	{
-		id: "record3",
-		userId: "user3",
-		userName: "Mark Johnson",
-		hospitalName: "Manila Doctors Hospital",
-		dateSubmitted: { toDate: () => new Date("2023-11-05") },
-		dateProcessed: { toDate: () => new Date("2023-11-07") },
-		status: "Approved",
-		type: "Admission",
-		amount: 8000,
-		processedBy: "Other Admin",
-	},
-];
+// Mock localStorage
+const localStorageMock = (() => {
+	let store: Record<string, string> = {};
+	return {
+		getItem: (key: string) => store[key] || null,
+		setItem: (key: string, value: string) => {
+			store[key] = value;
+		},
+		clear: () => {
+			store = {};
+		},
+	};
+})();
+Object.defineProperty(window, "localStorage", { value: localStorageMock });
 
-// Mock onSnapshot implementation
-const setupMockSnapshot = () => {
-	mockOnSnapshot.mockImplementation((query, callback) => {
-		callback({
-			docs: mockHospitalizationRecords.map((record) => ({
-				id: record.id,
-				data: () => record,
-				exists: () => true,
-			})),
-			size: mockHospitalizationRecords.length,
-		});
-		return () => {}; // Unsubscribe function
-	});
-};
+// Import component after ALL mocks
+import HistoryPage from "../../src/components/Pages/AdminHistoryPage/HistoryPage";
 
-// Import the component after all mocks
-import AdminHistoryPage from "../../src/components/Pages/AdminHistoryPage/HistoryPage";
-
-describe("AdminHistoryPage Component", () => {
+describe("HistoryPage Component", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		setupMockSnapshot();
+		localStorageMock.clear();
+
+		// Mock URL methods directly
+		URL.createObjectURL = mockCreateObjectURL;
+		URL.revokeObjectURL = mockRevokeObjectURL;
+
+		// Mock document.createElement
+		const originalCreateElement = document.createElement;
+		document.createElement = function (tagName: string) {
+			if (tagName === "a") {
+				return {
+					click: mockClickAnchor,
+					setAttribute: vi.fn(),
+					style: {},
+					download: "",
+					href: "",
+				} as unknown as HTMLAnchorElement;
+			}
+			return originalCreateElement.call(document, tagName);
+		};
 	});
 
-	test("renders the hospitalization history page correctly", async () => {
-		render(<AdminHistoryPage />);
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
 
-		// Check page title
-		expect(screen.getByText("Hospitalization History")).toBeInTheDocument();
+	test("renders transaction history page with header and controls", () => {
+		render(<HistoryPage />);
 
-		// Check search and filter elements
+		// Check for page title and description
+		expect(screen.getByText("Transaction History")).toBeInTheDocument();
 		expect(
-			screen.getByPlaceholderText("Search by name or hospital")
+			screen.getByText("View and filter all transaction records")
 		).toBeInTheDocument();
-		expect(screen.getByLabelText("Filter by Status:")).toBeInTheDocument();
-		expect(screen.getByLabelText("Filter by Type:")).toBeInTheDocument();
 
-		// Wait for records to be loaded
+		// Check for search field
+		expect(
+			screen.getByPlaceholderText("Search by name")
+		).toBeInTheDocument();
+
+		// Check for main control buttons
+		expect(screen.getByText("Filter")).toBeInTheDocument();
+		expect(screen.getByText("Export")).toBeInTheDocument();
+	});
+
+	test("displays data table with transaction records", async () => {
+		render(<HistoryPage />);
+
+		// Wait for data to load
 		await waitFor(() => {
-			// Check that all mock records are displayed
+			// Check for presence of data in table
 			expect(screen.getByText("John Doe")).toBeInTheDocument();
 			expect(screen.getByText("Jane Smith")).toBeInTheDocument();
 			expect(screen.getByText("Mark Johnson")).toBeInTheDocument();
+		});
 
-			// Check hospitals
-			expect(
-				screen.getByText("St. Luke's Medical Center")
-			).toBeInTheDocument();
-			expect(screen.getByText("UST Hospital")).toBeInTheDocument();
-			expect(
-				screen.getByText("Manila Doctors Hospital")
-			).toBeInTheDocument();
+		// Check table headers
+		expect(screen.getByText("Form Type")).toBeInTheDocument();
+		expect(screen.getByText("Date Approved")).toBeInTheDocument();
+		expect(screen.getByText("Name")).toBeInTheDocument();
+		expect(screen.getByText("College")).toBeInTheDocument();
+	});
 
-			// Check statuses and types
-			expect(screen.getAllByText("Approved").length).toBe(2);
-			expect(screen.getByText("Rejected")).toBeInTheDocument();
-			expect(screen.getByText("Inpatient")).toBeInTheDocument();
-			expect(screen.getByText("Outpatient")).toBeInTheDocument();
-			expect(screen.getByText("Admission")).toBeInTheDocument();
+	test("filters transactions by form type", async () => {
+		render(<HistoryPage />);
+
+		// Open form type dropdown
+		fireEvent.click(screen.getByText("All Forms"));
+
+		// Select Inpatient filter
+		fireEvent.click(screen.getByText("Inpatient"));
+
+		// Check filtered results
+		await waitFor(() => {
+			// Should show John Doe (inpatient)
+			expect(screen.getByText("John Doe")).toBeInTheDocument();
+			// Should not show Mark Johnson (eyeglasses)
+			expect(screen.queryByText("Mark Johnson")).not.toBeInTheDocument();
 		});
 	});
 
-	test("filters records by status", async () => {
-		render(<AdminHistoryPage />);
+	test("searches transactions by name", async () => {
+		render(<HistoryPage />);
 
-		// Wait for records to load
+		// Enter search text
+		const searchInput = screen.getByPlaceholderText("Search by name");
+		fireEvent.change(searchInput, { target: { value: "Jane" } });
+
+		// Check filtered results
 		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
-		});
-
-		// Select Approved status filter
-		fireEvent.change(screen.getByLabelText("Filter by Status:"), {
-			target: { value: "Approved" },
-		});
-
-		await waitFor(() => {
-			// Should show approved records
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
-			expect(screen.getByText("Mark Johnson")).toBeInTheDocument();
-			// Should not show rejected records
-			expect(screen.queryByText("Jane Smith")).not.toBeInTheDocument();
-		});
-
-		// Select Rejected status filter
-		fireEvent.change(screen.getByLabelText("Filter by Status:"), {
-			target: { value: "Rejected" },
-		});
-
-		await waitFor(() => {
-			// Should show rejected records
+			// Should show Jane Smith
 			expect(screen.getByText("Jane Smith")).toBeInTheDocument();
-			// Should not show approved records
+			// Should not show others
 			expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
 			expect(screen.queryByText("Mark Johnson")).not.toBeInTheDocument();
 		});
 	});
 
-	test("filters records by type", async () => {
-		render(<AdminHistoryPage />);
+	test("shows empty state when no records match filter", async () => {
+		render(<HistoryPage />);
 
-		// Wait for records to load
+		// Enter search that won't match any records
+		const searchInput = screen.getByPlaceholderText("Search by name");
+		fireEvent.change(searchInput, { target: { value: "Nobody" } });
+
+		// Check for empty state message
+		await waitFor(() => {
+			expect(
+				screen.getByText("No history records found")
+			).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					"Try adjusting your filters or search criteria"
+				)
+			).toBeInTheDocument();
+		});
+	});
+
+	test("applies date range filter correctly", async () => {
+		render(<HistoryPage />);
+
+		// Click filter button
+		fireEvent.click(screen.getByText("Filter"));
+
+		// Select Date option
+		fireEvent.click(screen.getByText("Date"));
+
+		// Fill date range inputs
+		const startDateInput = screen.getByLabelText("Start Date");
+		const endDateInput = screen.getByLabelText("End Date");
+
+		fireEvent.change(startDateInput, { target: { value: "2023-09-01" } });
+		fireEvent.change(endDateInput, { target: { value: "2023-10-31" } });
+
+		// Apply filter
+		fireEvent.click(screen.getByText("Apply Filter"));
+
+		// Check that date filter tag appears
+		await waitFor(() => {
+			expect(screen.getByText("Date:")).toBeInTheDocument();
+		});
+	});
+
+	test("clears all filters when Clear All is clicked", async () => {
+		render(<HistoryPage />);
+
+		// Apply form type filter
+		fireEvent.click(screen.getByText("All Forms"));
+		fireEvent.click(screen.getByText("Inpatient"));
+
+		// Apply search filter
+		const searchInput = screen.getByPlaceholderText("Search by name");
+		fireEvent.change(searchInput, { target: { value: "John" } });
+
+		// Verify filtered results
 		await waitFor(() => {
 			expect(screen.getByText("John Doe")).toBeInTheDocument();
-		});
-
-		// Select Inpatient type filter
-		fireEvent.change(screen.getByLabelText("Filter by Type:"), {
-			target: { value: "Inpatient" },
-		});
-
-		await waitFor(() => {
-			// Should show inpatient records
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
-			// Should not show other types
 			expect(screen.queryByText("Jane Smith")).not.toBeInTheDocument();
-			expect(screen.queryByText("Mark Johnson")).not.toBeInTheDocument();
 		});
 
-		// Select Admission type filter
-		fireEvent.change(screen.getByLabelText("Filter by Type:"), {
-			target: { value: "Admission" },
-		});
+		// Click clear all button
+		fireEvent.click(screen.getByText("Clear all"));
 
+		// Confirm in modal
+		fireEvent.click(screen.getByText("Clear All"));
+
+		// Verify all records show again
 		await waitFor(() => {
-			// Should show admission records
+			expect(screen.getByText("John Doe")).toBeInTheDocument();
+			expect(screen.getByText("Jane Smith")).toBeInTheDocument();
 			expect(screen.getByText("Mark Johnson")).toBeInTheDocument();
-			// Should not show other types
-			expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
-			expect(screen.queryByText("Jane Smith")).not.toBeInTheDocument();
-		});
-	});
-
-	test("searches records by name", async () => {
-		render(<AdminHistoryPage />);
-
-		// Wait for records to load
-		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
-		});
-
-		// Search for "Jane"
-		fireEvent.change(
-			screen.getByPlaceholderText("Search by name or hospital"),
-			{ target: { value: "Jane" } }
-		);
-
-		await waitFor(() => {
-			// Should show Jane's record
-			expect(screen.getByText("Jane Smith")).toBeInTheDocument();
-			// Should not show other records
-			expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
-			expect(screen.queryByText("Mark Johnson")).not.toBeInTheDocument();
-		});
-	});
-
-	test("searches records by hospital", async () => {
-		render(<AdminHistoryPage />);
-
-		// Wait for records to load
-		await waitFor(() => {
-			expect(
-				screen.getByText("St. Luke's Medical Center")
-			).toBeInTheDocument();
-		});
-
-		// Search for "UST"
-		fireEvent.change(
-			screen.getByPlaceholderText("Search by name or hospital"),
-			{ target: { value: "UST" } }
-		);
-
-		await waitFor(() => {
-			// Should show UST Hospital record
-			expect(screen.getByText("UST Hospital")).toBeInTheDocument();
-			expect(screen.getByText("Jane Smith")).toBeInTheDocument();
-			// Should not show other records
-			expect(
-				screen.queryByText("St. Luke's Medical Center")
-			).not.toBeInTheDocument();
-			expect(
-				screen.queryByText("Manila Doctors Hospital")
-			).not.toBeInTheDocument();
-		});
-	});
-
-	test("sorts records by date", async () => {
-		render(<AdminHistoryPage />);
-
-		// Wait for records to load
-		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
-		});
-
-		// Click on Date header to sort
-		fireEvent.click(screen.getByText("Date Processed"));
-
-		// Check that sorting query was called
-		expect(mockOrderBy).toHaveBeenCalledWith("dateProcessed", "desc");
-	});
-
-	test("displays no records message when filtered results are empty", async () => {
-		// Setup a case where filter results in no records
-		mockOnSnapshot.mockImplementationOnce((query, callback) => {
-			callback({
-				docs: [],
-				size: 0,
-			});
-			return () => {};
-		});
-
-		render(<AdminHistoryPage />);
-
-		// Wait for the no records message
-		await waitFor(() => {
-			expect(
-				screen.getByText("No hospitalization records found")
-			).toBeInTheDocument();
-		});
-	});
-
-	test("loads more records when load more button is clicked", async () => {
-		// Mock additional records that would be loaded
-		const additionalRecords = [
-			{
-				id: "record4",
-				userId: "user4",
-				userName: "Alex Brown",
-				hospitalName: "Cardinal Santos Medical Center",
-				dateSubmitted: { toDate: () => new Date("2023-08-10") },
-				dateProcessed: { toDate: () => new Date("2023-08-12") },
-				status: "Approved",
-				type: "Inpatient",
-				amount: 12000,
-				processedBy: "Admin User",
-			},
-		];
-
-		// First render with initial records
-		render(<AdminHistoryPage />);
-
-		// Wait for initial records to load
-		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
-		});
-
-		// Mock the next batch of records
-		mockOnSnapshot.mockImplementationOnce((query, callback) => {
-			callback({
-				docs: additionalRecords.map((record) => ({
-					id: record.id,
-					data: () => record,
-					exists: () => true,
-				})),
-				size: additionalRecords.length,
-			});
-			return () => {};
-		});
-
-		// Find and click the load more button
-		const loadMoreButton = screen.getByText("Load More");
-		fireEvent.click(loadMoreButton);
-
-		// Wait for additional records to be loaded
-		await waitFor(() => {
-			expect(screen.getByText("Alex Brown")).toBeInTheDocument();
-			expect(
-				screen.getByText("Cardinal Santos Medical Center")
-			).toBeInTheDocument();
-		});
-	});
-
-	test("views record details when clicking on a record", async () => {
-		render(<AdminHistoryPage />);
-
-		// Wait for records to load
-		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
-		});
-
-		// Click on the first record
-		const recordRow = screen.getByText("John Doe").closest("tr");
-		if (recordRow) {
-			fireEvent.click(recordRow);
-		}
-
-		// Should navigate to the record details page
-		expect(mockNavigate).toHaveBeenCalledWith(
-			`/hospitalizationhistory/record1`
-		);
-	});
-
-	test("refreshes data when refresh button is clicked", async () => {
-		render(<AdminHistoryPage />);
-
-		// Wait for initial data load
-		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
-		});
-
-		// Reset mocks to track new calls
-		mockCollection.mockClear();
-		mockQuery.mockClear();
-		mockOnSnapshot.mockClear();
-
-		// Find and click refresh button
-		const refreshButton = screen.getByLabelText("Refresh");
-		fireEvent.click(refreshButton);
-
-		// Verify that data fetching was triggered again
-		expect(mockCollection).toHaveBeenCalledWith(
-			"mockDb",
-			"hospitalizations"
-		);
-		expect(mockQuery).toHaveBeenCalled();
-		expect(mockOnSnapshot).toHaveBeenCalled();
-	});
-
-	test("exports data as CSV when export button is clicked", async () => {
-		// Mock window.URL.createObjectURL and document.createElement
-		const mockCreateObjectURL = vi.fn().mockReturnValue("mock-blob-url");
-		const mockAppendChild = vi.fn();
-		const mockRemoveChild = vi.fn();
-		const mockClick = vi.fn();
-
-		// Save original functions to restore after test
-		const originalCreateObjectURL = window.URL.createObjectURL;
-		const originalDocument = document;
-
-		// Mock the functions
-		window.URL.createObjectURL = mockCreateObjectURL;
-
-		// Mock document.createElement to return a mock element
-		Object.defineProperty(document, "createElement", {
-			value: vi.fn().mockImplementation((tag) => {
-				if (tag === "a") {
-					return {
-						setAttribute: vi.fn(),
-						style: {},
-						href: "",
-						download: "",
-						click: mockClick,
-					};
-				}
-				return {};
-			}),
-		});
-
-		// Mock document.body.appendChild and removeChild
-		Object.defineProperty(document.body, "appendChild", {
-			value: mockAppendChild,
-		});
-		Object.defineProperty(document.body, "removeChild", {
-			value: mockRemoveChild,
-		});
-
-		render(<AdminHistoryPage />);
-
-		// Wait for records to load
-		await waitFor(() => {
-			expect(screen.getByText("John Doe")).toBeInTheDocument();
-		});
-
-		// Find and click export button
-		const exportButton = screen.getByLabelText("Export");
-		fireEvent.click(exportButton);
-
-		// Verify export functionality was called
-		expect(mockCreateObjectURL).toHaveBeenCalled();
-		expect(mockClick).toHaveBeenCalled();
-
-		// Restore original functions
-		window.URL.createObjectURL = originalCreateObjectURL;
-		Object.defineProperty(document, "createElement", {
-			value: originalDocument.createElement,
 		});
 	});
 });

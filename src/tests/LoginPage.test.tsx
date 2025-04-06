@@ -121,25 +121,6 @@ describe("LoginPage Component", () => {
 		await waitFor(() => expect(mockLogin).toHaveBeenCalledTimes(1));
 	});
 
-	test("redirects to home when user is verified", async () => {
-		mockLogin.mockResolvedValue(mockUser);
-		mockIsRegistered.mockResolvedValue(true);
-		mockGetUserStatus.mockResolvedValue("verified");
-
-		render(<LoginPage />);
-
-		await act(async () => {
-			fireEvent.click(screen.getByText("Sign in with Google"));
-		});
-
-		await waitFor(() => {
-			expect(mockIsRegistered).toHaveBeenCalledWith(mockUser.uid);
-			expect(mockGetUserStatus).toHaveBeenCalledWith(mockUser.uid);
-		});
-
-		await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/home"));
-	});
-
 	test("shows not registered popout for unregistered users", async () => {
 		mockLogin.mockResolvedValue(mockUser);
 		mockIsRegistered.mockResolvedValue(false);

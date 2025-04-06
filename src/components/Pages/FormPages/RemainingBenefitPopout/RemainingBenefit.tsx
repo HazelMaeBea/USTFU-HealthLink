@@ -1,58 +1,72 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../../../Page Elements/BackButton/BackButton.css";
 import "./RemainingBenefit.css";
 import { useFirebase } from "../../../../contexts/firebaseContext";
-import { collection, query, where, getDocs } from "firebase/firestore"; // Import necessary functions
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../../contexts/firebase";
-
 
 const RemainingBenefit = () => {
 	const { email } = useFirebase();
 	const [remainingBenefits, setRemainingBenefits] = useState(0);
+	const [lastUpdated, setLastUpdated] = useState("");
+	const [fullName, setFullName] = useState("");
 	const [showPopup, setShowPopup] = useState(false);
-	const navigate = useNavigate();
-	
-	const readRemainingBenefits = async () => {
+
+	const fetchUserData = async () => {
 		try {
-		  // Query the users collection for a document where email matches
-		  const q = query(collection(db, "users"), where("email", "==", email)); // Create a query
-		  const querySnapshot = await getDocs(q); // Execute the query
-	  
-		  if (!querySnapshot.empty) {
-			const doc = querySnapshot.docs[0]; // Assuming there's only one document
-			const data = doc.data(); // Get the document data
-	  
-			// Access the remainingBenefits field
-			console.log("Inside readRemainingBenefits: ", data.personalInfo.remainingBenefits);
-			return data.personalInfo.remainingBenefits as number;
-		  } else {
-			console.log("No matching document found!");
-			return 0;
-		  }
+			const q = query(
+				collection(db, "users"),
+				where("email", "==", email)
+			);
+			const querySnapshot = await getDocs(q);
+
+			if (!querySnapshot.empty) {
+				const doc = querySnapshot.docs[0];
+				const data = doc.data();
+
+				// Get the remaining benefits
+				const benefits = data.personalInfo.remainingBenefits || 0;
+
+				// Get the last updated timestamp
+				const timestamp = data.personalInfo.lastUpdated
+					? new Date(
+							data.personalInfo.lastUpdated.toDate()
+					  ).toLocaleDateString("en-US", {
+							year: "numeric",
+							month: "long",
+							day: "numeric",
+					  })
+					: "Not available";
+
+				// Get the user's name
+				const name = `${data.personalInfo.firstName || ""} ${
+					data.personalInfo.lastName || ""
+				}`;
+
+				return { benefits, timestamp, name };
+			} else {
+				console.log("No matching document found!");
+				return { benefits: 0, timestamp: "Not available", name: "" };
+			}
 		} catch (error) {
-		  console.error("Error fetching document:", error);
-		  return 0; // Explicitly return something
+			console.error("Error fetching document:", error);
+			return { benefits: 0, timestamp: "Not available", name: "" };
 		}
 	};
 
 	useEffect(() => {
-		const fetchRemainingBenefits = async () => {
-		  const benefits = await readRemainingBenefits();
-		  setRemainingBenefits(benefits); // Update state with the resolved value
+		const fetchData = async () => {
+			const { benefits, timestamp, name } = await fetchUserData();
+			setRemainingBenefits(benefits);
+			setLastUpdated(timestamp);
+			setFullName(name);
 		};
-	
-		fetchRemainingBenefits();
-	  }, []);
 
+		fetchData();
+	}, []);
 
 	const handlePopup = () => {
 		setShowPopup(!showPopup);
-	};
-
-	const handleHistoryClick = () => {
-		navigate("/history");
-		setShowPopup(false);
 	};
 
 	return (
@@ -69,27 +83,33 @@ const RemainingBenefit = () => {
 						<button className="close-button" onClick={handlePopup}>
 							&times;
 						</button>
-						<div className="amount-container p-3 rounded shadow">
-							<div className="amount-input-wrapper d-flex align-items-center">
-								<span className="currency"></span>
+						<div className="benefit-header">
+							<h2>Remaining Benefits</h2>
+							<p className="member-name">For: {fullName}</p>
+						</div>
+						<div className="amount-container">
+							<div className="amount-icon">₱</div>
+							<div className="amount-input-wrapper">
 								<input
 									aria-label="amount left"
 									type="text"
-									value={remainingBenefits}
+									value={remainingBenefits.toLocaleString(
+										"en-US",
+										{
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										}
+									)}
 									disabled
 									className="amount-input"
 								/>
 							</div>
-							<span className="amount-label">
-								(Remaining benefit)
-							</span>
 						</div>
-						<button
-							onClick={handleHistoryClick}
-							className="check-history-btn"
-						>
-							Check History
-						</button>
+
+						<div className="update-info">
+							<span className="update-label">Last updated:</span>
+							<span className="update-date">{lastUpdated}</span>
+						</div>
 					</div>
 				</div>
 			)}

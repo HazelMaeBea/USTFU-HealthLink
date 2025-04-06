@@ -4,12 +4,13 @@ import ReactDOM from "react-dom";
 
 interface PopoutProps {
 	title: string;
-	message: string | ReactNode; // Changed from just string to support JSX content
+	message: string | ReactNode;
 	onConfirm: () => void;
 	onCancel: () => void;
 	isOpen: boolean;
-	confirmText?: string; // New prop to customize confirmation button text
-	showCancelButton?: boolean; // New prop to control whether cancel button is shown
+	confirmText?: string;
+	showCancelButton?: boolean;
+	ariaLabel?: string; // Add new prop for accessibility
 }
 
 const Popout: React.FC<PopoutProps> = ({
@@ -18,8 +19,9 @@ const Popout: React.FC<PopoutProps> = ({
 	onConfirm,
 	onCancel,
 	isOpen,
-	confirmText = "Confirm", // Default text for confirm button
-	showCancelButton = true, // Show cancel button by default
+	confirmText = "Confirm",
+	showCancelButton = true,
+	ariaLabel, // Add new prop
 }) => {
 	const popoutRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +52,12 @@ const Popout: React.FC<PopoutProps> = ({
 	if (!isOpen) return null;
 
 	return ReactDOM.createPortal(
-		<div className={styles.popoutContainer}>
+		<div
+			className={styles.popoutContainer}
+			aria-label={ariaLabel || title} // Use ariaLabel prop or fall back to title
+			role="dialog"
+			aria-modal="true"
+		>
 			<div className={styles.popoutContent} ref={popoutRef}>
 				<h2 className={styles.popoutHeader}>{title}</h2>
 				<p className={styles.popoutMessage}>{message}</p>
@@ -58,6 +65,7 @@ const Popout: React.FC<PopoutProps> = ({
 					<button
 						className={`${styles.popoutButton} ${styles.confirm}`}
 						onClick={onConfirm}
+						aria-label={confirmText}
 					>
 						{confirmText}
 					</button>
@@ -65,6 +73,7 @@ const Popout: React.FC<PopoutProps> = ({
 						<button
 							className={`${styles.popoutButton} ${styles.cancel}`}
 							onClick={onCancel}
+							aria-label="Cancel"
 						>
 							Cancel
 						</button>

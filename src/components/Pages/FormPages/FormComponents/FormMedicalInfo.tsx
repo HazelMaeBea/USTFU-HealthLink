@@ -1,10 +1,12 @@
 import React from "react";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
+import { UseFormRegister, FieldErrors, UseFormWatch } from "react-hook-form";
 import { UnifiedFormData } from "../FormUtil/formTypes";
 
 interface FormMedicalInfoProps {
 	register: UseFormRegister<UnifiedFormData>;
 	errors: FieldErrors<UnifiedFormData>;
+	formType?: string; // Add formType prop
+	watch?: UseFormWatch<UnifiedFormData>; // Add watch prop to monitor field changes
 }
 
 const procedureOptions = [
@@ -22,7 +24,21 @@ const procedureOptions = [
 const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 	register,
 	errors,
+	formType,
+	watch,
 }) => {
+	// Helper function to format date as YYYY-MM-DD for date inputs
+	const formatDateForInput = (date: Date | null) => {
+		if (!date) return "";
+		return date.toISOString().split("T")[0];
+	};
+
+	// Get today's date for max attribute
+	const today = formatDateForInput(new Date());
+
+	// Watch the confinementFrom value to set the min date for confinementTo
+	const confinementFromValue = watch ? watch("confinementFrom") : "";
+
 	return (
 		<fieldset className="MedicalInfo">
 			<div className="row">
@@ -80,6 +96,49 @@ const FormMedicalInfo: React.FC<FormMedicalInfoProps> = ({
 					)}
 				</div>
 			</div>
+
+			{/* Conditionally render confinement dates for inpatient forms only */}
+			{formType === "inpatient" && (
+				<div className="row">
+					<div className="mb-1 col-md-6">
+						<label htmlFor="confinementFrom" className="form-label">
+							Confinement From{" "}
+							<span className="required-asterisk">*</span>
+						</label>
+						<input
+							{...register("confinementFrom")}
+							id="confinementFrom"
+							type="date"
+							className="form-control"
+							max={today} // Keep max as today for start date
+						/>
+						{errors.confinementFrom && (
+							<p className="text-danger">
+								{errors.confinementFrom.message as string}
+							</p>
+						)}
+					</div>
+					<div className="mb-1 col-md-6">
+						<label htmlFor="confinementTo" className="form-label">
+							Confinement To{" "}
+							<span className="required-asterisk">*</span>
+						</label>
+						<input
+							{...register("confinementTo")}
+							id="confinementTo"
+							type="date"
+							className="form-control"
+							min={confinementFromValue} // Keep min date constraint
+						/>
+						{errors.confinementTo && (
+							<p className="text-danger">
+								{errors.confinementTo.message as string}
+							</p>
+						)}
+					</div>
+				</div>
+			)}
+
 			<div className="row">
 				<div className="mb-1 col-md-6">
 					<label htmlFor="procedures" className="form-label">

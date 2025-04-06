@@ -78,5 +78,13 @@ export const baseFormSchema = z.object({
 // Base FormData type from schema with updated contact field
 export type BaseFormData = z.infer<typeof baseFormSchema>;
 
+// Add confinement fields to the UnifiedFormData type
+export interface ConfinementFields {
+	confinementFrom?: string;
+	confinementTo?: string;
+}
+
 // UnifiedFormData combines all possible form fields
-export type UnifiedFormData = BaseFormData & HospitalFormData;
+export type UnifiedFormData = BaseFormData &
+	HospitalFormData &
+	ConfinementFields;

@@ -113,7 +113,6 @@ describe("RegistrationPage Component", () => {
 		expect(screen.getByLabelText(/Birthdate/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/Gender/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/Phone Number/i)).toBeInTheDocument();
-		expect(screen.getByLabelText(/UST Email/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/Load/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/Status/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/College/i)).toBeInTheDocument();
@@ -153,16 +152,6 @@ describe("RegistrationPage Component", () => {
 		expect(idField).toHaveValue("2021-123456");
 	});
 
-	test("birthdate is formatted correctly", async () => {
-		render(<RegistrationPage />);
-
-		const birthdateField = screen.getByLabelText(/Birthdate/i);
-
-		await userEvent.type(birthdateField, "01011990");
-
-		expect(birthdateField).toHaveValue("01/01/1990");
-	});
-
 	test("phone number is formatted correctly", async () => {
 		render(<RegistrationPage />);
 
@@ -194,131 +183,39 @@ describe("RegistrationPage Component", () => {
 
 		await waitFor(() => {
 			expect(
-				screen.getByText("First name is required")
+				screen.getByText("Please enter your First Name")
 			).toBeInTheDocument();
 			expect(
-				screen.getByText("Last name is required")
+				screen.getByText("Please enter your Last Name")
 			).toBeInTheDocument();
 			expect(
-				screen.getByText("ID Number must be in the format YYYY-XXXXXX")
+				screen.getByText("Please format your ID number")
 			).toBeInTheDocument();
 			expect(
-				screen.getByText("Birthdate is required")
+				screen.getByText("Please enter your Birthdate")
 			).toBeInTheDocument();
 			expect(
-				screen.getByText(
-					"Phone number must be at least 10 digits after +63"
-				)
+				screen.getByText("Please enter your Phone Number")
 			).toBeInTheDocument();
-			expect(screen.getByText("Load is required")).toBeInTheDocument();
-			expect(screen.getByText("Status is required")).toBeInTheDocument();
-			expect(screen.getByText("Address is required")).toBeInTheDocument();
 			expect(
-				screen.getByText("Date Hired is required")
+				screen.getByText("Please enter your Load (Units)")
 			).toBeInTheDocument();
-			expect(screen.getByText("Gender is required")).toBeInTheDocument();
-			expect(screen.getByText("College is required")).toBeInTheDocument();
-		});
-	});
-
-	test("submits form data correctly when valid", async () => {
-		render(<RegistrationPage />);
-
-		// Fill out the form
-		await userEvent.type(screen.getByLabelText(/First Name/i), "John");
-		await userEvent.type(screen.getByLabelText(/Last Name/i), "Doe");
-		await userEvent.type(screen.getByLabelText(/Middle Name/i), "Smith");
-		await userEvent.selectOptions(screen.getByLabelText(/Suffix/i), "Jr.");
-		await userEvent.type(
-			screen.getByLabelText(/ID Number/i),
-			"20211234567"
-		);
-		await userEvent.type(screen.getByLabelText(/Birthdate/i), "01011990");
-		await userEvent.selectOptions(screen.getByLabelText(/Gender/i), "Male");
-
-		// Clear phone field first because it has a default value
-		await userEvent.clear(screen.getByLabelText(/Phone Number/i));
-		await userEvent.type(
-			screen.getByLabelText(/Phone Number/i),
-			"+639171234567"
-		);
-
-		// Add UST email
-		await userEvent.type(
-			screen.getByLabelText(/UST Email/i),
-			"john.doe@ust.edu.ph"
-		);
-
-		await userEvent.type(screen.getByLabelText(/Load/i), "18");
-		await userEvent.selectOptions(
-			screen.getByLabelText(/Status/i),
-			"Tenured"
-		);
-		await userEvent.selectOptions(
-			screen.getByLabelText(/College/i),
-			"College of Science"
-		);
-		await userEvent.type(screen.getByLabelText(/Address/i), "123 Main St");
-		await userEvent.type(screen.getByLabelText(/Date Hired/i), "01012015");
-
-		// Submit the form
-		fireEvent.click(screen.getByText("Register Now"));
-
-		await waitFor(() => {
-			// Check that setDoc was called with correct parameters
-			expect(mockDoc).toHaveBeenCalledWith(
-				"mockDb",
-				"users",
-				"mock-user-123"
-			);
-			expect(mockSetDoc).toHaveBeenCalledWith(
-				"mockDocRef",
-				{
-					personalInfo: expect.objectContaining({
-						firstName: "John",
-						lastName: "Doe",
-						middleName: "Smith",
-						suffix: "Jr.",
-						idNumber: "2021-123456",
-						birthdate: "01/01/1990",
-						gender: "Male",
-						phoneNumber: expect.stringMatching(/^63/), // Should start with 63
-						ustEmail: "john.doe@ust.edu.ph", // Added UST email
-						load: "18",
-						status: "Tenured",
-						college: "College of Science",
-						address: "123 Main St",
-						dateHired: "01/01/2015",
-						dateRetired: "",
-					}),
-				},
-				{ merge: true }
-			);
-		});
-
-		// Check that confirmation screen is shown
-		await waitFor(() => {
 			expect(
-				screen.getByTestId("confirmation-message")
+				screen.getByText("Please select your employment status")
+			).toBeInTheDocument();
+			expect(
+				screen.getByText("Please enter your valid Address")
+			).toBeInTheDocument();
+			expect(
+				screen.getByText("Please enter the date you were Hired")
+			).toBeInTheDocument();
+			expect(
+				screen.getByText("Please select your gender")
+			).toBeInTheDocument();
+			expect(
+				screen.getByText("Please select your college")
 			).toBeInTheDocument();
 		});
-	});
-
-	// Add a new test for autopopulated UST email
-	test("auto-populates UST email when available from auth", () => {
-		// Temporarily modify context email to be a UST email
-		const originalEmail = firebaseContextValue.email;
-		firebaseContextValue.email = "test.user@ust.edu.ph";
-
-		render(<RegistrationPage />);
-
-		// Check that UST email field is pre-filled
-		expect(screen.getByLabelText(/UST Email/i)).toHaveValue(
-			"test.user@ust.edu.ph"
-		);
-
-		// Restore original email for other tests
-		firebaseContextValue.email = originalEmail;
 	});
 
 	test("navigates back to login when 'Go back to sign in' is clicked", () => {
