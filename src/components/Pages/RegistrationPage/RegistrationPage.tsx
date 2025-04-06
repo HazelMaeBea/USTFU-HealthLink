@@ -246,7 +246,7 @@ const RegistrationPage: React.FC = () => {
 					hour12: true,
 					timeZoneName: "short",
 				}),
-				role: "faculty",
+				role: "member",
 				status: "ACTIVE",
 				verified: false,
 				personalInfo: {
