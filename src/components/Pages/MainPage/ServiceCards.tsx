@@ -40,7 +40,6 @@ const ServiceCards = () => {
 					if (!snapshot.empty) {
 						const doc = snapshot.docs[0];
 						const userData = doc.data();
-						console.log("Snapshot is not empty");
 
 						// Get user status
 						setUserStatus(userData.personalInfo?.status || "");
@@ -58,7 +57,6 @@ const ServiceCards = () => {
 								eyeglassDateMils + twoYearsInMillis;
 
 							const currentTime = Date.now();
-							console.log("test")
 							const oldFormattedDate = eyeglassDate
 								.toDate()
 								.toLocaleDateString("en-US", {
@@ -90,7 +88,6 @@ const ServiceCards = () => {
 							}
 						} else {
 							// No previous eyeglasses claim, check only tenure status
-							console.log("Not defined");
 							const isTenured = userStatus
 								.toLowerCase()
 								.includes("tenured");
