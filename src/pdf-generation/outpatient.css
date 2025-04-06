@@ -302,7 +302,7 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background-image: url("./images-pdfGen/USTFU-stamp.png");
+	background-image: url("https://storage.googleapis.com/ustfuhealthlink-dev.firebasestorage.app/templates/logo/USTFU-stamp.png");
 	background-size: contain;
 	background-position: center;
 	background-repeat: no-repeat;
