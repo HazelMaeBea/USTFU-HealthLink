@@ -10,6 +10,7 @@ import { Timestamp } from "firebase/firestore";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { FiEdit2, FiUsers, FiToggleLeft } from "react-icons/fi";
 import { createPortal } from "react-dom";
+import "./UserManagement.css";
 
 interface User {
 	id: string;
@@ -265,7 +266,8 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 									</div>
 								</div>,
 								document.body
-							)}
+							)
+						}
 					</div>
 				</div>
 				<div className="grid grid-cols-2 gap-2 mt-3">
@@ -296,23 +298,174 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 						<div className="mt-1">{getStatusBadge(user.status)}</div>
 					</div>
 				</div>
-				{lastEdited && (
-					<div className="mt-3 text-xs text-gray-500">
-						{lastEdited}
-					</div>
-				)}
 				{isEditing && (
-					<div className="mt-3">
-						{/* ...existing editing form (reuse similar fields as desktop)... */}
-						{/* For brevity, you may reuse the same FormGroup, Input, DatePicker controls */}
+				<tr>
+					<td colSpan={10}>
+						{editOption === "college" && (
+							<FormGroup>
+								<Label for="college">College</Label>
+								<Input
+									type="select"
+									name="college"
+									id="edit_college"
+									className="dropdown-select"
+									value={editedUser.college}
+									onChange={handleChange}
+								>
+									{collegeOptions.map((option, index) => (
+										<option key={index} value={option}>
+											{option}
+										</option>
+									))}
+								</Input>
+							</FormGroup>
+						)}
+						{editOption === "role" && (
+							<FormGroup>
+								<Label for="role">Role</Label>
+								<Input
+									type="select"
+									name="role"
+									id="edit_role"
+									className="dropdown-select"
+									value={editedUser.role}
+									onChange={handleChange}
+								>
+									<option value="member">Member</option>
+									<option value="operations handler">Operations Handler</option>
+									<option value="retiree">Retiree</option>
+								</Input>
+							</FormGroup>
+						)}
+						{editOption === "status" && (
+							<>
+								<FormGroup>
+									<Label for="status">Status</Label>
+									<Input
+										type="select"
+										name="status"
+										id="edit_status"
+										className="dropdown-select"
+										value={editedUser.status}
+										onChange={handleChange}
+									>
+										<option>ACTIVE</option>
+										<option>INACTIVE</option>
+										<option>ON-LEAVE</option>
+									</Input>
+								</FormGroup>
+								{editedUser.status === "ON-LEAVE" && (
+									<>
+										<Row>
+											<Col md={6}>
+												<FormGroup>
+													<Label for="leaveStartDate">Start Date</Label>
+													<br />
+													<DatePicker
+														selected={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
+														onChange={(date) => handleDateChange(date, "leaveStartDate")}
+														className="form-control"
+														required
+														selectsStart
+														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
+														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
+														maxDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : undefined}
+													/>
+												</FormGroup>
+											</Col>
+											<Col md={6}>
+												<FormGroup>
+													<Label for="leaveEndDate">End Date</Label>
+													<br />
+													<DatePicker
+														selected={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
+														onChange={(date) => handleDateChange(date, "leaveEndDate")}
+														className="form-control"
+														required
+														selectsEnd
+														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
+														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
+														minDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : undefined}
+													/>
+												</FormGroup>
+											</Col>
+										</Row>
+										<Row>
+											<Col md={8}>
+												<p>
+													Duration:{" "}
+													{calculateDuration(editedUser.leaveStartDate, editedUser.leaveEndDate)}
+												</p>
+											</Col>
+										</Row>
+										<Row>
+											<Col md={8}>
+												<FormGroup>
+													<Label for="leaveReason">Reason for Leave</Label>
+													<Input
+														type="textarea"
+														name="leaveReason"
+														id="leaveReason"
+														value={editedUser.leaveReason || ""}
+														onChange={handleChange}
+														required
+													/>
+												</FormGroup>
+											</Col>
+										</Row>
+									</>
+								)}
+							</>
+						)}
+
+						{editedUser.role === "retiree" && editOption === "role" && (
+							<Row className="mt-3">
+								<Col md={6}>
+									<FormGroup>
+										<Label for="retirementDate">Retirement Date</Label>
+										<br />
+										<DatePicker
+											selected={editedUser.retirementDate ? new Date(editedUser.retirementDate) : null}
+											onChange={(date) => handleDateChange(date, "retirementDate")}
+											className="form-control"
+											required
+											maxDate={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : undefined}
+										/>
+										<p>* The date when the employee officially retires.</p>
+									</FormGroup>
+								</Col>
+								<Col md={6}>
+									<FormGroup>
+										<Label for="deactivationDate">Deactivation Date</Label>
+										<br />
+										<DatePicker
+											selected={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : null}
+											onChange={(date) => handleDateChange(date, "deactivationDate")}
+											className="form-control"
+											required
+											minDate={new Date()}
+											excludeDates={[new Date()]}
+										/>
+										<p>* Account remains accessible until this date.</p>
+									</FormGroup>
+								</Col>
+							</Row>
+						)}
+
+						{lastEdited && (
+							<div style={{ marginTop: "1rem" }}>
+								<p className="text-muted">{lastEdited}</p>
+							</div>
+						)}
 						<Button color="success" onClick={handleSave}>
 							Save
 						</Button>
 						<Button color="secondary" onClick={handleCancel} className="ms-2">
 							Cancel
 						</Button>
-					</div>
-				)}
+					</td>
+				</tr>
+			)}
 			</div>
 		);
 	}
@@ -338,6 +491,26 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 							onClick={handleToggleOptions}
 							style={{ color: "#666" }}
 						/>
+						{showOptions &&
+							createPortal(
+								<div className="edit-options-menu" style={popupStyle} ref={menuRef} onClick={(e) => e.stopPropagation()}>
+									<div className="edit-options-menu-inner">
+										<button onClick={() => { handleEdit("college"); setShowOptions(false); }}>
+											<FiUsers style={{ marginRight: "10px" }} /> Edit College
+										</button>
+										<button onClick={() => { handleEdit("role"); setShowOptions(false); }}>
+											<FiEdit2 style={{ marginRight: "10px" }} /> Edit Role
+										</button>
+										{editedUser.role !== "retiree" && (
+											<button onClick={() => { handleEdit("status"); setShowOptions(false); }}>
+												<FiToggleLeft style={{ marginRight: "10px" }} /> Edit Status
+											</button>
+										)}
+									</div>
+								</div>,
+								document.body
+							)
+						}
 					</div>
 				</td>
 			</tr>

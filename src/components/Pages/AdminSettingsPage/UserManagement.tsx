@@ -15,7 +15,7 @@ import UserRow from "./UserRow";
 import UserAuditLogs from "./UserAuditLogs";
 import AuditLogsPopout from "./AuditLogsPopout";
 import Popout from "../../Page Elements/Popout/Popout";
-import "./AdminSettings.css"; 
+import "./UserManagement.css"; 
 
 interface UserManagementProps {
 	searchQuery: string;
