@@ -243,7 +243,7 @@ const EyeglassesForm = () => {
 
         await setDoc(
           docRef,
-          { eyeglassesFlag: Timestamp.now() },
+          { personalInfo: {eyeglassesBenefitClaimedDate: Timestamp.now()} },
           { merge: true }
         );
         console.log("Document updated successfully.");
