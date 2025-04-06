@@ -26,114 +26,6 @@ interface FormBodyProps {
 	origFormType: string;
 }
 
-// Extend the base schema with hospital-specific fields
-const schema = baseFormSchema
-	.extend({
-		hospital: z
-			.string({
-				required_error: "Please enter a valid hospital name",
-				invalid_type_error: "Hospital name must be text",
-			})
-			.min(1, "Please enter a valid hospital name"),
-		illness: z
-			.string({
-				required_error: "Please specify your illness/condition",
-				invalid_type_error: "Illness/condition must be text",
-			})
-			.min(1, "Please specify your illness/condition"),
-		physician: z
-			.string({
-				required_error: "Please enter your attending physician's name",
-				invalid_type_error: "Physician name must be text",
-			})
-			.min(1, "Please enter your attending physician's name"),
-		procedures: z
-			.string({
-				required_error: "Please specify the medical procedure",
-				invalid_type_error: "Medical procedures must be text",
-			})
-			.min(1, "Please specify the medical procedure"),
-		procedureSpecify: z
-			.string({
-				required_error: "Please specify the medical procedure",
-				invalid_type_error: "Procedure specification must be text",
-			})
-			.min(1, "Please specify the procedure"),
-		term: z.string().nonempty("Please select the academic term"),
-		year: z.string().nonempty("Please select the academic year"),
-		load: z.coerce
-			.number({
-				required_error: "Please enter your teaching load",
-				invalid_type_error: "Teaching load must be a number",
-			})
-			.min(0, "Teaching load cannot be negative")
-			.max(30, "Teaching load cannot exceed 30 units"),
-		status: z.preprocess(
-			(val) => (val === null ? "" : val),
-			z.string().nonempty("Please select your employment status")
-		),
-		dateHired: z
-			.string({
-				invalid_type_error: "Please select a valid date",
-			})
-			.nullable()
-			.transform((val) => (val ? new Date(val) : null))
-			.optional(),
-		dateRetired: z
-			.string({
-				invalid_type_error: "Please select a valid date",
-			})
-			.nullable()
-			.transform((val) => (val ? new Date(val) : null))
-			.optional(),
-		benefits: z.preprocess(
-			(val) => (val === null ? "" : val),
-			z.string().nonempty("Please select your health benefits")
-		),
-		hmo: z.string().nullable().optional(),
-		docRequest: z.any().refine((files) => files && files.length > 0, {
-			message: "Please upload your doctor's request/order",
-		}),
-		hospitalInvoice: z.any().refine((files) => files && files.length > 0, {
-			message: "Please upload the hospital invoice",
-		}),
-		labInvoice: z.any().refine((files) => files && files.length > 0, {
-			message: "Please upload the laboratory invoice",
-		}),
-		hospitalStatus: z.enum(
-			["In-Patient", "Out-Patient", "ER Consultation"],
-			{
-				errorMap: () => ({
-					message: "Please select your hospital status",
-				}),
-			}
-		),
-	})
-	.superRefine((data, ctx) => {
-		if (data.status === "Tenured-Track" && !data.dateHired) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message:
-					"Please provide your date of hire as a Tenure-Track faculty member",
-				path: ["dateHired"],
-			});
-		}
-		if (data.status === "Retiree" && !data.dateRetired) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: "Please provide your retirement date",
-				path: ["dateRetired"],
-			});
-		}
-		if (data.benefits === "HMO" && (!data.hmo || data.hmo.trim() === "")) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: "Please specify your HMO provider name",
-				path: ["hmo"],
-			});
-		}
-	});
-
 const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [dateHired, setDateHired] = useState<Date | null>(null);
 	const [dateRetired, setDateRetired] = useState<Date | null>(null);
@@ -152,6 +44,200 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	const navigate = useNavigate();
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
+
+	const createFormSchema = (formType: string) =>
+		baseFormSchema
+			.extend({
+				hospital: z
+					.string({
+						required_error: "Please enter a valid hospital name",
+						invalid_type_error: "Hospital name must be text",
+					})
+					.min(1, "Please enter a valid hospital name"),
+				illness: z
+					.string({
+						required_error: "Please specify your illness/condition",
+						invalid_type_error: "Illness/condition must be text",
+					})
+					.min(1, "Please specify your illness/condition"),
+				physician: z
+					.string({
+						required_error:
+							"Please enter your attending physician's name",
+						invalid_type_error: "Physician name must be text",
+					})
+					.min(1, "Please enter your attending physician's name"),
+				procedures: z
+					.string({
+						required_error: "Please specify the medical procedure",
+						invalid_type_error: "Medical procedures must be text",
+					})
+					.min(1, "Please specify the medical procedure"),
+				procedureSpecify: z
+					.string({
+						required_error: "Please specify the medical procedure",
+						invalid_type_error:
+							"Procedure specification must be text",
+					})
+					.min(1, "Please specify the procedure"),
+				confinementFrom: z
+					.string()
+					.optional()
+					.refine((val) => val !== undefined, {
+						message: "Please select the confinement start date",
+					}),
+				confinementTo: z
+					.string()
+					.optional()
+					.refine((val) => val !== undefined, {
+						message: "Please select the confinement end date",
+					}),
+				term: z.string().nonempty("Please select the academic term"),
+				year: z.string().nonempty("Please select the academic year"),
+				load: z.coerce
+					.number({
+						required_error: "Please enter your teaching load",
+						invalid_type_error: "Teaching load must be a number",
+					})
+					.min(0, "Teaching load cannot be negative")
+					.max(30, "Teaching load cannot exceed 30 units"),
+				status: z.preprocess(
+					(val) => (val === null ? "" : val),
+					z.string().nonempty("Please select your employment status")
+				),
+				dateHired: z
+					.string({
+						invalid_type_error: "Please select a valid date",
+					})
+					.nullable()
+					.transform((val) => (val ? new Date(val) : null))
+					.optional(),
+				dateRetired: z
+					.string({
+						invalid_type_error: "Please select a valid date",
+					})
+					.nullable()
+					.transform((val) => (val ? new Date(val) : null))
+					.optional(),
+				benefits: z.preprocess(
+					(val) => (val === null ? "" : val),
+					z.string().nonempty("Please select your health benefits")
+				),
+				hmo: z.string().nullable().optional(),
+				docRequest: z
+					.any()
+					.refine((files) => files && files.length > 0, {
+						message: "Please upload your doctor's request/order",
+					}),
+				hospitalInvoice: z
+					.any()
+					.refine((files) => files && files.length > 0, {
+						message: "Please upload the hospital invoice",
+					}),
+				labInvoice: z
+					.any()
+					.refine((files) => files && files.length > 0, {
+						message: "Please upload the laboratory invoice",
+					}),
+				hospitalStatus: z.enum(
+					["In-Patient", "Out-Patient", "ER Consultation"],
+					{
+						errorMap: () => ({
+							message: "Please select your hospital status",
+						}),
+					}
+				),
+			})
+			.superRefine((data, ctx) => {
+				if (data.status === "Tenured-Track" && !data.dateHired) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message:
+							"Please provide your date of hire as a Tenure-Track faculty member",
+						path: ["dateHired"],
+					});
+				}
+				if (data.status === "Retiree" && !data.dateRetired) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: "Please provide your retirement date",
+						path: ["dateRetired"],
+					});
+				}
+				if (
+					data.benefits === "HMO" &&
+					(!data.hmo || data.hmo.trim() === "")
+				) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: "Please specify your HMO provider name",
+						path: ["hmo"],
+					});
+				}
+				if (formType === "inpatient") {
+					if (!data.confinementFrom) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: "Please select the confinement start date",
+							path: ["confinementFrom"],
+						});
+					}
+					if (!data.confinementTo) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: "Please select the confinement end date",
+							path: ["confinementTo"],
+						});
+					}
+					if (data.confinementFrom && data.confinementTo) {
+						const fromDate = new Date(data.confinementFrom);
+						const toDate = new Date(data.confinementTo);
+						const today = new Date();
+
+						if (
+							isNaN(fromDate.getTime()) ||
+							isNaN(toDate.getTime())
+						) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message: "Please enter valid dates",
+								path: ["confinementFrom"],
+							});
+						} else if (fromDate > toDate) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message:
+									"Confinement start date must be before end date",
+								path: ["confinementFrom"],
+							});
+						} else if (fromDate > today) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message:
+									"Confinement start date cannot be in the future",
+								path: ["confinementFrom"],
+							});
+						} else {
+							const diffTime = Math.abs(
+								toDate.getTime() - fromDate.getTime()
+							);
+							const diffDays = Math.ceil(
+								diffTime / (1000 * 60 * 60 * 24)
+							);
+							if (diffDays > 60) {
+								ctx.addIssue({
+									code: z.ZodIssueCode.custom,
+									message:
+										"Confinement period cannot exceed 60 days",
+									path: ["confinementTo"],
+								});
+							}
+						}
+					}
+				}
+			});
+
+	const schema = createFormSchema(origFormType);
 
 	const {
 		register,
@@ -195,13 +281,37 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
 			for (let i = data.claimRequestCount - 1; i >= 0; i--) {
 				// Extract all files to upload into a single object
-				const filesToUpload = {
-					applicantSignature: data.applicantSignature,
-					docRequest: data.docRequest,
-					employeeID: data.employeeID,
-					hospitalInvoice: data.hospitalInvoice,
-					labInvoice: data.labInvoice,
-				};
+				const filesToUpload: Record<string, File[]> = {};
+
+				// Add required files, checking that they exist first
+				if (
+					data.applicantSignature &&
+					data.applicantSignature.length > 0
+				) {
+					filesToUpload.applicantSignature = data.applicantSignature;
+				}
+
+				if (data.docRequest && data.docRequest.length > 0) {
+					filesToUpload.docRequest = data.docRequest;
+				}
+
+				if (data.hospitalInvoice && data.hospitalInvoice.length > 0) {
+					filesToUpload.hospitalInvoice = data.hospitalInvoice;
+				}
+
+				if (data.labInvoice && data.labInvoice.length > 0) {
+					filesToUpload.labInvoice = data.labInvoice;
+				}
+
+				// Only add employeeID if it exists and has files
+				if (data.employeeID && data.employeeID.length > 0) {
+					filesToUpload.employeeID = data.employeeID;
+				}
+
+				console.log(
+					"Files being uploaded:",
+					Object.keys(filesToUpload)
+				);
 
 				// Pre-process and optimize files before upload
 				setUploadProgress("Optimizing files...");
@@ -217,6 +327,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					transID,
 					filesToUpload
 				);
+
+				console.log("Upload results:", fileUploadResults);
 
 				setUploadProgress("Creating document...");
 				// Build new document structure using download URLs
@@ -249,18 +361,59 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 						illness: data.illness,
 						physician: data.physician,
 						procedures: data.procedures,
+						...(origFormType === "inpatient" && {
+							confinementFrom: data.confinementFrom,
+							confinementTo: data.confinementTo,
+						}),
 						term: data.term,
 						year: data.year,
 						load: data.load,
 						status: data.status,
 						benefits: data.benefits,
 						hmo: data.hmo,
-						docRequest: fileUploadResults.docRequest,
-						hospitalInvoice: fileUploadResults.hospitalInvoice,
-						labInvoice: fileUploadResults.labInvoice,
-						employeeID: fileUploadResults.employeeID,
-						applicantSignature:
-							fileUploadResults.applicantSignature,
+						// Store attachment data with both URL and filename
+						docRequest: fileUploadResults.docRequest
+							? {
+									url: fileUploadResults.docRequest,
+									filename:
+										filesToUpload.docRequest?.[0]?.name ||
+										"document.pdf",
+							  }
+							: "",
+						hospitalInvoice: fileUploadResults.hospitalInvoice
+							? {
+									url: fileUploadResults.hospitalInvoice,
+									filename:
+										filesToUpload.hospitalInvoice?.[0]
+											?.name || "invoice.pdf",
+							  }
+							: "",
+						labInvoice: fileUploadResults.labInvoice
+							? {
+									url: fileUploadResults.labInvoice,
+									filename:
+										filesToUpload.labInvoice?.[0]?.name ||
+										"lab_invoice.pdf",
+							  }
+							: "",
+						...(fileUploadResults.employeeID
+							? {
+									employeeID: {
+										url: fileUploadResults.employeeID,
+										filename:
+											filesToUpload.employeeID?.[0]
+												?.name || "employee_id.pdf",
+									},
+							  }
+							: {}),
+						applicantSignature: fileUploadResults.applicantSignature
+							? {
+									url: fileUploadResults.applicantSignature,
+									filename:
+										filesToUpload.applicantSignature?.[0]
+											?.name || "signature.png",
+							  }
+							: "",
 						hospitalStatus: data.hospitalStatus,
 						claimRequestCount: data.claimRequestCount,
 					},
@@ -360,7 +513,12 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					phoneInputValue={phoneInputValue}
 					setPhoneInputValue={setPhoneInputValue}
 				/>
-				<FormMedicalInfo register={register} errors={errors} />
+				<FormMedicalInfo
+					register={register}
+					errors={errors}
+					formType={origFormType}
+					watch={watch}
+				/>
 				<FormTeachingInfo
 					register={register}
 					errors={errors}
