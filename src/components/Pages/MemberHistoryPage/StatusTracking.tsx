@@ -198,7 +198,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
   const handleRevisionClick = () => {
     // Navigate to the path /home/{formData.formType}
     if (request && request.formData.formType) {
-      navigate(`/home/${request.formData.formType}`);
+      navigate(`/home/${request.formData.origFormType}`);
     }
   };
 
