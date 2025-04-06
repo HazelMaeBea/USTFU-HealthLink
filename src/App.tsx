@@ -22,7 +22,7 @@ import { UserProvider } from "./contexts/userContext";
 import { FirebaseProvider } from "./contexts/firebaseContext";
 import ProtectedRoute from "./components/Page Elements/Routing/protectedRoutes";
 //TEMP
-import FormGenerator from "./components/Pages/FormGenerator";
+// import FormGenerator from "./components/Pages/FormGenerator";
 
 const App: React.FC = () => {
 	return (
@@ -61,10 +61,10 @@ const App: React.FC = () => {
 											</ErrorBoundary>
 										}
 									/>
-									<Route
+									{/* <Route
 										path="/generate"
 										element={<FormGenerator />}
-									/>
+									/> */}
 
 									<Route path="/faqs" element={<FAQ />} />
 									<Route
