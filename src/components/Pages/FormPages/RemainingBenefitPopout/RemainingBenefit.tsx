@@ -93,7 +93,13 @@ const RemainingBenefit = () => {
 								<input
 									aria-label="amount left"
 									type="text"
-									value={remainingBenefits.toLocaleString()}
+									value={remainingBenefits.toLocaleString(
+										"en-US",
+										{
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										}
+									)}
 									disabled
 									className="amount-input"
 								/>
