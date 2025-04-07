@@ -114,7 +114,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 
 	const handleSaveConfirm = async () => {
 		if (!editUser) {
-			alert("No user data to save.");
+			// alert("No user data to save.");
 			return;
 		}
 		console.log("Saving changes...", editUser);
@@ -138,10 +138,10 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 					{ merge: true }
 				);
 			}
-			alert("Changes saved successfully!");
+			// alert("Changes saved successfully!");
 		} catch (error) {
 			console.log(error);
-			alert("Failed to save changes.");
+			// alert("Failed to save changes.");
 		} finally {
 			setShowPopout(false);
 		}
