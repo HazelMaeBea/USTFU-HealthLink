@@ -52,7 +52,7 @@ const AdminSettings = () => {
 			{activeTab === "userManagement" ? (
 				<UserManagement searchQuery={searchQuery} />
 			) : (
-				<VerificationPage/>
+				<VerificationPage searchQuery={searchQuery} />
 			)}
 		</div>
 	);
