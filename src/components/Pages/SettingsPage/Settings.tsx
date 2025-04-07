@@ -46,31 +46,64 @@ const currentTerm =
 	];
 
 const calculateAge = (birthdateStr: string): string => {
-	if (!birthdateStr) return "";
+	if (!birthdateStr) return "N/A";
 
-	const parts = birthdateStr.split("/");
-	if (parts.length !== 3) return "";
+	try {
+		let birthDate: Date;
 
-	const birthMonth = parseInt(parts[0], 10);
-	const birthDay = parseInt(parts[1], 10);
-	const birthYear = parseInt(parts[2], 10);
+		// Handle MM/DD/YYYY format
+		if (birthdateStr.includes("/")) {
+			const parts = birthdateStr.split("/");
+			if (parts.length !== 3) return "N/A";
 
-	if (isNaN(birthMonth) || isNaN(birthDay) || isNaN(birthYear)) return "";
+			const birthMonth = parseInt(parts[0], 10);
+			const birthDay = parseInt(parts[1], 10);
+			const birthYear = parseInt(parts[2], 10);
 
-	const birthDate = new Date(birthYear, birthMonth - 1, birthDay);
-	const today = new Date();
+			if (isNaN(birthMonth) || isNaN(birthDay) || isNaN(birthYear))
+				return "N/A";
+			birthDate = new Date(birthYear, birthMonth - 1, birthDay);
+		}
+		// Handle YYYY-MM-DD format
+		else if (birthdateStr.includes("-")) {
+			const parts = birthdateStr.split("-");
+			if (parts.length !== 3) return "N/A";
 
-	let age = today.getFullYear() - birthDate.getFullYear();
+			const birthYear = parseInt(parts[0], 10);
+			const birthMonth = parseInt(parts[1], 10);
+			const birthDay = parseInt(parts[2], 10);
 
-	const monthDiff = today.getMonth() - birthDate.getMonth();
-	if (
-		monthDiff < 0 ||
-		(monthDiff === 0 && today.getDate() < birthDate.getDate())
-	) {
-		age--;
+			if (isNaN(birthMonth) || isNaN(birthDay) || isNaN(birthYear))
+				return "N/A";
+			birthDate = new Date(birthYear, birthMonth - 1, birthDay);
+		}
+		// Try as direct Date object (handles ISO format)
+		else {
+			birthDate = new Date(birthdateStr);
+			if (isNaN(birthDate.getTime())) return "N/A";
+		}
+
+		const today = new Date();
+		let age = today.getFullYear() - birthDate.getFullYear();
+
+		const monthDiff = today.getMonth() - birthDate.getMonth();
+		if (
+			monthDiff < 0 ||
+			(monthDiff === 0 && today.getDate() < birthDate.getDate())
+		) {
+			age--;
+		}
+
+		return age.toString();
+	} catch (error) {
+		console.error(
+			"Error calculating age:",
+			error,
+			"for birthdate:",
+			birthdateStr
+		);
+		return "N/A";
 	}
-
-	return age.toString();
 };
 
 const formatIDNumber = (value: string): string => {
@@ -83,14 +116,30 @@ const formatIDNumber = (value: string): string => {
 const formatDateForPicker = (dateString: string): string => {
 	if (!dateString) return "";
 
-	const parts = dateString.split("/");
-	if (parts.length !== 3) return "";
+	// If it's already in YYYY-MM-DD format, return as is
+	if (
+		dateString.includes("-") &&
+		dateString.match(/^\d{4}-\d{1,2}-\d{1,2}$/)
+	) {
+		const [year, month, day] = dateString.split("-");
+		return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+	}
 
-	const month = parts[0].padStart(2, "0");
-	const day = parts[1].padStart(2, "0");
-	const year = parts[2];
+	// Handle MM/DD/YYYY format
+	if (dateString.includes("/")) {
+		const parts = dateString.split("/");
+		if (parts.length !== 3) return "";
 
-	return `${year}-${month}-${day}`;
+		const month = parts[0].padStart(2, "0");
+		const day = parts[1].padStart(2, "0");
+		const year = parts[2];
+
+		return `${year}-${month}-${day}`;
+	}
+
+	// If it's in neither format, return empty string
+	console.log("Date format not recognized:", dateString);
+	return "";
 };
 
 const formatDateFromPicker = (dateString: string): string => {
@@ -98,13 +147,19 @@ const formatDateFromPicker = (dateString: string): string => {
 
 	try {
 		const date = new Date(dateString);
+		if (isNaN(date.getTime())) {
+			console.log("Invalid date from picker:", dateString);
+			return "";
+		}
+
 		const month = (date.getMonth() + 1).toString().padStart(2, "0");
 		const day = date.getDate().toString().padStart(2, "0");
 		const year = date.getFullYear();
 
 		return `${month}/${day}/${year}`;
 	} catch (e) {
-		return dateString;
+		console.error("Error formatting date from picker:", e);
+		return "";
 	}
 };
 
@@ -250,7 +305,10 @@ const Settings = () => {
 						personalInfo.phoneNumber || "";
 					updatedSettings.gender = personalInfo.gender || "";
 					updatedSettings.college = personalInfo.college || "";
-					updatedSettings.ustEmail = personalInfo.ustEmail || "";
+
+					// Set UST email from userData and personalInfo
+					updatedSettings.ustEmail =
+						personalInfo.ustEmail || userData.email || "";
 
 					updatedSettings.notification =
 						userData.notification !== undefined
@@ -273,7 +331,11 @@ const Settings = () => {
 
 				setSettings(updatedSettings);
 				setOriginalSettings({ ...updatedSettings });
-				setCalculatedAge(calculateAge(updatedSettings.birthdate));
+
+				// Calculate age and provide helpful debug info
+				const ageResult = calculateAge(updatedSettings.birthdate);
+				setCalculatedAge(ageResult);
+
 				setChangedFields({});
 
 				if (updatedSettings.phoneNumber) {
