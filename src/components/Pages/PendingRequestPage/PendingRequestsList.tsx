@@ -360,7 +360,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	const handleSendClick = (transactionID: string) => {
 		if (!activeDecision) return; // Prevent sending if no action is selected
 
-		if (activeDecision === "approval" && !validateForm()) {
+		if (activeDecision === "approval" && validateForm()) {
 			// Don't proceed if validation fails for approval
 			return;
 		}
@@ -830,6 +830,18 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 				: []),
 			...(formData.labInvoice
 				? [{ type: "labInvoice", data: formData.labInvoice }]
+				: []),
+			...("eyeglassesReceipt" in formData && formData.eyeglassesReceipt
+				? [
+						{
+							type: "eyeglassesReceipt",
+							data: (
+								formData as {
+									eyeglassesReceipt: FormAttachment;
+								}
+							).eyeglassesReceipt,
+						},
+				  ]
 				: []),
 		].filter((item) => item.data && item.data.filename);
 

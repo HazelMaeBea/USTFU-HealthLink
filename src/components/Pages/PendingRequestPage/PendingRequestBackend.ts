@@ -283,9 +283,11 @@ export const updateDocument = async (
           statusReason: textArea,
           DateDecided: decisionTimestamp,
           pdfProcessed:
-            newCollection === "AccomplishedRequests" && status === "approved"
-              ? true
-              : false,
+          status === "approved"
+            ? false
+            : newCollection === "AccomplishedRequests"
+            ? true
+            : false,
         };
 
         // Add form-specific data to the new document

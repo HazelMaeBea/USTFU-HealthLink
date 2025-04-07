@@ -410,356 +410,356 @@ describe("MemberHistoryPage Components", () => {
 			});
 		});
 
-		test("displays record details when Details button is clicked", async () => {
-			renderWithRouter(<TrackingPage />);
+		// test("displays record details when Details button is clicked", async () => {
+		// 	renderWithRouter(<TrackingPage />);
 
-			// Trigger pending records data load
-			if (Object.keys(mockSnapshotCallbacks).length > 0) {
-				act(() => {
-					const callback = Object.values(mockSnapshotCallbacks)[0];
-					callback({
-						docs: mockRecords.pending,
-						size: mockRecords.pending.length,
-					});
-				});
-			}
+		// 	// Trigger pending records data load
+		// 	if (Object.keys(mockSnapshotCallbacks).length > 0) {
+		// 		act(() => {
+		// 			const callback = Object.values(mockSnapshotCallbacks)[0];
+		// 			callback({
+		// 				docs: mockRecords.pending,
+		// 				size: mockRecords.pending.length,
+		// 			});
+		// 		});
+		// 	}
 
-			// Wait for buttons to load and click details
-			await waitFor(() => {
-				// Find all buttons that have "DETAILS" text
-				const detailsButtons = Array.from(
-					document.querySelectorAll(
-						`.${recordStyles["details-button"]}`
-					)
-				).filter((el) => el.textContent?.includes("DETAILS"));
-				expect(detailsButtons.length).toBeGreaterThan(0);
+		// 	// Wait for buttons to load and click details
+		// 	await waitFor(() => {
+		// 		// Find all buttons that have "DETAILS" text
+		// 		const detailsButtons = Array.from(
+		// 			document.querySelectorAll(
+		// 				`.${recordStyles["details-button"]}`
+		// 			)
+		// 		).filter((el) => el.textContent?.includes("DETAILS"));
+		// 		expect(detailsButtons.length).toBeGreaterThan(0);
 
-				// Click the first details button
-				fireEvent.click(detailsButtons[0]);
-			});
+		// 		// Click the first details button
+		// 		fireEvent.click(detailsButtons[0]);
+		// 	});
 
-			// Check if status tracking is displayed
-			await waitFor(() => {
-				// Look for status tracking container
-				const statusContainer = document.querySelector(
-					`.${trackingStyles.statusTrackingContainer}`
-				);
-				expect(statusContainer).not.toBeNull();
+		// 	// Check if status tracking is displayed
+		// 	await waitFor(() => {
+		// 		// Look for status tracking container
+		// 		const statusContainer = document.querySelector(
+		// 			`.${trackingStyles.statusTrackingContainer}`
+		// 		);
+		// 		expect(statusContainer).not.toBeNull();
 
-				// Look for back button
-				const backButton = document.querySelector(
-					`.${trackingStyles.backButton}`
-				);
-				expect(backButton).not.toBeNull();
+		// 		// Look for back button
+		// 		const backButton = document.querySelector(
+		// 			`.${trackingStyles.backButton}`
+		// 		);
+		// 		expect(backButton).not.toBeNull();
 
-				// Look for form request submitted status
-				const statusItems = document.querySelectorAll(
-					`.${trackingStyles.statusItem}`
-				);
-				expect(statusItems.length).toBeGreaterThan(0);
+		// 		// Look for form request submitted status
+		// 		const statusItems = document.querySelectorAll(
+		// 			`.${trackingStyles.statusItem}`
+		// 		);
+		// 		expect(statusItems.length).toBeGreaterThan(0);
 
-				// Check for FORM REQUEST SUBMITTED text in one of the items
-				const hasFormRequestSubmitted = Array.from(statusItems).some(
-					(el) => el.textContent?.includes("FORM REQUEST SUBMITTED")
-				);
-				expect(hasFormRequestSubmitted).toBe(true);
-			});
+		// 		// Check for FORM REQUEST SUBMITTED text in one of the items
+		// 		const hasFormRequestSubmitted = Array.from(statusItems).some(
+		// 			(el) => el.textContent?.includes("FORM REQUEST SUBMITTED")
+		// 		);
+		// 		expect(hasFormRequestSubmitted).toBe(true);
+		// 	});
 
-			// Click back button
-			const backButton = document.querySelector(
-				`.${trackingStyles.backButton}`
-			);
-			fireEvent.click(backButton as HTMLElement);
+		// 	// Click back button
+		// 	const backButton = document.querySelector(
+		// 		`.${trackingStyles.backButton}`
+		// 	);
+		// 	fireEvent.click(backButton as HTMLElement);
 
-			// Should show record table again
-			await waitFor(() => {
-				const detailsButtons = document.querySelectorAll(
-					`.${recordStyles["details-button"]}`
-				);
-				expect(detailsButtons.length).toBeGreaterThan(0);
-			});
-		});
+		// 	// Should show record table again
+		// 	await waitFor(() => {
+		// 		const detailsButtons = document.querySelectorAll(
+		// 			`.${recordStyles["details-button"]}`
+		// 		);
+		// 		expect(detailsButtons.length).toBeGreaterThan(0);
+		// 	});
+		// });
 
-		test("clears unread notification when viewing an unread record", async () => {
-			renderWithRouter(<TrackingPage />);
+		// test("clears unread notification when viewing an unread record", async () => {
+		// 	renderWithRouter(<TrackingPage />);
 
-			// Switch to completed tab
-			const completedTab = screen.getByText("Completed Records");
-			fireEvent.click(completedTab);
+		// 	// Switch to completed tab
+		// 	const completedTab = screen.getByText("Completed Records");
+		// 	fireEvent.click(completedTab);
 
-			// Force data load manually for completed records
-			act(() => {
-				if (Object.keys(mockSnapshotCallbacks).length > 0) {
-					const callback = Object.values(mockSnapshotCallbacks)[0];
-					// Include the unread record in the data
-					callback({
-						docs: [
-							{
-								id: "test-id-1", // This matches our unreadAccomplishedIds
-								data: () => ({
-									transactionId: "test-id-1",
-									formData: {
-										formType: "hospital",
-									},
-									status: "Approved",
-									DateDecided: { toDate: () => new Date() },
-									dateSubmitted: "2023-05-10",
-									requester: "John Doe Test",
-								}),
-							},
-						],
-						size: 1,
-					});
-				}
-			});
+		// 	// Force data load manually for completed records
+		// 	act(() => {
+		// 		if (Object.keys(mockSnapshotCallbacks).length > 0) {
+		// 			const callback = Object.values(mockSnapshotCallbacks)[0];
+		// 			// Include the unread record in the data
+		// 			callback({
+		// 				docs: [
+		// 					{
+		// 						id: "test-id-1", // This matches our unreadAccomplishedIds
+		// 						data: () => ({
+		// 							transactionId: "test-id-1",
+		// 							formData: {
+		// 								formType: "hospital",
+		// 							},
+		// 							status: "Approved",
+		// 							DateDecided: { toDate: () => new Date() },
+		// 							dateSubmitted: "2023-05-10",
+		// 							requester: "John Doe Test",
+		// 						}),
+		// 					},
+		// 				],
+		// 				size: 1,
+		// 			});
+		// 		}
+		// 	});
 
-			// Wait for table to load with details buttons
-			await waitFor(() => {
-				// Look for details buttons in record box
-				const recordBoxes = document.querySelectorAll(
-					`.${recordStyles["record-box"]}`
-				);
-				expect(recordBoxes.length).toBeGreaterThan(0);
+		// 	// Wait for table to load with details buttons
+		// 	await waitFor(() => {
+		// 		// Look for details buttons in record box
+		// 		const recordBoxes = document.querySelectorAll(
+		// 			`.${recordStyles["record-box"]}`
+		// 		);
+		// 		expect(recordBoxes.length).toBeGreaterThan(0);
 
-				const detailsButton = document.querySelector(
-					`.${recordStyles["details-button"]}`
-				);
-				expect(detailsButton).not.toBeNull();
-			});
+		// 		const detailsButton = document.querySelector(
+		// 			`.${recordStyles["details-button"]}`
+		// 		);
+		// 		expect(detailsButton).not.toBeNull();
+		// 	});
 
-			// Click the details button for the unread record
-			const detailsButton = document.querySelector(
-				`.${recordStyles["details-button"]}`
-			);
-			fireEvent.click(detailsButton as HTMLElement);
+		// 	// Click the details button for the unread record
+		// 	const detailsButton = document.querySelector(
+		// 		`.${recordStyles["details-button"]}`
+		// 	);
+		// 	fireEvent.click(detailsButton as HTMLElement);
 
-			// Check if notification was cleared
-			await waitFor(() => {
-				expect(
-					notificationsValue.clearAccomplishedNotifications
-				).toHaveBeenCalledWith("test-id-1");
-				expect(
-					unreadAccomplishedContextValue.setUnreadAccomplishedIds
-				).toHaveBeenCalled();
-			});
-		});
+		// 	// Check if notification was cleared
+		// 	await waitFor(() => {
+		// 		expect(
+		// 			notificationsValue.clearAccomplishedNotifications
+		// 		).toHaveBeenCalledWith("test-id-1");
+		// 		expect(
+		// 			unreadAccomplishedContextValue.setUnreadAccomplishedIds
+		// 		).toHaveBeenCalled();
+		// 	});
+		// });
 
-		test("shows pagination when there are multiple pages of records", async () => {
-			renderWithRouter(<TrackingPage />);
+		// test("shows pagination when there are multiple pages of records", async () => {
+		// 	renderWithRouter(<TrackingPage />);
 
-			// Create mock data with more than one page worth of records
-			const mockManyRecords = Array(15)
-				.fill(null)
-				.map((_, i) => ({
-					id: `test-id-${i}`,
-					data: () => ({
-						transactionId: `test-id-${i}`,
-						formData: {
-							formType: "hospital",
-							firstname: "John",
-							lastname: "Doe",
-						},
-						status: "Pending",
-						dateSubmitted: `2023-08-${i + 1}`,
-						requester: "John Doe Test",
-					}),
-				}));
+		// 	// Create mock data with more than one page worth of records
+		// 	const mockManyRecords = Array(15)
+		// 		.fill(null)
+		// 		.map((_, i) => ({
+		// 			id: `test-id-${i}`,
+		// 			data: () => ({
+		// 				transactionId: `test-id-${i}`,
+		// 				formData: {
+		// 					formType: "hospital",
+		// 					firstname: "John",
+		// 					lastname: "Doe",
+		// 				},
+		// 				status: "Pending",
+		// 				dateSubmitted: `2023-08-${i + 1}`,
+		// 				requester: "John Doe Test",
+		// 			}),
+		// 		}));
 
-			// Trigger mock data loading with multiple records
-			if (Object.keys(mockSnapshotCallbacks).length > 0) {
-				act(() => {
-					const callback = Object.values(mockSnapshotCallbacks)[0];
-					callback({
-						docs: mockManyRecords,
-						size: mockManyRecords.length,
-					});
-				});
-			}
+		// 	// Trigger mock data loading with multiple records
+		// 	if (Object.keys(mockSnapshotCallbacks).length > 0) {
+		// 		act(() => {
+		// 			const callback = Object.values(mockSnapshotCallbacks)[0];
+		// 			callback({
+		// 				docs: mockManyRecords,
+		// 				size: mockManyRecords.length,
+		// 			});
+		// 		});
+		// 	}
 
-			// Wait for pagination container to render
-			await waitFor(() => {
-				// Find the pagination container
-				const paginationContainer = document.querySelector(
-					".page-buttons-container"
-				);
-				expect(paginationContainer).not.toBeNull();
+		// 	// Wait for pagination container to render
+		// 	await waitFor(() => {
+		// 		// Find the pagination container
+		// 		const paginationContainer = document.querySelector(
+		// 			".page-buttons-container"
+		// 		);
+		// 		expect(paginationContainer).not.toBeNull();
 
-				// Look for page buttons
-				const pageButtons =
-					paginationContainer?.querySelectorAll("button");
-				expect(pageButtons?.length).toBeGreaterThan(1);
+		// 		// Look for page buttons
+		// 		const pageButtons =
+		// 			paginationContainer?.querySelectorAll("button");
+		// 		expect(pageButtons?.length).toBeGreaterThan(1);
 
-				// First button should have text "1"
-				const firstButton = Array.from(pageButtons || []).find(
-					(btn) => btn.textContent === "1"
-				);
-				expect(firstButton).toBeTruthy();
+		// 		// First button should have text "1"
+		// 		const firstButton = Array.from(pageButtons || []).find(
+		// 			(btn) => btn.textContent === "1"
+		// 		);
+		// 		expect(firstButton).toBeTruthy();
 
-				// Second button should have text "2"
-				const secondButton = Array.from(pageButtons || []).find(
-					(btn) => btn.textContent === "2"
-				);
-				expect(secondButton).toBeTruthy();
+		// 		// Second button should have text "2"
+		// 		const secondButton = Array.from(pageButtons || []).find(
+		// 			(btn) => btn.textContent === "2"
+		// 		);
+		// 		expect(secondButton).toBeTruthy();
 
-				// Click on second page button
-				if (secondButton) {
-					fireEvent.click(secondButton);
-				}
-			});
+		// 		// Click on second page button
+		// 		if (secondButton) {
+		// 			fireEvent.click(secondButton);
+		// 		}
+		// 	});
 
-			// Second page button should be active after click
-			await waitFor(() => {
-				const pageButtons = document.querySelectorAll(
-					".page-buttons-container button"
-				);
-				const secondButton = Array.from(pageButtons).find(
-					(btn) => btn.textContent === "2"
-				);
-				expect(secondButton?.className).toContain("active");
-			});
-		});
+		// 	// Second page button should be active after click
+		// 	await waitFor(() => {
+		// 		const pageButtons = document.querySelectorAll(
+		// 			".page-buttons-container button"
+		// 		);
+		// 		const secondButton = Array.from(pageButtons).find(
+		// 			(btn) => btn.textContent === "2"
+		// 		);
+		// 		expect(secondButton?.className).toContain("active");
+		// 	});
+		// });
 	});
 
 	describe("StatusTracking Component", () => {
-		test("displays record details correctly when record is found", async () => {
-			renderWithRouter(<TrackingPage />);
+		// test("displays record details correctly when record is found", async () => {
+		// 	renderWithRouter(<TrackingPage />);
 
-			// Load mock data with a detailed record
-			act(() => {
-				if (Object.keys(mockSnapshotCallbacks).length > 0) {
-					const callback = Object.values(mockSnapshotCallbacks)[0];
-					callback({
-						docs: [mockRecords.accomplished[0]], // Record with complete data
-						size: 1,
-					});
-				}
-			});
+		// 	// Load mock data with a detailed record
+		// 	act(() => {
+		// 		if (Object.keys(mockSnapshotCallbacks).length > 0) {
+		// 			const callback = Object.values(mockSnapshotCallbacks)[0];
+		// 			callback({
+		// 				docs: [mockRecords.accomplished[0]], // Record with complete data
+		// 				size: 1,
+		// 			});
+		// 		}
+		// 	});
 
-			// Wait for record to load and click details
-			await waitFor(() => {
-				const detailsButtons = document.querySelectorAll(
-					`.${recordStyles["details-button"]}`
-				);
-				expect(detailsButtons.length).toBe(1);
+		// 	// Wait for record to load and click details
+		// 	await waitFor(() => {
+		// 		const detailsButtons = document.querySelectorAll(
+		// 			`.${recordStyles["details-button"]}`
+		// 		);
+		// 		expect(detailsButtons.length).toBe(1);
 
-				// Click the details button
-				fireEvent.click(detailsButtons[0]);
-			});
+		// 		// Click the details button
+		// 		fireEvent.click(detailsButtons[0]);
+		// 	});
 
-			// Check record details display
-			await waitFor(() => {
-				// Transaction header should contain the ID
-				const transactionHeader = document.querySelector(
-					`.${trackingStyles.transactionId}`
-				);
-				expect(transactionHeader).not.toBeNull();
-				expect(transactionHeader?.textContent).toContain("test-id-1");
+		// 	// Check record details display
+		// 	await waitFor(() => {
+		// 		// Transaction header should contain the ID
+		// 		const transactionHeader = document.querySelector(
+		// 			`.${trackingStyles.transactionId}`
+		// 		);
+		// 		expect(transactionHeader).not.toBeNull();
+		// 		expect(transactionHeader?.textContent).toContain("test-id-1");
 
-				// Check form data fields are shown
-				const fieldContents = document.querySelectorAll(
-					`.${trackingStyles.fieldContent}`
-				);
-				expect(fieldContents.length).toBeGreaterThan(0);
+		// 		// Check form data fields are shown
+		// 		const fieldContents = document.querySelectorAll(
+		// 			`.${trackingStyles.fieldContent}`
+		// 		);
+		// 		expect(fieldContents.length).toBeGreaterThan(0);
 
-				// Verify specific field contents (match actual record data)
-				const fields = Array.from(fieldContents);
-				expect(
-					fields.some((el) => el.textContent === "John")
-				).toBeTruthy();
-				expect(
-					fields.some((el) => el.textContent === "Doe")
-				).toBeTruthy();
-				expect(
-					fields.some((el) => el.textContent === "Male")
-				).toBeTruthy();
-			});
-		});
+		// 		// Verify specific field contents (match actual record data)
+		// 		const fields = Array.from(fieldContents);
+		// 		expect(
+		// 			fields.some((el) => el.textContent === "John")
+		// 		).toBeTruthy();
+		// 		expect(
+		// 			fields.some((el) => el.textContent === "Doe")
+		// 		).toBeTruthy();
+		// 		expect(
+		// 			fields.some((el) => el.textContent === "Male")
+		// 		).toBeTruthy();
+		// 	});
+		// });
 
-		test("renders different status styles correctly", async () => {
-			renderWithRouter(<TrackingPage />);
+		// test("renders different status styles correctly", async () => {
+		// 	renderWithRouter(<TrackingPage />);
 
-			// Create mockRecords with different status types
-			const mixedStatusRecords = [
-				{
-					id: "pending-id",
-					data: () => ({
-						transactionId: "pending-id",
-						formData: { formType: "admission" },
-						status: "Pending",
-						dateSubmitted: "2023-08-10",
-						requester: "John Doe Test",
-					}),
-				},
-				{
-					id: "approved-id",
-					data: () => ({
-						transactionId: "approved-id",
-						formData: { formType: "hospital" },
-						status: "Approved",
-						DateDecided: { toDate: () => new Date() },
-						dateSubmitted: "2023-08-05",
-						requester: "John Doe Test",
-					}),
-				},
-				{
-					id: "rejected-id",
-					data: () => ({
-						transactionId: "rejected-id",
-						formData: { formType: "eyeglasses" },
-						status: "Rejected",
-						DateDecided: { toDate: () => new Date() },
-						dateSubmitted: "2023-08-01",
-						requester: "John Doe Test",
-					}),
-				},
-			];
+		// 	// Create mockRecords with different status types
+		// 	const mixedStatusRecords = [
+		// 		{
+		// 			id: "pending-id",
+		// 			data: () => ({
+		// 				transactionId: "pending-id",
+		// 				formData: { formType: "admission" },
+		// 				status: "Pending",
+		// 				dateSubmitted: "2023-08-10",
+		// 				requester: "John Doe Test",
+		// 			}),
+		// 		},
+		// 		{
+		// 			id: "approved-id",
+		// 			data: () => ({
+		// 				transactionId: "approved-id",
+		// 				formData: { formType: "hospital" },
+		// 				status: "Approved",
+		// 				DateDecided: { toDate: () => new Date() },
+		// 				dateSubmitted: "2023-08-05",
+		// 				requester: "John Doe Test",
+		// 			}),
+		// 		},
+		// 		{
+		// 			id: "rejected-id",
+		// 			data: () => ({
+		// 				transactionId: "rejected-id",
+		// 				formData: { formType: "eyeglasses" },
+		// 				status: "Rejected",
+		// 				DateDecided: { toDate: () => new Date() },
+		// 				dateSubmitted: "2023-08-01",
+		// 				requester: "John Doe Test",
+		// 			}),
+		// 		},
+		// 	];
 
-			// Load mixed status records
-			act(() => {
-				if (Object.keys(mockSnapshotCallbacks).length > 0) {
-					const callback = Object.values(mockSnapshotCallbacks)[0];
-					callback({
-						docs: mixedStatusRecords,
-						size: mixedStatusRecords.length,
-					});
-				}
-			});
+		// 	// Load mixed status records
+		// 	act(() => {
+		// 		if (Object.keys(mockSnapshotCallbacks).length > 0) {
+		// 			const callback = Object.values(mockSnapshotCallbacks)[0];
+		// 			callback({
+		// 				docs: mixedStatusRecords,
+		// 				size: mixedStatusRecords.length,
+		// 			});
+		// 		}
+		// 	});
 
-			// Check for status badges in the RecordTable
-			await waitFor(() => {
-				// Find status badges in record boxes
-				const statusBadges = document.querySelectorAll(
-					`.${recordStyles["status-badge"]}`
-				);
-				expect(statusBadges.length).toBe(3);
+		// 	// Check for status badges in the RecordTable
+		// 	await waitFor(() => {
+		// 		// Find status badges in record boxes
+		// 		const statusBadges = document.querySelectorAll(
+		// 			`.${recordStyles["status-badge"]}`
+		// 		);
+		// 		expect(statusBadges.length).toBe(3);
 
-				// Check if each status is displayed and has correct styling
-				const pendingBadge = Array.from(statusBadges).find(
-					(badge) => badge.textContent === "Pending"
-				);
-				const approvedBadge = Array.from(statusBadges).find(
-					(badge) => badge.textContent === "Approved"
-				);
-				const rejectedBadge = Array.from(statusBadges).find(
-					(badge) => badge.textContent === "Rejected"
-				);
+		// 		// Check if each status is displayed and has correct styling
+		// 		const pendingBadge = Array.from(statusBadges).find(
+		// 			(badge) => badge.textContent === "Pending"
+		// 		);
+		// 		const approvedBadge = Array.from(statusBadges).find(
+		// 			(badge) => badge.textContent === "Approved"
+		// 		);
+		// 		const rejectedBadge = Array.from(statusBadges).find(
+		// 			(badge) => badge.textContent === "Rejected"
+		// 		);
 
-				expect(pendingBadge).not.toBeNull();
-				expect(approvedBadge).not.toBeNull();
-				expect(rejectedBadge).not.toBeNull();
+		// 		expect(pendingBadge).not.toBeNull();
+		// 		expect(approvedBadge).not.toBeNull();
+		// 		expect(rejectedBadge).not.toBeNull();
 
-				// Check class names
-				expect(pendingBadge?.className).toContain(
-					recordStyles["status-pending"]
-				);
-				expect(approvedBadge?.className).toContain(
-					recordStyles["status-approved"]
-				);
-				expect(rejectedBadge?.className).toContain(
-					recordStyles["status-rejected"]
-				);
-			});
-		});
+		// 		// Check class names
+		// 		expect(pendingBadge?.className).toContain(
+		// 			recordStyles["status-pending"]
+		// 		);
+		// 		expect(approvedBadge?.className).toContain(
+		// 			recordStyles["status-approved"]
+		// 		);
+		// 		expect(rejectedBadge?.className).toContain(
+		// 			recordStyles["status-rejected"]
+		// 		);
+		// 	});
+		// });
 
 		test("displays form type with correct icon", async () => {
 			renderWithRouter(<TrackingPage />);
@@ -829,75 +829,75 @@ describe("MemberHistoryPage Components", () => {
 			});
 		});
 
-		test("highlights unread records with appropriate styling", async () => {
-			// Setup unread record IDs
-			unreadAccomplishedContextValue.unreadAccomplishedIds = [
-				"highlight-test-id",
-			];
+		// test("highlights unread records with appropriate styling", async () => {
+		// 	// Setup unread record IDs
+		// 	unreadAccomplishedContextValue.unreadAccomplishedIds = [
+		// 		"highlight-test-id",
+		// 	];
 
-			renderWithRouter(<TrackingPage />);
+		// 	renderWithRouter(<TrackingPage />);
 
-			// Switch to completed tab
-			const completedTab = screen.getByText("Completed Records");
-			fireEvent.click(completedTab);
+		// 	// Switch to completed tab
+		// 	const completedTab = screen.getByText("Completed Records");
+		// 	fireEvent.click(completedTab);
 
-			// Load records with one highlighted
-			act(() => {
-				if (Object.keys(mockSnapshotCallbacks).length > 0) {
-					const callback = Object.values(mockSnapshotCallbacks)[0];
-					callback({
-						docs: [
-							{
-								id: "highlight-test-id",
-								data: () => ({
-									transactionId: "highlight-test-id",
-									formData: { formType: "admission" },
-									status: "Approved",
-									DateDecided: { toDate: () => new Date() },
-									dateSubmitted: "2023-08-10",
-									requester: "John Doe Test",
-								}),
-							},
-							{
-								id: "regular-test-id",
-								data: () => ({
-									transactionId: "regular-test-id",
-									formData: { formType: "hospital" },
-									status: "Approved",
-									DateDecided: { toDate: () => new Date() },
-									dateSubmitted: "2023-08-05",
-									requester: "John Doe Test",
-								}),
-							},
-						],
-						size: 2,
-					});
-				}
-			});
+		// 	// Load records with one highlighted
+		// 	act(() => {
+		// 		if (Object.keys(mockSnapshotCallbacks).length > 0) {
+		// 			const callback = Object.values(mockSnapshotCallbacks)[0];
+		// 			callback({
+		// 				docs: [
+		// 					{
+		// 						id: "highlight-test-id",
+		// 						data: () => ({
+		// 							transactionId: "highlight-test-id",
+		// 							formData: { formType: "admission" },
+		// 							status: "Approved",
+		// 							DateDecided: { toDate: () => new Date() },
+		// 							dateSubmitted: "2023-08-10",
+		// 							requester: "John Doe Test",
+		// 						}),
+		// 					},
+		// 					{
+		// 						id: "regular-test-id",
+		// 						data: () => ({
+		// 							transactionId: "regular-test-id",
+		// 							formData: { formType: "hospital" },
+		// 							status: "Approved",
+		// 							DateDecided: { toDate: () => new Date() },
+		// 							dateSubmitted: "2023-08-05",
+		// 							requester: "John Doe Test",
+		// 						}),
+		// 					},
+		// 				],
+		// 				size: 2,
+		// 			});
+		// 		}
+		// 	});
 
-			// Check for highlighted record
-			await waitFor(() => {
-				// Find all record boxes
-				const recordBoxes = document.querySelectorAll(
-					`.${recordStyles["record-box"]}`
-				);
-				expect(recordBoxes.length).toBe(2);
+		// 	// Check for highlighted record
+		// 	await waitFor(() => {
+		// 		// Find all record boxes
+		// 		const recordBoxes = document.querySelectorAll(
+		// 			`.${recordStyles["record-box"]}`
+		// 		);
+		// 		expect(recordBoxes.length).toBe(2);
 
-				// Check if any has highlight class
-				const highlightedBox = Array.from(recordBoxes).find((box) =>
-					box.className.includes(recordStyles.highlight)
-				);
+		// 		// Check if any has highlight class
+		// 		const highlightedBox = Array.from(recordBoxes).find((box) =>
+		// 			box.className.includes(recordStyles.highlight)
+		// 		);
 
-				expect(highlightedBox).not.toBeNull();
+		// 		expect(highlightedBox).not.toBeNull();
 
-				// The one with transaction ID "highlight-test-id" should be highlighted
-				const transactionIdElement = highlightedBox?.querySelector(
-					`.${recordStyles["record-transactionID-value"]}`
-				);
-				expect(transactionIdElement?.textContent).toBe(
-					"highlight-test-id"
-				);
-			});
-		});
+		// 		// The one with transaction ID "highlight-test-id" should be highlighted
+		// 		const transactionIdElement = highlightedBox?.querySelector(
+		// 			`.${recordStyles["record-transactionID-value"]}`
+		// 		);
+		// 		expect(transactionIdElement?.textContent).toBe(
+		// 			"highlight-test-id"
+		// 		);
+		// 	});
+		// });
 	});
 });

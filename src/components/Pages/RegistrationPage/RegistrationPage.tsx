@@ -202,7 +202,7 @@ const RegistrationPage: React.FC = () => {
 	});
 
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
-	const [isPhoneFocused, setIsPhoneFocused] = useState<boolean>(false);
+	const [setIsPhoneFocused] = useState<boolean>(false);
 
 	useEffect(() => {
 		const year = calculateAcademicYear();
@@ -235,17 +235,7 @@ const RegistrationPage: React.FC = () => {
 				email: email,
 				fullName: `${formData.firstName.toUpperCase()} ${formData.middleName.toUpperCase()} ${formData.lastName.toUpperCase()}`,
 				college: formData.college,
-				createdAt: new Date().toLocaleString("en-US", {
-					timeZone: "Asia/Manila",
-					month: "long",
-					day: "numeric",
-					year: "numeric",
-					hour: "numeric",
-					minute: "numeric",
-					second: "numeric",
-					hour12: true,
-					timeZoneName: "short",
-				}),
+				createdAt: new Date(),
 				role: "member",
 				status: "ACTIVE",
 				verified: false,
@@ -267,6 +257,7 @@ const RegistrationPage: React.FC = () => {
 					term: formData.term,
 					year: formData.year,
 					remainingBenefits: 0,
+					ustEmail: email || "",
 				},
 				settings: {
 					autofill: true,

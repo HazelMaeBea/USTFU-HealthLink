@@ -24,6 +24,30 @@ import {
 } from "../../../utils/fileUpload.ts";
 import { baseFormSchema, UnifiedFormData } from "./FormUtil/formTypes.ts";
 import { pushPendingNotification } from "../../Page Elements/NotifBadge/NotifTrigger.ts";
+import { useRevisionStore } from "../../Page Elements/RevisionFuncs/revisionStore.ts";
+import { useRemoveRequest } from "../../Page Elements/RevisionFuncs/removeRequest.ts";
+import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles.tsx";
+import {
+	saveFormData,
+	loadFormData,
+	clearFormData,
+} from "./FormUtil/formPresistence.ts";
+
+type FileState = {
+	[key: string]: string | null; // Each field (e.g., "applicantSignature") can have a string (file URL) or null
+};
+
+const fileFields = [
+	"employeeID",
+	"applicantSignature",
+	"docRequest",
+	"hospitalInvoice",
+	"labInvoice",
+] as const;
+
+type FileField = (typeof fileFields)[number];
+
+let pendingUnmountId: string | null = null;
 
 // Extend the base schema with admission-specific fields
 const schema = baseFormSchema
@@ -133,9 +157,125 @@ const AdmissionForm = () => {
 		},
 	});
 
-	// Apply autofill when component loads
-	useAutofill(setValue, setDateHired, setDateRetired, setPhoneInputValue);
+	// load saved data on mount
+	useEffect(() => {
+		const savedData = loadFormData("admission");
+		if (savedData) {
+			reset(savedData);
+		}
+	}, [reset]);
 
+	// auto save data on change
+	useEffect(() => {
+		const subscription = watch((value) => {
+			saveFormData("admission", value);
+		});
+		return () => subscription.unsubscribe();
+	}, [watch]);
+
+	const [files, setFiles] = useState<any>({});
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [previewFile, setPreviewFile] = useState<any>(null);
+	const [isFileInput, setIsFileInput] = useState<Record<FileField, boolean>>({
+		employeeID: false,
+		applicantSignature: false,
+		docRequest: false,
+		hospitalInvoice: false,
+		labInvoice: false,
+	});
+	const { formData, isRevisionMode, transactionId } = useRevisionStore();
+	const resetRevision = useRevisionStore((state) => state.resetRevision);
+	const { removeRequest } = useRemoveRequest();
+	const updateFileInputStates = (newFiles: any) => {
+		const inputStates = Object.fromEntries(
+			fileFields.map((key) => [key, Boolean(newFiles[key])])
+		) as Record<FileField, boolean>;
+		setIsFileInput(inputStates);
+	};
+	const [isNewUpload, setIsNewUpload] = useState({
+		employeeID: false,
+		applicantSignature: false,
+		docRequest: false,
+		hospitalInvoice: false,
+		labInvoice: false,
+	});
+
+	useEffect(() => {
+		return () => {
+			console.log("Component unmounting...");
+			console.log("isRevisionMode:", isRevisionMode);
+			console.log("transactionId:", transactionId);
+
+			pendingUnmountId = transactionId;
+
+			setTimeout(() => {
+				const {
+					transactionId: currentId,
+					isRevisionMode: currentRev,
+					resetRevision,
+				} = useRevisionStore.getState();
+
+				// Only reset if the same transactionId hasn’t come back
+				if (pendingUnmountId === currentId && currentRev) {
+					console.log("Resetting revision due to true unmount");
+					resetRevision();
+				} else {
+					console.log("Skipping resetRevision - likely remounted");
+				}
+
+				pendingUnmountId = null; // clean up
+			}, 100);
+		};
+	}, [transactionId]);
+
+	useEffect(() => {
+		if (transactionId) {
+			if (pendingUnmountId === transactionId) {
+				console.log("Remount detected - preventing reset");
+				pendingUnmountId = null;
+			}
+		}
+	}, [transactionId]);
+
+	useEffect(() => {
+		if (isRevisionMode && formData) {
+			// Populate form values
+			Object.keys(formData).forEach((key) => {
+				setValue(
+					key as keyof UnifiedFormData,
+					formData[key as keyof UnifiedFormData]
+				);
+			});
+
+			// Set files based on formData
+			const prefills = {
+				applicantSignature: formData.applicantSignature,
+				docRequest: formData.docRequest,
+				hospitalInvoice: formData.hospitalInvoice,
+				labInvoice: formData.labInvoice,
+				employeeID: formData.employeeID,
+			};
+			setFiles(prefills);
+			updateFileInputStates(prefills);
+		}
+	}, [formData, isRevisionMode, setValue]);
+
+	useEffect(() => {
+		if (isRevisionMode && files) {
+			updateFileInputStates(files);
+			console.log(`Updated isFileInput: ${JSON.stringify(isFileInput)}`);
+		}
+	}, [files, isRevisionMode]);
+
+	useEffect(() => {
+		console.log("isRevisionMode changed:", isRevisionMode);
+	}, [isRevisionMode]);
+
+	useEffect(() => {
+		console.log("Files state changed:", files);
+	}, [files]);
+
+	useAutofill(setValue, setDateHired, setDateRetired, setPhoneInputValue);
 	// Re-apply autofill after form is cleared
 	useEffect(() => {
 		if (shouldReapplyAutofill) {
@@ -210,6 +350,24 @@ const AdmissionForm = () => {
 					message: result.errorMessage,
 				});
 			} else {
+				// Handle valid files
+				if (files && files.length > 0) {
+					const file = files[0];
+					// Assuming you're uploading and receiving a file URL back from the upload service
+					const uploadedFileUrl = URL.createObjectURL(file); // Example of a temporary URL
+
+					// Update the file state with the new uploaded file URL
+					setFiles((prevFiles: FileState) => ({
+						...prevFiles,
+						[fieldName]: uploadedFileUrl, // You can replace this with your actual file URL
+					}));
+				}
+
+				setIsNewUpload((prev) => ({
+					...prev,
+					[fieldName]: true,
+				}));
+
 				// Clear error if file is valid
 				setFileErrors((prev) => ({
 					...prev,
@@ -232,7 +390,7 @@ const AdmissionForm = () => {
 				hospitalInvoice: data.hospitalInvoice,
 				labInvoice: data.labInvoice,
 			};
-			const transID = "TRN" + Date.now();
+			const transID = isRevisionMode ? transactionId : "TRN" + Date.now(); // Use existing transactionId for revision mode
 			setFormIdString(transID);
 
 			const fileUploadResults = await uploadFilesAndGetURLs(
@@ -270,13 +428,54 @@ const AdmissionForm = () => {
 					status: data["status"],
 					dateHired: data.dateHired,
 					dateRetired: data.dateRetired,
-					docRequest: fileUploadResults.docRequest,
-					hospitalInvoice: fileUploadResults.hospitalInvoice,
-					labInvoice: fileUploadResults.labInvoice,
-					employeeID: fileUploadResults.employeeID,
-					applicantSignature: fileUploadResults.applicantSignature,
+					docRequest: fileUploadResults.docRequest
+						? {
+								url: fileUploadResults.docRequest,
+								filename:
+									filesToUpload.docRequest?.[0]?.name ||
+									"document.pdf",
+						  }
+						: "",
+					hospitalInvoice: fileUploadResults.hospitalInvoice
+						? {
+								url: fileUploadResults.hospitalInvoice,
+								filename:
+									filesToUpload.hospitalInvoice?.[0]?.name ||
+									"invoice.pdf",
+						  }
+						: "",
+					labInvoice: fileUploadResults.labInvoice
+						? {
+								url: fileUploadResults.labInvoice,
+								filename:
+									filesToUpload.labInvoice?.[0]?.name ||
+									"lab_invoice.pdf",
+						  }
+						: "",
+					...(fileUploadResults.employeeID
+						? {
+								employeeID: {
+									url: fileUploadResults.employeeID,
+									filename:
+										filesToUpload.employeeID?.[0]?.name ||
+										"employee_id.pdf",
+								},
+						  }
+						: {}),
+					applicantSignature: fileUploadResults.applicantSignature
+						? {
+								url: fileUploadResults.applicantSignature,
+								filename:
+									filesToUpload.applicantSignature?.[0]
+										?.name || "signature.png",
+						  }
+						: "",
 				},
 			};
+
+			if (isRevisionMode) {
+				await removeRequest(transactionId); // Remove the previous request before submitting the new one
+			}
 
 			// Add the pending request document to Firestore.
 			await addDoc(collection(db, "FormRequests"), pendingRequestData);
@@ -287,6 +486,11 @@ const AdmissionForm = () => {
 
 			await pushPendingNotification(transID);
 
+			// After a successful submission clear the form data
+			clearFormData("admission");
+
+			// Reset revision store
+			resetRevision(); // Call reset to clear the revision state
 			// Reset form after successful submission
 			reset();
 			setDateHired(null);
@@ -302,6 +506,17 @@ const AdmissionForm = () => {
 					: "An unexpected error occurred"
 			);
 		}
+	};
+
+	// Handle modal opening and closing
+	const openModal = (file: any) => {
+		setPreviewFile(file);
+		setIsModalOpen(true);
+	};
+
+	const closeModal = () => {
+		setIsModalOpen(false);
+		setPreviewFile(null);
 	};
 
 	return (
@@ -354,27 +569,65 @@ const AdmissionForm = () => {
 										<tr>
 											<td>Employee/UST ID</td>
 											<td className="d-flex justify-content-center">
-												<input
-													id="employeeID"
-													type="file"
-													accept=".pdf, .png, .jpg, .jpeg"
-													className={`form-control ${
-														errors.employeeID ||
-														fileErrors.employeeID
-															? "is-invalid"
-															: ""
-													}`}
-													{...register("employeeID")}
-													name="employeeID"
-													onChange={(e) => {
-														register(
+												{isFileInput["employeeID"] &&
+												files.employeeID &&
+												isRevisionMode &&
+												!isNewUpload["employeeID"] ? (
+													<div className="d-flex gap-2">
+														<button
+															type="button"
+															className="btn btn-outline-secondary btn-sm"
+															onClick={() =>
+																setIsFileInput(
+																	(prev) => ({
+																		...prev,
+																		employeeID:
+																			false,
+																	})
+																)
+															}
+														>
+															Re-upload File
+														</button>
+														<a
+															href="#"
+															onClick={(e) => {
+																e.preventDefault();
+																openModal(
+																	files.employeeID
+																);
+															}}
+															className="btn btn-outline-primary btn-sm"
+														>
+															View Previously
+															Uploaded File
+														</a>
+													</div>
+												) : (
+													<input
+														id="employeeID"
+														type="file"
+														accept=".pdf, .png, .jpg, .jpeg"
+														className={`form-control ${
+															errors.employeeID ||
+															fileErrors.employeeID
+																? "is-invalid"
+																: ""
+														}`}
+														{...register(
 															"employeeID"
-														).onChange(e);
-														handleFileChange(
-															"employeeID"
-														)(e);
-													}}
-												/>
+														)}
+														name="employeeID"
+														onChange={(e) => {
+															register(
+																"employeeID"
+															).onChange(e);
+															handleFileChange(
+																"employeeID"
+															)(e);
+														}}
+													/>
+												)}
 												{(errors.employeeID ||
 													fileErrors.employeeID) && (
 													<p className="invalid-feedback">
@@ -395,28 +648,67 @@ const AdmissionForm = () => {
 												</span>
 											</td>
 											<td className="d-flex justify-content-center">
-												<input
-													id="docRequest"
-													type="file"
-													accept=".pdf, .png, .jpg, .jpeg"
-													className={`form-control ${
-														errors.docRequest ||
-														fileErrors.docRequest
-															? "is-invalid"
-															: ""
-													}`}
-													{...register("docRequest")}
-													name="docRequest"
-													data-testid="docRequest"
-													onChange={(e) => {
-														register(
+												{isFileInput["docRequest"] &&
+												files.docRequest &&
+												isRevisionMode &&
+												!isNewUpload["docRequest"] ? (
+													<div className="d-flex gap-2">
+														<button
+															type="button"
+															className="btn btn-outline-secondary btn-sm"
+															onClick={() =>
+																setIsFileInput(
+																	(prev) => ({
+																		...prev,
+																		docRequest:
+																			false,
+																	})
+																)
+															} // Switch to file input when clicked
+														>
+															Re-upload File
+														</button>
+														<a
+															href="#"
+															onClick={(e) => {
+																e.preventDefault();
+																openModal(
+																	files.docRequest
+																); // Open the modal with file preview
+															}}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="btn btn-outline-primary btn-sm"
+														>
+															View Previously
+															Uploaded File
+														</a>
+													</div>
+												) : (
+													<input
+														id="docRequest"
+														type="file"
+														accept=".pdf, .png, .jpg, .jpeg"
+														className={`form-control ${
+															errors.docRequest ||
+															fileErrors.docRequest
+																? "is-invalid"
+																: ""
+														}`}
+														{...register(
 															"docRequest"
-														).onChange(e);
-														handleFileChange(
-															"docRequest"
-														)(e);
-													}}
-												/>
+														)}
+														name="docRequest"
+														onChange={(e) => {
+															register(
+																"docRequest"
+															).onChange(e);
+															handleFileChange(
+																"docRequest"
+															)(e);
+														}}
+													/>
+												)}
 												{(errors.docRequest ||
 													fileErrors.docRequest) && (
 													<p className="invalid-feedback">
@@ -435,29 +727,71 @@ const AdmissionForm = () => {
 												</span>
 											</td>
 											<td className="d-flex justify-content-center">
-												<input
-													id="hospitalInvoice"
-													type="file"
-													accept=".pdf, .png, .jpg, .jpeg"
-													className={`form-control ${
-														errors.hospitalInvoice ||
-														fileErrors.hospitalInvoice
-															? "is-invalid"
-															: ""
-													}`}
-													{...register(
-														"hospitalInvoice"
-													)}
-													name="hospitalInvoice"
-													onChange={(e) => {
-														register(
+												{isFileInput[
+													"hospitalInvoice"
+												] &&
+												files.hospitalInvoice &&
+												isRevisionMode &&
+												!isNewUpload[
+													"hospitalInvoice"
+												] ? (
+													<div className="d-flex gap-2">
+														<button
+															type="button"
+															className="btn btn-outline-secondary btn-sm"
+															onClick={() =>
+																setIsFileInput(
+																	(prev) => ({
+																		...prev,
+																		hospitalInvoice:
+																			false,
+																	})
+																)
+															} // Switch to file input when clicked
+														>
+															Re-upload File
+														</button>
+														<a
+															href="#"
+															onClick={(e) => {
+																e.preventDefault();
+																openModal(
+																	files.hospitalInvoice
+																); // Open the modal with file preview
+															}}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="btn btn-outline-primary btn-sm"
+														>
+															View Previously
+															Uploaded File
+														</a>
+													</div>
+												) : (
+													<input
+														id="hospitalInvoice"
+														type="file"
+														accept=".pdf, .png, .jpg, .jpeg"
+														className={`form-control ${
+															errors.hospitalInvoice ||
+															fileErrors.hospitalInvoice
+																? "is-invalid"
+																: ""
+														}`}
+														{...register(
 															"hospitalInvoice"
-														).onChange(e);
-														handleFileChange(
-															"hospitalInvoice"
-														)(e);
-													}}
-												/>
+														)}
+														name="hospitalInvoice"
+														onChange={(e) => {
+															register(
+																"hospitalInvoice"
+															).onChange(e);
+															handleFileChange(
+																"hospitalInvoice"
+															)(e);
+														}}
+													/>
+												)}
 												{(errors.hospitalInvoice ||
 													fileErrors.hospitalInvoice) && (
 													<p className="invalid-feedback">
@@ -477,27 +811,67 @@ const AdmissionForm = () => {
 												</span>
 											</td>
 											<td className="d-flex justify-content-center">
-												<input
-													id="labInvoice"
-													type="file"
-													accept=".pdf, .png, .jpg, .jpeg"
-													className={`form-control ${
-														errors.labInvoice ||
-														fileErrors.labInvoice
-															? "is-invalid"
-															: ""
-													}`}
-													{...register("labInvoice")}
-													name="labInvoice"
-													onChange={(e) => {
-														register(
+												{isFileInput["labInvoice"] &&
+												files.labInvoice &&
+												isRevisionMode &&
+												!isNewUpload["labInvoice"] ? (
+													<div className="d-flex gap-2">
+														<button
+															type="button"
+															className="btn btn-outline-secondary btn-sm"
+															onClick={() =>
+																setIsFileInput(
+																	(prev) => ({
+																		...prev,
+																		labInvoice:
+																			false,
+																	})
+																)
+															} // Switch to file input when clicked
+														>
+															Re-upload File
+														</button>
+														<a
+															href="#"
+															onClick={(e) => {
+																e.preventDefault();
+																openModal(
+																	files.labInvoice
+																); // Open the modal with file preview
+															}}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="btn btn-outline-primary btn-sm"
+														>
+															View Previously
+															Uploaded File
+														</a>
+													</div>
+												) : (
+													<input
+														id="labInvoice"
+														type="file"
+														accept=".pdf, .png, .jpg, .jpeg"
+														className={`form-control ${
+															errors.labInvoice ||
+															fileErrors.labInvoice
+																? "is-invalid"
+																: ""
+														}`}
+														{...register(
 															"labInvoice"
-														).onChange(e);
-														handleFileChange(
-															"labInvoice"
-														)(e);
-													}}
-												/>
+														)}
+														name="labInvoice"
+														onChange={(e) => {
+															register(
+																"labInvoice"
+															).onChange(e);
+															handleFileChange(
+																"labInvoice"
+															)(e);
+														}}
+													/>
+												)}
 												{(errors.labInvoice ||
 													fileErrors.labInvoice) && (
 													<p className="invalid-feedback">
@@ -516,29 +890,71 @@ const AdmissionForm = () => {
 												</span>
 											</td>
 											<td className="d-flex justify-content-center">
-												<input
-													id="applicantSignature"
-													type="file"
-													accept=".pdf, .png, .jpg, .jpeg"
-													className={`form-control ${
-														errors.applicantSignature ||
-														fileErrors.applicantSignature
-															? "is-invalid"
-															: ""
-													}`}
-													{...register(
-														"applicantSignature"
-													)}
-													name="applicantSignature"
-													onChange={(e) => {
-														register(
+												{isFileInput[
+													"applicantSignature"
+												] &&
+												files.applicantSignature &&
+												isRevisionMode &&
+												!isNewUpload[
+													"applicantSignature"
+												] ? (
+													<div className="d-flex gap-2">
+														<button
+															type="button"
+															className="btn btn-outline-secondary btn-sm"
+															onClick={() =>
+																setIsFileInput(
+																	(prev) => ({
+																		...prev,
+																		applicantSignature:
+																			false,
+																	})
+																)
+															} // Switch to file input when clicked
+														>
+															Re-upload File
+														</button>
+														<a
+															href="#"
+															onClick={(e) => {
+																e.preventDefault();
+																openModal(
+																	files.applicantSignature
+																); // Open the modal with file preview
+															}}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="btn btn-outline-primary btn-sm"
+														>
+															View Previously
+															Uploaded File
+														</a>
+													</div>
+												) : (
+													<input
+														id="applicantSignature"
+														type="file"
+														accept=".pdf, .png, .jpg, .jpeg"
+														className={`form-control ${
+															errors.applicantSignature ||
+															fileErrors.applicantSignature
+																? "is-invalid"
+																: ""
+														}`}
+														{...register(
 															"applicantSignature"
-														).onChange(e);
-														handleFileChange(
-															"applicantSignature"
-														)(e);
-													}}
-												/>
+														)}
+														name="applicantSignature"
+														onChange={(e) => {
+															register(
+																"applicantSignature"
+															).onChange(e);
+															handleFileChange(
+																"applicantSignature"
+															)(e);
+														}}
+													/>
+												)}
 												{(errors.applicantSignature ||
 													fileErrors.applicantSignature) && (
 													<p className="invalid-feedback">
@@ -656,6 +1072,9 @@ const AdmissionForm = () => {
 					onCancel={handleClearCancel}
 					isOpen={showClearConfirmation}
 				/>
+			)}
+			{isModalOpen && (
+				<ViewFiles file={previewFile} onClose={closeModal} />
 			)}
 		</div>
 	);

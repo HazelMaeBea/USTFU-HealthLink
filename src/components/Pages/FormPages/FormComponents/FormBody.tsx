@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FieldValues, useForm } from "react-hook-form";
-import { z } from "zod";
+import { number, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "react-datepicker/dist/react-datepicker.css";
 import "./FormBody.css";
@@ -21,6 +21,13 @@ import { useAutofill, applyAutofill } from "../FormUtil/Autofill.ts";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 import { pushPendingNotification } from "../../../Page Elements/NotifBadge/NotifTrigger.ts";
 import { baseFormSchema, UnifiedFormData } from "../FormUtil/formTypes.ts";
+import { useRevisionStore } from "../../../Page Elements/RevisionFuncs/revisionStore.ts";
+import { useRemoveRequest } from "../../../Page Elements/RevisionFuncs/removeRequest.ts";
+import {
+	saveFormData,
+	loadFormData,
+	clearFormData,
+} from "../FormUtil/formPresistence.ts";
 
 interface FormBodyProps {
 	origFormType: string;
@@ -44,6 +51,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	const navigate = useNavigate();
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
+	const { resetRevision, isRevisionMode, transactionId } = useRevisionStore();
+	const { removeRequest } = useRemoveRequest();
 
 	const createFormSchema = (formType: string) =>
 		baseFormSchema
@@ -80,18 +89,9 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 							"Procedure specification must be text",
 					})
 					.min(1, "Please specify the procedure"),
-				confinementFrom: z
-					.string()
-					.optional()
-					.refine((val) => val !== undefined, {
-						message: "Please select the confinement start date",
-					}),
-				confinementTo: z
-					.string()
-					.optional()
-					.refine((val) => val !== undefined, {
-						message: "Please select the confinement end date",
-					}),
+				// Make confinement dates truly optional unless we're in an inpatient form
+				confinementFrom: z.string().optional(),
+				confinementTo: z.string().optional(),
 				term: z.string().nonempty("Please select the academic term"),
 				year: z.string().nonempty("Please select the academic year"),
 				load: z.coerce
@@ -260,6 +260,23 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		},
 	});
 
+	// load persisted form data on mount
+	useEffect(() => {
+		const savedData = loadFormData(origFormType);
+		if (savedData) {
+			reset(savedData);
+		}
+	}, [origFormType, reset]);
+
+	//Autosave form data on change
+	// Auto-save form data on change:
+	useEffect(() => {
+		const subscription = watch((data) => {
+			saveFormData(origFormType, data);
+		});
+		return () => subscription.unsubscribe();
+	}, [watch, origFormType]);
+
 	// Add a handler to close the notification with animation
 	const closeNotification = () => {
 		setIsNotificationHiding(true);
@@ -321,7 +338,9 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					"Uploading files (this may take a moment)..."
 				);
 
-				const transID = "TRN" + Date.now();
+				const transID = isRevisionMode
+					? transactionId
+					: "TRN" + Date.now();
 				const fileUploadResults = await uploadFilesAndGetURLs(
 					email,
 					transID,
@@ -419,6 +438,10 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					},
 				};
 
+				if (isRevisionMode) {
+					await removeRequest(transactionId); // Remove the previous request before submitting the new one
+				}
+
 				setUploadProgress("Saving to database...");
 				await addDoc(collection(db, "FormRequests"), newDoc);
 
@@ -431,8 +454,12 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				setSubmissionStatus("success");
 
 				// Reset form after successful submission
+				resetRevision();
+				reset();
 			}
-			reset();
+
+			//Clears on submit
+			clearFormData(origFormType);
 		} catch (error) {
 			console.error(error);
 			setSubmissionStatus("error");
@@ -469,6 +496,9 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		setDateRetired(null);
 		setPhoneInputValue("+63");
 		setShowClearConfirmation(false);
+
+		// Clear persisted form data
+		clearFormData(origFormType);
 	};
 
 	const handleClearCancel = () => {
@@ -518,6 +548,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					errors={errors}
 					formType={origFormType}
 					watch={watch}
+					setValue={setValue}
 				/>
 				<FormTeachingInfo
 					register={register}
@@ -534,6 +565,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					register={register}
 					errors={errors}
 					setError={setError}
+					setValue={setValue}
 				/>
 				<FormHospitalStatus register={register} errors={errors} />
 				<FormCertify register={register} errors={errors} />
