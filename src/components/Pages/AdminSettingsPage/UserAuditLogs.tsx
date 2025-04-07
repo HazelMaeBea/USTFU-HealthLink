@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../contexts/firebase"; // Updated to match UserManagement
 import "./AuditLogsPopout.css";
 import PageButtons from "../../Page Elements/PageButtons/PageButtons";
 
@@ -14,141 +16,26 @@ const UserAuditLogs: React.FC = () => {
 	const logsPerPage = 20;
 
 	useEffect(() => {
-		// Temporary static data including the "name" property.
-		const logs: AuditLog[] = [
-			{
-				timestamp: "2023-10-01 10:00:00",
-				name: "Alice Johnson",
-				changes: "College from 'Engineering' to 'Science'",
-			},
-			{
-				timestamp: "2023-10-02 14:30:00",
-				name: "Bob Smith",
-				changes: "Role from 'Member' to 'Operations Handler'",
-			},
-			{
-				timestamp: "2023-10-03 09:15:00",
-				name: "Charlie Brown",
-				changes: "Status updated from 'ACTIVE' to 'INACTIVE'",
-			},
-			{
-				timestamp: "2023-10-04 11:45:00",
-				name: "Dana White",
-				changes: "Leave dates updated",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			{
-				timestamp: "2023-10-05 16:00:00",
-				name: "Evan Davis",
-				changes: "Inactive Reason changed to 'on-leave'",
-			},
-			// ...more logs if needed
-		];
-		setAuditLogs(logs);
+		const fetchAuditLogs = async () => {
+			try {
+				const querySnapshot = await getDocs(collection(db, "auditLogs"));
+				const logs: AuditLog[] = querySnapshot.docs.map((doc) => {
+					const data = doc.data();
+					return {
+						timestamp: data.Time.toDate().toLocaleString(), // Convert Firebase Timestamp to readable string
+						name: data.Name,
+						changes: data.Changes,
+					};
+				});
+				// Sort logs by latest time change
+				logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+				setAuditLogs(logs);
+			} catch (error) {
+				console.error("Error fetching audit logs:", error);
+			}
+		};
+
+		fetchAuditLogs();
 	}, []);
 
 	const indexOfLastLog = currentPage * logsPerPage;

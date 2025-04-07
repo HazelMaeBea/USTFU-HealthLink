@@ -75,8 +75,9 @@
 	transition: all 0.3s ease;
 	width: 100%;
 	text-align: left;
-	text-align-last: center; /* Align dropdown options to the left when expanded */
-}
+	text-align-last: center; 
+ 	}	 /* Align dropdown options to the left when expanded */
+
 
 .admin-settings-container .item-select::after {
 	position: absolute;
@@ -101,122 +102,13 @@
 	padding: 10px;
 }
 
-/* User Management Table */
-.admin-settings-container .user-mngmnt-table {
-	width: 100%;
-	border-collapse: separate;
-	border-spacing: 0;
-	margin-top: 1rem;
-	border: 1px solid hsl(220, 13%, 91%);
-	border-radius: 0.5rem;
-	overflow: hidden;
-	table-layout: fixed; /* Ensure fixed layout */
-}
-
-.admin-settings-container .user-mngmnt-table tbody {
-	height: calc(100% - 50px); /* Adjust height to account for the header */
-	display: block;
-	overflow-y: auto;
-}
-
-.admin-settings-container .user-mngmnt-table thead,
-.admin-settings-container .user-mngmnt-table tbody tr {
-	display: table;
-	width: 100%;
-	table-layout: fixed;
-}
-
-.user-mngmnt-table-header {
-	background-color: hsl(210, 10%, 23%);
-	color: hsl(0, 0%, 100%);
-}
-
-.admin-settings-container .user-mngmnt-table th,
-.admin-settings-container .user-mngmnt-table td {
-	padding: 0.5rem 1rem;
-	border-bottom: 1px solid hsl(220, 13%, 91%);
-	font-size: 0.875rem;
-	vertical-align: middle;
-	text-align: left;
-	overflow-wrap: break-word;
-	white-space: normal;
-	word-break: break-word;
-}
-
-.admin-settings-container .user-mngmnt-table th {
-	text-align: center;
-}
-
-.admin-settings-container .user-mngmnt-table th:first-child,
-.admin-settings-container .user-mngmnt-table td:first-child {
-	width: 8%; /* Adjust width for id num column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(2),
-.admin-settings-container .user-mngmnt-table td:nth-child(2) {
-	width: 15%; /* Adjust width for name column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(3),
-.admin-settings-container .user-mngmnt-table td:nth-child(3) {
-	width: 20%; /* Adjust width for email column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(4),
-.admin-settings-container .user-mngmnt-table td:nth-child(4) {
-	width: 20%; /* Adjust width for college column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(5),
-.admin-settings-container .user-mngmnt-table td:nth-child(5) {
-	width: 8%; /* Adjust width for birthdate column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(6),
-.admin-settings-container .user-mngmnt-table td:nth-child(6) {
-	width: 10%; /* Adjust width for phone num column */
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(7),
-.admin-settings-container .user-mngmnt-table td:nth-child(7) {
-	width: 10%; /* Adjust width for role column */
-	text-transform: capitalize;
-}
-
-.admin-settings-container .user-mngmnt-table th:nth-child(9),
-.admin-settings-container .user-mngmnt-table td:nth-child(9),
-.admin-settings-container .user-mngmnt-table th:nth-child(8),
-.admin-settings-container .user-mngmnt-table td:nth-child(8) {
-	white-space: nowrap; /* Prevent word break */
-}
-
-.admin-settings-container .user-mngmnt-table tbody tr:last-child td {
-	border-bottom: none;
-}
-
-/* Zebra stripes for readability */
-.admin-settings-container .user-mngmnt-table tbody tr:nth-child(even) {
-	background-color: hsl(0, 0%, 98%);
-}
-
-.admin-settings-container .user-mngmnt-table tbody tr:hover {
-	background-color: hsl(0, 0%, 91%);
-}
-
-/* Badges */
-.admin-settings-container .ustfu-badge {
-	display: inline-block;
-	padding: 0.25em 0.4em;
-	font-size: 75%;
-	font-weight: 700;
-	border-radius: 0.25rem;
-	text-transform: uppercase;
-}
+/* badge */
 
 .badge {
-	font-size: 1rem; /* Increase font size */
-	padding: 0.5em 0.75em; /* Increase padding */
+	font-size: small;
+	padding: none;
 }
+
 
 /* Updated Search Field Styles */
 .admin-settings-container .search-container {
@@ -303,37 +195,15 @@
 	border-color: hsl(0, 0%, 0%);
 }
 
-/* Save Button Styles */
-.admin-settings-container .save-btn {
-	background-color: white;
-	color: black;
-	border: none;
-	padding: 0.5rem 0.5rem;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	cursor: pointer;
-	transition: background-color 0.2s, color 0.2s;
-	border-radius: 10px;
-	outline: 1px solid hsl(0, 0%, 0%);
-}
-
 .admin-settings-container .save-btn:hover {
 	background-color: hsl(45, 100%, 68%);
 	color: rgb(255, 255, 255);
 	outline: 2px solid hsl(45, 100%, 68%);
 }
 
-p {
+.admin-settings p {
 	color: grey;
 	font-style: italic;
-}
-
-/* Edit Button Styles */
-.admin-settings-container .edit-button-container {
-	position: relative;
-	display: inline-block;
-	cursor: pointer;
 }
 
 .admin-settings-container .edit-button {
@@ -371,51 +241,19 @@ p {
 	}
 }
 
-.edit-options-menu-inner {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	padding: 6px 0;
-}
 
-.edit-options-menu button {
-	display: flex;
-	align-items: center;
-	width: 100%;
-	padding: 10px 16px;
-	background: white;
-	border: none;
-	text-align: left;
-	cursor: pointer;
-	font-size: 14px;
-	color: #424242;
-	transition: all 0.15s ease;
-	line-height: 1.5;
-}
+
 
 .edit-options-menu button:hover {
 	background-color: rgba(255, 193, 7, 0.1); /* Lighter yellow background */
 	color: hsl(45, 100%, 40%); /* Slightly darker yellow text */
 }
 
-/* Remove duplicate styles that might be causing issues
-.admin-settings-container .edit-options-menu,
-.admin-settings-container .edit-options-menu-inner,
-.admin-settings-container .edit-options-menu button {
-	/* These will inherit from the non-namespaced selectors above */
-
 #edit_status,
-#edit_role {
-	width: 20%;
-}
-
-#edit_college {
-	width: 50%;
-}
-
-.dropdown-select {
+#edit_role, #edit_college {
 	width: 100%;
 }
+
 
 /* Responsive adjustments */
 @media (max-width: 1142px) {
@@ -447,7 +285,6 @@ p {
 
 	.dropdown-select {
 		width: 100%;
-		font-size: 0.8rem;
 		padding: 0.25rem;
 	}
 }

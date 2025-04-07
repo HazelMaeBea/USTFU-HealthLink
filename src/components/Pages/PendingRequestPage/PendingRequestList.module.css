@@ -971,6 +971,7 @@
 
 	.header-content {
 		grid-template-columns: 110px 1fr 1fr auto;
+		flex-direction: row;
 	}
 
 	.hospital-certification-grid {
@@ -1058,9 +1059,51 @@
 		order: 1;
 		width: 100%;
 	}
+
+	.header-content {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		align-items: flex-start;
+	}
+
+	.header-item {
+		display: flex;
+		flex-direction: row;
+		gap: 1rem;
+		justify-content: space-between;
+	}
+
+	.header-item:last-child {
+		align-self: flex-end;
+		padding: none;
+	}
 }
 
 @media (max-width: 576px) {
+	.header-content {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		align-items: flex-start;
+	}
+
+	.header-item {
+		display: flex;
+		flex-direction: row;
+		gap: 1rem;
+		justify-content: space-between;
+	}
+
+	.header-item:last-child {
+		align-self: flex-end;
+		padding: none;
+	}
+
+	.header-label {
+		width: 6rem;
+	}
+
 	.approval-actions {
 		grid-template-columns: 1fr;
 	}

@@ -1,0 +1,337 @@
+/* User Management Table */
+.admin-settings-container .user-mngmnt-table {
+	/* width: 1400px; */
+	border-collapse: separate;
+	border-spacing: 0;
+	margin-top: 1rem;
+	border: 1px solid hsl(220, 13%, 91%);
+	border-radius: 0.5rem;
+	overflow: hidden;
+	table-layout: fixed; /* Ensure fixed layout */
+}
+
+.admin-settings-container .user-mngmnt-table tbody {
+	height: calc(100% - 50px); /* Adjust height to account for the header */
+	display: block;
+	overflow-y: auto;
+}
+
+.admin-settings-container .user-mngmnt-table thead,
+.admin-settings-container .user-mngmnt-table tbody tr {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+}
+
+.user-mngmnt-table-header {
+	background-color: hsl(210, 10%, 23%);
+	color: hsl(0, 0%, 100%);
+}
+
+.admin-settings-container .user-mngmnt-table th,
+.admin-settings-container .user-mngmnt-table td {
+	padding: 0.5rem 1rem;
+	border-bottom: 1px solid hsl(220, 13%, 91%);
+	font-size: 0.875rem;
+	vertical-align: middle;
+	text-align: left;
+	overflow-wrap: break-word;
+	white-space: normal;
+	word-break: break-word;
+}
+
+.admin-settings-container .user-mngmnt-table th {
+	text-align: center;
+}
+
+.admin-settings-container .user-mngmnt-table th:first-child,
+.admin-settings-container .user-mngmnt-table td:first-child {
+	width: 8%; /* Adjust width for id num column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(2),
+.admin-settings-container .user-mngmnt-table td:nth-child(2) {
+	width: 15%; /* Adjust width for name column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(3),
+.admin-settings-container .user-mngmnt-table td:nth-child(3) {
+	width: 15%; /* Adjust width for email column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(4),
+.admin-settings-container .user-mngmnt-table td:nth-child(4) {
+	width: 15%; /* Adjust width for college column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(5),
+.admin-settings-container .user-mngmnt-table td:nth-child(5) {
+	width: 8%; /* Adjust width for birthdate column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(6),
+.admin-settings-container .user-mngmnt-table td:nth-child(6) {
+	width: 10%; /* Adjust width for phone num column */
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(7),
+.admin-settings-container .user-mngmnt-table td:nth-child(7) {
+	width: 10%; /* Adjust width for remaining benefits column */
+	text-align: center;
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(8),
+.admin-settings-container .user-mngmnt-table td:nth-child(8) {
+	width: 10%; /* Adjust width for role column */
+	text-transform: capitalize;
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(9),
+.admin-settings-container .user-mngmnt-table td:nth-child(9) {
+	white-space: nowrap; /* Prevent word break */
+}
+
+.admin-settings-container .user-mngmnt-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+/* Zebra stripes for readability */
+.admin-settings-container .user-mngmnt-table tbody tr:nth-child(even) {
+	background-color: hsl(0, 0%, 98%);
+}
+
+.admin-settings-container .user-mngmnt-table tbody tr:hover {
+	background-color: hsl(0, 0%, 91%);
+}
+
+/* Badges */
+.admin-settings-container .ustfu-badge {
+	display: inline-block;
+	padding: 0.25em 0.4em;
+	font-size: 75%;
+	font-weight: 700;
+	border-radius: 0.25rem;
+	text-transform: uppercase;
+}
+
+.badge {
+	font-size: 1rem; /* Increase font size */
+	padding: 0.5em 0.75em; /* Increase padding */
+}
+
+.edit-options-menu button {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: 10px 16px;
+	background: white;
+	border: none;
+	text-align: left;
+	cursor: pointer;
+	font-size: 14px;
+	color: #424242;
+	transition: all 0.15s ease;
+	line-height: 1.5;
+} 
+
+/* Mobile Card Styles */
+.mobile-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #fff;
+}
+
+.mobile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-card-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.mobile-card-email {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.mobile-card-body {
+  margin-top: 0.5rem;
+}
+
+.mobile-card-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+
+.mobile-card-label {
+  /* font-weight: bold; */
+  font-size: 0.85rem;
+}
+
+.mobile-card-value {
+  font-size: 0.85rem;
+}
+
+.mobile-card-edit {
+  margin-top: 0.5rem;
+}
+
+.mobile-edit-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .user-mngmnt-table {
+    display: none;
+  }
+  .mobile-card {
+    display: block;
+  }
+}
+
+/* For tablets and larger screens, use table view */
+@media (min-width: 769px) {
+  .mobile-card {
+    display: none;
+  }
+  .user-mngmnt-table {
+    display: table;
+  }
+}
+
+
+/* Improved styling for mobile card view */
+.mobile-card {
+background-color: #ffffff;
+border: 1px solid hsl(210, 14%, 83%);
+border-radius: 0.5rem;
+padding: 1rem;
+margin-bottom: 1rem;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mobile-card:hover {
+transform: scale(1.02);
+box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-card-container {
+display: flex;
+flex-direction: column;
+gap: 1rem;
+}
+.mobile-card {
+background-color: #ffffff;
+border: 1px solid #d1d5db; 
+border-radius: 8px;
+padding: 1rem;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mobile-card:hover {
+transform: scale(1.02);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.mobile-card-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 0.75rem;
+}
+.mobile-card-title {
+font-size: 1.1rem;
+font-weight: bold;
+color: #111827;
+margin: 0;
+}
+.mobile-card-email {
+font-size: 0.9rem;
+color: #0d6efd;
+margin: 0;
+}
+
+.mobile-card-body {
+display: flex;
+flex-direction: column;
+gap: 0.5rem;
+}
+.mobile-card-row {
+display: flex;
+justify-content: space-between;
+}
+.mobile-card-label {
+font-size: 0.8rem;
+color: #6b7280;
+}
+.mobile-card-value {
+font-size: 0.9rem;
+color: #374151;
+font-weight: 500;
+}
+
+.mobile-card-value:nth-child(2) {
+font-size: 0.9rem;
+color: #374151;
+text-transform: capitalize;
+}
+
+#mobile-edit-button {
+background-color: hsl(45, 100%, 90%) !important;
+box-shadow: none;
+border-radius: 8px;
+}
+
+.mobile-card-edit button {
+padding: 0.75rem 1rem;
+border: none;
+border-radius: 6px;
+font-weight: 600;
+font-size: 0.9rem;
+cursor: pointer;
+transition: all 0.2s ease;
+margin-right: 0.75rem;
+}
+
+
+.mobile-card-edit button:last-of-type {
+background-color: #f3f4f6;
+color: #4b5563;
+}
+
+.mobile-card-edit {
+background-color: transparent !important;
+border-top: 1px solid hsl(210, 14%, 83%);
+margin-top: 1rem;
+padding: 1rem 0;
+}
+
+.mobile-card-edit label, select {
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+}
+
+.mobile-card-edit select {
+border: 1px solid hsl(210, 14%, 83%);
+padding: 0.4rem;
+width: 100%;
+border-radius: 8px;
+margin-bottom: 1rem;
+transition: width 0.2s ease;
+}
+
+.mobile-card-edit select:focus {
+width: 180%; /* Increase width when focused ITS NOT WORKING*/
+outline: none;
+}
+
