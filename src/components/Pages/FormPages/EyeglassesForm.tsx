@@ -33,6 +33,7 @@ import {
 } from "../../../utils/fileUpload.ts";
 import { baseFormSchema, UnifiedFormData } from "./FormUtil/formTypes.ts";
 import { pushPendingNotification } from "../../Page Elements/NotifBadge/NotifTrigger.ts";
+import { saveFormData, loadFormData, clearFormData } from "./FormUtil/formPresistence.ts";
 
 // Extend the base schema with eyeglasses-specific fields
 const schema = baseFormSchema
@@ -103,6 +104,22 @@ const EyeglassesForm = () => {
 			college: "",
 		},
 	});
+
+	// Load persisted form data on mount
+	useEffect(() => {
+        const savedData = loadFormData("eyeglasses");
+        if (savedData) {
+            reset(savedData);
+        }
+    }, [reset]);
+
+	//Auto-save form data on changes
+	useEffect(() => {
+        const subscription = watch((value) => {
+            saveFormData("eyeglasses", value);
+        });
+        return () => subscription.unsubscribe();
+    }, [watch]);
 
 	// Apply autofill when component loads
 	useAutofill(setValue, setDateHired, undefined, setPhoneInputValue);
@@ -279,6 +296,9 @@ const EyeglassesForm = () => {
 			setSubmissionStatus("success");
 
 			await pushPendingNotification(transID);
+
+			// Clear persisted form data after successful submission
+			clearFormData("eyeglasses");
 
 			// Reset form after successful submission
 			reset();

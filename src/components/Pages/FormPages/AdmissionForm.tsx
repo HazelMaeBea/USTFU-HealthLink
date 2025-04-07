@@ -27,6 +27,7 @@ import { pushPendingNotification } from "../../Page Elements/NotifBadge/NotifTri
 import { useRevisionStore } from "../../Page Elements/RevisionFuncs/revisionStore.ts";
 import { useRemoveRequest } from "../../Page Elements/RevisionFuncs/removeRequest.ts";
 import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles.tsx";
+import { saveFormData, loadFormData, clearFormData } from "./FormUtil/formPresistence.ts";
 
 type FileState = {
 	[key: string]: string | null; // Each field (e.g., "applicantSignature") can have a string (file URL) or null
@@ -151,6 +152,23 @@ const AdmissionForm = () => {
 			status: "",
 		},
 	});
+
+	// load saved data on mount
+	useEffect(() => {
+		const savedData = loadFormData("admission");
+		if (savedData) {
+			reset(savedData);
+		}
+	}, [reset]);
+
+	// auto save data on change
+	useEffect(() => {
+        const subscription = watch((value) => {
+            saveFormData("admission", value);
+        });
+        return () => subscription.unsubscribe();
+    }, [watch]);
+
 
 	const [files, setFiles] = useState<any>({});
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -465,6 +483,9 @@ const AdmissionForm = () => {
 
 			await pushPendingNotification(transID);
 
+			// After a successful submission clear the form data
+			clearFormData("admission");
+			
 			// Reset form after successful submission
 			reset();
 			setDateHired(null);

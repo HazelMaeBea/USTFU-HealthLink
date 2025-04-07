@@ -22,6 +22,7 @@ import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 import { pushPendingNotification } from "../../../Page Elements/NotifBadge/NotifTrigger.ts";
 import { baseFormSchema, UnifiedFormData } from "../FormUtil/formTypes.ts";
 import { useRevisionStore } from "../../../Page Elements/RevisionFuncs/revisionStore.ts";
+import { saveFormData, loadFormData, clearFormData } from "../FormUtil/formPresistence.ts";
 
 interface FormBodyProps {
 	origFormType: string;
@@ -253,6 +254,23 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		},
 	});
 
+	// load persisted form data on mount
+	useEffect(() => {
+		const savedData = loadFormData(origFormType);
+		if (savedData) {
+			reset(savedData);
+		}
+	}, [origFormType, reset]);
+
+	//Autosave form data on change
+	// Auto-save form data on change:
+	useEffect(() => {
+    	const subscription = watch((data) => {
+        	saveFormData(origFormType, data);
+    	});
+    	return () => subscription.unsubscribe();
+	}, [watch, origFormType]);
+
 	// Add a handler to close the notification with animation
 	const closeNotification = () => {
 		setIsNotificationHiding(true);
@@ -429,6 +447,9 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			}
 			reset();
 			resetRevision();
+
+			//Clears on submit
+			clearFormData(origFormType);
 		} catch (error) {
 			console.error(error);
 			setSubmissionStatus("error");
@@ -465,6 +486,9 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		setDateRetired(null);
 		setPhoneInputValue("+63");
 		setShowClearConfirmation(false);
+
+		// Clear persisted form data
+		clearFormData(origFormType);
 	};
 
 	const handleClearCancel = () => {
