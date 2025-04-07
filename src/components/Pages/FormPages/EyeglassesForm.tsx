@@ -275,23 +275,6 @@ const EyeglassesForm = () => {
 			await addDoc(collection(db, "FormRequests"), pendingRequestData);
 			console.log("Document written with ID: ", transID);
 
-			const usersRef = collection(db, "users");
-			const q = query(usersRef, where("email", "==", email));
-			const querySnapshot = await getDocs(q);
-			querySnapshot.forEach(async (docSnapshot) => {
-				const docRef = doc(db, "users", docSnapshot.id);
-
-				await setDoc(
-					docRef,
-					{
-						personalInfo: {
-							eyeglassesBenefitClaimedDate: Timestamp.now(),
-						},
-					},
-					{ merge: true }
-				);
-				console.log("Document updated successfully.");
-			});
 			// Show success notification
 			setSubmissionStatus("success");
 
