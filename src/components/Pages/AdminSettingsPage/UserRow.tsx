@@ -6,7 +6,7 @@ import { Button, Input, FormGroup, Label, Row, Col } from "reactstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { differenceInDays, differenceInWeeks } from "date-fns";
-import { Timestamp } from "firebase/firestore";
+import { doc, setDoc, Timestamp } from "firebase/firestore";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { FiEdit2, FiUsers, FiToggleLeft } from "react-icons/fi";
 import { createPortal } from "react-dom";
@@ -35,7 +35,7 @@ interface User {
 
 interface UserRowProps {
 	user: User;
-	onSave: (updatedUser: User, option: "college" | "role" | "status") => void;
+	// onSave: (updatedUser: User, option: "college" | "role" | "status") => void;
 	isMobile?: boolean;
 }
 
@@ -84,7 +84,7 @@ const calculateDuration = (
 	return `${diffWeeks} week(s) and ${diffDays % 7} day(s)`;
 };
 
-const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => {
+const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [editedUser, setEditedUser] = useState(user);
 	const [lastEdited, setLastEdited] = useState<string | null>(null);
@@ -163,7 +163,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 	const handleSaveConfirm = async () => {
 		try {
 			// Save changes to the database
-			onSave(editedUser, editOption!);
+			// onSave(editedUser, editOption!);
 
 			// Track changes only after confirmation
 			const changes: string[] = [];
@@ -194,10 +194,30 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 				});
 			}
 
+			if (editOption === "college") {
+				await setDoc(
+					doc(db, "users", editedUser.document),
+					{
+						personalInfo: { college: editedUser.college },
+						createdAt: editedUser.createdAt,
+					},
+					{ merge: true }
+				);
+			} else {
+				await setDoc(
+					doc(db, "users", editedUser.document),
+					{
+						...editedUser,
+						createdAt: editedUser.createdAt,
+					},
+					{ merge: true }
+				);
+			}
 			// Exit editing mode
 			setIsEditing(false);
 			setEditOption(null);
 			setShowPopout(false);
+			// alert("Changes saved successfully!");
 		} catch (error) {
 			console.error("Error saving changes:", error);
 			alert("Failed to save changes. Please try again.");

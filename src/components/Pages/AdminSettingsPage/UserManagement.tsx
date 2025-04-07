@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import {
 	collection,
 	onSnapshot,
-	doc,
-	setDoc,
 	Timestamp,
 	query,
 	where,
@@ -14,7 +12,6 @@ import PageButtons from "../../Page Elements/PageButtons/PageButtons";
 import UserRow from "./UserRow";
 import UserAuditLogs from "./UserAuditLogs";
 import AuditLogsPopout from "./AuditLogsPopout";
-import Popout from "../../Page Elements/Popout/Popout";
 import "./UserManagement.css"; 
 
 interface UserManagementProps {
@@ -45,11 +42,6 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 	const [loading, setLoading] = useState(true);
 	const [currentPage, setCurrentPage] = useState(1);
 	const usersPerPage = 7;
-	const [editUser, setEditUser] = useState<User>();
-	const [editDocument, setEditDocument] = useState("");
-	const [editCreatedAt, setEditCreatedAt] = useState<Date>();
-	const [editOption, setEditOption] = useState<"college" | "role" | "status" | null>(null);
-	const [showPopout, setShowPopout] = useState(false);
 	const [showAuditLogsPopout, setShowAuditLogsPopout] = useState(false);
 	const [isMobile, setIsMobile] = useState(false);
 
@@ -112,55 +104,6 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 	const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 	const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-	const handleSaveConfirm = async () => {
-		if (!editUser) {
-			// alert("No user data to save.");
-			return;
-		}
-		console.log("Saving changes...", editUser);
-		try {
-			if (editOption === "college") {
-				await setDoc(
-					doc(db, "users", editDocument),
-					{
-						personalInfo: { college: editUser.college },
-						createdAt: editCreatedAt,
-					},
-					{ merge: true }
-				);
-			} else {
-				await setDoc(
-					doc(db, "users", editDocument),
-					{
-						...editUser,
-						createdAt: editCreatedAt,
-					},
-					{ merge: true }
-				);
-			}
-			// alert("Changes saved successfully!");
-		} catch (error) {
-			console.log(error);
-			// alert("Failed to save changes.");
-		} finally {
-			setShowPopout(false);
-		}
-	};
-
-	const handleCancel = () => {
-		setShowPopout(false);
-		setEditOption(null);
-	};
-
-	const handleSave = (updatedUser: User, option: "college" | "role" | "status") => {
-		console.log("User updated:", updatedUser);
-		setEditUser(updatedUser);
-		setEditDocument(updatedUser.document);
-		setEditCreatedAt(updatedUser.createdAt.toDate());
-		setEditOption(option);
-		setShowPopout(true);
-	};
-
 	const handleAuditLogsClick = () => {
 		setShowAuditLogsPopout(true);
 	};
@@ -176,7 +119,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 			{isMobile ? (
 				<div className="mobile-card-container">
 						{currentUsers.map((user) => (
-							<UserRow key={user.document} user={user} onSave={handleSave} isMobile={true} />
+							<UserRow key={user.document} user={user} isMobile={true} />
 						))}
 				</div>
 			) : (
@@ -197,7 +140,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 						</thead>
 						<tbody>
 							{currentUsers.map((user) => (
-								<UserRow key={user.document} user={user} onSave={handleSave} />
+								<UserRow key={user.document} user={user}/>
 							))}
 						</tbody>
 					</table>
@@ -213,15 +156,6 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 					</button>
 				</div>
 			</div>
-			{showPopout && (
-				<Popout
-					title="Save Changes?"
-					message={`Do you want to save changes to the user's ${editOption}?`}
-					onConfirm={handleSaveConfirm}
-					onCancel={handleCancel}
-					isOpen={showPopout}
-				/>
-			)}
 			{showAuditLogsPopout && (
 				<AuditLogsPopout title="User Audit Logs" onClose={handleAuditLogsClose} isOpen={showAuditLogsPopout}>
 					<UserAuditLogs />
