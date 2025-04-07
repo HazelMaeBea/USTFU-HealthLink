@@ -341,14 +341,14 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
     return Object.keys(errors).length === 0;
   };
 
-  const handleSendClick = (transactionID: string) => {
+  const handleSendClick = (transactionID: string, type: any) => {
     if (!activeDecision) return; // Prevent sending if no action is selected
 
-    if (activeDecision === "approval") {
-      const isValid = validateForm();
-      if (!isValid) return;
+    // Only validate if it's an approval AND not eyeglass
+    if (activeDecision === "approval" && type !== "eyeglasses") {
+      if (!validateForm()) return;
     } else {
-      // Clear any lingering validation errors for rejection/revision
+      // For rejection, revision, or eyeglass approval, clear validation errors
       setValidationErrors({});
     }
 
@@ -833,7 +833,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
       (request.formData.formType !== "hospital" &&
         request.formData.formType !== "admission")
     ) {
-      return null;
+      return <div></div>;
     }
 
     return (
@@ -1078,7 +1078,10 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
               <button
                 className={styles["send-btn"]}
                 onClick={() => {
-                  handleSendClick(request.transactionId);
+                  handleSendClick(
+                    request.transactionId,
+                    request.formData?.formType
+                  );
                 }}
               >
                 SEND
