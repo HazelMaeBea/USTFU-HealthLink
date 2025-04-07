@@ -24,7 +24,11 @@ interface VerificationRequest {
 	selected: boolean;
 }
 
-const VerificationPage = () => {
+interface VerificationPageProps {
+	searchQuery: string;
+}
+
+const VerificationPage = ({ searchQuery }: VerificationPageProps) => {
 	const [requests, setRequests] = useState<VerificationRequest[]>([]);
 	const [selectAll, setSelectAll] = useState(false);
 	const [isIndeterminate, setIsIndeterminate] = useState(false);
@@ -133,6 +137,17 @@ const VerificationPage = () => {
 		setRequests(newRequests);
 	};
 
+	const mailCollection = collection(db, "mail");
+	const sendEmail = async (email:string, name:string) => {
+		addDoc(mailCollection, {
+			to: [email],
+			message: {
+				subject: "Your verification has been approved!",
+				html: "<h2>Welcome to USTFU Healthlink " + name + "!</h2><p>Your verification to access the USTFU Healthlink webapp has been approved.\nLook forward to being able to avail for your benefits anytime and anywhere.</p>"
+			}
+		})
+	}
+
 	const handleApprove = async (request: VerificationRequest) => {
 		try {
 			const userQuery = query(
@@ -149,7 +164,7 @@ const VerificationPage = () => {
 					role: request.role,
 				});
 				console.log("Approved:", request.name);
-				sendEmailVerification(request.email, request.name, true);
+				sendEmail(request.email, request.name);
 			} else {
 				console.log(
 					"No user found with the given fullName:",
@@ -252,14 +267,23 @@ const VerificationPage = () => {
 		setPopoutOpen(true);
 	};
 
+	const filteredRequests = requests.filter((request) => {
+		const queryLower = searchQuery.toLowerCase();
+		return (
+			request.name.toLowerCase().includes(queryLower) ||
+			request.email.toLowerCase().includes(queryLower) ||
+			request.role.toLowerCase().includes(queryLower)
+		);
+	});
+
 	// Pagination logic
 	const indexOfLastRequest = currentPage * requestsPerPage;
 	const indexOfFirstRequest = indexOfLastRequest - requestsPerPage;
-	const currentRequests = requests.slice(
+	const currentRequests = filteredRequests.slice(
 		indexOfFirstRequest,
 		indexOfLastRequest
 	);
-	const totalPages = Math.ceil(requests.length / requestsPerPage);
+	const totalPages = Math.ceil(filteredRequests.length / requestsPerPage);
 
 	return (
 		<div className="verification-page">

@@ -10,6 +10,7 @@ import { Timestamp } from "firebase/firestore";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { FiEdit2, FiUsers, FiToggleLeft } from "react-icons/fi";
 import { createPortal } from "react-dom";
+import Popout from "../../Page Elements/Popout/Popout";
 import "./UserManagement.css";
 
 interface User {
@@ -90,6 +91,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 	>(null);
 	const [showOptions, setShowOptions] = useState(false);
 	const [popupStyle, setPopupStyle] = useState<React.CSSProperties>({});
+	const [showPopout, setShowPopout] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const menuRef = useRef<HTMLDivElement>(null);
 
@@ -151,34 +153,54 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 			alert("Please provide both leave start date and leave end date.");
 			return;
 		}
-		setIsEditing(false);
-		onSave(editedUser, editOption!);
-		const changes: string[] = [];
-		if (user.college !== editedUser.college)
-			changes.push(`College from '${user.college}' to '${editedUser.college}'`);
-		if (user.role !== editedUser.role)
-			changes.push(`Role from '${user.role}' to '${editedUser.role}'`);
-		if (user.status !== editedUser.status)
-			changes.push(`Status from '${user.status}' to '${editedUser.status}'`);
-		if (user.retirementDate !== editedUser.retirementDate)
-			changes.push(`Retirement Date from '${user.retirementDate}' to '${editedUser.retirementDate}'`);
-		if (user.deactivationDate !== editedUser.deactivationDate)
-			changes.push(`Deactivation Date from '${user.deactivationDate}' to '${editedUser.deactivationDate}'`);
-		if (user.leaveReason !== editedUser.leaveReason)
-			changes.push(`Leave Reason from '${user.leaveReason}' to '${editedUser.leaveReason}'`);
-		if (user.leaveStartDate !== editedUser.leaveStartDate)
-			changes.push(`Leave Start Date from '${user.leaveStartDate}' to '${editedUser.leaveStartDate}'`);
-		if (user.leaveEndDate !== editedUser.leaveEndDate)
-			changes.push(`Leave End Date from '${user.leaveEndDate}' to '${editedUser.leaveEndDate}'`);
-		if (changes.length > 0) {
-			setLastEdited(`Last edited on ${new Date().toLocaleString()}: ${changes.join(", ")}`);
+
+		// Show confirmation popout
+		setShowPopout(true);
+	};
+
+	const handleSaveConfirm = async () => {
+		try {
+			// Save changes to the database
+			onSave(editedUser, editOption!);
+
+			// Track changes only after confirmation
+			const changes: string[] = [];
+			if (user.college !== editedUser.college)
+				changes.push(`College from '${user.college}' to '${editedUser.college}'`);
+			if (user.role !== editedUser.role)
+				changes.push(`Role from '${user.role}' to '${editedUser.role}'`);
+			if (user.status !== editedUser.status)
+				changes.push(`Status from '${user.status}' to '${editedUser.status}'`);
+			if (user.retirementDate !== editedUser.retirementDate)
+				changes.push(`Retirement Date from '${user.retirementDate}' to '${editedUser.retirementDate}'`);
+			if (user.deactivationDate !== editedUser.deactivationDate)
+				changes.push(`Deactivation Date from '${user.deactivationDate}' to '${editedUser.deactivationDate}'`);
+			if (user.leaveReason !== editedUser.leaveReason)
+				changes.push(`Leave Reason from '${user.leaveReason}' to '${editedUser.leaveReason}'`);
+			if (user.leaveStartDate !== editedUser.leaveStartDate)
+				changes.push(`Leave Start Date from '${user.leaveStartDate}' to '${editedUser.leaveStartDate}'`);
+			if (user.leaveEndDate !== editedUser.leaveEndDate)
+				changes.push(`Leave End Date from '${user.leaveEndDate}' to '${editedUser.leaveEndDate}'`);
+			if (changes.length > 0) {
+				setLastEdited(`Last edited on ${new Date().toLocaleString()}: ${changes.join(", ")}`);
+			}
+
+			// Exit editing mode
+			setIsEditing(false);
+			setEditOption(null);
+			setShowPopout(false);
+		} catch (error) {
+			console.error("Error saving changes:", error);
+			alert("Failed to save changes. Please try again.");
 		}
 	};
 
 	const handleCancel = () => {
+		// Reset editing state without updating lastEdited
 		setIsEditing(false);
 		setEditedUser(user);
 		setEditOption(null);
+		setShowPopout(false);
 	};
 
 	const handleChange = (
@@ -450,6 +472,11 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 								)}
 							</FormGroup>
 						)}
+						{lastEdited && (
+							<div style={{ marginTop: "1rem" }}>
+								<p className="text-muted">{lastEdited}</p>
+							</div>
+						)}
 						<div className="mobile-card-edit-buttons">
 							<Button color="success" onClick={handleSave}>
 								Save
@@ -458,8 +485,17 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 								Cancel
 							</Button>
 						</div>
+						{showPopout && (
+							<Popout
+								title="Save Changes?"
+								message={`Do you want to save changes to the user's ${editOption}?`}
+								onConfirm={handleSaveConfirm}
+								onCancel={() => setShowPopout(false)}
+								isOpen={showPopout}
+							/>
+						)}
 					</div>
-				)}
+					)}
 			</div>
 		);
 	}
@@ -673,6 +709,15 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 						<Button color="secondary" onClick={handleCancel} className="ms-2">
 							Cancel
 						</Button>
+						{showPopout && (
+							<Popout
+								title="Save Changes?"
+								message={`Do you want to save changes to the user's ${editOption}?`}
+								onConfirm={handleSaveConfirm}
+								onCancel={() => setShowPopout(false)}
+								isOpen={showPopout}
+							/>
+						)}
 					</td>
 				</tr>
 			)}
