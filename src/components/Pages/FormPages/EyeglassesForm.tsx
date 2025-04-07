@@ -33,7 +33,28 @@ import {
 } from "../../../utils/fileUpload.ts";
 import { baseFormSchema, UnifiedFormData } from "./FormUtil/formTypes.ts";
 import { pushPendingNotification } from "../../Page Elements/NotifBadge/NotifTrigger.ts";
-import { saveFormData, loadFormData, clearFormData } from "./FormUtil/formPresistence.ts";
+import { useRevisionStore } from "../../Page Elements/RevisionFuncs/revisionStore.ts";
+import { useRemoveRequest } from "../../Page Elements/RevisionFuncs/removeRequest.ts";
+import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles.tsx";
+
+type FileState = {
+	[key: string]: string | null; // Each field (e.g., "applicantSignature") can have a string (file URL) or null
+};
+
+const fileFields = [
+	"employeeID",
+	"applicantSignature",
+	"eyeglassesReceipt",
+] as const;
+
+type FileField = (typeof fileFields)[number];
+
+let pendingUnmountId: string | null = null;
+import {
+	saveFormData,
+	loadFormData,
+	clearFormData,
+} from "./FormUtil/formPresistence.ts";
 
 // Extend the base schema with eyeglasses-specific fields
 const schema = baseFormSchema
@@ -107,20 +128,22 @@ const EyeglassesForm = () => {
 
 	// Load persisted form data on mount
 	useEffect(() => {
-        const savedData = loadFormData("eyeglasses");
-        if (savedData) {
-            reset(savedData);
-        }
-    }, [reset]);
+		const savedData = loadFormData("eyeglasses");
+		if (savedData) {
+			reset(savedData);
+		}
+	}, [reset]);
 
 	//Auto-save form data on changes
 	useEffect(() => {
-        const subscription = watch((value) => {
-            saveFormData("eyeglasses", value);
-        });
-        return () => subscription.unsubscribe();
-    }, [watch]);
+		const subscription = watch((value) => {
+			saveFormData("eyeglasses", value);
+		});
+		return () => subscription.unsubscribe();
+	}, [watch]);
 
+	// Apply autofill when component loads
+	useAutofill(setValue, setDateHired, undefined, setPhoneInputValue);
 	// Apply autofill when component loads
 	useAutofill(setValue, setDateHired, undefined, setPhoneInputValue);
 
@@ -193,6 +216,24 @@ const EyeglassesForm = () => {
 					message: result.errorMessage,
 				});
 			} else {
+				// Handle valid files
+				if (files && files.length > 0) {
+					const file = files[0];
+					// Assuming you're uploading and receiving a file URL back from the upload service
+					const uploadedFileUrl = URL.createObjectURL(file); // Example of a temporary URL
+
+					// Update the file state with the new uploaded file URL
+					setFiles((prevFiles: FileState) => ({
+						...prevFiles,
+						[fieldName]: uploadedFileUrl, // You can replace this with your actual file URL
+					}));
+				}
+
+				setIsNewUpload((prev) => ({
+					...prev,
+					[fieldName]: true,
+				}));
+
 				// Clear error if file is valid
 				setFileErrors((prev) => ({
 					...prev,
@@ -215,7 +256,7 @@ const EyeglassesForm = () => {
 				employeeID: data.employeeID,
 			};
 
-			const transID = "TRN" + Date.now();
+			const transID = isRevisionMode ? transactionId : "TRN" + Date.now(); // Use existing transactionId for revision mode
 			setFormIdString(transID);
 
 			const fileUploadResults = await uploadFilesAndGetURLs(
@@ -289,6 +330,10 @@ const EyeglassesForm = () => {
 				},
 			};
 
+			if (isRevisionMode) {
+				await removeRequest(transactionId); // Remove the previous request before submitting the new one
+			}
+
 			await addDoc(collection(db, "FormRequests"), pendingRequestData);
 			console.log("Document written with ID: ", transID);
 
@@ -301,6 +346,7 @@ const EyeglassesForm = () => {
 			clearFormData("eyeglasses");
 
 			// Reset form after successful submission
+			resetRevision();
 			reset();
 		} catch (error) {
 			console.error(error);
@@ -311,6 +357,113 @@ const EyeglassesForm = () => {
 					: "An unexpected error occurred"
 			);
 		}
+	};
+
+	const [files, setFiles] = useState<any>({});
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [previewFile, setPreviewFile] = useState<any>(null);
+	const [isFileInput, setIsFileInput] = useState<Record<FileField, boolean>>({
+		employeeID: false,
+		applicantSignature: false,
+		eyeglassesReceipt: false,
+	});
+	const { formData, isRevisionMode, transactionId } = useRevisionStore();
+	const resetRevision = useRevisionStore((state) => state.resetRevision);
+	const { removeRequest } = useRemoveRequest();
+	const updateFileInputStates = (newFiles: any) => {
+		const inputStates = Object.fromEntries(
+			fileFields.map((key) => [key, Boolean(newFiles[key])])
+		) as Record<FileField, boolean>;
+		setIsFileInput(inputStates);
+	};
+	const [isNewUpload, setIsNewUpload] = useState({
+		employeeID: false,
+		applicantSignature: false,
+		eyeglassesReceipt: false,
+	});
+
+	useEffect(() => {
+		return () => {
+			console.log("Component unmounting...");
+			console.log("isRevisionMode:", isRevisionMode);
+			console.log("transactionId:", transactionId);
+
+			pendingUnmountId = transactionId;
+
+			setTimeout(() => {
+				const {
+					transactionId: currentId,
+					isRevisionMode: currentRev,
+					resetRevision,
+				} = useRevisionStore.getState();
+
+				// Only reset if the same transactionId hasn’t come back
+				if (pendingUnmountId === currentId && currentRev) {
+					console.log("Resetting revision due to true unmount");
+					resetRevision();
+				} else {
+					console.log("Skipping resetRevision - likely remounted");
+				}
+
+				pendingUnmountId = null; // clean up
+			}, 100);
+		};
+	}, [transactionId]);
+
+	useEffect(() => {
+		if (transactionId) {
+			if (pendingUnmountId === transactionId) {
+				console.log("Remount detected - preventing reset");
+				pendingUnmountId = null;
+			}
+		}
+	}, [transactionId]);
+
+	useEffect(() => {
+		if (isRevisionMode && formData) {
+			// Populate form values
+			Object.keys(formData).forEach((key) => {
+				setValue(
+					key as keyof UnifiedFormData,
+					formData[key as keyof UnifiedFormData]
+				);
+			});
+
+			// Set files based on formData
+			const prefills = {
+				employeeID: formData.employeeID,
+				eyeglassesReceipt: formData.eyeglassesReceipt,
+				applicantSignature: formData.applicantSignature,
+			};
+			setFiles(prefills);
+			updateFileInputStates(prefills);
+		}
+	}, [formData, isRevisionMode, setValue]);
+
+	useEffect(() => {
+		if (isRevisionMode && files) {
+			updateFileInputStates(files);
+			console.log(`Updated isFileInput: ${JSON.stringify(isFileInput)}`);
+		}
+	}, [files, isRevisionMode]);
+
+	useEffect(() => {
+		console.log("isRevisionMode changed:", isRevisionMode);
+	}, [isRevisionMode]);
+
+	useEffect(() => {
+		console.log("Files state changed:", files);
+	}, [files]);
+
+	// Handle modal opening and closing
+	const openModal = (file: any) => {
+		setPreviewFile(file);
+		setIsModalOpen(true);
+	};
+
+	const closeModal = () => {
+		setIsModalOpen(false);
+		setPreviewFile(null);
 	};
 
 	return (
@@ -438,31 +591,65 @@ const EyeglassesForm = () => {
 										<tr>
 											<td>Employee/UST ID</td>
 											<td className="d-flex justify-content-center">
-												<label
-													htmlFor="employeeID"
-													className="form-label"
-												></label>
-												<input
-													id="employeeID"
-													type="file"
-													accept=".pdf, .png, .jpg, .jpeg"
-													className={`form-control ${
-														errors.employeeID ||
-														fileErrors.employeeID
-															? "is-invalid"
-															: ""
-													}`}
-													{...register("employeeID")}
-													name="employeeID"
-													onChange={(e) => {
-														register(
+												{isFileInput["employeeID"] &&
+												files.employeeID &&
+												isRevisionMode &&
+												!isNewUpload["employeeID"] ? (
+													<div className="d-flex gap-2">
+														<button
+															type="button"
+															className="btn btn-outline-secondary btn-sm"
+															onClick={() =>
+																setIsFileInput(
+																	(prev) => ({
+																		...prev,
+																		employeeID:
+																			false,
+																	})
+																)
+															}
+														>
+															Re-upload File
+														</button>
+														<a
+															href="#"
+															onClick={(e) => {
+																e.preventDefault();
+																openModal(
+																	files.employeeID
+																);
+															}}
+															className="btn btn-outline-primary btn-sm"
+														>
+															View Previously
+															Uploaded File
+														</a>
+													</div>
+												) : (
+													<input
+														id="employeeID"
+														type="file"
+														accept=".pdf, .png, .jpg, .jpeg"
+														className={`form-control ${
+															errors.employeeID ||
+															fileErrors.employeeID
+																? "is-invalid"
+																: ""
+														}`}
+														{...register(
 															"employeeID"
-														).onChange(e);
-														handleFileChange(
-															"employeeID"
-														)(e);
-													}}
-												/>
+														)}
+														name="employeeID"
+														onChange={(e) => {
+															register(
+																"employeeID"
+															).onChange(e);
+															handleFileChange(
+																"employeeID"
+															)(e);
+														}}
+													/>
+												)}
 												{(errors.employeeID ||
 													fileErrors.employeeID) && (
 													<p className="invalid-feedback">
@@ -481,40 +668,74 @@ const EyeglassesForm = () => {
 												</span>
 											</td>
 											<td className="d-flex justify-content-center">
-												<label
-													htmlFor="eyeglassesReceipt"
-													className="form-label"
-												></label>
-												<input
-													id="eyeglassesReceipt"
-													type="file"
-													accept=".pdf, .png, .jpg, .jpeg"
-													className={`form-control ${
-														errors.eyeglassesReceipt ||
-														fileErrors.eyeglassesReceipt
-															? "is-invalid"
-															: ""
-													}`}
-													{...register(
-														"eyeglassesReceipt"
-													)}
-													name="eyeglassesReceipt"
-													data-testid="eyeglassesReceipt"
-													onChange={(e) => {
-														register(
+												{isFileInput[
+													"eyeglassesReceipt"
+												] &&
+												files.eyeglassesReceipt &&
+												isRevisionMode &&
+												!isNewUpload[
+													"eyeglassesReceipt"
+												] ? (
+													<div className="d-flex gap-2">
+														<button
+															type="button"
+															className="btn btn-outline-secondary btn-sm"
+															onClick={() =>
+																setIsFileInput(
+																	(prev) => ({
+																		...prev,
+																		eyeglassesReceipt:
+																			false,
+																	})
+																)
+															}
+														>
+															Re-upload File
+														</button>
+														<a
+															href="#"
+															onClick={(e) => {
+																e.preventDefault();
+																openModal(
+																	files.eyeglassesReceipt
+																);
+															}}
+															className="btn btn-outline-primary btn-sm"
+														>
+															View Previously
+															Uploaded File
+														</a>
+													</div>
+												) : (
+													<input
+														id="eyeglassesReceipt"
+														type="file"
+														accept=".pdf, .png, .jpg, .jpeg"
+														className={`form-control ${
+															errors.eyeglassesReceipt ||
+															fileErrors.eyeglassesReceipt
+																? "is-invalid"
+																: ""
+														}`}
+														{...register(
 															"eyeglassesReceipt"
-														).onChange(e);
-														handleFileChange(
-															"eyeglassesReceipt"
-														)(e);
-													}}
-												/>
-												{(errors.eyeglassesReceipt ||
-													fileErrors.eyeglassesReceipt) && (
+														)}
+														name="eyeglassesReceipt"
+														onChange={(e) => {
+															register(
+																"eyeglassesReceipt"
+															).onChange(e);
+															handleFileChange(
+																"eyeglassesReceipt"
+															)(e);
+														}}
+													/>
+												)}
+												{(errors.employeeID ||
+													fileErrors.employeeID) && (
 													<p className="invalid-feedback">
-														{fileErrors.eyeglassesReceipt ||
-															(errors
-																.eyeglassesReceipt
+														{fileErrors.employeeID ||
+															(errors.employeeID
 																?.message as string)}
 													</p>
 												)}
@@ -528,34 +749,71 @@ const EyeglassesForm = () => {
 												</span>
 											</td>
 											<td className="d-flex justify-content-center">
-												<label
-													htmlFor="applicantSignature"
-													className="form-label"
-												></label>
-												<input
-													id="applicantSignature"
-													type="file"
-													accept=".pdf, .png, .jpg, .jpeg"
-													className={`form-control ${
-														errors.applicantSignature ||
-														fileErrors.applicantSignature
-															? "is-invalid"
-															: ""
-													}`}
-													{...register(
-														"applicantSignature"
-													)}
-													name="applicantSignature"
-													data-testid="applicantSignature"
-													onChange={(e) => {
-														register(
+												{isFileInput[
+													"applicantSignature"
+												] &&
+												files.applicantSignature &&
+												isRevisionMode &&
+												!isNewUpload[
+													"applicantSignature"
+												] ? (
+													<div className="d-flex gap-2">
+														<button
+															type="button"
+															className="btn btn-outline-secondary btn-sm"
+															onClick={() =>
+																setIsFileInput(
+																	(prev) => ({
+																		...prev,
+																		applicantSignature:
+																			false,
+																	})
+																)
+															} // Switch to file input when clicked
+														>
+															Re-upload File
+														</button>
+														<a
+															href="#"
+															onClick={(e) => {
+																e.preventDefault();
+																openModal(
+																	files.applicantSignature
+																); // Open the modal with file preview
+															}}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="btn btn-outline-primary btn-sm"
+														>
+															View Previously
+															Uploaded File
+														</a>
+													</div>
+												) : (
+													<input
+														id="applicantSignature"
+														type="file"
+														accept=".pdf, .png, .jpg, .jpeg"
+														className={`form-control ${
+															errors.applicantSignature ||
+															fileErrors.applicantSignature
+																? "is-invalid"
+																: ""
+														}`}
+														{...register(
 															"applicantSignature"
-														).onChange(e);
-														handleFileChange(
-															"applicantSignature"
-														)(e);
-													}}
-												/>
+														)}
+														name="applicantSignature"
+														onChange={(e) => {
+															register(
+																"applicantSignature"
+															).onChange(e);
+															handleFileChange(
+																"applicantSignature"
+															)(e);
+														}}
+													/>
+												)}
 												{(errors.applicantSignature ||
 													fileErrors.applicantSignature) && (
 													<p className="invalid-feedback">
@@ -672,6 +930,9 @@ const EyeglassesForm = () => {
 					onCancel={handleClearCancel}
 					isOpen={showClearConfirmation}
 				/>
+			)}
+			{isModalOpen && (
+				<ViewFiles file={previewFile} onClose={closeModal} />
 			)}
 		</div>
 	);

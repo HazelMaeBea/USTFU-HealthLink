@@ -27,7 +27,11 @@ import { pushPendingNotification } from "../../Page Elements/NotifBadge/NotifTri
 import { useRevisionStore } from "../../Page Elements/RevisionFuncs/revisionStore.ts";
 import { useRemoveRequest } from "../../Page Elements/RevisionFuncs/removeRequest.ts";
 import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles.tsx";
-import { saveFormData, loadFormData, clearFormData } from "./FormUtil/formPresistence.ts";
+import {
+	saveFormData,
+	loadFormData,
+	clearFormData,
+} from "./FormUtil/formPresistence.ts";
 
 type FileState = {
 	[key: string]: string | null; // Each field (e.g., "applicantSignature") can have a string (file URL) or null
@@ -163,12 +167,11 @@ const AdmissionForm = () => {
 
 	// auto save data on change
 	useEffect(() => {
-        const subscription = watch((value) => {
-            saveFormData("admission", value);
-        });
-        return () => subscription.unsubscribe();
-    }, [watch]);
-
+		const subscription = watch((value) => {
+			saveFormData("admission", value);
+		});
+		return () => subscription.unsubscribe();
+	}, [watch]);
 
 	const [files, setFiles] = useState<any>({});
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -471,7 +474,7 @@ const AdmissionForm = () => {
 			};
 
 			if (isRevisionMode) {
-				await removeRequest(transactionId!); // Remove the previous request before submitting the new one
+				await removeRequest(transactionId); // Remove the previous request before submitting the new one
 			}
 
 			// Add the pending request document to Firestore.
@@ -485,16 +488,15 @@ const AdmissionForm = () => {
 
 			// After a successful submission clear the form data
 			clearFormData("admission");
-			
+
+			// Reset revision store
+			resetRevision(); // Call reset to clear the revision state
 			// Reset form after successful submission
 			reset();
 			setDateHired(null);
 			setDateRetired(null);
 			setPhoneInputValue("+63");
 			setFileErrors({});
-
-			// Reset revision store
-			resetRevision(); // Call reset to clear the revision state
 		} catch (error) {
 			console.error(error);
 			setSubmissionStatus("error");
@@ -585,7 +587,7 @@ const AdmissionForm = () => {
 																)
 															}
 														>
-															Change File
+															Re-upload File
 														</button>
 														<a
 															href="#"
@@ -597,7 +599,8 @@ const AdmissionForm = () => {
 															}}
 															className="btn btn-outline-primary btn-sm"
 														>
-															View File
+															View Previously
+															Uploaded File
 														</a>
 													</div>
 												) : (
@@ -663,7 +666,7 @@ const AdmissionForm = () => {
 																)
 															} // Switch to file input when clicked
 														>
-															Change File
+															Re-upload File
 														</button>
 														<a
 															href="#"
@@ -677,7 +680,8 @@ const AdmissionForm = () => {
 															rel="noopener noreferrer"
 															className="btn btn-outline-primary btn-sm"
 														>
-															VIew File
+															View Previously
+															Uploaded File
 														</a>
 													</div>
 												) : (
@@ -745,7 +749,7 @@ const AdmissionForm = () => {
 																)
 															} // Switch to file input when clicked
 														>
-															Change File
+															Re-upload File
 														</button>
 														<a
 															href="#"
@@ -759,7 +763,8 @@ const AdmissionForm = () => {
 															rel="noopener noreferrer"
 															className="btn btn-outline-primary btn-sm"
 														>
-															VIew File
+															View Previously
+															Uploaded File
 														</a>
 													</div>
 												) : (
@@ -824,7 +829,7 @@ const AdmissionForm = () => {
 																)
 															} // Switch to file input when clicked
 														>
-															Change File
+															Re-upload File
 														</button>
 														<a
 															href="#"
@@ -838,7 +843,8 @@ const AdmissionForm = () => {
 															rel="noopener noreferrer"
 															className="btn btn-outline-primary btn-sm"
 														>
-															VIew File
+															View Previously
+															Uploaded File
 														</a>
 													</div>
 												) : (
@@ -906,7 +912,7 @@ const AdmissionForm = () => {
 																)
 															} // Switch to file input when clicked
 														>
-															Change File
+															Re-upload File
 														</button>
 														<a
 															href="#"
@@ -920,7 +926,8 @@ const AdmissionForm = () => {
 															rel="noopener noreferrer"
 															className="btn btn-outline-primary btn-sm"
 														>
-															VIew File
+															View Previously
+															Uploaded File
 														</a>
 													</div>
 												) : (

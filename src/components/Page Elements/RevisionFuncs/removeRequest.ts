@@ -5,7 +5,7 @@ import { doc, deleteDoc } from "firebase/firestore";
 export const useRemoveRequest = () => {
   const removeRequest = async (transactionId: string) => {
     try {
-      const requestDocRef = doc(db, "RevisionsRequest", transactionId);
+      const requestDocRef = doc(db, "RevisionsRequests", transactionId);
       await deleteDoc(requestDocRef);
       console.log(`Request with transactionId ${transactionId} removed.`);
     } catch (error) {
