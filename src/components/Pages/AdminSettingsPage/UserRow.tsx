@@ -12,6 +12,8 @@ import { FiEdit2, FiUsers, FiToggleLeft } from "react-icons/fi";
 import { createPortal } from "react-dom";
 import Popout from "../../Page Elements/Popout/Popout";
 import "./UserManagement.css";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../../../contexts/firebase";
 
 interface User {
 	id: string;
@@ -183,6 +185,13 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 				changes.push(`Leave End Date from '${user.leaveEndDate}' to '${editedUser.leaveEndDate}'`);
 			if (changes.length > 0) {
 				setLastEdited(`Last edited on ${new Date().toLocaleString()}: ${changes.join(", ")}`);
+
+				// Write to Firebase auditLogs collection
+				await addDoc(collection(db, "auditLogs"), {
+					Time: new Date(),
+					Name: user.name,
+					Changes: changes,
+				});
 			}
 
 			// Exit editing mode
