@@ -240,7 +240,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                       }))
                     } // Switch to file input when clicked
                   >
-                    Change File
+                    Re-upload File
                   </button>
                   <a
                     href="#"
@@ -252,7 +252,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                     rel="noopener noreferrer"
                     className="btn btn-outline-primary btn-sm"
                   >
-                    VIew File
+                    View Previously Uploaded File
                   </a>
                 </div>
               ) : (
@@ -302,7 +302,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                       }))
                     } // Switch to file input when clicked
                   >
-                    Change File
+                    Re-upload File
                   </button>
                   <a
                     href="#"
@@ -314,7 +314,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                     rel="noopener noreferrer"
                     className="btn btn-outline-primary btn-sm"
                   >
-                    VIew File
+                    View Previously Uploaded File
                   </a>
                 </div>
               ) : (
@@ -364,7 +364,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                       }))
                     } // Switch to file input when clicked
                   >
-                    Change File
+                    Re-upload File
                   </button>
                   <a
                     href="#"
@@ -376,7 +376,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                     rel="noopener noreferrer"
                     className="btn btn-outline-primary btn-sm"
                   >
-                    VIew File
+                    View Previously Uploaded File
                   </a>
                 </div>
               ) : (
@@ -423,7 +423,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                       }))
                     }
                   >
-                    Change File
+                    Re-upload File
                   </button>
                   <a
                     href="#"
@@ -433,7 +433,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                     }}
                     className="btn btn-outline-primary btn-sm"
                   >
-                    View File
+                    View Previously Uploaded File
                   </a>
                 </div>
               ) : (
@@ -482,7 +482,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                       }))
                     } // Switch to file input when clicked
                   >
-                    Change File
+                    Re-upload File
                   </button>
                   <a
                     href="#"
@@ -494,7 +494,7 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
                     rel="noopener noreferrer"
                     className="btn btn-outline-primary btn-sm"
                   >
-                    VIew File
+                    View Previously Uploaded File
                   </a>
                 </div>
               ) : (

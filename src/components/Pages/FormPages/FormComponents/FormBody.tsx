@@ -22,7 +22,12 @@ import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 import { pushPendingNotification } from "../../../Page Elements/NotifBadge/NotifTrigger.ts";
 import { baseFormSchema, UnifiedFormData } from "../FormUtil/formTypes.ts";
 import { useRevisionStore } from "../../../Page Elements/RevisionFuncs/revisionStore.ts";
-import { saveFormData, loadFormData, clearFormData } from "../FormUtil/formPresistence.ts";
+import { useRemoveRequest } from "../../../Page Elements/RevisionFuncs/removeRequest.ts";
+import {
+	saveFormData,
+	loadFormData,
+	clearFormData,
+} from "../FormUtil/formPresistence.ts";
 
 interface FormBodyProps {
 	origFormType: string;
@@ -47,6 +52,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
 	const { resetRevision, isRevisionMode, transactionId } = useRevisionStore();
+	const { removeRequest } = useRemoveRequest();
 
 	const createFormSchema = (formType: string) =>
 		baseFormSchema
@@ -265,10 +271,10 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	//Autosave form data on change
 	// Auto-save form data on change:
 	useEffect(() => {
-    	const subscription = watch((data) => {
-        	saveFormData(origFormType, data);
-    	});
-    	return () => subscription.unsubscribe();
+		const subscription = watch((data) => {
+			saveFormData(origFormType, data);
+		});
+		return () => subscription.unsubscribe();
 	}, [watch, origFormType]);
 
 	// Add a handler to close the notification with animation
@@ -432,6 +438,10 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					},
 				};
 
+				if (isRevisionMode) {
+					await removeRequest(transactionId); // Remove the previous request before submitting the new one
+				}
+
 				setUploadProgress("Saving to database...");
 				await addDoc(collection(db, "FormRequests"), newDoc);
 
@@ -444,9 +454,9 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				setSubmissionStatus("success");
 
 				// Reset form after successful submission
+				resetRevision();
+				reset();
 			}
-			reset();
-			resetRevision();
 
 			//Clears on submit
 			clearFormData(origFormType);
