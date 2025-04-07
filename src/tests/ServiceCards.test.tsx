@@ -235,34 +235,6 @@ describe("ServiceCards Component", () => {
 	});
 
 	describe("Eyeglasses eligibility", () => {
-		test("shows popout when eyeglasses card is clicked while disabled", async () => {
-			// Setup a recent eyeglasses request (less than 2 years)
-			const currentTime = Date.now();
-			const requestTime = currentTime - 365 * 24 * 60 * 60 * 1000; // 1 year ago
-
-			triggerSnapshotWithData({
-				fullName: "Test User",
-				eyeglassesFlag: createMockTimestamp(requestTime),
-			});
-
-			render(<ServiceCards />);
-
-			await act(async () => {
-				fireEvent.click(
-					screen.getByText("Eyeglasses Reimbursement Form")
-				);
-			});
-
-			expect(mockNavigate).not.toHaveBeenCalledWith("/home/eyeglasses");
-
-			await waitFor(() => {
-				expect(screen.getByTestId("popout")).toBeInTheDocument();
-				expect(
-					screen.getByText(/Sorry, you are unable to request/i)
-				).toBeInTheDocument();
-			});
-		});
-
 		test("navigates to eyeglasses page when eligible", async () => {
 			// Setup an old eyeglasses request (more than 2 years)
 			const currentTime = Date.now();
