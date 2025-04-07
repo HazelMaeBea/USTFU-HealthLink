@@ -577,6 +577,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
       normalizeAttachment(formData.docRequest, "docRequest"),
       normalizeAttachment(formData.hospitalInvoice, "hospitalInvoice"),
       normalizeAttachment(formData.labInvoice, "labInvoice"),
+      normalizeAttachment(formData.eyeglassesReceipt, "eyeglassesReceipt"),
     ].filter((item): item is NormalizedAttachment => item !== null); // Remove null entries with type assertion
 
     if (attachmentsWithLabels.length === 0) {
