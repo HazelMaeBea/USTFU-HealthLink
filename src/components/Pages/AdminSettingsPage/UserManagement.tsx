@@ -35,6 +35,7 @@ interface User {
 	leaveEndDate?: string;
 	document: string;
 	createdAt: Timestamp;
+	remainingBenefits?: string;
 }
 
 const UserManagement = ({ searchQuery }: UserManagementProps) => {
@@ -73,6 +74,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 								status: data.status || "INACTIVE",
 								document: doc.id,
 								createdAt: data.createdAt,
+								remainingBenefits: personalInfo.remainingBenefits?.toString() || "0", // Convert to string
 							};
 						})
 						.sort((a, b) => a.name.localeCompare(b.name)) as User[];
@@ -133,6 +135,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 								<th>College</th>
 								<th>Birthdate</th>
 								<th>Contact #</th>
+								<th>Remaining Benefits</th>
 								<th>Role</th>
 								<th>Status</th>
 								<th></th>
