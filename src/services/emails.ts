@@ -30,25 +30,22 @@ const getNotificationSetting = async (email: string) => {
     
 const mailCollection = collection(db, "mail");
 export const sendEmailVerification = async (email:string, name:string, isApproved:boolean) => {
-    const emailFlag = await getNotificationSetting(email);
-    if(emailFlag) {
-        if(isApproved) {
-            addDoc(mailCollection, {
-                to: [email],
-                message: {
-                    subject: "Your verification has been approved!",
-                    html: "<h2>Welcome to USTFU Healthlink " + name + "!</h2><p>Your verification to access the USTFU Healthlink webapp has been approved.\nLook forward to being able to avail for your benefits anytime and anywhere.</p>"
-                }
-            })
-        } else {
-            addDoc(mailCollection, {
-                to: [email],
-                message: {
-                    subject: "Your verification has been rejected.",
-                    html: "<h2>Apologies " + name + ".</h2><p>Your verification to access the USTFU Healthlink webapp has been rejected.\nWe sincerely apologize as you might not be able to avail for our current benefits at this time.</p>"
-                }
-            })
-        }
+    if(isApproved) {
+        addDoc(mailCollection, {
+            to: [email],
+            message: {
+                subject: "Your verification has been approved!",
+                html: "<h2>Welcome to USTFU Healthlink " + name + "!</h2><p>Your verification to access the USTFU Healthlink webapp has been approved.\nLook forward to being able to avail for your benefits anytime and anywhere.</p>"
+            }
+        })
+    } else {
+        addDoc(mailCollection, {
+            to: [email],
+            message: {
+                subject: "Your verification has been rejected.",
+                html: "<h2>Apologies " + name + ".</h2><p>Your verification to access the USTFU Healthlink webapp has been rejected.\nWe sincerely apologize as you might not be able to avail for our current benefits at this time.</p>"
+            }
+        })
     }
 }
 
