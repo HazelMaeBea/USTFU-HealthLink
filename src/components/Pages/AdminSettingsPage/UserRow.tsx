@@ -31,11 +31,12 @@ interface User {
 	leaveEndDate?: string;
 	document: string;
 	createdAt: Timestamp;
+	remainingBenefits?: string; // Add remainingBenefits property
 }
 
 interface UserRowProps {
 	user: User;
-	onSave: (updatedUser: User, option: "college" | "role" | "status") => void;
+	onSave: (updatedUser: User, option: "college" | "role" | "status" | "remainingBenefits") => void; // Include "remainingBenefits"
 	isMobile?: boolean;
 }
 
@@ -89,7 +90,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 	const [editedUser, setEditedUser] = useState(user);
 	const [lastEdited, setLastEdited] = useState<string | null>(null);
 	const [editOption, setEditOption] = useState<
-		"college" | "role" | "status" | null
+		"college" | "role" | "status" | "remainingBenefits" | null
 	>(null);
 	const [showOptions, setShowOptions] = useState(false);
 	const [popupStyle, setPopupStyle] = useState<React.CSSProperties>({});
@@ -129,7 +130,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 		}
 	};
 
-	const handleEditAndExpand = (option: "college" | "role" | "status") => {
+	const handleEditAndExpand = (option: "college" | "role" | "status" | "remainingBenefits") => {
 		setIsEditing(true);
 		setEditOption(option);
 		setEditedUser(user);
@@ -183,6 +184,8 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 				changes.push(`Leave Start Date from '${user.leaveStartDate}' to '${editedUser.leaveStartDate}'`);
 			if (user.leaveEndDate !== editedUser.leaveEndDate)
 				changes.push(`Leave End Date from '${user.leaveEndDate}' to '${editedUser.leaveEndDate}'`);
+			if (user.remainingBenefits !== editedUser.remainingBenefits)
+				changes.push(`Remaining Benefits from '${user.remainingBenefits}' to '${editedUser.remainingBenefits}'`);
 			if (changes.length > 0) {
 				setLastEdited(`Last edited on ${new Date().toLocaleString()}: ${changes.join(", ")}`);
 
@@ -297,6 +300,9 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 												<FiToggleLeft style={{ marginRight: "10px" }} /> Edit Status
 											</button>
 										)}
+										<button onClick={() => handleEditAndExpand("remainingBenefits")}>
+											<FiEdit2 style={{ marginRight: "10px" }} /> Edit Remaining Benefits
+										</button>
 									</div>
 								</div>,
 								document.body
@@ -320,6 +326,14 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 					<div className="mobile-card-row">
 						<span className="mobile-card-label">Contact #:</span>
 						<span className="mobile-card-value">{user.phoneNumber}</span>
+					</div>
+					<div className="mobile-card-row">
+						<span className="mobile-card-label">Remaining Benefits:</span>
+						<span className="mobile-card-value">
+							{user.remainingBenefits !== undefined && user.remainingBenefits !== null
+								? `₱${user.remainingBenefits.toString()}`
+								: "N/A"}
+						</span>
 					</div>
 					<div className="mobile-card-row">
 						<span className="mobile-card-label">Role:</span>
@@ -481,12 +495,24 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 								)}
 							</FormGroup>
 						)}
+						{editOption === "remainingBenefits" && (
+							<FormGroup>
+								<Label for="remainingBenefits">Remaining Benefits</Label>
+								<Input
+									type="number"
+									name="remainingBenefits"
+									id="edit_remainingBenefits"
+									value={editedUser.remainingBenefits ?? ""}
+									onChange={handleChange}
+								/>
+							</FormGroup>
+						)}
 						{lastEdited && (
 							<div style={{ marginTop: "1rem" }}>
 								<p className="text-muted">{lastEdited}</p>
 							</div>
 						)}
-						<div className="mobile-card-edit-buttons">
+							<div className="mobile-card-edit-buttons">
 							<Button color="success" onClick={handleSave}>
 								Save
 							</Button>
@@ -520,6 +546,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 				<td>{user.college}</td>
 				<td>{user.birthdate}</td>
 				<td>{user.phoneNumber}</td>
+				<td>{user.remainingBenefits !== undefined && user.remainingBenefits !== null ? `₱${user.remainingBenefits.toString()}` : "N/A"}</td> {/* Add Remaining Benefits column */}
 				<td>{user.role}</td>
 				<td>{getStatusBadge(user.status)}</td>
 				<td style={{ position: "relative" }}>
@@ -545,6 +572,9 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 												<FiToggleLeft style={{ marginRight: "10px" }} /> Edit Status
 											</button>
 										)}
+										<button onClick={() => { handleEditAndExpand("remainingBenefits"); }}>
+											<FiEdit2 style={{ marginRight: "10px" }} /> Edit Remaining Benefits
+										</button>
 									</div>
 								</div>,
 								document.body
@@ -555,7 +585,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 			</tr>
 			{isEditing && (
 				<tr>
-					<td colSpan={10}>
+					<td colSpan={11}>
 						{editOption === "college" && (
 							<FormGroup>
 								<Label for="college">College</Label>
@@ -705,6 +735,19 @@ const UserRow: React.FC<UserRowProps> = ({ user, onSave, isMobile = false }) => 
 									</FormGroup>
 								</Col>
 							</Row>
+						)}
+
+						{editOption === "remainingBenefits" && (
+							<FormGroup>
+								<Label for="remainingBenefits">Remaining Benefits</Label>
+								<Input
+									type="number"
+									name="remainingBenefits"
+									id="edit_remainingBenefits"
+									value={editedUser.remainingBenefits ?? ""}
+									onChange={handleChange}
+								/>
+							</FormGroup>
 						)}
 
 						{lastEdited && (

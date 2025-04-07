@@ -38,6 +38,7 @@ interface User {
 	leaveEndDate?: string;
 	document: string;
 	createdAt: Timestamp;
+	remainingBenefits?: string;
 }
 
 const UserManagement = ({ searchQuery }: UserManagementProps) => {
@@ -48,7 +49,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 	const [editUser, setEditUser] = useState<User>();
 	const [editDocument, setEditDocument] = useState("");
 	const [editCreatedAt, setEditCreatedAt] = useState<Date>();
-	const [editOption, setEditOption] = useState<"college" | "role" | "status" | null>(null);
+	const [editOption, setEditOption] = useState<"college" | "role" | "status" | "remainingBenefits" | null>(null);
 	const [showPopout, setShowPopout] = useState(false);
 	const [showAuditLogsPopout, setShowAuditLogsPopout] = useState(false);
 	const [isMobile, setIsMobile] = useState(false);
@@ -81,6 +82,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 								status: data.status || "INACTIVE",
 								document: doc.id,
 								createdAt: data.createdAt,
+								remainingBenefits: personalInfo.remainingBenefits?.toString() || "0", // Convert to string
 							};
 						})
 						.sort((a, b) => a.name.localeCompare(b.name)) as User[];
@@ -128,6 +130,15 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 					},
 					{ merge: true }
 				);
+			} else if (editOption === "remainingBenefits") {
+				await setDoc(
+					doc(db, "users", editDocument),
+					{
+						personalInfo: { remainingBenefits: parseFloat(editUser.remainingBenefits || "0") }, // Update remainingBenefits
+						createdAt: editCreatedAt,
+					},
+					{ merge: true }
+				);
 			} else {
 				await setDoc(
 					doc(db, "users", editDocument),
@@ -152,7 +163,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 		setEditOption(null);
 	};
 
-	const handleSave = (updatedUser: User, option: "college" | "role" | "status") => {
+	const handleSave = (updatedUser: User, option: "college" | "role" | "status" | "remainingBenefits") => {
 		console.log("User updated:", updatedUser);
 		setEditUser(updatedUser);
 		setEditDocument(updatedUser.document);
@@ -190,6 +201,7 @@ const UserManagement = ({ searchQuery }: UserManagementProps) => {
 								<th>College</th>
 								<th>Birthdate</th>
 								<th>Contact #</th>
+								<th>Remaining Benefits</th>
 								<th>Role</th>
 								<th>Status</th>
 								<th></th>

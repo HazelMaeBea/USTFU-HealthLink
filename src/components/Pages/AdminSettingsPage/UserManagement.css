@@ -1,6 +1,6 @@
 /* User Management Table */
 .admin-settings-container .user-mngmnt-table {
-	width: 100%;
+	/* width: 1400px; */
 	border-collapse: separate;
 	border-spacing: 0;
 	margin-top: 1rem;
@@ -56,12 +56,12 @@
 
 .admin-settings-container .user-mngmnt-table th:nth-child(3),
 .admin-settings-container .user-mngmnt-table td:nth-child(3) {
-	width: 20%; /* Adjust width for email column */
+	width: 15%; /* Adjust width for email column */
 }
 
 .admin-settings-container .user-mngmnt-table th:nth-child(4),
 .admin-settings-container .user-mngmnt-table td:nth-child(4) {
-	width: 20%; /* Adjust width for college column */
+	width: 15%; /* Adjust width for college column */
 }
 
 .admin-settings-container .user-mngmnt-table th:nth-child(5),
@@ -76,14 +76,18 @@
 
 .admin-settings-container .user-mngmnt-table th:nth-child(7),
 .admin-settings-container .user-mngmnt-table td:nth-child(7) {
+	width: 10%; /* Adjust width for remaining benefits column */
+	text-align: center;
+}
+
+.admin-settings-container .user-mngmnt-table th:nth-child(8),
+.admin-settings-container .user-mngmnt-table td:nth-child(8) {
 	width: 10%; /* Adjust width for role column */
 	text-transform: capitalize;
 }
 
 .admin-settings-container .user-mngmnt-table th:nth-child(9),
-.admin-settings-container .user-mngmnt-table td:nth-child(9),
-.admin-settings-container .user-mngmnt-table th:nth-child(8),
-.admin-settings-container .user-mngmnt-table td:nth-child(8) {
+.admin-settings-container .user-mngmnt-table td:nth-child(9) {
 	white-space: nowrap; /* Prevent word break */
 }
 
