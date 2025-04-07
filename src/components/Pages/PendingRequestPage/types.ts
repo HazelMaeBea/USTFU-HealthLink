@@ -54,6 +54,7 @@ export interface EyeglassesFormData extends BaseFormData {
 	amountPaid?: string;
 	reimbursementAmount?: number;
 	eyeglassesBenefitClaimedDate?: Date | string | null;
+	eyeglassesReceipt?: FormAttachment;
 }
 
 export interface AdmissionFormData extends BaseFormData {

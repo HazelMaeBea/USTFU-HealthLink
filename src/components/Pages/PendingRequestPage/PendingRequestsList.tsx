@@ -831,6 +831,18 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 			...(formData.labInvoice
 				? [{ type: "labInvoice", data: formData.labInvoice }]
 				: []),
+			...("eyeglassesReceipt" in formData && formData.eyeglassesReceipt
+				? [
+						{
+							type: "eyeglassesReceipt",
+							data: (
+								formData as {
+									eyeglassesReceipt: FormAttachment;
+								}
+							).eyeglassesReceipt,
+						},
+				  ]
+				: []),
 		].filter((item) => item.data && item.data.filename);
 
 		// Function to render attachments section
