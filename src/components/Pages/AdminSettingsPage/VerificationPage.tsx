@@ -1,5 +1,7 @@
 // import "./AdminSettings.css";
 import "./VerificationPage.css";
+import { FaCheck } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 import { useState, useEffect, useRef } from "react";
 import Popout from "../../Page Elements/Popout/Popout";
 import PageButtons from "../../Page Elements/PageButtons/PageButtons";
@@ -47,7 +49,7 @@ const VerificationPage = ({ searchQuery }: VerificationPageProps) => {
 	const [isMobile, setIsMobile] = useState(false);
 
 	useEffect(() => {
-		const checkMobile = () => setIsMobile(window.innerWidth <= 768); // Detect mobile screen width
+		const checkMobile = () => setIsMobile(window.innerWidth <= 930); // Detect mobile screen width
 		checkMobile();
 		window.addEventListener("resize", checkMobile);
 		return () => window.removeEventListener("resize", checkMobile);
@@ -481,7 +483,7 @@ const VerificationPage = ({ searchQuery }: VerificationPageProps) => {
 													setPopoutOpen(true);
 												}}
 											>
-												APPROVE
+												<FaCheck color="green" />
 											</button>
 
 											<button
@@ -500,7 +502,7 @@ const VerificationPage = ({ searchQuery }: VerificationPageProps) => {
 													setPopoutOpen(true);
 												}}
 											>
-												DENY
+												<FaTimes color="red" />
 											</button>
 										</div>
 									</td>

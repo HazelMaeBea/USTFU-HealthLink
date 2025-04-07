@@ -64,12 +64,12 @@
 
 .verification-page .verification-table th:nth-child(3),
 .verification-page .verification-table td:nth-child(3) {
-	width: 25%; /* Adjust width for Name column */
+	width: 20%; /* Adjust width for Name column */
 }
 
 .verification-page .verification-table th:nth-child(4),
 .verification-page .verification-table td:nth-child(4) {
-	width: 25%; /* Adjust width for Email column */
+	width: 20%; /* Adjust width for Email column */
 }
 
 .verification-page .verification-table th:nth-child(5),
@@ -183,7 +183,7 @@
 	transition: all 0.2s;
 	border-radius: 10px;
 	font-size: 0.875rem;
-	min-width: 100px;
+	min-width: 4rem;
 	border-radius: 8px;
 	font-weight: 500;
 }
@@ -212,10 +212,10 @@
 
 /* Bulk Action Buttons */
 
-.verification-actions {
+.verification-actions:last-child {
 	display: flex;
-	justify-content: space-between;
-	align-items: right;
+	gap: 1rem;
+	justify-content: flex-end;
 	margin-top: 1rem;
 }
 
@@ -522,7 +522,7 @@
 	}
 }
 
-@media (max-width: 768px) {
+@media (max-width: 930px) {
 	.verification-table {
 		display: none;
 	}
@@ -533,7 +533,7 @@
 	}
 }
 
-@media (min-width: 769px) {
+@media (min-width: 930px) {
 	.verification-mobile-container {
 		display: none;
 	}

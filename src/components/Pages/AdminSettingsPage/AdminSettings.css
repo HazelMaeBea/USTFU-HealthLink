@@ -102,6 +102,13 @@
 	padding: 10px;
 }
 
+/* badge */
+
+.badge {
+	font-size: small;
+	padding: none;
+}
+
 
 /* Updated Search Field Styles */
 .admin-settings-container .search-container {
@@ -247,10 +254,6 @@
 	width: 100%;
 }
 
-.dropdown-select {
-	width: 80%;
-	font-size: 0.5rem;
-}
 
 /* Responsive adjustments */
 @media (max-width: 1142px) {
@@ -282,7 +285,6 @@
 
 	.dropdown-select {
 		width: 100%;
-		font-size: 0.8rem;
 		padding: 0.25rem;
 	}
 }
