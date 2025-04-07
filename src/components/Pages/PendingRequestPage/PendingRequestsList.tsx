@@ -1203,16 +1203,18 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
                   </span>
                 </div>
 
-                {/* Arrow moved to the end */}
-                <span className={styles.arrow}>
-                  {expandedId === request.transactionId ? (
-                    <RiArrowDownSFill size={24} />
-                  ) : (
-                    <RiArrowRightSFill size={24} />
-                  )}
-                </span>
-              </div>
-            </div>
+								{/* Arrow moved to the end */}
+								<div className={styles["header-item"]}>
+									<span className={styles.arrow}>
+										{expandedId === request.transactionId ? (
+											<RiArrowDownSFill size={24} />
+										) : (
+											<RiArrowRightSFill size={24} />
+										)}
+									</span>
+								</div>
+							</div>
+						</div>
 
             {expandedId === request.transactionId && (
               <div className={styles["request-content"]}>
