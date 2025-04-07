@@ -592,10 +592,9 @@ button:disabled {
 
 /* Status Reason Container */
 .statusReasonContainer {
-	padding: 1rem 12rem;
-	width: 100%;
+	width: 65%;
 	height: fit-content;
-	justify-content: center;
+	justify-self: center;
 }
 
 .statusReasonContainer label {
@@ -615,4 +614,13 @@ button:disabled {
 	font-size: 14px;
 	white-space: pre-wrap;
 	word-wrap: break-word;
+}
+
+
+@media (max-width: 768px) {
+	/* Status Reason Container */
+	.statusReasonContainer {
+	width: 100%;
+	}
+
 }
