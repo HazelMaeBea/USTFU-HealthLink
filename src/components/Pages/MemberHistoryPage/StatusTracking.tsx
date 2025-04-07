@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { FaCheck } from "react-icons/fa6";
 import { FiEdit3 } from "react-icons/fi";
 import { MdCancel } from "react-icons/md";
+import { useRevisionStore } from "../../Page Elements/RevisionFuncs/revisionStore";
+import { UnifiedFormData } from "../FormPages/FormUtil/formTypes";
 
 interface StatusTrackingProps {
   onBack: () => void;
@@ -216,9 +218,14 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
     });
   };
 
-  const handleRevisionClick = () => {
+  const handleRevisionClick = (data: UnifiedFormData, trn: string) => {
+    // Log the data and transaction ID to verify they're correct
+    console.log("Form Data:", data);
+    console.log("Transaction ID:", trn);
+
     // Navigate to the path /home/{formData.formType}
     if (request && request.formData.formType) {
+      useRevisionStore.getState().setFormData(data, trn);
       navigate(`/home/${request.formData.origFormType}`);
     }
   };
@@ -676,7 +683,9 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
           <div className={styles.revisionButtonContainer}>
             <button
               className={styles.revisionButton}
-              onClick={handleRevisionClick}
+              onClick={() =>
+                handleRevisionClick(request.formData, request.transactionID)
+              }
             >
               PROCEED TO REVISIONS
             </button>
