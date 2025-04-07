@@ -45,6 +45,13 @@ export const useNotifications = ({
           const data = docSnap.data();
           const { isReadBy = [], transactionId } = data;
 
+          if (transactionId === "no-delete") {
+            console.log(
+              `Skipping document with transactionId: ${transactionId}`
+            );
+            continue; // Skip this iteration and move to the next document
+          }
+
           // Check if this transactionId still exists in FormRequests
           const formRequestsQuery = query(
             collection(db, "FormRequests"),
@@ -64,7 +71,6 @@ export const useNotifications = ({
         }
 
         setHasNewPendingRequest(hasUnread);
-        console.log("hasNewPendingRequest updated:", hasUnread);
       });
     }
 
@@ -85,6 +91,10 @@ export const useNotifications = ({
       unsubscribeAccomplished();
     };
   }, [uid, selectedRole]);
+
+  useEffect(() => {
+    console.log("Updated hasNewPendingRequest state:", hasNewPendingRequest);
+  }, [hasNewPendingRequest]);
 
   // Functions to clear notifications
 
