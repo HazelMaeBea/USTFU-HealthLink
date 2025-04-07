@@ -589,3 +589,30 @@ button:disabled {
 		justify-content: center;
 	}
 }
+
+/* Status Reason Container */
+.statusReasonContainer {
+	padding: 1rem 12rem;
+	width: 100%;
+	height: fit-content;
+	justify-content: center;
+}
+
+.statusReasonContainer label {
+	font-weight: bold;
+	margin-bottom: 5px;
+	display: block;
+	color: #333;
+}
+
+/* Uneditable Field */
+.uneditableField {
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	background-color: #f8f9fa;
+	color: #555;
+	font-size: 14px;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}

@@ -29,6 +29,7 @@ interface RecordType {
 		generatedAt?: any;
 	};
 	pdfProcessed?: boolean;
+	statusReason?: string;
 }
 
 // Add the helper function to format document types (from PendingRequestList)
@@ -75,6 +76,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			formData: record.formData,
 			pdf: record.pdf,
 			pdfProcessed: record.pdfProcessed,
+			statusReason: record.statusReason,
 		})
 	);
 
@@ -102,6 +104,10 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 	const request = allRecords.find(
 		(req) => req.transactionID === transactionID
 	);
+
+	// Retrieve statusReason from the matched request
+	const statusReason = request?.statusReason || "No reason provided.";
+
 	console.log("Found Request:", request);
 	// Add debug log for PDF data
 	console.log(
@@ -778,6 +784,16 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 						PRINT
 					</button>
 				</div>
+
+				<div className={styles.divider}>
+					<div className={styles.statusReasonContainer}>
+						<label>Status Reason</label>
+						<div className={styles.uneditableField}>
+							{statusReason}
+						</div>
+					</div>
+				</div>
+			
 				<div className={styles.submissionInfoContainer}>
 					<div className={styles.submissionHeader}>
 						<div className={styles.submissionTitle}>

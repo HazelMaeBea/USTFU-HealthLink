@@ -8,7 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { differenceInDays, differenceInWeeks } from "date-fns";
 import { doc, setDoc, Timestamp } from "firebase/firestore";
 import { HiOutlineDotsVertical } from "react-icons/hi";
-import { FiEdit2, FiUsers, FiToggleLeft } from "react-icons/fi";
+import { FiEdit2, FiUsers, FiToggleLeft, FiCreditCard } from "react-icons/fi";
 import { createPortal } from "react-dom";
 import Popout from "../../Page Elements/Popout/Popout";
 import "./UserManagement.css";
@@ -321,7 +321,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 											</button>
 										)}
 										<button onClick={() => handleEditAndExpand("remainingBenefits")}>
-											<FiEdit2 style={{ marginRight: "10px" }} /> Edit Remaining Benefits
+											<FiCreditCard style={{ marginRight: "10px" }} /> Edit Remaining Benefits
 										</button>
 									</div>
 								</div>,
