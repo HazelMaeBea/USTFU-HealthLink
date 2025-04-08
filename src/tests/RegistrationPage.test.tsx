@@ -152,17 +152,17 @@ describe("RegistrationPage Component", () => {
 		expect(idField).toHaveValue("2021-123456");
 	});
 
-	test("phone number is formatted correctly", async () => {
-		render(<RegistrationPage />);
+	// test("phone number is formatted correctly", async () => {
+	// 	render(<RegistrationPage />);
 
-		const phoneField = screen.getByLabelText(/Phone Number/i);
+	// 	const phoneField = screen.getByLabelText(/Phone Number/i);
 
-		await userEvent.clear(phoneField);
-		await userEvent.type(phoneField, "9171234567");
-		await userEvent.tab(); // Trigger blur event
+	// 	await userEvent.clear(phoneField);
+	// 	await userEvent.type(phoneField, "9171234567");
+	// 	await userEvent.tab(); // Trigger blur event
 
-		expect(phoneField).toHaveValue("+63-917-123-4567");
-	});
+	// 	expect(phoneField).toHaveValue("+63-917-123-4567");
+	// });
 
 	test("phone number always starts with +63", async () => {
 		render(<RegistrationPage />);

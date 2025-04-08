@@ -202,7 +202,7 @@ const RegistrationPage: React.FC = () => {
 	});
 
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
-	const [setIsPhoneFocused] = useState<boolean>(false);
+	const [isPhoneFocused, setIsPhoneFocused] = useState<boolean>(false);
 
 	useEffect(() => {
 		const year = calculateAcademicYear();
