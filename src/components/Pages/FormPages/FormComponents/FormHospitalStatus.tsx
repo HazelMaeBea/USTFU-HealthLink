@@ -7,7 +7,13 @@ interface FormHospitalStatusProps {
 	errors: FieldErrors<UnifiedFormData>;
 }
 
+// Keep the actual option values the same but map to new display labels
 const hospitalStatusOptions = ["In-Patient", "Out-Patient", "ER Consultation"];
+const hospitalStatusLabels: Record<string, string> = {
+	"In-Patient": "For Confinement",
+	"Out-Patient": "Done as Out-Patient",
+	"ER Consultation": "ER Consultation",
+};
 
 const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 	register,
@@ -36,7 +42,7 @@ const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 									htmlFor={`hospitalStatus-${index}`}
 									className="form-check-label"
 								>
-									{option}
+									{hospitalStatusLabels[option]}
 								</label>
 							</div>
 						</div>

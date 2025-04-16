@@ -148,14 +148,22 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					.refine((files) => files && files.length > 0, {
 						message: "Please upload the laboratory invoice",
 					}),
-				hospitalStatus: z.enum(
-					["In-Patient", "Out-Patient", "ER Consultation"],
-					{
-						errorMap: () => ({
-							message: "Please select your hospital status",
-						}),
-					}
-				),
+				hospitalStatus:
+					formType === "inpatient"
+						? z.enum(
+								[
+									"In-Patient",
+									"Out-Patient",
+									"ER Consultation",
+								],
+								{
+									errorMap: () => ({
+										message:
+											"Please select your hospital status",
+									}),
+								}
+						  )
+						: z.any().optional(), // Make optional for non-inpatient forms
 			})
 			.superRefine((data, ctx) => {
 				if (data.status === "Tenured-Track" && !data.dateHired) {
@@ -561,6 +569,11 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					<ValidationErrorDropdown errors={errors} />
 				)}
 
+				{/* Only show hospital status for inpatient forms */}
+				{origFormType === "inpatient" && (
+					<FormHospitalStatus register={register} errors={errors} />
+				)}
+
 				<FormPersonalInfo
 					register={register}
 					errors={errors}
@@ -593,7 +606,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					setError={setError}
 					setValue={setValue}
 				/>
-				<FormHospitalStatus register={register} errors={errors} />
 				<FormCertify register={register} errors={errors} />
 
 				<div className="buttonDiv">

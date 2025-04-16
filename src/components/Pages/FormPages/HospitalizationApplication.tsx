@@ -17,7 +17,7 @@ const HospitalizationApplication: React.FC = () => {
 			{location.pathname === "/home" && <ServiceCards />}
 
 			<Routes>
-				<Route path="/home" element={<ServiceCards />} />{" "}
+				<Route path="/home" element={<ServiceCards />} />
 				{/* Show service cards for /home */}
 				<Route path="/inpatient" element={<InpatientForm />} />
 				<Route path="/admission" element={<AdmissionForm />} />
