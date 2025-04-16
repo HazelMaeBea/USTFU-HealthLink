@@ -93,8 +93,8 @@ const schema = z
 			.string({
 				invalid_type_error: "Please select a valid date",
 			})
-			.transform((val) => convertToMMDDYYYY(val) || "")
-			.min(1, "Please enter the date you were Hired"),
+			.min(1, "Please enter the date you were Hired")
+			.transform((val) => convertToMMDDYYYY(val) || ""),
 
 		dateRetired: z
 			.string({
