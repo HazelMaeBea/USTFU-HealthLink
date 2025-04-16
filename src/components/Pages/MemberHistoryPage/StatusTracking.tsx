@@ -9,6 +9,12 @@ import { FiEdit3 } from "react-icons/fi";
 import { MdCancel } from "react-icons/md";
 import { useRevisionStore } from "../../Page Elements/RevisionFuncs/revisionStore";
 import { UnifiedFormData } from "../FormPages/FormUtil/formTypes";
+import { formatDateForDisplay } from "../../../utils/dateUtils";
+import {
+	FormData,
+	FormAttachment,
+	EyeglassesFormData,
+} from "../PendingRequestPage/types";
 
 interface StatusTrackingProps {
 	onBack: () => void;
@@ -17,16 +23,31 @@ interface StatusTrackingProps {
 	dateTime: Date; // dateTime is now a Date object
 }
 
+// Define types for file preview
+interface FilePreview {
+	filename: string;
+	name?: string;
+	url?: string;
+	type?: string;
+	[key: string]: unknown; // For other properties that might be present
+}
+
+// Define proper type for DateDecided that can handle Firestore timestamp
+interface FirestoreTimestamp {
+	toDate: () => Date;
+}
+
+// Extend the Record type to include all needed properties
 interface RecordType {
 	transactionID: string;
 	status: string;
 	dateSubmitted?: string;
-	DateDecided?: { toDate: () => Date };
-	formData: any;
+	DateDecided?: FirestoreTimestamp | undefined;
+	formData: FormData;
 	pdf?: {
 		filename: string;
 		url: string;
-		generatedAt?: any;
+		generatedAt?: unknown;
 	};
 	pdfProcessed?: boolean;
 	statusReason?: string;
@@ -63,8 +84,8 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		transactionID: record.transactionID,
 		status: record.status,
 		dateSubmitted: record.dateSubmitted,
-		DateDecided: record.DateDecided,
-		formData: record.formData,
+		DateDecided: record.DateDecided as FirestoreTimestamp | undefined,
+		formData: record.formData as FormData,
 	}));
 
 	const typedAccomplishedRecords: RecordType[] = accomplishedRecords.map(
@@ -72,8 +93,8 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			transactionID: record.transactionID,
 			status: record.status,
 			dateSubmitted: record.dateSubmitted,
-			DateDecided: record.DateDecided,
-			formData: record.formData,
+			DateDecided: record.DateDecided as FirestoreTimestamp | undefined,
+			formData: record.formData as FormData,
 			pdf: record.pdf,
 			pdfProcessed: record.pdfProcessed,
 			statusReason: record.statusReason,
@@ -85,8 +106,8 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			transactionID: record.transactionID,
 			status: record.status,
 			dateSubmitted: record.dateSubmitted,
-			DateDecided: record.DateDecided,
-			formData: record.formData,
+			DateDecided: record.DateDecided as FirestoreTimestamp | undefined,
+			formData: record.formData as FormData,
 		})
 	);
 
@@ -96,7 +117,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		...typedRevisionRecords,
 	];
 
-	const [previewFile, setPreviewFile] = useState<any>(null);
+	const [previewFile, setPreviewFile] = useState<FilePreview | null>(null);
 	const handleClosePreview = () => {
 		setPreviewFile(null);
 	};
@@ -247,14 +268,27 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		});
 	};
 
-	const handleRevisionClick = (data: UnifiedFormData, trn: string) => {
+	const handleRevisionClick = (data: FormData, trn: string) => {
 		// Log the data and transaction ID to verify they're correct
 		console.log("Form Data:", data);
 		console.log("Transaction ID:", trn);
 
 		// Navigate to the path /home/{formData.formType}
 		if (request && request.formData.formType) {
-			useRevisionStore.getState().setFormData(data, trn);
+			// Create a UnifiedFormData object from FormData
+			const unifiedData: UnifiedFormData = {
+				...data,
+				lastname: data.lastname || "",
+				firstname: data.firstname || "",
+				middlename: data.middlename || "",
+				suffix: data.suffix || "",
+				age: data.age || 0,
+				gender: data.gender || "",
+				contact: data.contact || "",
+				college: data.college || "",
+				// Add any other required fields with defaults as needed
+			};
+			useRevisionStore.getState().setFormData(unifiedData, trn);
 			navigate(`/home/${request.formData.origFormType}`);
 		}
 	};
@@ -400,9 +434,9 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 								<label>Date Hired:</label>
 								<p className={styles.fieldContent}>
 									{formData.dateHired
-										? new Date(
+										? formatDateForDisplay(
 												formData.dateHired
-										  ).toLocaleDateString()
+										  )
 										: "-"}
 								</p>
 							</div>
@@ -410,9 +444,9 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 								<label>Date Retired:</label>
 								<p className={styles.fieldContent}>
 									{formData.dateRetired
-										? new Date(
+										? formatDateForDisplay(
 												formData.dateRetired
-										  ).toLocaleDateString()
+										  )
 										: "-"}
 								</p>
 							</div>
@@ -488,7 +522,10 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		}
 	};
 
-	const renderAttachmentPreview = (file: any, documentType: string) => {
+	const renderAttachmentPreview = (
+		file: FilePreview,
+		documentType: string
+	) => {
 		if (!file) {
 			return (
 				<>
@@ -633,16 +670,12 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		// Define a type for normalized attachments
 		type NormalizedAttachment = {
 			type: string;
-			data: {
-				filename: string;
-				name: string;
-				[key: string]: any;
-			};
+			data: FilePreview;
 		};
 
 		// Normalize attachment data to ensure consistent structure
 		const normalizeAttachment = (
-			attachment: any,
+			attachment: FormAttachment | undefined,
 			type: string
 		): NormalizedAttachment | null => {
 			if (!attachment) return null;
@@ -654,11 +687,11 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 					// Ensure filename is available
 					filename:
 						attachment.filename ||
-						attachment.name ||
+						(attachment as { name?: string }).name ||
 						`${type}.file`,
 					// Ensure we have a name for compatibility
 					name:
-						attachment.name ||
+						(attachment as { name?: string }).name ||
 						attachment.filename ||
 						`${type}.file`,
 				},
@@ -678,10 +711,13 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			normalizeAttachment(formData.docRequest, "docRequest"),
 			normalizeAttachment(formData.hospitalInvoice, "hospitalInvoice"),
 			normalizeAttachment(formData.labInvoice, "labInvoice"),
-			normalizeAttachment(
-				formData.eyeglassesReceipt,
-				"eyeglassesReceipt"
-			),
+			// Handle eyeglassesReceipt that is only available on EyeglassesFormData
+			formData.formType === "eyeglasses"
+				? normalizeAttachment(
+						(formData as EyeglassesFormData).eyeglassesReceipt,
+						"eyeglassesReceipt"
+				  )
+				: null,
 		].filter((item): item is NormalizedAttachment => item !== null); // Remove null entries with type assertion
 
 		if (attachmentsWithLabels.length === 0) {
@@ -793,7 +829,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 						</div>
 					</div>
 				</div>
-			
+
 				<div className={styles.submissionInfoContainer}>
 					<div className={styles.submissionHeader}>
 						<div className={styles.submissionTitle}>

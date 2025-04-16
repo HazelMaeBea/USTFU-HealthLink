@@ -1,8 +1,41 @@
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../../../contexts/firebase";
-import { UseFormSetValue } from "react-hook-form";
+import { UseFormSetValue, Path, FieldValues } from "react-hook-form";
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { parseToDate, formatDateToMMDDYYYY } from "../../../../utils/dateUtils";
 
+// Define a type for user data from Firebase based on firebase.md schema
+interface UserPersonalInfo {
+	firstName: string;
+	lastName: string;
+	middleName: string;
+	suffix: string | null;
+	idNumber: string;
+	birthdate: string;
+	gender: "Male" | "Female";
+	college: string;
+	address: string;
+	status: string;
+	dateHired: string | null;
+	dateRetired: string | null;
+	term: string;
+	year: string;
+	load: string;
+	remainingBenefits: number;
+	ustEmail: string;
+	phoneNumber: string;
+}
+
+interface UserData {
+	personalInfo: UserPersonalInfo;
+	autofill?: boolean;
+	settings?: {
+		autofill: boolean;
+		notification: boolean;
+	};
+}
+
+// Use this type for form fields that can be autofilled
 interface AutofillData {
 	lastname?: string;
 	firstname?: string;
@@ -20,19 +53,17 @@ interface AutofillData {
 	year?: string;
 	load?: string;
 	status?: string;
-	dateHired?: Date | null;
-	dateRetired?: Date | null;
+	dateHired?: string | Date | null;
+	dateRetired?: string | Date | null;
 	benefits?: string;
-	hmo?: string;
+	hmo?: string | null;
 }
 
-const calculateAge = (birthdateStr: string): number | undefined => {
-	if (!birthdateStr) return undefined;
-
-	let birthdate: Date;
-
+export const calculateAge = (birthdateStr: string): number | undefined => {
 	try {
-		// Handle MM/DD/YYYY format (stored in Firestore)
+		let birthdate: Date;
+
+		// Handle MM/DD/YYYY format
 		if (birthdateStr.includes("/")) {
 			const parts = birthdateStr.split("/");
 			if (parts.length !== 3) return undefined;
@@ -98,7 +129,7 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 			return null;
 		}
 
-		const userData = userDoc.data();
+		const userData = userDoc.data() as UserData;
 		console.log("Autofill: User data retrieved:", userData);
 
 		const isAutofillEnabled =
@@ -158,8 +189,8 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
  * Apply autofill data to form fields
  * This is a regular function, not a hook
  */
-export const applyAutofill = async (
-	setValue: UseFormSetValue<any>,
+export const applyAutofill = async <T extends FieldValues>(
+	setValue: UseFormSetValue<T>,
 	setDateHired?: Dispatch<SetStateAction<Date | null>>,
 	setDateRetired?: Dispatch<SetStateAction<Date | null>>,
 	setPhoneInputValue?: Dispatch<SetStateAction<string>>
@@ -169,15 +200,70 @@ export const applyAutofill = async (
 	if (autofillData) {
 		Object.entries(autofillData).forEach(([field, value]) => {
 			if (value !== undefined && value !== null && value !== "") {
-				console.log(`Autofill: Setting ${field} to:`, value);
+				// Handle date fields separately
+				if (field === "dateHired" && value) {
+					// For UI state - convert to Date object regardless of input format
+					if (setDateHired) {
+						setDateHired(parseToDate(value));
+					}
 
+					// For form value - ensure MM/DD/YYYY format for backend
+					try {
+						setValue(
+							field as Path<T>,
+							formatDateToMMDDYYYY(
+								parseToDate(value)
+							) as unknown as T[Path<T>],
+							{
+								shouldDirty: false,
+								shouldTouch: false,
+							}
+						);
+					} catch (error) {
+						console.error(`Error setting dateHired field:`, error);
+					}
+					return;
+				}
+
+				if (field === "dateRetired" && value) {
+					// For UI state - convert to Date object regardless of input format
+					if (setDateRetired) {
+						setDateRetired(parseToDate(value));
+					}
+
+					// For form value - ensure MM/DD/YYYY format for backend
+					try {
+						setValue(
+							field as Path<T>,
+							formatDateToMMDDYYYY(
+								parseToDate(value)
+							) as unknown as T[Path<T>],
+							{
+								shouldDirty: false,
+								shouldTouch: false,
+							}
+						);
+					} catch (error) {
+						console.error(
+							`Error setting dateRetired field:`,
+							error
+						);
+					}
+					return;
+				}
+
+				// Continue with existing code for other fields
 				if (field === "contact" || field === "phoneNumber") {
 					try {
 						// Set the form value but don't override user edits later
-						setValue(field as any, value, {
-							shouldDirty: false,
-							shouldTouch: false,
-						});
+						setValue(
+							field as Path<T>,
+							value as unknown as T[Path<T>],
+							{
+								shouldDirty: false,
+								shouldTouch: false,
+							}
+						);
 
 						if (setPhoneInputValue && typeof value === "string") {
 							const formattedValue = value.startsWith("+63")
@@ -194,24 +280,20 @@ export const applyAutofill = async (
 				} else {
 					try {
 						// Set the form value but don't override user edits later
-						setValue(field as any, value as any, {
-							shouldDirty: false,
-							shouldTouch: false,
-						});
+						setValue(
+							field as Path<T>,
+							value as unknown as T[Path<T>],
+							{
+								shouldDirty: false,
+								shouldTouch: false,
+							}
+						);
 					} catch (error) {
 						console.error(`Error setting field ${field}:`, error);
 					}
 				}
 			}
 		});
-
-		if (setDateHired && autofillData.dateHired) {
-			setDateHired(autofillData.dateHired);
-		}
-
-		if (setDateRetired && autofillData.dateRetired) {
-			setDateRetired(autofillData.dateRetired);
-		}
 
 		console.log("Autofill: Complete");
 	} else {
@@ -223,8 +305,8 @@ export const applyAutofill = async (
  * React hook to apply autofill when component mounts
  * Separate from the actual autofill function to avoid hook rules violations
  */
-export const useAutofill = (
-	setValue: UseFormSetValue<any>,
+export const useAutofill = <T extends FieldValues>(
+	setValue: UseFormSetValue<T>,
 	setDateHired?: Dispatch<SetStateAction<Date | null>>,
 	setDateRetired?: Dispatch<SetStateAction<Date | null>>,
 	setPhoneInputValue?: Dispatch<SetStateAction<string>>
@@ -234,7 +316,7 @@ export const useAutofill = (
 	useEffect(() => {
 		// Only run autofill once when the component mounts
 		if (!autofillAppliedRef.current) {
-			applyAutofill(
+			applyAutofill<T>(
 				setValue,
 				setDateHired,
 				setDateRetired,

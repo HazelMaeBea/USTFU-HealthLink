@@ -14,6 +14,7 @@ import Popout from "../../Page Elements/Popout/Popout";
 import "./UserManagement.css";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../../../contexts/firebase";
+import { formatDateToMMDDYYYY, parseToDate } from "../../../utils/dateUtils";
 
 interface User {
 	id: string;
@@ -31,12 +32,11 @@ interface User {
 	leaveEndDate?: string;
 	document: string;
 	createdAt: Timestamp;
-	remainingBenefits?: string; // Add remainingBenefits property
+	remainingBenefits?: string;
 }
 
 interface UserRowProps {
 	user: User;
-	// onSave: (updatedUser: User, option: "college" | "role" | "status") => void;
 	isMobile?: boolean;
 }
 
@@ -78,11 +78,25 @@ const calculateDuration = (
 	end: string | undefined
 ) => {
 	if (!start || !end) return "";
-	const startDate = new Date(start);
-	const endDate = new Date(end);
-	const diffDays = differenceInDays(endDate, startDate);
-	const diffWeeks = differenceInWeeks(endDate, startDate);
-	return `${diffWeeks} week(s) and ${diffDays % 7} day(s)`;
+	try {
+		const startDate = new Date(start);
+		const endDate = new Date(end);
+		if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return "";
+		const diffDays = differenceInDays(endDate, startDate);
+		const diffWeeks = differenceInWeeks(endDate, startDate);
+		return `${diffWeeks} week(s) and ${diffDays % 7} day(s)`;
+	} catch (error) {
+		console.error("Error calculating duration:", error);
+		return "";
+	}
+};
+
+const convertDateForDisplay = (
+	dateString: string | null | undefined
+): Date | undefined => {
+	if (!dateString) return undefined;
+	const parsedDate = parseToDate(dateString);
+	return parsedDate || undefined;
 };
 
 const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
@@ -130,11 +144,13 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 		}
 	};
 
-	const handleEditAndExpand = (option: "college" | "role" | "status" | "remainingBenefits") => {
+	const handleEditAndExpand = (
+		option: "college" | "role" | "status" | "remainingBenefits"
+	) => {
 		setIsEditing(true);
 		setEditOption(option);
 		setEditedUser(user);
-		setShowOptions(false); // Close the options menu when editing starts
+		setShowOptions(false);
 	};
 
 	const handleSave = () => {
@@ -157,39 +173,55 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 			return;
 		}
 
-		// Show confirmation popout
 		setShowPopout(true);
 	};
 
 	const handleSaveConfirm = async () => {
 		try {
-			// Save changes to the database
-			// onSave(editedUser, editOption!);
-
-			// Track changes only after confirmation
 			const changes: string[] = [];
 			if (user.college !== editedUser.college)
-				changes.push(`College from '${user.college}' to '${editedUser.college}'`);
+				changes.push(
+					`College from '${user.college}' to '${editedUser.college}'`
+				);
 			if (user.role !== editedUser.role)
-				changes.push(`Role from '${user.role}' to '${editedUser.role}'`);
+				changes.push(
+					`Role from '${user.role}' to '${editedUser.role}'`
+				);
 			if (user.status !== editedUser.status)
-				changes.push(`Status from '${user.status}' to '${editedUser.status}'`);
+				changes.push(
+					`Status from '${user.status}' to '${editedUser.status}'`
+				);
 			if (user.retirementDate !== editedUser.retirementDate)
-				changes.push(`Retirement Date from '${user.retirementDate}' to '${editedUser.retirementDate}'`);
+				changes.push(
+					`Retirement Date from '${user.retirementDate}' to '${editedUser.retirementDate}'`
+				);
 			if (user.deactivationDate !== editedUser.deactivationDate)
-				changes.push(`Deactivation Date from '${user.deactivationDate}' to '${editedUser.deactivationDate}'`);
+				changes.push(
+					`Deactivation Date from '${user.deactivationDate}' to '${editedUser.deactivationDate}'`
+				);
 			if (user.leaveReason !== editedUser.leaveReason)
-				changes.push(`Leave Reason from '${user.leaveReason}' to '${editedUser.leaveReason}'`);
+				changes.push(
+					`Leave Reason from '${user.leaveReason}' to '${editedUser.leaveReason}'`
+				);
 			if (user.leaveStartDate !== editedUser.leaveStartDate)
-				changes.push(`Leave Start Date from '${user.leaveStartDate}' to '${editedUser.leaveStartDate}'`);
+				changes.push(
+					`Leave Start Date from '${user.leaveStartDate}' to '${editedUser.leaveStartDate}'`
+				);
 			if (user.leaveEndDate !== editedUser.leaveEndDate)
-				changes.push(`Leave End Date from '${user.leaveEndDate}' to '${editedUser.leaveEndDate}'`);
+				changes.push(
+					`Leave End Date from '${user.leaveEndDate}' to '${editedUser.leaveEndDate}'`
+				);
 			if (user.remainingBenefits !== editedUser.remainingBenefits)
-				changes.push(`Remaining Benefits from '${user.remainingBenefits}' to '${editedUser.remainingBenefits}'`);
+				changes.push(
+					`Remaining Benefits from '${user.remainingBenefits}' to '${editedUser.remainingBenefits}'`
+				);
 			if (changes.length > 0) {
-				setLastEdited(`Last edited on ${new Date().toLocaleString()}: ${changes.join(", ")}`);
+				setLastEdited(
+					`Last edited on ${new Date().toLocaleString()}: ${changes.join(
+						", "
+					)}`
+				);
 
-				// Write to Firebase auditLogs collection
 				await addDoc(collection(db, "auditLogs"), {
 					Time: new Date(),
 					Name: user.name,
@@ -216,11 +248,9 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 					{ merge: true }
 				);
 			}
-			// Exit editing mode
 			setIsEditing(false);
 			setEditOption(null);
 			setShowPopout(false);
-			// alert("Changes saved successfully!");
 		} catch (error) {
 			console.error("Error saving changes:", error);
 			alert("Failed to save changes. Please try again.");
@@ -228,7 +258,6 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 	};
 
 	const handleCancel = () => {
-		// Reset editing state without updating lastEdited
 		setIsEditing(false);
 		setEditedUser(user);
 		setEditOption(null);
@@ -248,7 +277,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 			if (
 				field === "leaveStartDate" &&
 				editedUser.leaveEndDate &&
-				date > new Date(editedUser.leaveEndDate)
+				date > (parseToDate(editedUser.leaveEndDate) || new Date())
 			) {
 				alert("Start date cannot be later than end date.");
 				return;
@@ -256,7 +285,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 			if (
 				field === "leaveEndDate" &&
 				editedUser.leaveStartDate &&
-				date < new Date(editedUser.leaveStartDate)
+				date < (parseToDate(editedUser.leaveStartDate) || new Date())
 			) {
 				alert("End date cannot be earlier than start date.");
 				return;
@@ -264,17 +293,21 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 			if (
 				field === "retirementDate" &&
 				editedUser.deactivationDate &&
-				date > new Date(editedUser.deactivationDate)
+				date > (parseToDate(editedUser.deactivationDate) || new Date())
 			) {
-				alert("Retirement date cannot be later than deactivation date.");
+				alert(
+					"Retirement date cannot be later than deactivation date."
+				);
 				return;
 			}
 			if (
 				field === "deactivationDate" &&
 				editedUser.retirementDate &&
-				date < new Date(editedUser.retirementDate)
+				date < (parseToDate(editedUser.retirementDate) || new Date())
 			) {
-				alert("Deactivation date cannot be earlier than retirement date.");
+				alert(
+					"Deactivation date cannot be earlier than retirement date."
+				);
 				return;
 			}
 			if (field === "deactivationDate" && date < today) {
@@ -283,7 +316,12 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 			}
 			setEditedUser({
 				...editedUser,
-				[field]: date.toISOString().split("T")[0],
+				[field]: formatDateToMMDDYYYY(date),
+			});
+		} else {
+			setEditedUser({
+				...editedUser,
+				[field]: null,
 			});
 		}
 	};
@@ -294,7 +332,10 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 				<div className="mobile-card-header">
 					<div className="mobile-card-header-left">
 						<h3 className="mobile-card-title">{user.name}</h3>
-						<a href={`mailto:${user.email}`} className="mobile-card-email">
+						<a
+							href={`mailto:${user.email}`}
+							className="mobile-card-email"
+						>
 							{user.email}
 						</a>
 					</div>
@@ -307,27 +348,65 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 						/>
 						{showOptions &&
 							createPortal(
-								<div className="edit-options-menu" style={popupStyle} ref={menuRef} onClick={(e) => e.stopPropagation()}>
+								<div
+									className="edit-options-menu"
+									style={popupStyle}
+									ref={menuRef}
+									onClick={(e) => e.stopPropagation()}
+								>
 									<div className="edit-options-menu-inner">
-										<button onClick={() => handleEditAndExpand("college")}>
-											<FiUsers style={{ marginRight: "10px" }} /> Edit College
+										<button
+											onClick={() =>
+												handleEditAndExpand("college")
+											}
+										>
+											<FiUsers
+												style={{ marginRight: "10px" }}
+											/>{" "}
+											Edit College
 										</button>
-										<button onClick={() => handleEditAndExpand("role")}>
-											<FiEdit2 style={{ marginRight: "10px" }} /> Edit Role
+										<button
+											onClick={() =>
+												handleEditAndExpand("role")
+											}
+										>
+											<FiEdit2
+												style={{ marginRight: "10px" }}
+											/>{" "}
+											Edit Role
 										</button>
 										{editedUser.role !== "retiree" && (
-											<button onClick={() => handleEditAndExpand("status")}>
-												<FiToggleLeft style={{ marginRight: "10px" }} /> Edit Status
+											<button
+												onClick={() =>
+													handleEditAndExpand(
+														"status"
+													)
+												}
+											>
+												<FiToggleLeft
+													style={{
+														marginRight: "10px",
+													}}
+												/>{" "}
+												Edit Status
 											</button>
 										)}
-										<button onClick={() => handleEditAndExpand("remainingBenefits")}>
-											<FiCreditCard style={{ marginRight: "10px" }} /> Edit Remaining Benefits
+										<button
+											onClick={() =>
+												handleEditAndExpand(
+													"remainingBenefits"
+												)
+											}
+										>
+											<FiCreditCard
+												style={{ marginRight: "10px" }}
+											/>{" "}
+											Edit Remaining Benefits
 										</button>
 									</div>
 								</div>,
 								document.body
-							)
-						}
+							)}
 					</div>
 				</div>
 				<div className="mobile-card-body">
@@ -337,20 +416,29 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 					</div>
 					<div className="mobile-card-row">
 						<span className="mobile-card-label">College:</span>
-						<span className="mobile-card-value">{user.college}</span>
+						<span className="mobile-card-value">
+							{user.college}
+						</span>
 					</div>
 					<div className="mobile-card-row">
 						<span className="mobile-card-label">Birthdate:</span>
-						<span className="mobile-card-value">{user.birthdate}</span>
+						<span className="mobile-card-value">
+							{user.birthdate}
+						</span>
 					</div>
 					<div className="mobile-card-row">
 						<span className="mobile-card-label">Contact #:</span>
-						<span className="mobile-card-value">{user.phoneNumber}</span>
+						<span className="mobile-card-value">
+							{user.phoneNumber}
+						</span>
 					</div>
 					<div className="mobile-card-row">
-						<span className="mobile-card-label">Remaining Benefits:</span>
+						<span className="mobile-card-label">
+							Remaining Benefits:
+						</span>
 						<span className="mobile-card-value">
-							{user.remainingBenefits !== undefined && user.remainingBenefits !== null
+							{user.remainingBenefits !== undefined &&
+							user.remainingBenefits !== null
 								? `₱${user.remainingBenefits.toString()}`
 								: "N/A"}
 						</span>
@@ -361,12 +449,13 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 					</div>
 					<div className="mobile-card-row">
 						<span className="mobile-card-label">Status:</span>
-						<span className="mobile-card-value">{getStatusBadge(user.status)}</span>
+						<span className="mobile-card-value">
+							{getStatusBadge(user.status)}
+						</span>
 					</div>
 				</div>
 				{isEditing && (
 					<div className="mobile-card-edit">
-						{/* Render the editing form based on the selected option */}
 						{editOption === "college" && (
 							<FormGroup>
 								<Label for="college">College</Label>
@@ -398,43 +487,79 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 									onChange={handleChange}
 								>
 									<option value="member">Member</option>
-									<option value="operations handler">Operations Handler</option>
+									<option value="operations handler">
+										Operations Handler
+									</option>
 									<option value="retiree">Retiree</option>
 								</Input>
-									{editedUser.role === "retiree" && editOption === "role" && (
-									<Row className="mt-3">
-										<Col md={6}>
-											<FormGroup>
-												<Label for="retirementDate">Retirement Date</Label>
-												<br />
-												<DatePicker
-													selected={editedUser.retirementDate ? new Date(editedUser.retirementDate) : null}
-													onChange={(date) => handleDateChange(date, "retirementDate")}
-													className="form-control"
-													required
-													maxDate={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : undefined}
-												/>
-												<p>* The date when the employee officially retires.</p>
-											</FormGroup>
-										</Col>
-										<Col md={6}>
-											<FormGroup>
-												<Label for="deactivationDate">Deactivation Date</Label>
-												<br />
-												<DatePicker
-													selected={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : null}
-													onChange={(date) => handleDateChange(date, "deactivationDate")}
-													className="form-control"
-													required
-													minDate={new Date()}
-													excludeDates={[new Date()]}
-												/>
-												<p>* Account remains accessible until this date.</p>
-											</FormGroup>
-										</Col>
-									</Row>
-								)}
-								
+								{editedUser.role === "retiree" &&
+									editOption === "role" && (
+										<Row className="mt-3">
+											<Col md={6}>
+												<FormGroup>
+													<Label for="retirementDate">
+														Retirement Date
+													</Label>
+													<br />
+													<DatePicker
+														selected={convertDateForDisplay(
+															editedUser.retirementDate
+														)}
+														onChange={(date) =>
+															handleDateChange(
+																date,
+																"retirementDate"
+															)
+														}
+														className="form-control"
+														required
+														maxDate={
+															editedUser.deactivationDate
+																? convertDateForDisplay(
+																		editedUser.deactivationDate
+																  )
+																: undefined
+														}
+													/>
+													<p>
+														* The date when the
+														employee officially
+														retires.
+													</p>
+												</FormGroup>
+											</Col>
+											<Col md={6}>
+												<FormGroup>
+													<Label for="deactivationDate">
+														Deactivation Date
+													</Label>
+													<br />
+													<DatePicker
+														selected={convertDateForDisplay(
+															editedUser.deactivationDate
+														)}
+														onChange={(date) =>
+															handleDateChange(
+																date,
+																"deactivationDate"
+															)
+														}
+														className="form-control"
+														required
+														minDate={new Date()}
+														excludeDates={[
+															new Date(),
+														]}
+													/>
+													<p>
+														* Account remains
+														accessible until this
+														date.
+													</p>
+												</FormGroup>
+											</Col>
+										</Row>
+									)}
 							</FormGroup>
 						)}
 						{editOption === "status" && (
@@ -457,33 +582,71 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 										<Row>
 											<Col md={6}>
 												<FormGroup>
-													<Label for="leaveStartDate">Start Date</Label>
+													<Label for="leaveStartDate">
+														Start Date
+													</Label>
 													<br />
 													<DatePicker
-														selected={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-														onChange={(date) => handleDateChange(date, "leaveStartDate")}
+														selected={convertDateForDisplay(
+															editedUser.leaveStartDate
+														)}
+														onChange={(date) =>
+															handleDateChange(
+																date,
+																"leaveStartDate"
+															)
+														}
 														className="form-control"
 														required
 														selectsStart
-														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-														maxDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : undefined}
+														startDate={convertDateForDisplay(
+															editedUser.leaveStartDate
+														)}
+														endDate={convertDateForDisplay(
+															editedUser.leaveEndDate
+														)}
+														maxDate={
+															editedUser.leaveEndDate
+																? convertDateForDisplay(
+																		editedUser.leaveEndDate
+																  )
+																: undefined
+														}
 													/>
 												</FormGroup>
 											</Col>
 											<Col md={6}>
 												<FormGroup>
-													<Label for="leaveEndDate">End Date</Label>
+													<Label for="leaveEndDate">
+														End Date
+													</Label>
 													<br />
 													<DatePicker
-														selected={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-														onChange={(date) => handleDateChange(date, "leaveEndDate")}
+														selected={convertDateForDisplay(
+															editedUser.leaveEndDate
+														)}
+														onChange={(date) =>
+															handleDateChange(
+																date,
+																"leaveEndDate"
+															)
+														}
 														className="form-control"
 														required
 														selectsEnd
-														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-														minDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : undefined}
+														startDate={convertDateForDisplay(
+															editedUser.leaveStartDate
+														)}
+														endDate={convertDateForDisplay(
+															editedUser.leaveEndDate
+														)}
+														minDate={
+															editedUser.leaveStartDate
+																? convertDateForDisplay(
+																		editedUser.leaveStartDate
+																  )
+																: undefined
+														}
 													/>
 												</FormGroup>
 											</Col>
@@ -492,19 +655,27 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 											<Col md={8}>
 												<p>
 													Duration:{" "}
-													{calculateDuration(editedUser.leaveStartDate, editedUser.leaveEndDate)}
+													{calculateDuration(
+														editedUser.leaveStartDate,
+														editedUser.leaveEndDate
+													)}
 												</p>
 											</Col>
 										</Row>
 										<Row>
 											<Col md={8}>
 												<FormGroup>
-													<Label for="leaveReason">Reason for Leave</Label>
+													<Label for="leaveReason">
+														Reason for Leave
+													</Label>
 													<Input
 														type="textarea"
 														name="leaveReason"
 														id="leaveReason"
-														value={editedUser.leaveReason || ""}
+														value={
+															editedUser.leaveReason ||
+															""
+														}
 														onChange={handleChange}
 														required
 													/>
@@ -517,7 +688,9 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 						)}
 						{editOption === "remainingBenefits" && (
 							<FormGroup>
-								<Label for="remainingBenefits">Remaining Benefits</Label>
+								<Label for="remainingBenefits">
+									Remaining Benefits
+								</Label>
 								<Input
 									type="number"
 									name="remainingBenefits"
@@ -532,11 +705,15 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 								<p className="text-muted">{lastEdited}</p>
 							</div>
 						)}
-							<div className="mobile-card-edit-buttons">
+						<div className="mobile-card-edit-buttons">
 							<Button color="success" onClick={handleSave}>
 								Save
 							</Button>
-							<Button color="secondary" onClick={handleCancel} className="ms-2">
+							<Button
+								color="secondary"
+								onClick={handleCancel}
+								className="ms-2"
+							>
 								Cancel
 							</Button>
 						</div>
@@ -550,7 +727,7 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 							/>
 						)}
 					</div>
-					)}
+				)}
 			</div>
 		);
 	}
@@ -566,11 +743,20 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 				<td>{user.college}</td>
 				<td>{user.birthdate}</td>
 				<td>{user.phoneNumber}</td>
-				<td>{user.remainingBenefits !== undefined && user.remainingBenefits !== null ? `₱${user.remainingBenefits.toString()}` : "N/A"}</td> {/* Add Remaining Benefits column */}
+				<td>
+					{user.remainingBenefits !== undefined &&
+					user.remainingBenefits !== null
+						? `₱${user.remainingBenefits.toString()}`
+						: "N/A"}
+				</td>
 				<td>{user.role}</td>
 				<td>{getStatusBadge(user.status)}</td>
 				<td style={{ position: "relative" }}>
-					<div className="edit-button-container" ref={containerRef} style={{ position: "relative" }}>
+					<div
+						className="edit-button-container"
+						ref={containerRef}
+						style={{ position: "relative" }}
+					>
 						<HiOutlineDotsVertical
 							className="edit-button"
 							size={24}
@@ -579,27 +765,65 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 						/>
 						{showOptions &&
 							createPortal(
-								<div className="edit-options-menu" style={popupStyle} ref={menuRef} onClick={(e) => e.stopPropagation()}>
+								<div
+									className="edit-options-menu"
+									style={popupStyle}
+									ref={menuRef}
+									onClick={(e) => e.stopPropagation()}
+								>
 									<div className="edit-options-menu-inner">
-										<button onClick={() => { handleEditAndExpand("college"); }}>
-											<FiUsers style={{ marginRight: "10px" }} /> Edit College
+										<button
+											onClick={() => {
+												handleEditAndExpand("college");
+											}}
+										>
+											<FiUsers
+												style={{ marginRight: "10px" }}
+											/>{" "}
+											Edit College
 										</button>
-										<button onClick={() => { handleEditAndExpand("role"); }}>
-											<FiEdit2 style={{ marginRight: "10px" }} /> Edit Role
+										<button
+											onClick={() => {
+												handleEditAndExpand("role");
+											}}
+										>
+											<FiEdit2
+												style={{ marginRight: "10px" }}
+											/>{" "}
+											Edit Role
 										</button>
 										{editedUser.role !== "retiree" && (
-											<button onClick={() => { handleEditAndExpand("status"); }}>
-												<FiToggleLeft style={{ marginRight: "10px" }} /> Edit Status
+											<button
+												onClick={() => {
+													handleEditAndExpand(
+														"status"
+													);
+												}}
+											>
+												<FiToggleLeft
+													style={{
+														marginRight: "10px",
+													}}
+												/>{" "}
+												Edit Status
 											</button>
 										)}
-										<button onClick={() => { handleEditAndExpand("remainingBenefits"); }}>
-											<FiEdit2 style={{ marginRight: "10px" }} /> Edit Remaining Benefits
+										<button
+											onClick={() => {
+												handleEditAndExpand(
+													"remainingBenefits"
+												);
+											}}
+										>
+											<FiEdit2
+												style={{ marginRight: "10px" }}
+											/>{" "}
+											Edit Remaining Benefits
 										</button>
 									</div>
 								</div>,
 								document.body
-							)
-						}
+							)}
 					</div>
 				</td>
 			</tr>
@@ -637,7 +861,9 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 									onChange={handleChange}
 								>
 									<option value="member">Member</option>
-									<option value="operations handler">Operations Handler</option>
+									<option value="operations handler">
+										Operations Handler
+									</option>
 									<option value="retiree">Retiree</option>
 								</Input>
 							</FormGroup>
@@ -664,33 +890,71 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 										<Row>
 											<Col md={6}>
 												<FormGroup>
-													<Label for="leaveStartDate">Start Date</Label>
+													<Label for="leaveStartDate">
+														Start Date
+													</Label>
 													<br />
 													<DatePicker
-														selected={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-														onChange={(date) => handleDateChange(date, "leaveStartDate")}
+														selected={convertDateForDisplay(
+															editedUser.leaveStartDate
+														)}
+														onChange={(date) =>
+															handleDateChange(
+																date,
+																"leaveStartDate"
+															)
+														}
 														className="form-control"
 														required
 														selectsStart
-														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-														maxDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : undefined}
+														startDate={convertDateForDisplay(
+															editedUser.leaveStartDate
+														)}
+														endDate={convertDateForDisplay(
+															editedUser.leaveEndDate
+														)}
+														maxDate={
+															editedUser.leaveEndDate
+																? convertDateForDisplay(
+																		editedUser.leaveEndDate
+																  )
+																: undefined
+														}
 													/>
 												</FormGroup>
 											</Col>
 											<Col md={6}>
 												<FormGroup>
-													<Label for="leaveEndDate">End Date</Label>
+													<Label for="leaveEndDate">
+														End Date
+													</Label>
 													<br />
 													<DatePicker
-														selected={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-														onChange={(date) => handleDateChange(date, "leaveEndDate")}
+														selected={convertDateForDisplay(
+															editedUser.leaveEndDate
+														)}
+														onChange={(date) =>
+															handleDateChange(
+																date,
+																"leaveEndDate"
+															)
+														}
 														className="form-control"
 														required
 														selectsEnd
-														startDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : null}
-														endDate={editedUser.leaveEndDate ? new Date(editedUser.leaveEndDate) : null}
-														minDate={editedUser.leaveStartDate ? new Date(editedUser.leaveStartDate) : undefined}
+														startDate={convertDateForDisplay(
+															editedUser.leaveStartDate
+														)}
+														endDate={convertDateForDisplay(
+															editedUser.leaveEndDate
+														)}
+														minDate={
+															editedUser.leaveStartDate
+																? convertDateForDisplay(
+																		editedUser.leaveStartDate
+																  )
+																: undefined
+														}
 													/>
 												</FormGroup>
 											</Col>
@@ -699,19 +963,27 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 											<Col md={8}>
 												<p>
 													Duration:{" "}
-													{calculateDuration(editedUser.leaveStartDate, editedUser.leaveEndDate)}
+													{calculateDuration(
+														editedUser.leaveStartDate,
+														editedUser.leaveEndDate
+													)}
 												</p>
 											</Col>
 										</Row>
 										<Row>
 											<Col md={8}>
 												<FormGroup>
-													<Label for="leaveReason">Reason for Leave</Label>
+													<Label for="leaveReason">
+														Reason for Leave
+													</Label>
 													<Input
 														type="textarea"
 														name="leaveReason"
 														id="leaveReason"
-														value={editedUser.leaveReason || ""}
+														value={
+															editedUser.leaveReason ||
+															""
+														}
 														onChange={handleChange}
 														required
 													/>
@@ -723,43 +995,76 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 							</>
 						)}
 
-						{editedUser.role === "retiree" && editOption === "role" && (
-							<Row className="mt-3">
-								<Col md={6}>
-									<FormGroup>
-										<Label for="retirementDate">Retirement Date</Label>
-										<br />
-										<DatePicker
-											selected={editedUser.retirementDate ? new Date(editedUser.retirementDate) : null}
-											onChange={(date) => handleDateChange(date, "retirementDate")}
-											className="form-control"
-											required
-											maxDate={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : undefined}
-										/>
-										<p>* The date when the employee officially retires.</p>
-									</FormGroup>
-								</Col>
-								<Col md={6}>
-									<FormGroup>
-										<Label for="deactivationDate">Deactivation Date</Label>
-										<br />
-										<DatePicker
-											selected={editedUser.deactivationDate ? new Date(editedUser.deactivationDate) : null}
-											onChange={(date) => handleDateChange(date, "deactivationDate")}
-											className="form-control"
-											required
-											minDate={new Date()}
-											excludeDates={[new Date()]}
-										/>
-										<p>* Account remains accessible until this date.</p>
-									</FormGroup>
-								</Col>
-							</Row>
-						)}
+						{editedUser.role === "retiree" &&
+							editOption === "role" && (
+								<Row className="mt-3">
+									<Col md={6}>
+										<FormGroup>
+											<Label for="retirementDate">
+												Retirement Date
+											</Label>
+											<br />
+											<DatePicker
+												selected={convertDateForDisplay(
+													editedUser.retirementDate
+												)}
+												onChange={(date) =>
+													handleDateChange(
+														date,
+														"retirementDate"
+													)
+												}
+												className="form-control"
+												required
+												maxDate={
+													editedUser.deactivationDate
+														? convertDateForDisplay(
+																editedUser.deactivationDate
+														  )
+														: undefined
+												}
+											/>
+											<p>
+												* The date when the employee
+												officially retires.
+											</p>
+										</FormGroup>
+									</Col>
+									<Col md={6}>
+										<FormGroup>
+											<Label for="deactivationDate">
+												Deactivation Date
+											</Label>
+											<br />
+											<DatePicker
+												selected={convertDateForDisplay(
+													editedUser.deactivationDate
+												)}
+												onChange={(date) =>
+													handleDateChange(
+														date,
+														"deactivationDate"
+													)
+												}
+												className="form-control"
+												required
+												minDate={new Date()}
+												excludeDates={[new Date()]}
+											/>
+											<p>
+												* Account remains accessible
+												until this date.
+											</p>
+										</FormGroup>
+									</Col>
+								</Row>
+							)}
 
 						{editOption === "remainingBenefits" && (
 							<FormGroup>
-								<Label for="remainingBenefits">Remaining Benefits</Label>
+								<Label for="remainingBenefits">
+									Remaining Benefits
+								</Label>
 								<Input
 									type="number"
 									name="remainingBenefits"
@@ -778,7 +1083,11 @@ const UserRow: React.FC<UserRowProps> = ({ user, isMobile = false }) => {
 						<Button color="success" onClick={handleSave}>
 							Save
 						</Button>
-						<Button color="secondary" onClick={handleCancel} className="ms-2">
+						<Button
+							color="secondary"
+							onClick={handleCancel}
+							className="ms-2"
+						>
 							Cancel
 						</Button>
 						{showPopout && (

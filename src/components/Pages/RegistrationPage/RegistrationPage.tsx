@@ -12,6 +12,11 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../../contexts/firebase";
 import USTFULogo from "../../../assets/USTFULogo.png";
 import Popout from "../../Page Elements/Popout/Popout";
+import {
+	formatDateToYYYYMMDD,
+	convertToMMDDYYYY,
+	convertToYYYYMMDD,
+} from "../../../utils/dateUtils";
 
 const schema = z
 	.object({
@@ -86,9 +91,9 @@ const schema = z
 
 		dateHired: z
 			.string({
-				required_error: "Please enter the date you were Hired",
 				invalid_type_error: "Please select a valid date",
 			})
+			.transform((val) => convertToMMDDYYYY(val) || "")
 			.min(1, "Please enter the date you were Hired"),
 
 		dateRetired: z
@@ -96,7 +101,8 @@ const schema = z
 				invalid_type_error: "Please select a valid date",
 			})
 			.nullable()
-			.optional(),
+			.optional()
+			.transform((val) => convertToMMDDYYYY(val)),
 
 		gender: z.preprocess(
 			(val) => (val === null ? "" : val),
@@ -413,50 +419,25 @@ const RegistrationPage: React.FC = () => {
 	};
 
 	// Date handling functions
-	// Convert date string from YYYY-MM-DD to MM/DD/YYYY
-	const formatDateToDisplay = (dateString: string): string => {
-		if (!dateString) return "";
-
-		// Check if the date is already in MM/DD/YYYY format
-		if (dateString.includes("/")) return dateString;
-
-		try {
-			const [year, month, day] = dateString.split("-");
-			return `${month}/${day}/${year}`;
-		} catch {
-			return "";
-		}
-	};
-
 	// Convert date string from MM/DD/YYYY to YYYY-MM-DD
 	const formatDateToInput = (dateString: string): string => {
 		if (!dateString) return "";
 
-		// Check if the date is already in YYYY-MM-DD format
-		if (dateString.includes("-")) return dateString;
-
-		try {
-			const [month, day, year] = dateString.split("/");
-			return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-		} catch {
-			return "";
-		}
+		return convertToYYYYMMDD(dateString) || "";
 	};
 
 	const handleDateInput = (
 		e: React.ChangeEvent<HTMLInputElement>,
 		fieldName: string
 	) => {
-		const inputDate = e.target.value; // This is in YYYY-MM-DD format
-		if (!inputDate) {
-			setValue(fieldName as keyof FormData, "");
+		const value = e.target.value;
+
+		if (value) {
+			// Store the date in MM/DD/YYYY format for the backend
+			const mmddyyyy = convertToMMDDYYYY(value);
+			setValue(fieldName, mmddyyyy);
 		} else {
-			const formattedDate = formatDateToDisplay(inputDate);
-			setValue(fieldName as keyof FormData, formattedDate, {
-				shouldValidate: true,
-				shouldDirty: true,
-				shouldTouch: true,
-			});
+			setValue(fieldName, "");
 		}
 	};
 

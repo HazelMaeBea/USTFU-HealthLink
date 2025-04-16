@@ -94,4 +94,11 @@ export interface Record {
 	dateSubmitted?: string;
 	DateDecided?: { toDate: () => Date } | Date;
 	requester: string;
+	pdf?: {
+		filename: string;
+		url: string;
+		generatedAt?: unknown;
+	};
+	pdfProcessed?: boolean;
+	statusReason?: string;
 }

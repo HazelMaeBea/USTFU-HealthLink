@@ -3,6 +3,11 @@ import styles from "./Settings.module.css";
 import Popout from "../../Page Elements/Popout/Popout";
 import { useFirebase } from "../../../contexts/firebaseContext";
 import { doc, getDoc, updateDoc, FieldValue } from "firebase/firestore";
+import {
+	convertToYYYYMMDD,
+	convertToMMDDYYYY,
+	isValidDateString,
+} from "../../../utils/dateUtils";
 
 const suffixOptions = ["", "Sr.", "Jr.", "II", "III", "IV", "MD", "PhD"];
 const genderOptions = ["Male", "Female", "Other"];
@@ -113,54 +118,11 @@ const formatIDNumber = (value: string): string => {
 		: digits;
 };
 
-const formatDateForPicker = (dateString: string): string => {
-	if (!dateString) return "";
-
-	// If it's already in YYYY-MM-DD format, return as is
-	if (
-		dateString.includes("-") &&
-		dateString.match(/^\d{4}-\d{1,2}-\d{1,2}$/)
-	) {
-		const [year, month, day] = dateString.split("-");
-		return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-	}
-
-	// Handle MM/DD/YYYY format
-	if (dateString.includes("/")) {
-		const parts = dateString.split("/");
-		if (parts.length !== 3) return "";
-
-		const month = parts[0].padStart(2, "0");
-		const day = parts[1].padStart(2, "0");
-		const year = parts[2];
-
-		return `${year}-${month}-${day}`;
-	}
-
-	// If it's in neither format, return empty string
-	console.log("Date format not recognized:", dateString);
-	return "";
-};
-
-const formatDateFromPicker = (dateString: string): string => {
-	if (!dateString) return "";
-
-	try {
-		const date = new Date(dateString);
-		if (isNaN(date.getTime())) {
-			console.log("Invalid date from picker:", dateString);
-			return "";
-		}
-
-		const month = (date.getMonth() + 1).toString().padStart(2, "0");
-		const day = date.getDate().toString().padStart(2, "0");
-		const year = date.getFullYear();
-
-		return `${month}/${day}/${year}`;
-	} catch (e) {
-		console.error("Error formatting date from picker:", e);
-		return "";
-	}
+// Format date for date picker, safely handling different formats
+const formatDateForPicker = (dateStr: string | null | undefined): string => {
+	if (!dateStr) return "";
+	if (!isValidDateString(dateStr)) return "";
+	return convertToYYYYMMDD(dateStr) || "";
 };
 
 // Define type for Firestore compatible field values
@@ -472,10 +434,16 @@ const Settings = () => {
 
 	const handleDatePickerChange = (
 		e: React.ChangeEvent<HTMLInputElement>,
-		field: keyof SettingsType
+		field: string
 	) => {
-		const formattedDate = formatDateFromPicker(e.target.value);
-		handleFieldChange(field, formattedDate);
+		const newDate = e.target.value;
+		// Convert to MM/DD/YYYY for storage
+		const formattedDate = newDate ? convertToMMDDYYYY(newDate) : null;
+
+		setSettings({
+			...settings,
+			[field]: formattedDate,
+		});
 	};
 
 	const handleCancelClick = () => {
