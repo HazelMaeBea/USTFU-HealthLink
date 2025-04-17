@@ -60,6 +60,7 @@ const formatDocumentType = (camelCaseKey: string): string => {
 	if (camelCaseKey === "docRequest") return "Document Request";
 	if (camelCaseKey === "hospitalInvoice") return "Hospital Invoice";
 	if (camelCaseKey === "labInvoice") return "Lab Invoice";
+	if (camelCaseKey === "eyeglassesReceipt") return "Eyeglasses Receipt";
 
 	return (
 		camelCaseKey
@@ -108,6 +109,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			dateSubmitted: record.dateSubmitted,
 			DateDecided: record.DateDecided as FirestoreTimestamp | undefined,
 			formData: record.formData as FormData,
+			statusReason: record.statusReason,
 		})
 	);
 
@@ -126,8 +128,21 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		(req) => req.transactionID === transactionID
 	);
 
-	// Retrieve statusReason from the matched request
-	const statusReason = request?.statusReason || "No reason provided.";
+	// Get the appropriate status reason based on request status
+	const getStatusReason = (req: RecordType | undefined) => {
+		if (!req) return "Request not found";
+
+		// If request is pending, show "Request in process"
+		if (req.status === "Pending") {
+			return "Request in process";
+		}
+
+		// For other statuses, use the statusReason from the database if available
+		return req.statusReason || "No additional information available";
+	};
+
+	// Get the status reason for this request
+	const statusReason = getStatusReason(request);
 
 	console.log("Found Request:", request);
 	// Add debug log for PDF data
@@ -493,7 +508,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 						<hr></hr>
 						<div className={styles.formContainer}>
 							<div className={styles.formContents}>
-								<label>OR Number</label>
+								<label>Official Receipt Number</label>
 								<p className={styles.fieldContent}>
 									{formData.ORNumber
 										? formData.ORNumber

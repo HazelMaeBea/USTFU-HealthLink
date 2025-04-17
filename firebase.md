@@ -310,6 +310,14 @@
         	status: "Approved",
         	statusReason: reasonText,
         	DateDecided: Timestamp.now(),
+        	benefitHistory: {
+        		benefitUsed: benefitAmount,
+        		date: Timestamp.now(),
+        		formType: formData.formData.formType,
+        		originalBenefit: originalBenefitAmount,
+        		remainingBenefit: newRemainingBenefit,
+        		transactionId: formData.transactionId,
+        	},
         });
         ```
 
@@ -456,12 +464,43 @@
 
 ### AdminHistoryPage
 
+-   **CRUD Operations**: Read
 -   **Reads**:
+    -   `FormRequests` collection: For "In Process" forms
+        ```typescript
+        query(collection(db, "FormRequests"), orderBy("dateSubmitted", "desc"));
+        ```
+    -   `AccomplishedRequests` collection: For "Accomplished" forms
+        ```typescript
+        query(
+        	collection(db, "AccomplishedRequests"),
+        	orderBy("DateDecided", "desc")
+        );
+        ```
+        -   Fields read:
+            -   Standard form fields
+            -   `benefitHistory`: Information about benefit usage
+                ```typescript
+                {
+                  benefitUsed: number,      // Amount used in this transaction
+                  date: Timestamp,          // When the benefit was used
+                  formType: string,         // Type of form (hospital, eyeglasses, etc.)
+                  originalBenefit: number,  // Original benefit amount before transaction
+                  remainingBenefit: number, // Remaining benefit after transaction
+                  transactionId: string     // Associated transaction ID
+                }
+                ```
     -   `auditLogs` collection: Admin activity history
         ```typescript
         query(collection(db, "auditLogs"), orderBy("Time", "desc"));
         ```
 -   **Dependencies**: Admin role required to access and view audit logs
+-   **Filters**:
+    -   Processing Status: "In Process" vs "Accomplished"
+    -   Form Type
+    -   Date Range
+    -   College and other standard filters
+-   **Export**: Only approved forms from AccomplishedRequests are included in exports
 
 ### AdminSettingsPage
 

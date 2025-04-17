@@ -73,6 +73,10 @@ export const baseFormSchema = z.object({
 
 	// For all other form types
 	procedureSpecify: z.string().optional(),
+
+	// Academic fields
+	term: z.string().optional(),
+	academicYear: z.string().optional(),
 });
 
 // Base FormData type from schema with updated contact field
@@ -84,7 +88,14 @@ export interface ConfinementFields {
 	confinementTo?: string;
 }
 
+// Add academic related fields as an interface
+export interface AcademicFields {
+	term?: string;
+	academicYear?: string;
+}
+
 // UnifiedFormData combines all possible form fields
 export type UnifiedFormData = BaseFormData &
 	HospitalFormData &
-	ConfinementFields;
+	ConfinementFields &
+	AcademicFields;

@@ -3,14 +3,17 @@
  *
  * Features:
  * - Displays transaction records in a sortable, filterable table
- * - Filtering by form type, date range, college, term, academic year, load, and status
+ * - Filtering by form type, date range, college, term, academic year, load, status, and processing status
  * - Search functionality by name
  * - CSV export with customizable filename
  * - Responsive pagination
  */
 import { useState, useEffect, useRef } from "react";
 import styles from "./HistoryPage.module.css";
-import type { PendingRequest } from "../PendingRequestPage/types";
+import type {
+	PendingRequest,
+	ApprovedRequest,
+} from "../PendingRequestPage/types";
 import { usePendingRequests } from "../PendingRequestPage/PendingRequestBackend";
 import {
 	FiSearch,
@@ -19,7 +22,68 @@ import {
 	FiPlus,
 	FiX,
 	FiCheck,
+	FiClock,
+	FiCheckCircle,
 } from "react-icons/fi";
+import { db } from "../../../contexts/firebase";
+import {
+	collection,
+	query,
+	getDocs,
+	CollectionReference,
+	DocumentData,
+	FirestoreError,
+} from "firebase/firestore";
+
+// Define types for collections
+type CollectionName =
+	| "AccomplishedRequests"
+	| "accomplishedRequests"
+	| "Accomplishedrequests"
+	| "accomplishedrequests";
+
+// Interface for formatted table data
+interface FormattedTableData {
+	formType: React.ReactNode;
+	formTypeValue: string;
+	formTypeText: string;
+	dateApproved: string;
+	name: string;
+	age: string | number;
+	college: string;
+	term: string;
+	academicYear: string;
+	load: string | number;
+	status: string;
+	natureOfIllness: string;
+	physician: string;
+	procedures: string;
+	remainingBenefits: string;
+	processingStatus: "Accomplished" | "In Process";
+	approvalStatus: string;
+	isAccomplished: boolean;
+	// Add eyeglasses-specific fields
+	orNumber?: string;
+	issuedBy?: string;
+	amountPaid?: string | number;
+	reimbursementAmount?: string | number;
+	id?: string;
+	_raw?: {
+		isAccomplished: boolean;
+		type: "accomplished" | "pending";
+		hasFormData: boolean;
+		hasDateSubmitted: boolean;
+		status?: string;
+	};
+}
+
+// Interface for debug info
+interface DebugInfo {
+	collections: string[];
+	recordCounts: Record<string, number>;
+	errors: string[];
+	lastAction: string;
+}
 
 const HistoryPage = () => {
 	// State for filters and data
@@ -30,6 +94,25 @@ const HistoryPage = () => {
 	const [dateRange, setDateRange] = useState({ start: "", end: "" });
 	const [currentPage, setCurrentPage] = useState(1);
 	const recordsPerPage = 10;
+	const [selectedProcessingStatus, setSelectedProcessingStatus] =
+		useState("Accomplished");
+	const [accomplishedRequests, setAccomplishedRequests] = useState<
+		ApprovedRequest[]
+	>([]);
+	const [showProcessingStatusDropdown, setShowProcessingStatusDropdown] =
+		useState(false);
+
+	// Track which fields to display based on form type
+	const [visibleColumns, setVisibleColumns] = useState({
+		natureOfIllness: true,
+		physician: true,
+		procedures: true,
+		term: true,
+		academicYear: true,
+		load: true,
+		status: true,
+		remainingBenefits: true,
+	});
 
 	// UI state
 	const [showDateRangePopup, setShowDateRangePopup] = useState(false);
@@ -45,22 +128,217 @@ const HistoryPage = () => {
 	const [loadInput, setLoadInput] = useState("");
 	const [loadEndInput, setLoadEndInput] = useState("");
 	const [loadFilterMode, setLoadFilterMode] = useState("exact");
-	const [loadRange, setLoadRange] = useState(false);
 
 	// Error handling
 	const [error, setError] = useState<string | null>(null);
 
+	// Debugging state
+	const [debugInfo, setDebugInfo] = useState<DebugInfo>({
+		collections: [],
+		recordCounts: {},
+		errors: [],
+		lastAction: "",
+	});
+
 	// Refs for click-outside handling
 	const formTypeDropdownRef = useRef<HTMLDivElement>(null);
 	const filterDropdownRef = useRef<HTMLDivElement>(null);
+	const processingStatusDropdownRef = useRef<HTMLDivElement>(null);
 
 	// Fetch data
 	const { requests: pendingRequestsData } = usePendingRequests(1, 100);
 
+	// Enhanced fetch for accomplished requests with better error handling and debugging
+	useEffect(() => {
+		const fetchAccomplishedRequests = async () => {
+			console.log("🔍 Starting to fetch accomplished requests...");
+			setDebugInfo((prev) => ({
+				...prev,
+				lastAction: "Starting fetch operation",
+			}));
+
+			try {
+				// First, test if we can access the collections at all
+				const collectionsToTest: CollectionName[] = [
+					"AccomplishedRequests",
+					"accomplishedRequests",
+					"Accomplishedrequests",
+					"accomplishedrequests",
+				];
+
+				const availableCollections: string[] = [];
+				const recordCounts: Record<string, number> = {};
+
+				// Try each possible collection name
+				for (const collName of collectionsToTest) {
+					try {
+						const testRef = collection(db, collName);
+						const testQuery = query(testRef);
+						const testSnapshot = await getDocs(testQuery);
+
+						console.log(
+							`Collection "${collName}" exists with ${testSnapshot.size} documents`
+						);
+						availableCollections.push(collName);
+						recordCounts[collName] = testSnapshot.size;
+
+						// If we found documents, try to process them
+						if (testSnapshot.size > 0) {
+							// Update debug info
+							setDebugInfo((prev) => ({
+								...prev,
+								collections: [...prev.collections, collName],
+								recordCounts: {
+									...prev.recordCounts,
+									[collName]: testSnapshot.size,
+								},
+								lastAction: `Found ${testSnapshot.size} documents in ${collName}`,
+							}));
+
+							// Process the data from this collection
+							const accomplishedData = testSnapshot.docs.map(
+								(doc) => {
+									const data = doc.data() as ApprovedRequest;
+									// Log an example document to see its structure
+									if (testSnapshot.docs.indexOf(doc) === 0) {
+										console.log(
+											`Example document from ${collName}:`,
+											data
+										);
+									}
+									return {
+										...data,
+										id: doc.id,
+									};
+								}
+							);
+
+							console.log(
+								`Successfully processed ${accomplishedData.length} records from ${collName}`
+							);
+
+							// Set the data from the first collection that works
+							setAccomplishedRequests(accomplishedData);
+							break;
+						}
+					} catch (err) {
+						const error = err as FirestoreError;
+						console.warn(
+							`Error accessing collection ${collName}:`,
+							error
+						);
+						setDebugInfo((prev) => ({
+							...prev,
+							errors: [
+								...prev.errors,
+								`Error with ${collName}: ${error.message}`,
+							],
+						}));
+					}
+				}
+
+				// If we couldn't find any valid collections with data
+				if (accomplishedRequests.length === 0) {
+					console.warn(
+						"No accomplished requests found in any collection variation"
+					);
+					setDebugInfo((prev) => ({
+						...prev,
+						lastAction: "No data found in any collection",
+						collections: availableCollections,
+						recordCounts,
+					}));
+
+					// As a last resort, try with a more basic approach
+					try {
+						// Just try to get ALL documents from the most likely collection
+						const basicRef = collection(db, "AccomplishedRequests");
+						const basicSnapshot = await getDocs(basicRef);
+
+						if (basicSnapshot.size > 0) {
+							const basicData = basicSnapshot.docs.map(
+								(doc) => doc.data() as ApprovedRequest
+							);
+							console.log(
+								"Found data with basic approach:",
+								basicSnapshot.size
+							);
+							setAccomplishedRequests(basicData);
+							setDebugInfo((prev) => ({
+								...prev,
+								lastAction: `Found ${basicSnapshot.size} documents with basic approach`,
+							}));
+						}
+					} catch (err) {
+						const basicError = err as Error;
+						console.error(
+							"Even the basic approach failed:",
+							basicError
+						);
+						setDebugInfo((prev) => ({
+							...prev,
+							errors: [
+								...prev.errors,
+								`Basic approach failed: ${basicError.message}`,
+							],
+						}));
+					}
+				}
+			} catch (err) {
+				const error = err as Error;
+				console.error(
+					"🚨 Top-level error fetching accomplished requests:",
+					error
+				);
+				setDebugInfo((prev) => ({
+					...prev,
+					errors: [
+						...prev.errors,
+						`Top-level error: ${error.message}`,
+					],
+				}));
+				setError(
+					`Failed to fetch accomplished requests: ${error.message}`
+				);
+			}
+		};
+
+		fetchAccomplishedRequests();
+	}, []);
+
+	// Add effect to log when accomplished requests data changes
+	useEffect(() => {
+		console.log(
+			`Accomplished requests data updated: ${accomplishedRequests.length} records`
+		);
+
+		// Log details about the data for debugging
+		if (accomplishedRequests.length > 0) {
+			console.log("First accomplished record:", accomplishedRequests[0]);
+
+			// Count records by status
+			const statusCounts = accomplishedRequests.reduce(
+				(counts: Record<string, number>, req) => {
+					const status = req.status?.toLowerCase() || "unknown";
+					counts[status] = (counts[status] || 0) + 1;
+					return counts;
+				},
+				{}
+			);
+
+			console.log("Records by status:", statusCounts);
+			setDebugInfo((prev) => ({
+				...prev,
+				lastAction: `Data loaded: ${accomplishedRequests.length} records`,
+				recordCounts: { ...prev.recordCounts, byStatus: statusCounts },
+			}));
+		}
+	}, [accomplishedRequests]);
+
 	// Reset page when filters change
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [selectedType, filters, searchQuery]);
+	}, [selectedType, filters, searchQuery, selectedProcessingStatus]);
 
 	// Auto-hide export success message
 	useEffect(() => {
@@ -88,6 +366,16 @@ const HistoryPage = () => {
 			) {
 				setShowFilterOptions(false);
 			}
+
+			// Handle clicking outside of the processing status dropdown
+			if (
+				processingStatusDropdownRef.current &&
+				!processingStatusDropdownRef.current.contains(
+					event.target as Node
+				)
+			) {
+				setShowProcessingStatusDropdown(false);
+			}
 		}
 
 		document.addEventListener("mousedown", handleClickOutside);
@@ -95,10 +383,107 @@ const HistoryPage = () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	// Format data for the table
-	const formatTableData = (request: PendingRequest) => {
+	// Update visible columns when form type changes
+	useEffect(() => {
+		if (selectedType === "All") {
+			// Show all columns for "All Forms"
+			setVisibleColumns({
+				natureOfIllness: true,
+				physician: true,
+				procedures: true,
+				term: true,
+				academicYear: true,
+				load: true,
+				status: true,
+				remainingBenefits: true,
+			});
+		} else if (selectedType === "eyeglasses") {
+			// For eyeglasses, show eyeglasses-specific fields
+			setVisibleColumns({
+				natureOfIllness: false,
+				physician: false,
+				procedures: false,
+				term: false,
+				academicYear: false,
+				load: false,
+				status: true, // Ensure status is visible for eyeglasses
+				remainingBenefits: false, // Hide remaining benefits for eyeglasses
+			});
+		} else if (selectedType === "admission") {
+			// For admission forms
+			setVisibleColumns({
+				natureOfIllness: false,
+				physician: false,
+				procedures: false,
+				term: true,
+				academicYear: true,
+				load: true,
+				status: true,
+				remainingBenefits: true,
+			});
+		} else {
+			// For hospital forms (inpatient/outpatient)
+			setVisibleColumns({
+				natureOfIllness: true,
+				physician: true,
+				procedures: true,
+				term: true,
+				academicYear: true,
+				load: true,
+				status: true,
+				remainingBenefits: true,
+			});
+		}
+	}, [selectedType]);
+
+	// Format data for the table - with enhanced debugging
+	const formatTableData = (
+		request: PendingRequest | ApprovedRequest,
+		isAccomplished = false
+	): FormattedTableData | null => {
 		try {
-			const { formData, dateSubmitted, requester } = request;
+			// Add some basic validation first
+			if (!request) {
+				console.warn("Received null or undefined request");
+				return null;
+			}
+
+			// Log one record of each type for debugging
+			if (isAccomplished && !window.loggedAccomplishedExample) {
+				console.log("Example accomplished request data:", request);
+				window.loggedAccomplishedExample = true;
+			} else if (!isAccomplished && !window.loggedPendingExample) {
+				console.log("Example pending request data:", request);
+				window.loggedPendingExample = true;
+			}
+
+			const { formData, dateSubmitted, requester, status } = request;
+
+			// More validation
+			if (!requester) {
+				console.warn("Request missing requester field:", request);
+			}
+
+			// Extract eyeglasses-specific fields if available
+			const orNumber =
+				formData?.formType === "eyeglasses"
+					? formData?.ORNumber || "-"
+					: "-";
+			const issuedBy =
+				formData?.formType === "eyeglasses"
+					? formData?.issuedBy || "-"
+					: "-";
+			const amountPaid =
+				formData?.formType === "eyeglasses"
+					? formData?.amountPaid || "-"
+					: "-";
+			const reimbursementAmount =
+				formData?.formType === "eyeglasses" &&
+				isAccomplished &&
+				"benefitHistory" in request &&
+				request.benefitHistory
+					? `${formData?.amountPaid?.toLocaleString() || "-"}`
+					: "-";
 
 			let formTypeDisplay;
 			let formTypeValue;
@@ -130,32 +515,39 @@ const HistoryPage = () => {
 				formTypeText = formData?.formType || "Unknown";
 			}
 
+			// Type assertion for returning formatted data
 			return {
 				formType: formTypeDisplay,
 				formTypeValue: formTypeValue,
 				formTypeText: formTypeText,
-				dateApproved: dateSubmitted || "-",
+				dateApproved:
+					isAccomplished &&
+					"DateDecided" in request &&
+					request.DateDecided
+						? new Date(
+								request.DateDecided.toDate()
+						  ).toLocaleString()
+						: dateSubmitted || "-",
 				name: requester || "Unknown",
 				age: formData?.age || "-",
 				college: formData?.college || "-",
 				term:
-					formData?.formType === "hospital"
+					formData?.formType === "hospital" ||
+					formData?.formType === "eyeglasses"
 						? formData?.term || "-"
 						: "-",
 				academicYear:
-					formData?.formType === "hospital"
+					formData?.formType === "hospital" ||
+					formData?.formType === "eyeglasses"
 						? formData?.year || "-"
 						: "-",
 				load:
 					formData?.formType === "hospital" ||
-					formData?.formType === "admission"
+					formData?.formType === "admission" ||
+					formData?.formType === "eyeglasses"
 						? formData?.load || "-"
 						: "-",
-				status:
-					formData?.formType === "hospital" ||
-					formData?.formType === "admission"
-						? formData?.status || "-"
-						: "-",
+				status: formData?.status || "-",
 				natureOfIllness:
 					formData?.formType === "hospital"
 						? formData?.illness || "-"
@@ -168,19 +560,50 @@ const HistoryPage = () => {
 					formData?.formType === "hospital"
 						? formData?.procedures || "-"
 						: "-",
-				remainingBenefits: "-",
+				remainingBenefits:
+					isAccomplished &&
+					"benefitHistory" in request &&
+					request.benefitHistory
+						? `${request.benefitHistory.remainingBenefit.toLocaleString()}`
+						: "-",
+				orNumber,
+				issuedBy,
+				amountPaid,
+				reimbursementAmount,
+				processingStatus: isAccomplished
+					? "Accomplished"
+					: "In Process",
+				approvalStatus: status || "Unknown",
+				isAccomplished,
+				_raw: {
+					isAccomplished,
+					type: isAccomplished ? "accomplished" : "pending",
+					hasFormData: !!formData,
+					hasDateSubmitted: !!dateSubmitted,
+					status: status,
+				},
 			};
 		} catch (err) {
-			console.error("Error formatting table data:", err);
+			const error = err as Error;
+			console.error(
+				"Error formatting table data:",
+				error,
+				"Request:",
+				request
+			);
 			setError("Error formatting request data");
 			return null;
 		}
 	};
 
 	// Filter option arrays
-	const tableData = pendingRequestsData
-		.map(formatTableData)
+	const pendingTableData = pendingRequestsData
+		.map((item) => formatTableData(item, false))
 		.filter((item) => item !== null);
+	const accomplishedTableData = accomplishedRequests
+		.map((item) => formatTableData(item, true))
+		.filter((item) => item !== null);
+	const tableData = [...pendingTableData, ...accomplishedTableData];
 	const termOptions = ["1st", "2nd"];
 	const collegeOptions = [
 		"College of Accountancy",
@@ -210,14 +633,21 @@ const HistoryPage = () => {
 		"Extendee",
 		"Retiree",
 	];
-
-	// Form type filter options
 	const formTypeOptions = [
 		{ value: "All", label: "All Forms" },
 		{ value: "inpatient", label: "Inpatient" },
 		{ value: "outpatient", label: "Outpatient" },
 		{ value: "eyeglasses", label: "Eyeglasses" },
 		{ value: "admission", label: "Admission" },
+	];
+	const processingStatusOptions = [
+		{ value: "All", label: "All Status", icon: <FiFilter /> },
+		{
+			value: "Accomplished",
+			label: "Accomplished",
+			icon: <FiCheckCircle />,
+		},
+		{ value: "In Process", label: "In Process", icon: <FiClock /> },
 	];
 
 	// Get current academic year
@@ -236,25 +666,24 @@ const HistoryPage = () => {
 		const [currentStart] = currentAcademicYear.split("-").map(Number);
 		const startYear = Math.max(2024, currentStart - 10);
 		const options: string[] = [];
-
 		for (let year = startYear; year <= currentStart; year++) {
 			options.push(`${year}-${year + 1}`);
 		}
-
 		return options.reverse();
 	};
-
 	const academicYearOptions = generateAcademicYearOptions();
 
-	// Filter handling functions
-	const removeFilter = (filterToRemove: string) => {
-		setFilters((prev) =>
-			prev.filter((filter) => filter !== filterToRemove)
-		);
-	};
+	// Apply filters with better debugging
+	const applyFilters = (data: (FormattedTableData | null)[]) => {
+		console.log(`Applying filters to ${data.length} records`);
+		console.log("Filter criteria:", {
+			selectedType,
+			selectedProcessingStatus,
+			searchQuery,
+			customFilters: filters,
+		});
 
-	const applyFilters = (data: any[]) => {
-		return data.filter((row) => {
+		const filtered = data.filter((row) => {
 			if (!row) return false;
 
 			const matchesType =
@@ -264,22 +693,44 @@ const HistoryPage = () => {
 					(row.formTypeValue === "inpatient" ||
 						row.formTypeValue === "outpatient"));
 
+			const matchesProcessingStatus =
+				selectedProcessingStatus === "All" ||
+				row.processingStatus === selectedProcessingStatus;
+
+			const matchesApprovedStatus =
+				selectedProcessingStatus !== "Accomplished" ||
+				row.approvalStatus?.toLowerCase() === "approved";
+
 			const matchesSearch =
 				searchQuery === "" ||
-				row.name.toLowerCase().includes(searchQuery.toLowerCase());
+				row.name?.toLowerCase().includes(searchQuery.toLowerCase());
+
+			// Add debug logging for filtering
+			if (data.length < 10) {
+				console.log(`Filter details for record:`, {
+					id: row.id,
+					name: row.name,
+					status: row.approvalStatus,
+					processing: row.processingStatus,
+					matchesType,
+					matchesProcessingStatus,
+					matchesApprovedStatus,
+					matchesSearch,
+				});
+			}
 
 			return (
 				matchesType &&
 				matchesSearch &&
+				matchesProcessingStatus &&
+				matchesApprovedStatus &&
 				filters.every((filter) => {
 					const [filterType, filterValue] = filter.split(": ");
-
 					if (filterType === "Date") {
 						const [startDateStr, endDateStr] =
 							filterValue.split(" - ");
 						const startParts = startDateStr.split("/");
 						const endParts = endDateStr.split("/");
-
 						if (startParts.length === 3 && endParts.length === 3) {
 							const startDate = new Date(
 								parseInt(startParts[2]),
@@ -287,10 +738,8 @@ const HistoryPage = () => {
 								parseInt(startParts[1]),
 								0,
 								0,
-								0,
 								0
 							);
-
 							const endDate = new Date(
 								parseInt(endParts[2]),
 								parseInt(endParts[0]) - 1,
@@ -300,13 +749,11 @@ const HistoryPage = () => {
 								59,
 								999
 							);
-
 							const rowDate =
 								row.dateApproved !== "-"
 									? new Date(row.dateApproved)
 									: null;
 							if (!rowDate) return false;
-
 							return rowDate >= startDate && rowDate <= endDate;
 						}
 						return false;
@@ -322,12 +769,10 @@ const HistoryPage = () => {
 						const [startValue, endValue] = filterValue
 							.split(" - ")
 							.map(Number);
-						const rowLoad = parseFloat(row.load);
-
+						const rowLoad = parseFloat(row.load as string);
 						if (!isNaN(startValue) && isNaN(endValue)) {
 							return rowLoad === startValue;
 						}
-
 						return (
 							!isNaN(startValue) &&
 							!isNaN(endValue) &&
@@ -342,6 +787,11 @@ const HistoryPage = () => {
 				})
 			);
 		});
+
+		console.log(
+			`Filter results: ${filtered.length} out of ${data.length} records`
+		);
+		return filtered;
 	};
 
 	const filteredData = applyFilters(tableData);
@@ -372,25 +822,18 @@ const HistoryPage = () => {
 		indexOfLastRecord
 	);
 
-	const handlePageChange = (pageNumber: number) => {
-		setCurrentPage(pageNumber);
-	};
-
 	// Page buttons rendering
 	const renderPageButtons = () => {
 		const pageNumbers = [];
 		const maxButtonsToShow = 5;
-
 		let startPage = Math.max(
 			1,
 			currentPage - Math.floor(maxButtonsToShow / 2)
 		);
 		const endPage = Math.min(totalPages, startPage + maxButtonsToShow - 1);
-
 		if (endPage - startPage + 1 < maxButtonsToShow) {
 			startPage = Math.max(1, endPage - maxButtonsToShow + 1);
 		}
-
 		// Previous button
 		pageNumbers.push(
 			<button
@@ -402,7 +845,6 @@ const HistoryPage = () => {
 				&laquo;
 			</button>
 		);
-
 		// Page numbers
 		for (let i = 1; i <= totalPages; i++) {
 			if (
@@ -432,7 +874,6 @@ const HistoryPage = () => {
 				);
 			}
 		}
-
 		// Next button
 		pageNumbers.push(
 			<button
@@ -446,8 +887,82 @@ const HistoryPage = () => {
 				&raquo;
 			</button>
 		);
-
 		return pageNumbers;
+	};
+
+	const handlePageChange = (pageNumber: number) => {
+		setCurrentPage(pageNumber);
+	};
+
+	// Add a debug panel for admin use
+	const renderDebugPanel = () => {
+		// Only show in development
+		if (process.env.NODE_ENV !== "development") return null;
+
+		return (
+			<div
+				style={{
+					margin: "10px",
+					padding: "10px",
+					border: "1px solid #ddd",
+					borderRadius: "4px",
+					background: "#f8f8f8",
+					fontSize: "0.8rem",
+				}}
+			>
+				<h4>Debug Info</h4>
+				<div>
+					<strong>Records:</strong> {accomplishedRequests.length}{" "}
+					accomplished, {pendingRequestsData.length} pending
+				</div>
+				<div>
+					<strong>Last Action:</strong> {debugInfo.lastAction}
+				</div>
+				{debugInfo.collections.length > 0 && (
+					<div>
+						<strong>Collections found:</strong>{" "}
+						{debugInfo.collections.join(", ")}
+					</div>
+				)}
+				{Object.keys(debugInfo.recordCounts).length > 0 && (
+					<div>
+						<strong>Record counts:</strong>
+						<pre>
+							{JSON.stringify(debugInfo.recordCounts, null, 2)}
+						</pre>
+					</div>
+				)}
+				{debugInfo.errors.length > 0 && (
+					<div style={{ color: "red" }}>
+						<strong>Errors:</strong>
+						<ul>
+							{debugInfo.errors.map((err, i) => (
+								<li key={i}>{err}</li>
+							))}
+						</ul>
+					</div>
+				)}
+				<button
+					onClick={() => window.location.reload()}
+					style={{ marginRight: "10px" }}
+				>
+					Refresh Page
+				</button>
+				<button
+					onClick={() => {
+						console.log("Full data dump:", {
+							pendingData: pendingRequestsData,
+							accomplishedData: accomplishedRequests,
+							filteredData,
+							error,
+						});
+						alert("Data dumped to console");
+					}}
+				>
+					Log All Data
+				</button>
+			</div>
+		);
 	};
 
 	// Content rendering
@@ -457,10 +972,36 @@ const HistoryPage = () => {
 				<div className={styles.errorMessage}>
 					<div className={styles.errorIcon}>!</div>
 					<p>{error}</p>
+					{accomplishedRequests.length === 0 && (
+						<div>
+							<p>Troubleshooting steps:</p>
+							<ol>
+								<li>
+									Check Firestore collection name
+									("AccomplishedRequests")
+								</li>
+								<li>
+									Verify you have records in the collection
+								</li>
+								<li>
+									Create the missing index using the link from
+									the console error
+								</li>
+							</ol>
+							<p>
+								<a
+									href="https://console.firebase.google.com"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Open Firebase Console
+								</a>
+							</p>
+						</div>
+					)}
 				</div>
 			);
 		}
-
 		if (sortedData.length === 0) {
 			return (
 				<div className={styles.noDataMessage}>
@@ -472,25 +1013,45 @@ const HistoryPage = () => {
 				</div>
 			);
 		}
-
 		return (
 			<div className={styles.tableContainer}>
 				<table className={styles.table}>
 					<thead>
 						<tr>
+							<th>Status</th>
 							<th>Form Type</th>
 							<th>Date Approved</th>
 							<th>Name</th>
 							<th>Age</th>
 							<th>College</th>
-							<th>Term</th>
-							<th>Academic Year</th>
-							<th>Load</th>
-							<th>Status</th>
-							<th>Nature of Illness</th>
-							<th>Physician</th>
-							<th>Procedures</th>
-							<th>Remaining Benefits</th>
+							{selectedType === "eyeglasses" ? (
+								<>
+									<th>OR Number</th>
+									<th>Issued By</th>
+									<th>Amount Paid</th>
+								</>
+							) : (
+								<>
+									{visibleColumns.term && <th>Term</th>}
+									{visibleColumns.academicYear && (
+										<th>Academic Year</th>
+									)}
+									{visibleColumns.load && <th>Load</th>}
+								</>
+							)}
+							{visibleColumns.status && <th>Employee Status</th>}
+							{visibleColumns.natureOfIllness && (
+								<th>Nature of Illness</th>
+							)}
+							{visibleColumns.physician && <th>Physician</th>}
+							{visibleColumns.procedures && <th>Procedures</th>}
+							{selectedType === "eyeglasses" ? (
+								<th>Reimbursement Amount</th>
+							) : (
+								visibleColumns.remainingBenefits && (
+									<th>Remaining Benefits</th>
+								)
+							)}
 						</tr>
 					</thead>
 					<tbody>
@@ -503,6 +1064,24 @@ const HistoryPage = () => {
 										: styles.oddRow
 								}
 							>
+								<td>
+									{row?.processingStatus ===
+									"Accomplished" ? (
+										<span
+											className={`${styles.statusBadge} ${styles.statusAccomplished}`}
+											title="Accomplished"
+										>
+											<FiCheckCircle size={16} />
+										</span>
+									) : (
+										<span
+											className={`${styles.statusBadge} ${styles.statusInProcess}`}
+											title="In Process"
+										>
+											<FiClock size={16} />
+										</span>
+									)}
+								</td>
 								<td className={styles.formTypeCell}>
 									{row?.formType || "-"}
 								</td>
@@ -512,33 +1091,63 @@ const HistoryPage = () => {
 								</td>
 								<td>{row?.age || "-"}</td>
 								<td>{row?.college || "-"}</td>
-								<td>{row?.term || "-"}</td>
-								<td>{row?.academicYear || "-"}</td>
-								<td>{row?.load || "-"}</td>
-								<td>
-									<span
-										className={`${styles.statusBadge} ${
-											row?.status
-												? styles[
-														`status${
-															row.status
-																.charAt(0)
-																.toUpperCase() +
-															row.status
-																.slice(1)
-																.toLowerCase()
-														}`
-												  ] || styles.statusUnknown
-												: styles.statusUnknown
-										}`}
-									>
-										{row?.status || "-"}
-									</span>
-								</td>
-								<td>{row?.natureOfIllness || "-"}</td>
-								<td>{row?.physician || "-"}</td>
-								<td>{row?.procedures || "-"}</td>
-								<td>{row?.remainingBenefits || "-"}</td>
+								{selectedType === "eyeglasses" ? (
+									<>
+										<td>{row?.orNumber || "-"}</td>
+										<td>{row?.issuedBy || "-"}</td>
+										<td>{row?.amountPaid || "-"}</td>
+									</>
+								) : (
+									<>
+										{visibleColumns.term && (
+											<td>{row?.term || "-"}</td>
+										)}
+										{visibleColumns.academicYear && (
+											<td>{row?.academicYear || "-"}</td>
+										)}
+										{visibleColumns.load && (
+											<td>{row?.load || "-"}</td>
+										)}
+									</>
+								)}
+								{visibleColumns.status && (
+									<td>
+										<span
+											className={`${styles.statusBadge} ${
+												row?.status
+													? styles[
+															`status${
+																row.status
+																	.charAt(0)
+																	.toUpperCase() +
+																row.status
+																	.slice(1)
+																	.toLowerCase()
+															}`
+													  ] || styles.statusUnknown
+													: styles.statusUnknown
+											}`}
+										>
+											{row?.status || "-"}
+										</span>
+									</td>
+								)}
+								{visibleColumns.natureOfIllness && (
+									<td>{row?.natureOfIllness || "-"}</td>
+								)}
+								{visibleColumns.physician && (
+									<td>{row?.physician || "-"}</td>
+								)}
+								{visibleColumns.procedures && (
+									<td>{row?.procedures || "-"}</td>
+								)}
+								{selectedType === "eyeglasses" ? (
+									<td>{row?.reimbursementAmount || "-"}</td>
+								) : (
+									visibleColumns.remainingBenefits && (
+										<td>{row?.remainingBenefits || "-"}</td>
+									)
+								)}
 							</tr>
 						))}
 					</tbody>
@@ -551,34 +1160,28 @@ const HistoryPage = () => {
 	const generateFilename = () => {
 		const datePart = new Date().toISOString().split("T")[0];
 		const nameComponents = ["HealthLink-History"];
-
 		if (selectedType !== "All") {
 			const formType =
 				formTypeOptions.find((opt) => opt.value === selectedType)
 					?.label || selectedType;
 			nameComponents.push(formType);
 		}
-
 		if (filters.length > 0) {
 			const filterSummary = [];
 			const dateFilter = filters.find((f) => f.startsWith("Date:"));
 			if (dateFilter) filterSummary.push("DateRange");
-
 			const statusFilter = filters.find((f) => f.startsWith("Status:"));
 			if (statusFilter) {
 				const statusValue = statusFilter.split(": ")[1];
 				filterSummary.push(statusValue.replace(/, /g, "-"));
 			}
-
 			const collegeFilter = filters.find((f) => f.startsWith("College:"));
 			if (collegeFilter) filterSummary.push("College");
-
 			const termFilter = filters.find((f) => f.startsWith("Term:"));
 			if (termFilter) {
 				const termValue = termFilter.split(": ")[1];
 				filterSummary.push(`Term-${termValue}`);
 			}
-
 			const yearFilter = filters.find((f) =>
 				f.startsWith("Academic Year:")
 			);
@@ -586,25 +1189,21 @@ const HistoryPage = () => {
 				const yearValue = yearFilter.split(": ")[1];
 				filterSummary.push(`AY-${yearValue}`);
 			}
-
 			if (filterSummary.length > 0) {
 				nameComponents.push(filterSummary.join("_"));
 			}
 		}
-
 		if (searchQuery) {
 			nameComponents.push(
 				`Search-${searchQuery.substring(0, 10).replace(/\s+/g, "-")}`
 			);
 		}
-
 		nameComponents.push(datePart);
 		return nameComponents.join("_").replace(/\s+/g, "-") + ".csv";
 	};
 
 	const getExportFileDescription = () => {
 		const descriptions = [];
-
 		if (selectedType !== "All") {
 			descriptions.push(
 				`Form type: ${
@@ -613,19 +1212,15 @@ const HistoryPage = () => {
 				}`
 			);
 		}
-
 		if (filters.length > 0) {
 			descriptions.push(`Filters: ${filters.length} active`);
 		}
-
 		if (searchQuery) {
 			descriptions.push(`Search: "${searchQuery}"`);
 		}
-
 		if (selectedType === "All" && filters.length === 0 && !searchQuery) {
 			return "Includes all history records.";
 		}
-
 		return descriptions.join(" • ");
 	};
 
@@ -643,41 +1238,76 @@ const HistoryPage = () => {
 			return field;
 		};
 
-		const headers = [
+		// Only include accomplished forms that are approved for export
+		const dataToExport = filteredData.filter(
+			(row) =>
+				row.isAccomplished &&
+				row.approvalStatus.toLowerCase() === "approved"
+		);
+
+		// Adjust headers based on form type
+		let headers = [
 			"Date Approved",
 			"Form Type",
 			"Name",
 			"Age",
 			"College",
-			"Term",
-			"Academic Year",
-			"Load",
-			"Status",
-			"Nature of Illness",
-			"Physician",
-			"Procedures",
-			"Remaining Benefits",
+			"Employee Status",
 		];
+
+		// Add form type specific headers
+		if (selectedType === "eyeglasses") {
+			headers.push(
+				"OR Number",
+				"Issued By",
+				"Amount Paid",
+				"Reimbursement Amount"
+			);
+		} else {
+			headers.push(
+				"Term",
+				"Academic Year",
+				"Load",
+				"Nature of Illness",
+				"Physician",
+				"Procedures",
+				"Remaining Benefits"
+			);
+		}
 
 		const csvContent = [
 			headers.join(","),
-			...filteredData.map((row) => {
+			...dataToExport.map((row) => {
 				if (!row) return "";
-				return [
+				let fields = [
 					escapeCSV(row.dateApproved || ""),
 					escapeCSV(row.formTypeText || ""),
 					escapeCSV(row.name || ""),
 					escapeCSV(row.age?.toString() || ""),
 					escapeCSV(row.college || ""),
-					escapeCSV(row.term || ""),
-					escapeCSV(row.academicYear || ""),
-					escapeCSV(row.load || ""),
 					escapeCSV(row.status || ""),
-					escapeCSV(row.natureOfIllness || ""),
-					escapeCSV(row.physician || ""),
-					escapeCSV(row.procedures || ""),
-					escapeCSV(row.remainingBenefits || ""),
-				].join(",");
+				];
+
+				if (row.formTypeValue === "eyeglasses") {
+					fields.push(
+						escapeCSV(row.orNumber || ""),
+						escapeCSV(row.issuedBy || ""),
+						escapeCSV(row.amountPaid?.toString() || ""),
+						escapeCSV(row.reimbursementAmount?.toString() || "")
+					);
+				} else {
+					fields.push(
+						escapeCSV(row.term || ""),
+						escapeCSV(row.academicYear || ""),
+						escapeCSV(row.load?.toString() || ""),
+						escapeCSV(row.natureOfIllness || ""),
+						escapeCSV(row.physician || ""),
+						escapeCSV(row.procedures || ""),
+						escapeCSV(row.remainingBenefits || "")
+					);
+				}
+
+				return fields.join(",");
 			}),
 		].join("\n");
 
@@ -692,12 +1322,17 @@ const HistoryPage = () => {
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
-
 		setShowExportPopup(false);
 		setShowExportSuccess(true);
 	};
 
 	// Filter handling functions
+	const removeFilter = (filterToRemove: string) => {
+		setFilters((prev) =>
+			prev.filter((filter) => filter !== filterToRemove)
+		);
+	};
+
 	const handleAddFilter = (filter: string) => {
 		if (filter === "Date") {
 			setShowDateRangePopup(true);
@@ -721,7 +1356,6 @@ const HistoryPage = () => {
 				const dateFilterValue = `Date: ${formatDate(
 					dateRange.start
 				)} - ${formatDate(dateRange.end)}`;
-
 				if (dateFilterIndex !== -1) {
 					newFilters[dateFilterIndex] = dateFilterValue;
 				} else {
@@ -740,7 +1374,6 @@ const HistoryPage = () => {
 				f.startsWith(filter)
 			);
 			let filterValue = "";
-
 			if (filter === "Load") {
 				filterValue =
 					loadFilterMode === "range" && loadEndInput
@@ -749,7 +1382,6 @@ const HistoryPage = () => {
 			} else {
 				filterValue = `${filter}: ${selectedOptions.join(", ")}`;
 			}
-
 			if (filterIndex !== -1) {
 				newFilters[filterIndex] = filterValue;
 			} else {
@@ -764,6 +1396,7 @@ const HistoryPage = () => {
 		setFilters([]);
 		setSelectedType("All");
 		setSearchQuery("");
+		setSelectedProcessingStatus("All");
 		setShowClearAllConfirmation(false);
 	};
 
@@ -781,6 +1414,8 @@ const HistoryPage = () => {
 
 	return (
 		<div className={styles.historyPageContainer}>
+			{process.env.NODE_ENV === "development" && renderDebugPanel()}
+
 			<div className={styles.historyCard}>
 				{/* Header */}
 				<div className={styles.historyCardHeader}>
@@ -789,7 +1424,6 @@ const HistoryPage = () => {
 						View and filter all transaction records
 					</p>
 				</div>
-
 				{/* Controls */}
 				<div className={styles.historyControls}>
 					<div className={styles.searchControls}>
@@ -803,27 +1437,31 @@ const HistoryPage = () => {
 								onChange={(e) => setSearchQuery(e.target.value)}
 							/>
 						</div>
-
 						<div
 							className={styles.formTypeFilter}
 							ref={formTypeDropdownRef}
 						>
 							<button
 								className={styles.formTypeButton}
-								onClick={() =>
+								aria-label="Select Form Type"
+								onClick={(e) => {
+									e.stopPropagation();
 									setShowFormTypeDropdown(
 										!showFormTypeDropdown
-									)
-								}
-								aria-label="Select Form Type"
+									);
+									setShowProcessingStatusDropdown(false); // Close other dropdown
+									setShowFilterOptions(false);
+								}}
 								aria-expanded={showFormTypeDropdown}
 							>
-								{formTypeOptions.find(
-									(option) => option.value === selectedType
-								)?.label || "All Forms"}
+								<span style={{ color: "#333" }}>
+									{formTypeOptions.find(
+										(option) =>
+											option.value === selectedType
+									)?.label || "All Forms"}
+								</span>
 								<span className={styles.formTypeIcon}>▼</span>
 							</button>
-
 							{showFormTypeDropdown && (
 								<div className={styles.formTypeDropdown}>
 									{formTypeOptions.map((option) => (
@@ -836,7 +1474,8 @@ const HistoryPage = () => {
 													? styles.formTypeOptionSelected
 													: ""
 											}`}
-											onClick={() => {
+											onClick={(e) => {
+												e.stopPropagation();
 												setSelectedType(option.value);
 												setShowFormTypeDropdown(false);
 											}}
@@ -847,8 +1486,75 @@ const HistoryPage = () => {
 								</div>
 							)}
 						</div>
+						<div
+							className={styles.formTypeFilter}
+							ref={processingStatusDropdownRef}
+						>
+							<button
+								className={styles.formTypeButton}
+								onClick={(e) => {
+									e.stopPropagation();
+									setShowProcessingStatusDropdown(
+										(prev) => !prev
+									);
+									setShowFormTypeDropdown(false); // Close other dropdown
+									setShowFilterOptions(false);
+								}}
+								aria-label="Select Processing Status"
+							>
+								<span className={styles.statusIconContainer}>
+									{processingStatusOptions.find(
+										(option) =>
+											option.value ===
+											selectedProcessingStatus
+									)?.icon || <FiFilter />}
+								</span>
+								<span style={{ color: "#333" }}>
+									{processingStatusOptions.find(
+										(option) =>
+											option.value ===
+											selectedProcessingStatus
+									)?.label || "All Status"}
+								</span>
+								<span className={styles.formTypeIcon}>▼</span>
+							</button>
+							{showProcessingStatusDropdown && (
+								<div className={styles.formTypeDropdown}>
+									{processingStatusOptions.map((option) => (
+										<button
+											key={option.value}
+											className={`${
+												styles.formTypeOption
+											} ${
+												selectedProcessingStatus ===
+												option.value
+													? styles.formTypeOptionSelected
+													: ""
+											}`}
+											onClick={(e) => {
+												e.stopPropagation();
+												setSelectedProcessingStatus(
+													option.value
+												);
+												setShowProcessingStatusDropdown(
+													false
+												);
+											}}
+										>
+											<span
+												className={
+													styles.statusIconOption
+												}
+											>
+												{option.icon}
+											</span>
+											{option.label}
+										</button>
+									))}
+								</div>
+							)}
+						</div>
 					</div>
-
 					<div className={styles.filterControls}>
 						<div className={styles.activeFilters}>
 							{filters.map((filter, index) => {
@@ -878,10 +1584,10 @@ const HistoryPage = () => {
 									</div>
 								);
 							})}
-
 							{(filters.length > 0 ||
 								selectedType !== "All" ||
-								searchQuery) && (
+								searchQuery ||
+								selectedProcessingStatus !== "All") && (
 								<button
 									className={styles.clearAllFiltersBtn}
 									onClick={() =>
@@ -893,7 +1599,6 @@ const HistoryPage = () => {
 								</button>
 							)}
 						</div>
-
 						<div className={styles.filterButtonContainer}>
 							{availableFilters.length > 0 && (
 								<div
@@ -902,16 +1607,16 @@ const HistoryPage = () => {
 								>
 									<button
 										className={styles.addFilterBtn}
-										onClick={() =>
+										onClick={(e) => {
+											e.stopPropagation();
 											setShowFilterOptions(
-												!showFilterOptions
-											)
-										}
+												(prev) => !prev
+											);
+										}}
 									>
 										<FiPlus size={14} />
 										<span>Filter</span>
 									</button>
-
 									{showFilterOptions && (
 										<div
 											className={
@@ -935,23 +1640,20 @@ const HistoryPage = () => {
 									)}
 								</div>
 							)}
-
-							<button
-								className={styles.exportBtn}
-								onClick={prepareExport}
-								disabled={filteredData.length === 0}
-								title="Export to CSV"
-							>
-								<FiDownload size={14} />
-								<span>Export</span>
-							</button>
 						</div>
+						<button
+							className={styles.exportBtn}
+							onClick={prepareExport}
+							disabled={filteredData.length === 0}
+							title="Export to CSV"
+						>
+							<FiDownload size={14} />
+							<span>Export</span>
+						</button>
 					</div>
 				</div>
-
 				{/* Content */}
 				<div className={styles.historyContent}>{renderContent()}</div>
-
 				{/* Footer */}
 				<div className={styles.historyFooter}>
 					<div className={styles.recordsCount}>
@@ -962,7 +1664,6 @@ const HistoryPage = () => {
 							  )} of ${sortedData.length} records`
 							: "No records to display"}
 					</div>
-
 					{sortedData.length > 0 && (
 						<div className={styles.historyPagination}>
 							{renderPageButtons()}
@@ -970,7 +1671,6 @@ const HistoryPage = () => {
 					)}
 				</div>
 			</div>
-
 			{/* Date Range Popup */}
 			{showDateRangePopup && (
 				<div className={styles.modalOverlay}>
@@ -1032,7 +1732,6 @@ const HistoryPage = () => {
 					</div>
 				</div>
 			)}
-
 			{/* Filter Options Popup */}
 			{showFilterPopup && (
 				<div className={styles.modalOverlay}>
@@ -1070,7 +1769,6 @@ const HistoryPage = () => {
 											</label>
 										</div>
 									))}
-
 								{showFilterPopup === "College" &&
 									collegeOptions.map((option) => (
 										<div
@@ -1091,7 +1789,6 @@ const HistoryPage = () => {
 											</label>
 										</div>
 									))}
-
 								{showFilterPopup === "Academic Year" &&
 									academicYearOptions.map((option) => (
 										<div
@@ -1112,82 +1809,46 @@ const HistoryPage = () => {
 											</label>
 										</div>
 									))}
-
 								{showFilterPopup === "Load" && (
-									<div className={styles.numberInputOption}>
-										<label
-											htmlFor="load-input"
-											className={styles.numberInputLabel}
-										>
-											Enter teaching load (units)
-										</label>
-
+									<div className={styles.loadFilterOptions}>
 										<div
-											className={
-												styles.filterModeSelector
-											}
+											className={styles.filterTypeToggle}
 										>
-											<div className={styles.radioOption}>
+											<label>
 												<input
 													type="radio"
-													id="load-exact"
-													name="load-filter-mode"
+													name="loadFilterMode"
 													value="exact"
 													checked={
 														loadFilterMode ===
 														"exact"
 													}
-													onChange={() => {
+													onChange={() =>
 														setLoadFilterMode(
 															"exact"
-														);
-														setLoadRange(false);
-													}}
-													className={
-														styles.radioInput
+														)
 													}
 												/>
-												<label
-													htmlFor="load-exact"
-													className={
-														styles.radioLabel
-													}
-												>
-													Exact Value
-												</label>
-											</div>
-
-											<div className={styles.radioOption}>
+												Exact value
+											</label>
+											<label>
 												<input
 													type="radio"
-													id="load-range"
-													name="load-filter-mode"
+													name="loadFilterMode"
 													value="range"
 													checked={
 														loadFilterMode ===
 														"range"
 													}
-													onChange={() => {
+													onChange={() =>
 														setLoadFilterMode(
 															"range"
-														);
-														setLoadRange(true);
-													}}
-													className={
-														styles.radioInput
+														)
 													}
 												/>
-												<label
-													htmlFor="load-range"
-													className={
-														styles.radioLabel
-													}
-												>
-													Range
-												</label>
-											</div>
+												Range
+											</label>
 										</div>
-
 										<div className={styles.inputsContainer}>
 											{loadFilterMode === "exact" ? (
 												<input
@@ -1250,7 +1911,6 @@ const HistoryPage = () => {
 										</div>
 									</div>
 								)}
-
 								{showFilterPopup === "Status" &&
 									statusOptions.map((option) => (
 										<div
@@ -1307,7 +1967,6 @@ const HistoryPage = () => {
 					</div>
 				</div>
 			)}
-
 			{/* Export Confirmation Modal */}
 			{showExportPopup && (
 				<div className={styles.modalOverlay}>
@@ -1362,7 +2021,6 @@ const HistoryPage = () => {
 					</div>
 				</div>
 			)}
-
 			{/* Export success notification */}
 			{showExportSuccess && (
 				<div className={styles.exportSuccess}>
@@ -1374,7 +2032,6 @@ const HistoryPage = () => {
 					</p>
 				</div>
 			)}
-
 			{/* Clear All Filters Confirmation Modal */}
 			{showClearAllConfirmation && (
 				<div className={styles.modalOverlay}>

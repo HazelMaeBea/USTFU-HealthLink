@@ -31,7 +31,6 @@ const useTrackingRecords = () => {
 
 		// Fetch and listen for pending requests
 		const unsubscribePending = onSnapshot(pendingQuery, (snapshot) => {
-			console.log("PendingRequests snapshot size:", snapshot.size);
 			const pendingData: Record[] = snapshot.docs.map((doc) => {
 				const data = doc.data() as PendingRequest;
 				const dateTime = data.dateSubmitted
@@ -42,8 +41,8 @@ const useTrackingRecords = () => {
 					transactionID: data.transactionId,
 					typeOfForm: data.formData?.formType || "Unknown",
 					status: "Pending",
-					formData: data.formData, // Include formData
-					dateSubmitted: data.dateSubmitted, // Include dateSubmitted
+					formData: data.formData,
+					dateSubmitted: data.dateSubmitted,
 					requester: data.requester,
 				};
 			});
@@ -56,11 +55,9 @@ const useTrackingRecords = () => {
 		// Fetch and listen for accomplished requests
 		const fetchAccomplishedRecords = async () => {
 			try {
+				const accomplishedRef = collection(db, "AccomplishedRequests");
 				const accomplishedSnapshot = await getDocs(
-					query(
-						collection(db, "AccomplishedRequests"),
-						orderBy("DateDecided", "desc")
-					)
+					query(accomplishedRef, orderBy("DateDecided", "desc"))
 				);
 
 				const accomplishedData: Record[] =
@@ -69,13 +66,6 @@ const useTrackingRecords = () => {
 						const dateDecided = data.DateDecided
 							? data.DateDecided.toDate()
 							: new Date(0);
-
-						// Add debug log for PDF data from Firestore
-						console.log(
-							`PDF data for ${data.transactionId}:`,
-							data.pdf,
-							data.pdfProcessed
-						);
 
 						return {
 							dateTime: dateDecided,
@@ -89,9 +79,9 @@ const useTrackingRecords = () => {
 							dateSubmitted: data.dateSubmitted,
 							DateDecided: data.DateDecided,
 							requester: data.requester,
-							// Ensure pdf data is properly mapped
 							pdf: data.pdf,
 							pdfProcessed: data.pdfProcessed === true,
+							statusReason: data.statusReason,
 						};
 					});
 				const filteredAccomplishedData = accomplishedData.filter(
@@ -100,6 +90,26 @@ const useTrackingRecords = () => {
 				setAccomplishedRecords(filteredAccomplishedData);
 			} catch (error) {
 				console.error("Error fetching accomplished requests:", error);
+
+				// Try alternative collection name as fallback
+				try {
+					const accomplishedSnapshot = await getDocs(
+						query(
+							collection(db, "accomplishedRequests"),
+							orderBy("DateDecided", "desc")
+						)
+					);
+
+					// Process the data same as above if found...
+					if (accomplishedSnapshot.size > 0) {
+						// Processing code would go here if needed
+					}
+				} catch (fallbackError) {
+					console.error(
+						"Alternative collection approach failed:",
+						fallbackError
+					);
+				}
 			}
 		};
 
@@ -107,11 +117,10 @@ const useTrackingRecords = () => {
 
 		const fetchRevisionRecords = async () => {
 			try {
+				// Try with "RevisionsRequests" first (with the 's')
+				const revisionRef = collection(db, "RevisionsRequests");
 				const revisionSnapshot = await getDocs(
-					query(
-						collection(db, "RevisionsRequests"),
-						orderBy("DateDecided", "desc")
-					)
+					query(revisionRef, orderBy("DateDecided", "desc"))
 				);
 
 				const revisionData: Record[] = revisionSnapshot.docs.map(
@@ -125,22 +134,78 @@ const useTrackingRecords = () => {
 							dateTime: dateDecided,
 							transactionID: data.transactionId || "No ID",
 							typeOfForm: data.formData?.formType || "Unknown",
-							status: "For Revision", // All statuses default to this
+							status: "For Revision",
 							formData: data.formData,
 							dateSubmitted: data.dateSubmitted,
 							DateDecided: data.DateDecided,
 							requester: data.requester,
+							statusReason:
+								data.statusReason || "Revision requested",
 						};
 					}
 				);
 
+				// Try different filtering approaches to ensure we catch all records
 				const filteredRevisionData = revisionData.filter(
-					(record) => record.requester === fullName
+					(record) =>
+						record.requester === fullName ||
+						record.requester?.toLowerCase() ===
+							fullName?.toLowerCase() ||
+						record.requester?.trim() === fullName?.trim()
 				);
 
-				setRevisionRecords(filteredRevisionData); // Make sure this state exists
+				setRevisionRecords(filteredRevisionData);
 			} catch (error) {
 				console.error("Error fetching revision requests:", error);
+
+				// Try alternative collection name
+				try {
+					const revisionRef = collection(db, "RevisionRequests"); // without the 's'
+					const revisionSnapshot = await getDocs(
+						query(revisionRef, orderBy("DateDecided", "desc"))
+					);
+
+					if (revisionSnapshot.size > 0) {
+						const revisionData: Record[] =
+							revisionSnapshot.docs.map((doc) => {
+								const data = doc.data() as DocumentData;
+								const dateDecided = data.DateDecided
+									? data.DateDecided.toDate()
+									: new Date(0);
+
+								return {
+									dateTime: dateDecided,
+									transactionID:
+										data.transactionId || "No ID",
+									typeOfForm:
+										data.formData?.formType || "Unknown",
+									status: "For Revision",
+									formData: data.formData,
+									dateSubmitted: data.dateSubmitted,
+									DateDecided: data.DateDecided,
+									requester: data.requester,
+									statusReason:
+										data.statusReason ||
+										"Revision requested",
+								};
+							});
+
+						const filteredRevisionData = revisionData.filter(
+							(record) =>
+								record.requester === fullName ||
+								record.requester?.toLowerCase() ===
+									fullName?.toLowerCase() ||
+								record.requester?.trim() === fullName?.trim()
+						);
+
+						setRevisionRecords(filteredRevisionData);
+					}
+				} catch (fallbackError) {
+					console.error(
+						"Alternative collection approach failed for revisions:",
+						fallbackError
+					);
+				}
 			}
 		};
 

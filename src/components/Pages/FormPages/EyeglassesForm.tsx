@@ -322,6 +322,7 @@ const EyeglassesForm = () => {
 					load: data.load,
 					dateHired: data.dateHired,
 					maxAmount: MAX_EYEGLASSES_AMOUNT,
+					status: data.status,
 					docRequest: fileUploadResults.docRequest
 						? {
 								url: fileUploadResults.docRequest,

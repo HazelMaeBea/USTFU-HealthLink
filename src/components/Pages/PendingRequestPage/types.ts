@@ -55,6 +55,10 @@ export interface EyeglassesFormData extends BaseFormData {
 	reimbursementAmount?: number;
 	eyeglassesBenefitClaimedDate?: Date | string | null;
 	eyeglassesReceipt?: FormAttachment;
+	term?: string;
+	year?: string;
+	load?: number;
+	dateHired?: Date | string | null;
 }
 
 export interface AdmissionFormData extends BaseFormData {
@@ -72,6 +76,16 @@ export type FormData =
 	| EyeglassesFormData
 	| AdmissionFormData;
 
+// Define benefit history tracking
+export interface BenefitHistory {
+	benefitUsed: number;
+	date: Date | { toDate(): Date };
+	formType: string;
+	originalBenefit: number;
+	remainingBenefit: number;
+	transactionId: string;
+}
+
 export interface PendingRequest {
 	id?: string;
 	transactionId: string;
@@ -81,6 +95,12 @@ export interface PendingRequest {
 	dateSubmitted?: string;
 	formData?: FormData;
 	studentId?: string;
+}
+
+export interface ApprovedRequest extends PendingRequest {
+	DateDecided: { toDate(): Date } | Date;
+	statusReason?: string;
+	benefitHistory?: BenefitHistory;
 }
 
 export type Archive = PendingRequest;
@@ -101,4 +121,5 @@ export interface Record {
 	};
 	pdfProcessed?: boolean;
 	statusReason?: string;
+	benefitHistory?: BenefitHistory;
 }
