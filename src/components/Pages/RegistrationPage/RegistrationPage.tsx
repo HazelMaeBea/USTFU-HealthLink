@@ -12,11 +12,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../../contexts/firebase";
 import USTFULogo from "../../../assets/USTFULogo.png";
 import Popout from "../../Page Elements/Popout/Popout";
-import {
-	formatDateToYYYYMMDD,
-	convertToMMDDYYYY,
-	convertToYYYYMMDD,
-} from "../../../utils/dateUtils";
+import { convertToMMDDYYYY, convertToYYYYMMDD } from "../../../utils/dateUtils";
 
 const schema = z
 	.object({
@@ -52,7 +48,8 @@ const schema = z
 				required_error: "Please enter your Birthdate",
 				invalid_type_error: "Please select a valid date",
 			})
-			.min(1, "Please enter your Birthdate"),
+			.min(1, "Please enter your Birthdate")
+			.transform((val) => convertToMMDDYYYY(val) || ""),
 
 		phoneNumber: z
 			.string({
@@ -428,14 +425,13 @@ const RegistrationPage: React.FC = () => {
 
 	const handleDateInput = (
 		e: React.ChangeEvent<HTMLInputElement>,
-		fieldName: string
+		fieldName: keyof FormData
 	) => {
 		const value = e.target.value;
 
 		if (value) {
-			// Store the date in MM/DD/YYYY format for the backend
-			const mmddyyyy = convertToMMDDYYYY(value);
-			setValue(fieldName, mmddyyyy);
+			// No need to manually call setValue here as we'll use
+			// the register's onChange instead
 		} else {
 			setValue(fieldName, "");
 		}
@@ -653,12 +649,18 @@ const RegistrationPage: React.FC = () => {
 										errors.birthdate ? "is-invalid" : ""
 									}`}
 									{...register("birthdate", {
-										onChange: () =>
-											handleInputChange("birthdate"),
+										onChange: (e) => {
+											handleInputChange("birthdate");
+											// The value is already in yyyy-mm-dd format from the input
+											const value = e.target.value;
+											if (value) {
+												// Store as MM/DD/YYYY via schema transform
+												setValue("birthdate", value, {
+													shouldValidate: true,
+												});
+											}
+										},
 									})}
-									onChange={(e) =>
-										handleDateInput(e, "birthdate")
-									}
 									max={new Date().toISOString().split("T")[0]}
 									value={formatDateToInput(
 										watch("birthdate") || ""
@@ -887,12 +889,18 @@ const RegistrationPage: React.FC = () => {
 										errors.dateHired ? "is-invalid" : ""
 									}`}
 									{...register("dateHired", {
-										onChange: () =>
-											handleInputChange("dateHired"),
+										onChange: (e) => {
+											handleInputChange("dateHired");
+											// The value is already in yyyy-mm-dd format from the input
+											const value = e.target.value;
+											if (value) {
+												// Store as MM/DD/YYYY via schema transform
+												setValue("dateHired", value, {
+													shouldValidate: true,
+												});
+											}
+										},
 									})}
-									onChange={(e) =>
-										handleDateInput(e, "dateHired")
-									}
 									max={new Date().toISOString().split("T")[0]}
 									value={formatDateToInput(
 										watch("dateHired") || ""
@@ -918,12 +926,18 @@ const RegistrationPage: React.FC = () => {
 										errors.dateRetired ? "is-invalid" : ""
 									}`}
 									{...register("dateRetired", {
-										onChange: () =>
-											handleInputChange("dateRetired"),
+										onChange: (e) => {
+											handleInputChange("dateRetired");
+											// The value is already in yyyy-mm-dd format from the input
+											const value = e.target.value;
+											if (value) {
+												// Store as MM/DD/YYYY via schema transform
+												setValue("dateRetired", value, {
+													shouldValidate: true,
+												});
+											}
+										},
 									})}
-									onChange={(e) =>
-										handleDateInput(e, "dateRetired")
-									}
 									min={formatDateToInput(
 										watch("dateHired") || ""
 									)}
