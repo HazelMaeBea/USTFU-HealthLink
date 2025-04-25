@@ -236,7 +236,7 @@ const RegistrationPage: React.FC = () => {
 			// Create user document matching the format specified
 			const userData = {
 				email: email,
-				fullName: `${formData.firstName.toUpperCase()} ${formData.middleName.toUpperCase()} ${formData.lastName.toUpperCase()}`,
+				fullName: `${formData.firstName.toUpperCase()} ${formData.lastName.toUpperCase()}`,
 				college: formData.college,
 				createdAt: new Date(),
 				role: "member",

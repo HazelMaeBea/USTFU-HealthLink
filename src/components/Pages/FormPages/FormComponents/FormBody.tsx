@@ -367,7 +367,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 				console.log("Upload results:", fileUploadResults);
 
 				setUploadProgress("Creating document...");
-				// Build new document structure using download URLs
 				const newDoc = {
 					transactionId: transID,
 					requester:

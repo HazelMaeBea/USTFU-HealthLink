@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from "./TrackingPage.module.css"; // Updated import to use module CSS
+import styles from "./TrackingPage.module.css";
 import Tabs from "./Tabs";
 import RecordTable from "./RecordTable";
 import PageButtons from "../../Page Elements/PageButtons/PageButtons";
