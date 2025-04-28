@@ -66,7 +66,11 @@ export const formatDateToYYYYMMDD = (date: Date | null | undefined): string => {
 	if (!(date instanceof Date) || isNaN(date.getTime())) return "";
 
 	try {
-		return date.toISOString().split("T")[0];
+		// use the local date values and format them directly to prevent timezone shifts
+		const year = date.getFullYear();
+		const month = (date.getMonth() + 1).toString().padStart(2, "0");
+		const day = date.getDate().toString().padStart(2, "0");
+		return `${year}-${month}-${day}`;
 	} catch (error) {
 		console.error("Date formatting error:", error);
 		return "";

@@ -31,7 +31,8 @@ export const baseFormSchema = z.object({
 			invalid_type_error: "Please enter a valid age",
 			required_error: "Age is required",
 		})
-		.min(18, "You must be at least 18 years old to apply"),
+		.min(18, "Must be at least 18 years old")
+		.max(100, "Age cannot exceed 100"),
 	gender: z.enum(["Male", "Female"], {
 		errorMap: () => ({ message: "Please select your gender" }),
 	}),

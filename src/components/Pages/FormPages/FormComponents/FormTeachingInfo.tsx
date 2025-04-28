@@ -87,14 +87,20 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	// Get the current status value from the form
 	const formStatus = watch ? watch("status") : "";
 
-	// Add a ref to track whether the user has interacted with the status field
+	// Ref to track initial autofill
+	const initialLoadCompleteRef = useRef(false);
 	const userInteractedRef = useRef(false);
 
 	// Update local status state when form status changes (handles autofill)
-	// but only if the user hasn't interacted with the field
 	useEffect(() => {
-		if (formStatus && formStatus !== status && !userInteractedRef.current) {
+		// Always update status on initial load, then respect user interaction
+		if (formStatus && (formStatus !== status || !initialLoadCompleteRef.current)) {
 			setStatus(formStatus);
+			
+			if (!initialLoadCompleteRef.current) {
+				initialLoadCompleteRef.current = true;
+				console.log("Initial status loaded:", formStatus);
+			}
 		}
 	}, [formStatus, status]);
 
@@ -106,14 +112,16 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	// Similarly for benefit options
 	const formBenefit = watch ? watch("benefits") : "";
 	const benefitInteractedRef = useRef(false);
+	const initialBenefitLoadRef = useRef(false);
 
 	useEffect(() => {
-		if (
-			formBenefit &&
-			formBenefit !== benefit &&
-			!benefitInteractedRef.current
-		) {
+		if (formBenefit && (formBenefit !== benefit || !initialBenefitLoadRef.current)) {
 			setBenefit(formBenefit);
+			
+			if (!initialBenefitLoadRef.current) {
+				initialBenefitLoadRef.current = true;
+				console.log("Initial benefit loaded:", formBenefit);
+			}
 		}
 	}, [formBenefit, benefit]);
 
@@ -314,6 +322,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 									value={option}
 									className="form-check-input"
 									onChange={handleBenefitChange}
+									checked={benefit === option} // Make sure checked state reflects current benefit
 								/>
 								<label
 									htmlFor={`benefits-${index}`}

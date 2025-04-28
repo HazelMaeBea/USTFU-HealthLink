@@ -24,6 +24,8 @@ interface UserPersonalInfo {
 	remainingBenefits: number;
 	ustEmail: string;
 	phoneNumber: string;
+	benefits?: string;
+	hmo?: string;
 }
 
 interface UserData {
@@ -173,8 +175,11 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 			term: personalInfo.term || "",
 			year: personalInfo.year || "",
 			load: personalInfo.load || "",
+			status: personalInfo.status || "",
 			dateHired: personalInfo.dateHired || null,
 			dateRetired: personalInfo.dateRetired || null,
+			benefits: personalInfo.benefits || "",
+			hmo: personalInfo.hmo || "",
 		};
 
 		console.log("Autofill: Processed data for form:", result);
@@ -248,6 +253,22 @@ export const applyAutofill = async <T extends FieldValues>(
 							`Error setting dateRetired field:`,
 							error
 						);
+					}
+					return;
+				}
+
+				// Special handling for status to ensure conditional UI components show
+				if (field === "status") {
+					try {
+						setValue(field as Path<T>, value as unknown as T[Path<T>], {
+							shouldDirty: true,
+							shouldTouch: true, // Force UI update for conditional components
+							shouldValidate: true, // Ensure validation runs for conditional fields
+						});
+						
+						console.log(`Autofill: Set status to ${value}`);
+					} catch (error) {
+						console.error(`Error setting status field:`, error);
 					}
 					return;
 				}

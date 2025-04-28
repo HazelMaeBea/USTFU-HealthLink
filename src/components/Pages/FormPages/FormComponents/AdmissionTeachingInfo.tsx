@@ -48,14 +48,20 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 	// Get current status from form
 	const formStatus = watch ? watch("status") : "";
 
-	// Add a ref to track whether the user has interacted with the status field
+	// Add refs to track autofill state and user interactions
 	const userInteractedRef = useRef(false);
+	const initialLoadCompleteRef = useRef(false);
 
 	// Sync local status with form status (for autofill), but give precedence to user selection
 	useEffect(() => {
-		// Only update on initial autofill, not on subsequent changes
-		if (formStatus && formStatus !== status && !userInteractedRef.current) {
+		// Always update status on initial load, then respect user interaction
+		if (formStatus && (formStatus !== status || !initialLoadCompleteRef.current)) {
 			setStatus(formStatus);
+			
+			if (!initialLoadCompleteRef.current) {
+				initialLoadCompleteRef.current = true;
+				console.log("Initial admission status loaded:", formStatus);
+			}
 		}
 	}, [formStatus, status]);
 
