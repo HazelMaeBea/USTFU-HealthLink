@@ -125,7 +125,6 @@ const formatDateForPicker = (dateStr: string | null | undefined): string => {
 	return convertToYYYYMMDD(dateStr) || "";
 };
 
-// Define type for Firestore compatible field values
 type FirestoreFieldValue = string | number | boolean | null | FieldValue;
 
 const Settings = () => {
@@ -146,7 +145,7 @@ const Settings = () => {
 		phoneNumber: "",
 		gender: "",
 		college: "",
-		ustEmail: "", // Added UST email field
+		ustEmail: "",
 		notification: false,
 		autofill: false,
 	});
@@ -179,11 +178,8 @@ const Settings = () => {
 
 		let formattedValue = value;
 
-		// Improve regex to handle various input lengths properly
 		if (value.length > 3) {
 			const mainNumber = value.substring(3);
-
-			// Use more robust regex that works with different number lengths
 			const formatted = mainNumber.replace(
 				/^(\d{3})(\d{3})?(\d+)?$/,
 				(_, p1, p2, p3) => {
@@ -246,7 +242,6 @@ const Settings = () => {
 					const userData = userDoc.data();
 					const personalInfo = userData.personalInfo || {};
 
-					// Assign data with null/undefined checks
 					updatedSettings.firstname = personalInfo.firstName || "";
 					updatedSettings.lastname = personalInfo.lastName || "";
 					updatedSettings.middlename = personalInfo.middleName || "";
@@ -267,18 +262,14 @@ const Settings = () => {
 						personalInfo.phoneNumber || "";
 					updatedSettings.gender = personalInfo.gender || "";
 					updatedSettings.college = personalInfo.college || "";
-
-					// Set UST email from userData and personalInfo
 					updatedSettings.ustEmail =
 						personalInfo.ustEmail || userData.email || "";
-
 					updatedSettings.notification =
 						userData.notification !== undefined
 							? userData.notification
 							: userData.settings?.notification !== undefined
 							? userData.settings.notification
 							: false;
-
 					updatedSettings.autofill =
 						userData.autofill !== undefined
 							? userData.autofill
@@ -331,7 +322,7 @@ const Settings = () => {
 		return !isNaN(loadNum) && loadNum > 0 && loadNum <= 30;
 	};
 
-	// Add a new validation function for required fields
+	// Validation function for required fields
 	const validateRequiredFields = (): boolean => {
 		const requiredFields: Array<{
 			field: keyof SettingsType;
@@ -362,7 +353,14 @@ const Settings = () => {
 			}
 		});
 
-		// Add any existing validation errors not related to empty fields
+		// Specific validation for ID Number format (XXXX-XXXXXX)
+		if (settings.numberID && !/^\d{4}-\d{6}$/.test(settings.numberID)) {
+			newValidationErrors.numberID =
+				"ID Number must be in format: XXXX-XXXXXX";
+			isValid = false;
+		}
+
+		// Any existing validation errors not related to empty fields
 		Object.entries(validationErrors).forEach(([field, error]) => {
 			if (!newValidationErrors[field] && !error.includes("required")) {
 				newValidationErrors[field] = error;
@@ -444,6 +442,31 @@ const Settings = () => {
 			...settings,
 			[field]: formattedDate,
 		});
+
+		if (formattedDate !== originalSettings[field as keyof SettingsType]) {
+			setChangedFields((prev) => ({
+				...prev,
+				[field]: {
+					old:
+						originalSettings[
+							field as keyof SettingsType
+						]?.toString() || "",
+					new: formattedDate || "",
+				},
+			}));
+		} else {
+			const updatedChanges = { ...changedFields };
+			delete updatedChanges[field];
+			setChangedFields(updatedChanges);
+		}
+
+		if (validationErrors[field as keyof SettingsType]) {
+			setValidationErrors((prev) => {
+				const updated = { ...prev };
+				delete updated[field as keyof SettingsType];
+				return updated;
+			});
+		}
 	};
 
 	const handleCancelClick = () => {
@@ -455,7 +478,6 @@ const Settings = () => {
 	const handleCancel = () => {
 		setSettings({ ...originalSettings });
 		setChangedFields({});
-
 		// Clear all validation errors when canceling
 		setValidationErrors({});
 
@@ -1226,12 +1248,13 @@ const Settings = () => {
 									: ""
 							}`}
 							value={settings.numberID}
-							onChange={(e) =>
-								handleFieldChange(
-									"numberID",
-									formatIDNumber(e.target.value)
-								)
-							}
+							onChange={(e) => {
+								const formattedValue = formatIDNumber(
+									e.target.value
+								);
+								handleFieldChange("numberID", formattedValue);
+							}}
+							placeholder="XXXX-XXXXXX"
 							aria-label="ID Number"
 						/>
 						{validationErrors.numberID && (
