@@ -227,3 +227,18 @@ export const uploadSingleFileWithProgress = async (
 	const results = await uploadFilesAndGetURLs(email, formIDString, files);
 	return { url: results[fieldName], filename: file.name };
 };
+
+/**
+ * Deletes a file from storage given its URL
+ */
+export async function deleteFileFromURL(url: string): Promise<void> {
+  // Implement deletion logic here, e.g., using Firebase Storage or your backend API
+  // Example for Firebase Storage:
+  // import { getStorage, ref, deleteObject } from "firebase/storage";
+  // const storage = getStorage();
+  // const fileRef = ref(storage, url);
+  // await deleteObject(fileRef);
+
+  // Placeholder:
+  console.warn("deleteFileFromURL not implemented. URL:", url);
+}
