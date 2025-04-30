@@ -656,3 +656,59 @@ table {
 .success-icon.error {
 	background-color: #dc3545;
 }
+
+/* ValidationErrorDropdown styles */
+.validation-errors {
+	margin-bottom: 1rem;
+	background: #FBEAEC;
+	border-left: 4px solid red;
+	border-radius: 6px;
+	padding: 0.75rem 1.25rem;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.error-summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+}
+
+.error-summary-text {
+	color: darkred;
+	font-weight: 600;
+	font-size: 1rem;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: none;
+	border: none;
+}
+
+.toggle-errors-btn {
+	background: none;
+	border: none;
+	color: #b85c00;
+	font-size: 1.2rem;
+	cursor: pointer;
+	padding: 0 0.25rem;
+	display: flex;
+	align-items: center;
+}
+
+.toggle-errors-btn:focus {
+	outline: 2px solid #ffc107;
+}
+
+.error-list {
+	margin: 0.5rem 0 0 0.5rem;
+	padding-left: 1.2rem;
+	color: darkred;
+	font-size: 0.97rem;
+}
+
+.error-list li {
+	margin-bottom: 0.25rem;
+	line-height: 1.4;
+}
