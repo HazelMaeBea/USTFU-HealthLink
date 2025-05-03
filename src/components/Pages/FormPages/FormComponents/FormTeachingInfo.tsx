@@ -2,8 +2,6 @@ import React, {
 	Dispatch,
 	SetStateAction,
 	useEffect,
-	useState,
-	useRef,
 } from "react";
 import {
 	UseFormRegister,
@@ -11,18 +9,18 @@ import {
 	UseFormSetValue,
 	UseFormWatch,
 } from "react-hook-form";
-import { UnifiedFormData } from "../FormUtil/formTypes"; // Change import to use UnifiedFormData
+import { UnifiedFormData } from "../FormUtil/formTypes";
 import { formatDateToYYYYMMDD } from "../../../../utils/dateUtils";
 
 interface FormTeachingInfoProps {
-	register: UseFormRegister<UnifiedFormData>; // Update type here
-	errors: FieldErrors<UnifiedFormData>; // Update type here
+	register: UseFormRegister<UnifiedFormData>;
+	errors: FieldErrors<UnifiedFormData>;
 	dateHired: Date | null;
 	setDateHired: Dispatch<SetStateAction<Date | null>>;
 	dateRetired: Date | null;
 	setDateRetired: Dispatch<SetStateAction<Date | null>>;
-	setValue: UseFormSetValue<UnifiedFormData>; // Update type here
-	watch: UseFormWatch<UnifiedFormData>; // Update type here
+	setValue: UseFormSetValue<UnifiedFormData>;
+	watch: UseFormWatch<UnifiedFormData>;
 }
 
 const statusOptions = [
@@ -34,32 +32,22 @@ const statusOptions = [
 ];
 const benefitsOptions = ["HMO", "PCSO", "Senior Citizen"];
 
-// Get current academic year
 const getCurrentAcademicYear = () => {
 	const today = new Date();
 	const currentMonth = today.getMonth();
 	const currentYear = today.getFullYear();
-
 	let academicYearStart: number;
-
 	if (currentMonth >= 7) {
-		//August or later
 		academicYearStart = currentYear;
 	} else {
-		//Before August
 		academicYearStart = currentYear - 1;
 	}
 	return `${academicYearStart}-${academicYearStart + 1}`;
 };
 
-// Get current term
 const getCurrentTerm = () => {
 	const today = new Date();
-	const currentMonth = today.getMonth(); // 0-11 (Jan-Dec)
-
-	// First term: Aug(7) to Dec(11)
-	// Second term: Jan(0) to May(4)
-	// Special term: Jun(5) to Jul(6)
+	const currentMonth = today.getMonth();
 	if (currentMonth >= 7 && currentMonth <= 11) {
 		return "1st";
 	} else if (currentMonth >= 0 && currentMonth <= 4) {
@@ -77,67 +65,17 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	dateRetired,
 	setDateRetired,
 	setValue,
-	watch, // Get watch from props
+	watch,
 }) => {
-	const [status, setStatus] = useState("");
-	const [benefit, setBenefit] = useState("");
 	const currentAcademicYear = getCurrentAcademicYear();
 	const currentTerm = getCurrentTerm();
 
-	// Get the current status value from the form
-	const formStatus = watch ? watch("status") : "";
+	const watchedStatus = watch("status");
+	const watchedBenefit = watch("benefits");
 
-	// Ref to track initial autofill
-	const initialLoadCompleteRef = useRef(false);
-	const userInteractedRef = useRef(false);
-
-	// Update local status state when form status changes (handles autofill)
+	// Set initial values when component mounts
 	useEffect(() => {
-		// Always update status on initial load, then respect user interaction
-		if (formStatus && (formStatus !== status || !initialLoadCompleteRef.current)) {
-			setStatus(formStatus);
-			
-			if (!initialLoadCompleteRef.current) {
-				initialLoadCompleteRef.current = true;
-				console.log("Initial status loaded:", formStatus);
-			}
-		}
-	}, [formStatus, status]);
-
-	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		userInteractedRef.current = true; // Mark that user has interacted
-		setStatus(event.target.value);
-	};
-
-	// Similarly for benefit options
-	const formBenefit = watch ? watch("benefits") : "";
-	const benefitInteractedRef = useRef(false);
-	const initialBenefitLoadRef = useRef(false);
-
-	useEffect(() => {
-		if (formBenefit && (formBenefit !== benefit || !initialBenefitLoadRef.current)) {
-			setBenefit(formBenefit);
-			
-			if (!initialBenefitLoadRef.current) {
-				initialBenefitLoadRef.current = true;
-				console.log("Initial benefit loaded:", formBenefit);
-			}
-		}
-	}, [formBenefit, benefit]);
-
-	const handleBenefitChange = (
-		event: React.ChangeEvent<HTMLInputElement>
-	) => {
-		benefitInteractedRef.current = true; // Mark that user has interacted
-		setBenefit(event.target.value);
-	};
-
-	//set initial values when component mounts
-	useEffect(() => {
-		// Set the academic year field
 		setValue?.("year", currentAcademicYear);
-
-		// Set the term field
 		setValue?.("term", currentTerm);
 	}, [setValue, currentAcademicYear, currentTerm]);
 
@@ -150,8 +88,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						<div className="row">
 							<div className="mb-1 col-md-6">
 								<label htmlFor="term" className="form-label">
-									Academic Term{" "}
-									<span className="required-asterisk">*</span>
+									Academic Term <span className="required-asterisk">*</span>
 								</label>
 								<input
 									{...register("term")}
@@ -169,8 +106,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							</div>
 							<div className="mb-1 col-md-6">
 								<label htmlFor="year" className="form-label">
-									Academic Year{" "}
-									<span className="required-asterisk">*</span>
+									Academic Year <span className="required-asterisk">*</span>
 								</label>
 								<input
 									{...register("year")}
@@ -189,15 +125,12 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						</div>
 						<div className="mb-1 col-md-5">
 							<label htmlFor="load" className="form-label">
-								Load (Units){" "}
-								<span className="required-asterisk">*</span>
+								Load (Units) <span className="required-asterisk">*</span>
 							</label>
 							<input
 								id="load"
 								type="number"
-								className={`form-control ${
-									errors.load ? "is-invalid" : ""
-								}`}
+								className={`form-control ${errors.load ? "is-invalid" : ""}`}
 								{...register("load", { valueAsNumber: true })}
 								name="load"
 								min="0"
@@ -223,8 +156,6 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 									type="radio"
 									value={option}
 									className="form-check-input"
-									onChange={handleStatusChange}
-									checked={status === option} // Make sure checked state reflects current status
 								/>
 								<label
 									htmlFor={`status-${index}`}
@@ -244,10 +175,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						<div
 							className="mb-1 col-md-12 date-hired-picker"
 							style={{
-								display:
-									status === "Tenured-Track"
-										? "block"
-										: "none",
+								display: watchedStatus === "Tenured-Track" ? "block" : "none",
 							}}
 						>
 							<label htmlFor="dateHired" className="form-label">
@@ -258,15 +186,12 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 								value={formatDateToYYYYMMDD(dateHired)}
 								{...register("dateHired")}
 								id="dateHired"
-								className={`form-control ${
-									errors.dateHired ? "is-invalid" : ""
-								}`}
+								className={`form-control ${errors.dateHired ? "is-invalid" : ""}`}
 								onChange={(e) => {
 									const date = e.target.value
 										? new Date(e.target.value)
 										: null;
 									setDateHired(date);
-									// Trigger register onChange
 									register("dateHired").onChange(e);
 								}}
 								style={{ color: "black" }}
@@ -280,8 +205,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 						<div
 							className="mb-1 col-md-12 date-retired-picker"
 							style={{
-								display:
-									status === "Retiree" ? "block" : "none",
+								display: watchedStatus === "Retiree" ? "block" : "none",
 							}}
 						>
 							<label htmlFor="dateRetired" className="form-label">
@@ -290,11 +214,9 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							<input
 								type="date"
 								value={formatDateToYYYYMMDD(dateRetired)}
-								{...register("dateRetired")} // Remove the validation here
+								{...register("dateRetired")}
 								id="dateRetired"
-								className={`form-control ${
-									errors.dateRetired ? "is-invalid" : ""
-								}`}
+								className={`form-control ${errors.dateRetired ? "is-invalid" : ""}`}
 								onChange={(e) => {
 									const date = e.target.value
 										? new Date(e.target.value)
@@ -321,8 +243,6 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 									type="radio"
 									value={option}
 									className="form-check-input"
-									onChange={handleBenefitChange}
-									checked={benefit === option} // Make sure checked state reflects current benefit
 								/>
 								<label
 									htmlFor={`benefits-${index}`}
@@ -338,24 +258,20 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 							</p>
 						)}
 						<p></p>
-						{/* empty space */}
 						<div
 							className="mb-1 col-md-12 hmo-input"
 							style={{
-								display: benefit === "HMO" ? "block" : "none",
+								display: watchedBenefit === "HMO" ? "block" : "none",
 							}}
 						>
 							<label htmlFor="hmo" className="form-label">
-								If HMO, please specify:{" "}
-								<span className="required-asterisk">*</span>
+								If HMO, please specify: <span className="required-asterisk">*</span>
 							</label>
 							<input
 								{...register("hmo")}
 								id="hmo"
 								type="text"
-								className={`form-control ${
-									errors.hmo ? "is-invalid" : ""
-								}`}
+								className={`form-control ${errors.hmo ? "is-invalid" : ""}`}
 								placeholder="Enter HMO provider name"
 							/>
 							{errors.hmo && (
