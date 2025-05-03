@@ -156,6 +156,7 @@ const AdmissionForm = () => {
     watch,
     setError,
     formState: { errors, isSubmitted },
+    trigger,
   } = useForm<UnifiedFormData>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -369,6 +370,7 @@ const AdmissionForm = () => {
               [fieldName]: url,
             }));
             setValue(fieldName, url);
+            await trigger(fieldName);
             setFileErrors((prev) => ({
               ...prev,
               [fieldName]: "",
