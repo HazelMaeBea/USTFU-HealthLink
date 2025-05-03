@@ -1,4 +1,4 @@
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage } from "../contexts/firebase";
 import imageCompression from "browser-image-compression";
 
@@ -139,6 +139,9 @@ export const uploadFilesAndGetURLs = async (
 	const results: { [key: string]: string } = {};
 
 	console.log("Files to upload:", Object.keys(files));
+    console.log("Storage instance:", storage);
+    console.log("Using transaction ID:", transactionId);
+    console.log("Using email:", email);
 
 	// Process each file in the files object
 	for (const [fieldName, fileListOrArray] of Object.entries(files)) {
@@ -179,30 +182,31 @@ export const uploadFilesAndGetURLs = async (
 
 			// Create reference path for the file
 			const storagePath = `${email}/${transactionId}/${fieldName}/${file.name}`;
+			console.log("Storage path:", storagePath);
 			const storageRef = ref(storage, storagePath);
+            console.log("Storage reference created:", storageRef);
 
 			// Upload the optimized file
-			await uploadBytes(storageRef, optimizedFile);
+			const uploadResult = await uploadBytes(storageRef, optimizedFile);
+            console.log("Upload completed:", uploadResult);
 
 			// Get download URL
 			const downloadURL = await getDownloadURL(storageRef);
 			console.log(
-				`Successfully uploaded ${fieldName}, URL: ${downloadURL.substring(
-					0,
-					50
-				)}...`
+				`Full download URL for ${fieldName}: ${downloadURL}`
 			);
 
 			// Store the download URL in the results
 			results[fieldName] = downloadURL;
 		} catch (error) {
 			console.error(`Error uploading ${fieldName}:`, error);
+            console.error("Error details:", JSON.stringify(error));
 			// Add empty string for failed uploads to ensure the property exists
 			results[fieldName] = "";
 		}
 	}
 
-	console.log("Upload results:", Object.keys(results));
+	console.log("Final upload results:", results);
 	return results;
 };
 
@@ -232,13 +236,33 @@ export const uploadSingleFileWithProgress = async (
  * Deletes a file from storage given its URL
  */
 export async function deleteFileFromURL(url: string): Promise<void> {
-  // Implement deletion logic here, e.g., using Firebase Storage or your backend API
-  // Example for Firebase Storage:
-  // import { getStorage, ref, deleteObject } from "firebase/storage";
-  // const storage = getStorage();
-  // const fileRef = ref(storage, url);
-  // await deleteObject(fileRef);
+	if (!url || typeof url !== "string") {
+		console.warn("Invalid URL provided to deleteFileFromURL:", url);
+		return;
+	}
 
-  // Placeholder:
-  console.warn("deleteFileFromURL not implemented. URL:", url);
+	try {
+		// Extract the path from the download URL
+		// Firebase Storage URLs have the format: https://firebasestorage.googleapis.com/v0/b/bucket-name/o/encoded-path?alt=media&token=...
+		const encodedPath = url.split("/o/")[1]?.split("?")[0];
+
+		if (!encodedPath) {
+			console.error("Could not extract path from URL:", url);
+			return;
+		}
+
+		// Decode the path
+		const path = decodeURIComponent(encodedPath);
+
+		// Create a reference to the file
+		const fileRef = ref(storage, path);
+
+		// Delete the file
+		await deleteObject(fileRef);
+		console.log(`Successfully deleted file: ${path}`);
+	} catch (error) {
+		console.error("Error deleting file:", error);
+		// Don't throw the error, as this is a cleanup operation
+		// and we don't want it to break the form submission flow
+	}
 }
