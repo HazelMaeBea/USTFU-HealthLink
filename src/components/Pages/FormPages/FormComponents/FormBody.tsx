@@ -33,6 +33,12 @@ interface FormBodyProps {
   origFormType: string;
 }
 
+function getFileUrl(value: any): string | null {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  return null;
+}
+
 const FormBody = ({ origFormType }: FormBodyProps) => {
   const [dateHired, setDateHired] = useState<Date | null>(null);
   const [dateRetired, setDateRetired] = useState<Date | null>(null);
@@ -87,7 +93,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
             invalid_type_error: "Procedure specification must be text",
           })
           .min(1, "Please specify the procedure"),
-        // Make confinement dates truly optional unless we're in an inpatient form
         confinementFrom: z.string().optional(),
         confinementTo: z.string().optional(),
         term: z.string().nonempty("Please select the academic term"),
@@ -110,7 +115,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
           .nullable()
           .transform((val) => {
             if (!val) return null;
-            // Convert from YYYY-MM-DD to MM/DD/YYYY for backend storage
             return convertToMMDDYYYY(val);
           })
           .optional(),
@@ -121,7 +125,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
           .nullable()
           .transform((val) => {
             if (!val) return null;
-            // Convert from YYYY-MM-DD to MM/DD/YYYY for backend storage
             return convertToMMDDYYYY(val);
           })
           .optional(),
@@ -146,7 +149,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
                   message: "Please select your hospital status",
                 }),
               })
-            : z.any().optional(), // Make optional for non-inpatient forms
+            : z.any().optional(),
       })
       .superRefine((data, ctx) => {
         if (data.status === "Tenured-Track" && !data.dateHired) {
@@ -247,7 +250,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
     },
   });
 
-  // load persisted form data on mount
   useEffect(() => {
     const savedData = loadFormData(origFormType);
     if (savedData) {
@@ -255,8 +257,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
     }
   }, [origFormType, reset]);
 
-  //Autosave form data on change
-  // Auto-save form data on change:
   useEffect(() => {
     const subscription = watch((data) => {
       saveFormData(origFormType, data);
@@ -264,28 +264,23 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
     return () => subscription.unsubscribe();
   }, [watch, origFormType]);
 
-  // Add a handler to close the notification with animation
   const closeNotification = () => {
     setIsNotificationHiding(true);
 
-    // After animation completes, hide the notification
     setTimeout(() => {
       setShowSuccessNotification(false);
       setIsNotificationHiding(false);
-    }, 300); // Animation duration
+    }, 300);
   };
 
   const onSubmit = async (data: FieldValues) => {
-    setFormSubmitted(true); // Mark as submitted so files are not deleted
-    // Show notification immediately with processing state
+    setFormSubmitted(true);
     setSubmissionStatus("processing");
     setShowSuccessNotification(true);
 
     try {
       const email = auth?.currentUser?.email;
       const transID = isRevisionMode ? transactionId : "TRN" + Date.now();
-
-      // No file upload here! Files are already uploaded and URLs are in data
 
       for (let i = data.claimRequestCount - 1; i >= 0; i--) {
         setUploadProgress("Creating document...");
@@ -327,26 +322,25 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
             status: data.status,
             benefits: data.benefits,
             hmo: data.hmo,
-            // Store attachment data with both URL and filename
-            docRequest: data.docRequest
-              ? { url: data.docRequest, filename: "document.pdf" }
+            docRequest: getFileUrl(data.docRequest)
+              ? { url: getFileUrl(data.docRequest), filename: "document.pdf" }
               : "",
-            hospitalInvoice: data.hospitalInvoice
-              ? { url: data.hospitalInvoice, filename: "invoice.pdf" }
+            hospitalInvoice: getFileUrl(data.hospitalInvoice)
+              ? { url: getFileUrl(data.hospitalInvoice), filename: "invoice.pdf" }
               : "",
-            labInvoice: data.labInvoice
-              ? { url: data.labInvoice, filename: "lab_invoice.pdf" }
+            labInvoice: getFileUrl(data.labInvoice)
+              ? { url: getFileUrl(data.labInvoice), filename: "lab_invoice.pdf" }
               : "",
-            ...(data.employeeID
+            ...(getFileUrl(data.employeeID)
               ? {
                   employeeID: {
-                    url: data.employeeID,
+                    url: getFileUrl(data.employeeID),
                     filename: "employee_id.pdf",
                   },
                 }
               : {}),
-            applicantSignature: data.applicantSignature
-              ? { url: data.applicantSignature, filename: "signature.png" }
+            applicantSignature: getFileUrl(data.applicantSignature)
+              ? { url: getFileUrl(data.applicantSignature), filename: "signature.png" }
               : "",
             hospitalStatus: data.hospitalStatus,
             claimRequestCount: data.claimRequestCount,
@@ -359,10 +353,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
             console.log(
               `Attempted to remove request with ID: ${transactionId}`
             );
-            // ... proceed with submitting the new revision
           } catch (error) {
             console.error("Error removing previous request:", error);
-            // Handle the error appropriately (e.g., show a message to the user)
           }
         }
 
@@ -371,18 +363,14 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
         console.log("Document written with Transaction ID: ", transID);
 
-        // Trigger real-time notification for operations handlers/admins
         await pushPendingNotification(transID);
 
-        // Show success notification instead of old popup
         setSubmissionStatus("success");
 
-        // Reset form after successful submission
         resetRevision();
         reset();
       }
 
-      //Clears on submit
       clearFormData(origFormType);
     } catch (error) {
       console.error(error);
@@ -399,7 +387,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
   };
 
   const handleClearConfirm = () => {
-    // Reset form with empty select values
     reset({
       gender: undefined,
       college: "",
@@ -410,16 +397,13 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
       hospitalStatus: undefined,
     });
 
-    // Set flag to reapply autofill - moved outside the reset object
     setShouldReapplyAutofill(true);
 
-    // Reset states
     setDateHired(null);
     setDateRetired(null);
     setPhoneInputValue("+63");
     setShowClearConfirmation(false);
 
-    // Clear persisted form data
     clearFormData(origFormType);
   };
 
@@ -427,7 +411,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
     setShowClearConfirmation(false);
   };
 
-  // Use the imported useAutofill hook with the correct type
   useAutofill<UnifiedFormData>(
     setValue,
     setDateHired,
@@ -435,10 +418,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
     setPhoneInputValue
   );
 
-  // Re-apply autofill after form is cleared
   useEffect(() => {
     if (shouldReapplyAutofill) {
-      // Re-apply autofill - use applyAutofill function directly, not the hook
       applyAutofill<UnifiedFormData>(
         setValue,
         setDateHired,
@@ -462,7 +443,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
           <ValidationErrorDropdown errors={errors} />
         )}
 
-        {/* Only show hospital status for inpatient forms */}
         {origFormType === "inpatient" && (
           <FormHospitalStatus register={register} errors={errors} />
         )}

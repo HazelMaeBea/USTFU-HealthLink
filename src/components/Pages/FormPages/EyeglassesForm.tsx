@@ -326,7 +326,6 @@ const EyeglassesForm = () => {
           load: data.load,
           dateHired: data.dateHired,
           maxAmount: MAX_EYEGLASSES_AMOUNT,
-          status: data.status,
           eyeglassesReceipt: uploadedUrls.eyeglassesReceipt
             ? {
                 url: uploadedUrls.eyeglassesReceipt,
