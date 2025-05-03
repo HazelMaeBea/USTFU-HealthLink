@@ -672,8 +672,10 @@ const AdmissionForm = () => {
                         {(errors.docRequest || fileErrors.docRequest) &&
                           // Suppress default required error messages for docRequest
                           !(
-                            errors.docRequest?.message === "Doctor's note or request is required" ||
-                            errors.docRequest?.message === "Please upload your doctor's request/order"
+                            errors.docRequest?.message ===
+                              "Doctor's note or request is required" ||
+                            errors.docRequest?.message ===
+                              "Please upload your doctor's request/order"
                           ) && (
                             <p className="invalid-feedback">
                               {fileErrors.docRequest ||
@@ -737,11 +739,14 @@ const AdmissionForm = () => {
                             onChange={handleFileChange("hospitalInvoice")}
                           />
                         )}
-                        {(errors.hospitalInvoice || fileErrors.hospitalInvoice) &&
+                        {(errors.hospitalInvoice ||
+                          fileErrors.hospitalInvoice) &&
                           // Suppress default required error messages for hospitalInvoice
                           !(
-                            errors.hospitalInvoice?.message === "Hospital invoice is required" ||
-                            errors.hospitalInvoice?.message === "Please upload the hospital invoice"
+                            errors.hospitalInvoice?.message ===
+                              "Hospital invoice is required" ||
+                            errors.hospitalInvoice?.message ===
+                              "Please upload the hospital invoice"
                           ) && (
                             <p className="invalid-feedback">
                               {fileErrors.hospitalInvoice ||
@@ -807,8 +812,10 @@ const AdmissionForm = () => {
                         {(errors.labInvoice || fileErrors.labInvoice) &&
                           // Suppress default required error messages for labInvoice
                           !(
-                            errors.labInvoice?.message === "Laboratory invoice is required" ||
-                            errors.labInvoice?.message === "Please upload the laboratory invoice"
+                            errors.labInvoice?.message ===
+                              "Laboratory invoice is required" ||
+                            errors.labInvoice?.message ===
+                              "Please upload the laboratory invoice"
                           ) && (
                             <p className="invalid-feedback">
                               {fileErrors.labInvoice ||
@@ -872,12 +879,16 @@ const AdmissionForm = () => {
                             onChange={handleFileChange("applicantSignature")}
                           />
                         )}
-                        {(errors.applicantSignature || fileErrors.applicantSignature) &&
+                        {(errors.applicantSignature ||
+                          fileErrors.applicantSignature) &&
                           // Suppress default required error messages for applicantSignature
                           !(
-                            errors.applicantSignature?.message === "Please upload your signature" ||
-                            errors.applicantSignature?.message === "Please upload the applicant's signature" ||
-                            errors.applicantSignature?.message === "This field is required"
+                            errors.applicantSignature?.message ===
+                              "Please upload your signature" ||
+                            errors.applicantSignature?.message ===
+                              "Please upload the applicant's signature" ||
+                            errors.applicantSignature?.message ===
+                              "This field is required"
                           ) && (
                             <p className="invalid-feedback">
                               {fileErrors.applicantSignature ||

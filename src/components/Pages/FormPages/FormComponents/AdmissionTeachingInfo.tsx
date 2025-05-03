@@ -1,9 +1,7 @@
 import React, {
-	useEffect,
 	useState,
 	Dispatch,
 	SetStateAction,
-	useRef,
 } from "react";
 import {
 	UseFormRegister,
@@ -43,32 +41,7 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 	setDateRetired,
 	watch,
 }) => {
-	const [status, setStatus] = useState("");
-
-	// Get current status from form
-	const formStatus = watch ? watch("status") : "";
-
-	// Add refs to track autofill state and user interactions
-	const userInteractedRef = useRef(false);
-	const initialLoadCompleteRef = useRef(false);
-
-	// Sync local status with form status (for autofill), but give precedence to user selection
-	useEffect(() => {
-		// Always update status on initial load, then respect user interaction
-		if (formStatus && (formStatus !== status || !initialLoadCompleteRef.current)) {
-			setStatus(formStatus);
-			
-			if (!initialLoadCompleteRef.current) {
-				initialLoadCompleteRef.current = true;
-				console.log("Initial admission status loaded:", formStatus);
-			}
-		}
-	}, [formStatus, status]);
-
-	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		userInteractedRef.current = true; // Mark that user has interacted
-		setStatus(event.target.value);
-	};
+	const watchedStatus = watch ? watch("status") : "";
 
 	return (
 		<fieldset className="personal-info-container">
@@ -145,7 +118,6 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 						Employment Status{" "}
 						<span className="required-asterisk">*</span>
 					</label>
-					{/* Replace select with radio buttons */}
 					{statusOptions.map((option, index) => (
 						<div key={index} className="form-check">
 							<input
@@ -154,8 +126,6 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 								type="radio"
 								value={option}
 								className="form-check-input"
-								onChange={handleStatusChange}
-								checked={status === option}
 							/>
 							<label
 								htmlFor={`status-${index}`}
@@ -177,7 +147,7 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 					<div
 						style={{
 							display:
-								status === "Tenured-Track" ? "block" : "none",
+								watchedStatus === "Tenured-Track" ? "block" : "none",
 						}}
 					>
 						<label htmlFor="dateHired" className="form-label">
@@ -209,10 +179,10 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 
 					<div
 						style={{
-							display: status === "Retiree" ? "block" : "none",
+							display: watchedStatus === "Retiree" ? "block" : "none",
 							marginTop:
-								status === "Retiree" ||
-								status === "Tenured-Track"
+								watchedStatus === "Retiree" ||
+								watchedStatus === "Tenured-Track"
 									? "1rem"
 									: "0",
 						}}
