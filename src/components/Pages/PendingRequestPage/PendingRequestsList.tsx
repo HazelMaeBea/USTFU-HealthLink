@@ -341,6 +341,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
     return Object.keys(errors).length === 0;
   };
 
+  let amountPaid = 0;
   const handleSendClick = (transactionID: string, type: any) => {
     if (!activeDecision) return; // Prevent sending if no action is selected
 
@@ -352,6 +353,8 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
       setValidationErrors({});
     }
 
+    console.log("amountPaid is equal to " + amountPaid);
+    setReimbursementAmount(amountPaid);
     setTransID(transactionID);
     setShowPopout(true); // Open confirmation popout
   };
@@ -678,6 +681,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
         );
 
       case "eyeglasses":
+        console.log(parseFloat(formData?.amountPaid || '0'));
+        amountPaid = parseFloat(formData?.amountPaid || '0');
+        // setReimbursementAmount(parseFloat(formData?.amountPaid || '0'));
         return (
           <>
             {baseFields}
