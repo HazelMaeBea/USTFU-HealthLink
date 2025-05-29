@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import type {
 	PendingRequest,
 	FormData,
@@ -130,6 +130,15 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		uid: uid,
 		selectedRole: "operations handler",
 	});
+
+	// State handler to track decisions for each request
+	const [requestDecisions, setRequestDecisions] = useState<{
+		[transactionId: string]: {
+			decision: "approval" | "rejection" | "for revision";
+			status: string;
+			comments: string;
+		};
+	}>({});
 
 	// Apply all filters to the requests
 	const applyFilters = (requests: PendingRequest[]) => {
@@ -306,20 +315,36 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 	}, [filteredRequests, recordsPerPage, clientCurrentPage]);
 
 	const handleAction = (
-		action: "approval" | "rejection" | "for revision"
+		action: "approval" | "rejection" | "for revision",
+		transactionId: string
 	) => {
-		setActiveDecision(action);
+		let status = "";
+		let commentPlaceholder = "";
 
 		if (action === "rejection") {
-			setShowCommentBox("Reason for rejection...");
-			setStatus("rejected");
+			status = "rejected";
+			commentPlaceholder = "Reason for rejection...";
 		} else if (action === "for revision") {
-			setShowCommentBox("Reason for revision...");
-			setStatus("for revision");
+			status = "for revision";
+			commentPlaceholder = "Reason for revision...";
 		} else {
-			setShowCommentBox("Additional Comments..."); // Hide comment box when approving
-			setStatus("approved");
+			status = "approved";
+			commentPlaceholder = "Additional Comments...";
 		}
+
+		// Update just this specific request's decision
+		setRequestDecisions((prev) => ({
+			...prev,
+			[transactionId]: {
+				decision: action,
+				status: status,
+				comments: prev[transactionId]?.comments || "",
+			},
+		}));
+
+		setActiveDecision(action);
+		setShowCommentBox(commentPlaceholder);
+		setStatus(status);
 	};
 
 	const validateForm = () => {
@@ -463,36 +488,97 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		}
 	};
 
+	const [isTransitioning, setIsTransitioning] = useState(false);
+	// const previousHeaderRef = useRef<HTMLElement | null>(null);
+
 	const handleRequestClick = async (request: PendingRequest) => {
 		const isExpanding = expandedId !== request.transactionId;
 
-		setExpandedId(isExpanding ? request.transactionId : null);
-
-		if (isExpanding) {
-			const currentBenefit = globalBenefitsData[request.requester] || 0;
-			setEditBenefits(currentBenefit);
-			setOriginalBenefit(currentBenefit);
-			setCurrentUser(request.requester);
+		// For closing, simply set expandedId to null
+		if (!isExpanding) {
+			setExpandedId(null);
+			return;
 		}
 
+		// Store the transaction ID instead of the element reference
+		const clickedTransactionId = request.transactionId;
+
+		// Set transitioning state to prevent scroll jumps
+		setIsTransitioning(true);
+
+		// Set expanded ID and all the state
+		setExpandedId(clickedTransactionId);
+
+		// Initialize all other state as before
+		const currentBenefit = globalBenefitsData[request.requester] || 0;
+		setEditBenefits(currentBenefit);
+		setOriginalBenefit(currentBenefit);
+		setCurrentUser(request.requester);
+
+		// Initialize decision state if needed
+		if (!requestDecisions[request.transactionId]) {
+			setRequestDecisions((prev) => ({
+				...prev,
+				[request.transactionId]: {
+					decision: "approval",
+					status: "approved",
+					comments: "",
+				},
+			}));
+		}
+
+		// Set UI state for this request's decision
+		const currentDecision =
+			requestDecisions[request.transactionId]?.decision || "approval";
+		setActiveDecision(currentDecision);
+		setStatus(
+			requestDecisions[request.transactionId]?.status || "approved"
+		);
+		setShowCommentBox(
+			currentDecision === "approval"
+				? "Additional Comments..."
+				: currentDecision === "rejection"
+				? "Reason for rejection..."
+				: "Reason for revision..."
+		);
+
+		// Clear notifications
 		await clearPendingNotifications(request.transactionId);
-		// ✅ Locally remove highlight
 		setUnreadTransactionIds((prev) =>
 			prev.filter((id) => id !== request.transactionId)
 		);
-		setText(null);
+		setText(requestDecisions[request.transactionId]?.comments || null);
 	};
+
+	// Scroll to the expanded request header after it is set
+	useLayoutEffect(() => {
+		if (isTransitioning && expandedId) {
+			setTimeout(() => {
+				const headerElement = document.getElementById(
+					`request-header-${expandedId}`
+				);
+
+				if (headerElement) {
+					const headerRect = headerElement.getBoundingClientRect();
+					const scrollTop = window.pageYOffset + headerRect.top;
+
+					window.scrollTo({
+						top: Math.max(0, scrollTop - 100),
+						behavior: "auto",
+					});
+				}
+
+				setIsTransitioning(false);
+			}, 50);
+		}
+	}, [expandedId, isTransitioning]);
 
 	// Helper function to convert camelCase to Title Case with spaces
 	const formatDocumentType = (camelCaseKey: string): string => {
 		if (camelCaseKey === "employeeID") return "Employee ID";
-		return (
-			camelCaseKey
-				// Insert a space before all capital letters
-				.replace(/([A-Z])/g, " $1")
-				// Capitalize first letter
-				.replace(/^./, (str) => str.toUpperCase())
-		);
+		return camelCaseKey
+			.replace(/([A-Z])/g, " $1")
+			.replace(/^./, (str) => str.toUpperCase());
 	};
 
 	// Helper function to get form icon based on type
@@ -500,7 +586,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		formType: string,
 		hospitalStatus?: string
 	): string | undefined => {
-		// Convert to lowercase for case-insensitive comparison
 		const type = formType?.toLowerCase() || "";
 		const status = hospitalStatus?.toLowerCase() || "";
 
@@ -563,7 +648,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		}
 	};
 
-	// Modify the renderFormFields function to ensure fields display properly
+	// Form Fields based on formData
 	const renderFormFields = (request: PendingRequest) => {
 		const { formData } = request;
 
@@ -801,13 +886,13 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		}
 	};
 
-	// Update renderAttachments function to remove USTFU section
+	// Function to render attachments for all form types
 	const renderAttachments = (request: PendingRequest) => {
 		const { formData } = request;
 
 		if (!formData) return null;
 
-		// Create an array of objects that include both the attachment and its type
+		// Array of attachments with labels
 		const attachmentsWithLabels = [
 			...(formData.employeeID
 				? [{ type: "employeeID", data: formData.employeeID }]
@@ -843,7 +928,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 				: []),
 		].filter((item) => item.data && item.data.filename);
 
-		// Function to render attachments section
+		// Attachments section rendering
 		const renderAttachmentsSection = () => (
 			<div className={styles["attachments-section"]}>
 				<h4>UPLOADED ATTACHMENTS</h4>
@@ -966,6 +1051,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										</label>
 									</>
 								</div>
+
 								{/* Valid Until Date Field */}
 								<div
 									className={styles["valid-until-container"]}
@@ -1217,7 +1303,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									? styles.selected
 									: ""
 							}`}
-							onClick={() => handleAction("approval")}
+							onClick={() =>
+								handleAction("approval", request.transactionId)
+							}
 						>
 							<FiCheck size={25} />
 							<span className="ms-2">Approve</span>
@@ -1230,7 +1318,9 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									? styles.selected
 									: ""
 							}`}
-							onClick={() => handleAction("rejection")}
+							onClick={() =>
+								handleAction("rejection", request.transactionId)
+							}
 						>
 							<HiOutlineX size={25} />
 							<span className="ms-2">Reject</span>
@@ -1243,14 +1333,19 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									? styles.selected
 									: ""
 							}`}
-							onClick={() => handleAction("for revision")}
+							onClick={() =>
+								handleAction(
+									"for revision",
+									request.transactionId
+								)
+							}
 						>
 							<FiEdit2 size={23} />
 							<span className="ms-2">To Revise</span>
 						</button>
 					</div>
 
-					{/* Always show the comment box regardless of action */}
+					{/* Comment Box */}
 					<textarea
 						className={styles["comment-box"]}
 						placeholder={showCommentBox || "Additional Comments..."}
@@ -1310,14 +1405,14 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		);
 	};
 
-	// For debugging - let's see what data we're getting
-	console.log("Original requests count:", pendingRequests.length);
-	console.log("Filtered requests count:", filteredRequests.length);
-	console.log("Sorted by:", sortOrder);
-	console.log("Records per page:", recordsPerPage);
-	console.log("Total filtered pages:", totalFilteredPages);
-	console.log("Current page:", clientCurrentPage);
-	console.log("Current records:", currentFilteredRecords.length);
+	// // For debugging
+	// console.log("Original requests count:", pendingRequests.length);
+	// console.log("Filtered requests count:", filteredRequests.length);
+	// console.log("Sorted by:", sortOrder);
+	// console.log("Records per page:", recordsPerPage);
+	// console.log("Total filtered pages:", totalFilteredPages);
+	// console.log("Current page:", clientCurrentPage);
+	// console.log("Current records:", currentFilteredRecords.length);
 
 	// Show loading skeleton when data is loading
 	if (isLoading) {
@@ -1361,6 +1456,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 						className={styles["pending-request"]}
 					>
 						<div
+							id={`request-header-${request.transactionId}`}
 							className={`${styles["request-header"]} ${
 								expandedId === request.transactionId
 									? styles.expanded
@@ -1384,7 +1480,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 										Form Type
 									</span>
 									<span className={styles["request-type"]}>
-										{/* Add icon before the text */}
 										{request.formData?.formType && (
 											<img
 												src={getFormIcon(
@@ -1449,7 +1544,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 									</span>
 								</div>
 
-								{/* Arrow moved to the end */}
+								{/* Toggle arrow */}
 								<div className={styles["header-item"]}>
 									<span className={styles.arrow}>
 										{expandedId ===
@@ -1465,7 +1560,6 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 						{expandedId === request.transactionId && (
 							<div className={styles["request-content"]}>
-								{/* Move "done as" to appear under the main title */}
 								<h3>
 									{request.formData?.formType ===
 									"hospital" ? (
@@ -1522,7 +1616,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 				<div className="no-results">No matching requests found</div>
 			)}
 
-			{/* Updated pagination layout */}
+			{/* Pagination layout */}
 			{sortedRequests.length > 0 && (
 				<div className={styles.paginationContainer}>
 					<div className={styles.recordInfo}>

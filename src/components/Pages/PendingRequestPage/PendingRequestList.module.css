@@ -1167,3 +1167,23 @@
 	color: #6c757d;
 	font-style: italic;
 }
+
+.request-content {
+	animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.request-header {
+	position: relative;
+	transition: background-color 0.2s ease;
+}
