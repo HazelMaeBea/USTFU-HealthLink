@@ -1259,6 +1259,34 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 
 					<div className={styles["send-section"]}>
 						<div className={styles["send-box"]}>
+							<div className={styles["selected-action-feedback"]}>
+								{activeDecision && (
+									<p className={styles["selected-action"]}>
+										Selected action:{" "}
+										<span
+											className={
+												activeDecision === "approval"
+													? styles["action-approve"]
+													: activeDecision ===
+													  "rejection"
+													? styles["action-reject"]
+													: styles["action-revise"]
+											}
+										>
+											{activeDecision === "approval"
+												? "Approve"
+												: activeDecision === "rejection"
+												? "Reject"
+												: "To Revise"}
+										</span>
+									</p>
+								)}
+								{!activeDecision && (
+									<p className={styles["no-action-selected"]}>
+										Please select an action above
+									</p>
+								)}
+							</div>
 							<p className={styles["send-note"]}>
 								** Clicking the send button will finalize the
 								decision and notify the requester. This action
