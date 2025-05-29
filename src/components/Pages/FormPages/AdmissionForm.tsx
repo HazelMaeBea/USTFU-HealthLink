@@ -21,7 +21,6 @@ import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
 import {
   uploadFilesAndGetURLs,
   validateFileListSize,
-  deleteFileFromURL,
 } from "../../../utils/fileUpload.ts";
 import { baseFormSchema, UnifiedFormData } from "./FormUtil/formTypes.ts";
 import { pushPendingNotification } from "../../Page Elements/NotifBadge/NotifTrigger.ts";
@@ -134,18 +133,7 @@ const AdmissionForm = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
   const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
-  const [fileErrors, setFileErrors] = useState<Record<FileField, string>>({});
-  const [uploadedUrls, setUploadedUrls] = useState<
-    Record<FileField, string | null>
-  >({
-    employeeID: null,
-    applicantSignature: null,
-    docRequest: null,
-    hospitalInvoice: null,
-    labInvoice: null,
-  });
-  const [uploadingField, setUploadingField] = useState<FileField | null>(null);
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   const {
@@ -156,7 +144,6 @@ const AdmissionForm = () => {
     watch,
     setError,
     formState: { errors, isSubmitted },
-    trigger,
   } = useForm<UnifiedFormData>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -236,7 +223,7 @@ const AdmissionForm = () => {
         pendingUnmountId = null; // clean up
       }, 100);
     };
-  }, [transactionId, formSubmitted, uploadedUrls]);
+  }, [transactionId]);
 
   useEffect(() => {
     if (transactionId) {
@@ -333,71 +320,77 @@ const AdmissionForm = () => {
     setShowClearConfirmation(false);
   };
 
-  // Handler for file input changes (upload immediately)
+  // Handler for file input changes
   const handleFileChange =
-    (fieldName: FileField) =>
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
+    (fieldName: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
       const result = validateFileListSize(files);
 
       if (!result.valid) {
+        // Set custom file error
         setFileErrors((prev) => ({
           ...prev,
           [fieldName]: result.errorMessage,
         }));
+
+        // Clear the input
         e.target.value = "";
+
+        // Set form error
         setError(fieldName as any, {
           type: "manual",
           message: result.errorMessage,
         });
       } else {
+        // Handle valid files
         if (files && files.length > 0) {
           const file = files[0];
-          setUploadingField(fieldName);
-          setFileErrors((prev) => ({
-            ...prev,
-            [fieldName]: "",
+          // Assuming you're uploading and receiving a file URL back from the upload service
+          const uploadedFileUrl = URL.createObjectURL(file); // Example of a temporary URL
+
+          // Update the file state with the new uploaded file URL
+          setFiles((prevFiles: FileState) => ({
+            ...prevFiles,
+            [fieldName]: uploadedFileUrl, // You can replace this with your actual file URL
           }));
-          try {
-            const email = auth?.currentUser?.email || "anonymous";
-            const transID = transactionId || "TRN" + Date.now();
-            const uploadResult = await uploadFilesAndGetURLs(email, transID, {
-              [fieldName]: [file],
-            });
-            const url = uploadResult[fieldName];
-            setUploadedUrls((prev) => ({
-              ...prev,
-              [fieldName]: url,
-            }));
-            setValue(fieldName, url);
-            await trigger(fieldName);
-            setFileErrors((prev) => ({
-              ...prev,
-              [fieldName]: "",
-            }));
-          } catch (err) {
-            setFileErrors((prev) => ({
-              ...prev,
-              [fieldName]: "Upload failed. Please try again.",
-            }));
-          } finally {
-            setUploadingField(null);
-          }
         }
+
+        setIsNewUpload((prev) => ({
+          ...prev,
+          [fieldName]: true,
+        }));
+
+        // Clear error if file is valid
+        setFileErrors((prev) => ({
+          ...prev,
+          [fieldName]: "",
+        }));
       }
     };
 
   const onSubmit = async (data: FieldValues) => {
-    setFormSubmitted(true);
     setSubmissionStatus("processing");
     setShowSuccessNotification(true);
 
     try {
       const email = auth?.currentUser?.email;
-      const transID = isRevisionMode ? transactionId : "TRN" + Date.now();
+
+      const filesToUpload = {
+        applicantSignature: data.applicantSignature,
+        docRequest: data.docRequest,
+        employeeID: data.employeeID,
+        hospitalInvoice: data.hospitalInvoice,
+        labInvoice: data.labInvoice,
+      };
+      const transID = isRevisionMode ? transactionId : "TRN" + Date.now(); // Use existing transactionId for revision mode
       setFormIdString(transID);
 
-      // Only use URLs from uploadedUrls, not files
+      const fileUploadResults = await uploadFilesAndGetURLs(
+        email,
+        transID,
+        filesToUpload
+      );
+
       const pendingRequestData = {
         transactionId: transID,
         requester: auth?.currentUser?.displayName || email || "Unknown",
@@ -427,36 +420,41 @@ const AdmissionForm = () => {
           status: data["status"],
           dateHired: data.dateHired,
           dateRetired: data.dateRetired,
-          docRequest: uploadedUrls.docRequest
+          docRequest: fileUploadResults.docRequest
             ? {
-                url: uploadedUrls.docRequest,
-                filename: "document.pdf",
+                url: fileUploadResults.docRequest,
+                filename: filesToUpload.docRequest?.[0]?.name || "document.pdf",
               }
             : "",
-          hospitalInvoice: uploadedUrls.hospitalInvoice
+          hospitalInvoice: fileUploadResults.hospitalInvoice
             ? {
-                url: uploadedUrls.hospitalInvoice,
-                filename: "invoice.pdf",
+                url: fileUploadResults.hospitalInvoice,
+                filename:
+                  filesToUpload.hospitalInvoice?.[0]?.name || "invoice.pdf",
               }
             : "",
-          labInvoice: uploadedUrls.labInvoice
+          labInvoice: fileUploadResults.labInvoice
             ? {
-                url: uploadedUrls.labInvoice,
-                filename: "lab_invoice.pdf",
+                url: fileUploadResults.labInvoice,
+                filename:
+                  filesToUpload.labInvoice?.[0]?.name || "lab_invoice.pdf",
               }
             : "",
-          ...(uploadedUrls.employeeID
+          ...(fileUploadResults.employeeID
             ? {
                 employeeID: {
-                  url: uploadedUrls.employeeID,
-                  filename: "employee_id.pdf",
+                  url: fileUploadResults.employeeID,
+                  filename:
+                    filesToUpload.employeeID?.[0]?.name || "employee_id.pdf",
                 },
               }
             : {}),
-          applicantSignature: uploadedUrls.applicantSignature
+          applicantSignature: fileUploadResults.applicantSignature
             ? {
-                url: uploadedUrls.applicantSignature,
-                filename: "signature.png",
+                url: fileUploadResults.applicantSignature,
+                filename:
+                  filesToUpload.applicantSignature?.[0]?.name ||
+                  "signature.png",
               }
             : "",
         },
@@ -466,8 +464,10 @@ const AdmissionForm = () => {
         try {
           await removeRequest(transactionId);
           console.log(`Attempted to remove request with ID: ${transactionId}`);
+          // ... proceed with submitting the new revision
         } catch (error) {
           console.error("Error removing previous request:", error);
+          // Handle the error appropriately (e.g., show a message to the user)
         }
       }
 
@@ -558,39 +558,34 @@ const AdmissionForm = () => {
                   <tbody>
                     <tr>
                       <td>Employee/UST ID</td>
-                      <td className="d-flex justify-content-start">
-                        {uploadingField === "employeeID" ? (
-                          <div className="uploading-indicator">
-                            <span className="spinner-border spinner-border-sm"></span>
-                            <span className="uploading-text">Uploading...</span>
-                          </div>
-                        ) : uploadedUrls.employeeID ? (
-                          <div className="uploaded-file-actions">
+                      <td className="d-flex justify-content-center">
+                        {isFileInput["employeeID"] &&
+                        files.employeeID &&
+                        isRevisionMode &&
+                        !isNewUpload["employeeID"] ? (
+                          <div className="d-flex gap-2">
                             <button
                               type="button"
-                              className="uploaded-file-view-btn"
+                              className="btn btn-outline-secondary btn-sm"
                               onClick={() =>
-                                openModal({
-                                  url: uploadedUrls.employeeID,
-                                  filename: "employee_id.pdf",
-                                })
+                                setIsFileInput((prev) => ({
+                                  ...prev,
+                                  employeeID: false,
+                                }))
                               }
                             >
-                              View Uploaded File
+                              Re-upload File
                             </button>
-                            <button
-                              type="button"
-                              className="uploaded-file-reupload-btn"
-                              onClick={() => {
-                                setUploadedUrls((prev) => ({
-                                  ...prev,
-                                  employeeID: null,
-                                }));
-                                setValue("employeeID", null);
+                            <a
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                openModal(files.employeeID);
                               }}
+                              className="btn btn-outline-primary btn-sm"
                             >
-                              Re-upload
-                            </button>
+                              View Previously Uploaded File
+                            </a>
                           </div>
                         ) : (
                           <input
@@ -604,15 +599,18 @@ const AdmissionForm = () => {
                             }`}
                             {...register("employeeID")}
                             name="employeeID"
-                            onChange={handleFileChange("employeeID")}
+                            onChange={(e) => {
+                              register("employeeID").onChange(e);
+                              handleFileChange("employeeID")(e);
+                            }}
                           />
                         )}
-                        {(errors.employeeID || fileErrors.employeeID) && (
+                        {/* {(errors.employeeID || fileErrors.employeeID) && (
                           <p className="invalid-feedback">
                             {fileErrors.employeeID ||
                               (errors.employeeID?.message as string)}
                           </p>
-                        )}
+                        )} */}
                       </td>
                     </tr>
                     <tr>
@@ -622,39 +620,36 @@ const AdmissionForm = () => {
                         </label>{" "}
                         <span className="required-asterisk">*</span>
                       </td>
-                      <td className="d-flex justify-content-start">
-                        {uploadingField === "docRequest" ? (
-                          <div className="uploading-indicator">
-                            <span className="spinner-border spinner-border-sm"></span>
-                            <span className="uploading-text">Uploading...</span>
-                          </div>
-                        ) : uploadedUrls.docRequest ? (
-                          <div className="uploaded-file-actions">
+                      <td className="d-flex justify-content-center">
+                        {isFileInput["docRequest"] &&
+                        files.docRequest &&
+                        isRevisionMode &&
+                        !isNewUpload["docRequest"] ? (
+                          <div className="d-flex gap-2">
                             <button
                               type="button"
-                              className="uploaded-file-view-btn"
+                              className="btn btn-outline-secondary btn-sm"
                               onClick={() =>
-                                openModal({
-                                  url: uploadedUrls.docRequest,
-                                  filename: "document.pdf",
-                                })
-                              }
-                            >
-                              View Uploaded File
-                            </button>
-                            <button
-                              type="button"
-                              className="uploaded-file-reupload-btn"
-                              onClick={() => {
-                                setUploadedUrls((prev) => ({
+                                setIsFileInput((prev) => ({
                                   ...prev,
-                                  docRequest: null,
-                                }));
-                                setValue("docRequest", null);
-                              }}
+                                  docRequest: false,
+                                }))
+                              } // Switch to file input when clicked
                             >
-                              Re-upload
+                              Re-upload File
                             </button>
+                            <a
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                openModal(files.docRequest); // Open the modal with file preview
+                              }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-outline-primary btn-sm"
+                            >
+                              View Previously Uploaded File
+                            </a>
                           </div>
                         ) : (
                           <input
@@ -668,22 +663,18 @@ const AdmissionForm = () => {
                             }`}
                             {...register("docRequest")}
                             name="docRequest"
-                            onChange={handleFileChange("docRequest")}
+                            onChange={(e) => {
+                              register("docRequest").onChange(e);
+                              handleFileChange("docRequest")(e);
+                            }}
                           />
                         )}
-                        {(errors.docRequest || fileErrors.docRequest) &&
-                          // Suppress default required error messages for docRequest
-                          !(
-                            errors.docRequest?.message ===
-                              "Doctor's note or request is required" ||
-                            errors.docRequest?.message ===
-                              "Please upload your doctor's request/order"
-                          ) && (
-                            <p className="invalid-feedback">
-                              {fileErrors.docRequest ||
-                                (errors.docRequest?.message as string)}
-                            </p>
-                          )}
+                        {/* {(errors.docRequest || fileErrors.docRequest) && (
+                          <p className="invalid-feedback">
+                            {fileErrors.docRequest ||
+                              (errors.docRequest?.message as string)}
+                          </p>
+                        )} */}
                       </td>
                     </tr>
                     <tr>
@@ -691,39 +682,36 @@ const AdmissionForm = () => {
                         Hospital Receipt/Invoice{" "}
                         <span className="required-asterisk">*</span>
                       </td>
-                      <td className="d-flex justify-content-start">
-                        {uploadingField === "hospitalInvoice" ? (
-                          <div className="uploading-indicator">
-                            <span className="spinner-border spinner-border-sm"></span>
-                            <span className="uploading-text">Uploading...</span>
-                          </div>
-                        ) : uploadedUrls.hospitalInvoice ? (
-                          <div className="uploaded-file-actions">
+                      <td className="d-flex justify-content-center">
+                        {isFileInput["hospitalInvoice"] &&
+                        files.hospitalInvoice &&
+                        isRevisionMode &&
+                        !isNewUpload["hospitalInvoice"] ? (
+                          <div className="d-flex gap-2">
                             <button
                               type="button"
-                              className="uploaded-file-view-btn"
+                              className="btn btn-outline-secondary btn-sm"
                               onClick={() =>
-                                openModal({
-                                  url: uploadedUrls.hospitalInvoice,
-                                  filename: "invoice.pdf",
-                                })
-                              }
-                            >
-                              View Uploaded File
-                            </button>
-                            <button
-                              type="button"
-                              className="uploaded-file-reupload-btn"
-                              onClick={() => {
-                                setUploadedUrls((prev) => ({
+                                setIsFileInput((prev) => ({
                                   ...prev,
-                                  hospitalInvoice: null,
-                                }));
-                                setValue("hospitalInvoice", null);
-                              }}
+                                  hospitalInvoice: false,
+                                }))
+                              } // Switch to file input when clicked
                             >
-                              Re-upload
+                              Re-upload File
                             </button>
+                            <a
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                openModal(files.hospitalInvoice); // Open the modal with file preview
+                              }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-outline-primary btn-sm"
+                            >
+                              View Previously Uploaded File
+                            </a>
                           </div>
                         ) : (
                           <input
@@ -738,23 +726,19 @@ const AdmissionForm = () => {
                             }`}
                             {...register("hospitalInvoice")}
                             name="hospitalInvoice"
-                            onChange={handleFileChange("hospitalInvoice")}
+                            onChange={(e) => {
+                              register("hospitalInvoice").onChange(e);
+                              handleFileChange("hospitalInvoice")(e);
+                            }}
                           />
                         )}
-                        {(errors.hospitalInvoice ||
-                          fileErrors.hospitalInvoice) &&
-                          // Suppress default required error messages for hospitalInvoice
-                          !(
-                            errors.hospitalInvoice?.message ===
-                              "Hospital invoice is required" ||
-                            errors.hospitalInvoice?.message ===
-                              "Please upload the hospital invoice"
-                          ) && (
-                            <p className="invalid-feedback">
-                              {fileErrors.hospitalInvoice ||
-                                (errors.hospitalInvoice?.message as string)}
-                            </p>
-                          )}
+                        {/* {(errors.hospitalInvoice ||
+                          fileErrors.hospitalInvoice) && (
+                          <p className="invalid-feedback">
+                            {fileErrors.hospitalInvoice ||
+                              (errors.hospitalInvoice?.message as string)}
+                          </p>
+                        )} */}
                       </td>
                     </tr>
                     <tr>
@@ -762,39 +746,36 @@ const AdmissionForm = () => {
                         Laboratory Receipt/Invoice{" "}
                         <span className="required-asterisk">*</span>
                       </td>
-                      <td className="d-flex justify-content-start">
-                        {uploadingField === "labInvoice" ? (
-                          <div className="uploading-indicator">
-                            <span className="spinner-border spinner-border-sm"></span>
-                            <span className="uploading-text">Uploading...</span>
-                          </div>
-                        ) : uploadedUrls.labInvoice ? (
-                          <div className="uploaded-file-actions">
+                      <td className="d-flex justify-content-center">
+                        {isFileInput["labInvoice"] &&
+                        files.labInvoice &&
+                        isRevisionMode &&
+                        !isNewUpload["labInvoice"] ? (
+                          <div className="d-flex gap-2">
                             <button
                               type="button"
-                              className="uploaded-file-view-btn"
+                              className="btn btn-outline-secondary btn-sm"
                               onClick={() =>
-                                openModal({
-                                  url: uploadedUrls.labInvoice,
-                                  filename: "lab_invoice.pdf",
-                                })
-                              }
-                            >
-                              View Uploaded File
-                            </button>
-                            <button
-                              type="button"
-                              className="uploaded-file-reupload-btn"
-                              onClick={() => {
-                                setUploadedUrls((prev) => ({
+                                setIsFileInput((prev) => ({
                                   ...prev,
-                                  labInvoice: null,
-                                }));
-                                setValue("labInvoice", null);
-                              }}
+                                  labInvoice: false,
+                                }))
+                              } // Switch to file input when clicked
                             >
-                              Re-upload
+                              Re-upload File
                             </button>
+                            <a
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                openModal(files.labInvoice); // Open the modal with file preview
+                              }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-outline-primary btn-sm"
+                            >
+                              View Previously Uploaded File
+                            </a>
                           </div>
                         ) : (
                           <input
@@ -808,22 +789,18 @@ const AdmissionForm = () => {
                             }`}
                             {...register("labInvoice")}
                             name="labInvoice"
-                            onChange={handleFileChange("labInvoice")}
+                            onChange={(e) => {
+                              register("labInvoice").onChange(e);
+                              handleFileChange("labInvoice")(e);
+                            }}
                           />
                         )}
-                        {(errors.labInvoice || fileErrors.labInvoice) &&
-                          // Suppress default required error messages for labInvoice
-                          !(
-                            errors.labInvoice?.message ===
-                              "Laboratory invoice is required" ||
-                            errors.labInvoice?.message ===
-                              "Please upload the laboratory invoice"
-                          ) && (
-                            <p className="invalid-feedback">
-                              {fileErrors.labInvoice ||
-                                (errors.labInvoice?.message as string)}
-                            </p>
-                          )}
+                        {/* {(errors.labInvoice || fileErrors.labInvoice) && (
+                          <p className="invalid-feedback">
+                            {fileErrors.labInvoice ||
+                              (errors.labInvoice?.message as string)}
+                          </p>
+                        )} */}
                       </td>
                     </tr>
                     <tr>
@@ -831,39 +808,36 @@ const AdmissionForm = () => {
                         Applicant's Signature{" "}
                         <span className="required-asterisk">*</span>
                       </td>
-                      <td className="d-flex justify-content-start">
-                        {uploadingField === "applicantSignature" ? (
-                          <div className="uploading-indicator">
-                            <span className="spinner-border spinner-border-sm"></span>
-                            <span className="uploading-text">Uploading...</span>
-                          </div>
-                        ) : uploadedUrls.applicantSignature ? (
-                          <div className="uploaded-file-actions">
+                      <td className="d-flex justify-content-center">
+                        {isFileInput["applicantSignature"] &&
+                        files.applicantSignature &&
+                        isRevisionMode &&
+                        !isNewUpload["applicantSignature"] ? (
+                          <div className="d-flex gap-2">
                             <button
                               type="button"
-                              className="uploaded-file-view-btn"
+                              className="btn btn-outline-secondary btn-sm"
                               onClick={() =>
-                                openModal({
-                                  url: uploadedUrls.applicantSignature,
-                                  filename: "signature.png",
-                                })
-                              }
-                            >
-                              View Uploaded File
-                            </button>
-                            <button
-                              type="button"
-                              className="uploaded-file-reupload-btn"
-                              onClick={() => {
-                                setUploadedUrls((prev) => ({
+                                setIsFileInput((prev) => ({
                                   ...prev,
-                                  applicantSignature: null,
-                                }));
-                                setValue("applicantSignature", null);
-                              }}
+                                  applicantSignature: false,
+                                }))
+                              } // Switch to file input when clicked
                             >
-                              Re-upload
+                              Re-upload File
                             </button>
+                            <a
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                openModal(files.applicantSignature); // Open the modal with file preview
+                              }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-outline-primary btn-sm"
+                            >
+                              View Previously Uploaded File
+                            </a>
                           </div>
                         ) : (
                           <input
@@ -878,25 +852,19 @@ const AdmissionForm = () => {
                             }`}
                             {...register("applicantSignature")}
                             name="applicantSignature"
-                            onChange={handleFileChange("applicantSignature")}
+                            onChange={(e) => {
+                              register("applicantSignature").onChange(e);
+                              handleFileChange("applicantSignature")(e);
+                            }}
                           />
                         )}
-                        {(errors.applicantSignature ||
-                          fileErrors.applicantSignature) &&
-                          // Suppress default required error messages for applicantSignature
-                          !(
-                            errors.applicantSignature?.message ===
-                              "Please upload your signature" ||
-                            errors.applicantSignature?.message ===
-                              "Please upload the applicant's signature" ||
-                            errors.applicantSignature?.message ===
-                              "This field is required"
-                          ) && (
-                            <p className="invalid-feedback">
-                              {fileErrors.applicantSignature ||
-                                (errors.applicantSignature?.message as string)}
-                            </p>
-                          )}
+                        {/* {(errors.applicantSignature ||
+                          fileErrors.applicantSignature) && (
+                          <p className="invalid-feedback">
+                            {fileErrors.applicantSignature ||
+                              (errors.applicantSignature?.message as string)}
+                          </p>
+                        )} */}
                       </td>
                     </tr>
                   </tbody>

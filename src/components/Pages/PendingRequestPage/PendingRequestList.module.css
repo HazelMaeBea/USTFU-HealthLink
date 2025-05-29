@@ -635,7 +635,6 @@
 	font-weight: 600;
 	transition: background-color 0.2s ease;
 	font-size: 1rem;
-	margin-top: 0.5rem;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -1138,4 +1137,53 @@
 	.comment-box {
 		min-height: 200px;
 	}
+}
+
+.selected-action-feedback {
+	text-align: center;
+}
+
+.selected-action {
+	font-weight: 500;
+	margin-bottom: 2px;
+}
+
+.action-approve {
+	color: #28a745;
+	font-weight: 600;
+}
+
+.action-reject {
+	color: #dc3545;
+	font-weight: 600;
+}
+
+.action-revise {
+	color: #fd7e14;
+	font-weight: 600;
+}
+
+.no-action-selected {
+	color: #6c757d;
+	font-style: italic;
+}
+
+.request-content {
+	animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.request-header {
+	position: relative;
+	transition: background-color 0.2s ease;
 }
