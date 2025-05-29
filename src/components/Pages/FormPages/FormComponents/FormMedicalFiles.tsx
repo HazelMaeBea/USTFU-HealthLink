@@ -271,12 +271,12 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 									}}
 								/>
 							)}
-							{(errors.employeeID || fileErrors.employeeID) && (
+							{/* {(errors.employeeID || fileErrors.employeeID) && (
 								<p className="invalid-feedback">
 									{fileErrors.employeeID ||
 										(errors.employeeID?.message as string)}
 								</p>
-							)}
+							)} */}
 						</td>
 					</tr>
 					<tr>
@@ -334,12 +334,12 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 									}}
 								/>
 							)}
-							{(errors.docRequest || fileErrors.docRequest) && (
+							{/* {(errors.docRequest || fileErrors.docRequest) && (
 								<p className="invalid-feedback">
 									{fileErrors.docRequest ||
 										(errors.docRequest?.message as string)}
 								</p>
-							)}
+							)} */}
 						</td>
 					</tr>
 					<tr>
@@ -397,14 +397,14 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 									}}
 								/>
 							)}
-							{(errors.hospitalInvoice ||
+							{/* {(errors.hospitalInvoice ||
 								fileErrors.hospitalInvoice) && (
 								<p className="invalid-feedback">
 									{fileErrors.hospitalInvoice ||
 										(errors.hospitalInvoice
 											?.message as string)}
 								</p>
-							)}
+							)} */}
 						</td>
 					</tr>
 					<tr>
@@ -462,12 +462,12 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 									}}
 								/>
 							)}
-							{(errors.labInvoice || fileErrors.labInvoice) && (
+							{/* {(errors.labInvoice || fileErrors.labInvoice) && (
 								<p className="invalid-feedback">
 									{fileErrors.labInvoice ||
 										(errors.labInvoice?.message as string)}
 								</p>
-							)}
+							)} */}
 						</td>
 					</tr>
 					<tr>
@@ -529,14 +529,14 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 									}}
 								/>
 							)}
-							{(errors.applicantSignature ||
+							{/* {(errors.applicantSignature ||
 								fileErrors.applicantSignature) && (
 								<p className="invalid-feedback">
 									{fileErrors.applicantSignature ||
 										(errors.applicantSignature
 											?.message as string)}
 								</p>
-							)}
+							)} */}
 						</td>
 					</tr>
 				</tbody>
