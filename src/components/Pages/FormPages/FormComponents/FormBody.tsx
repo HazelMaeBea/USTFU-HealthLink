@@ -504,6 +504,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		navigate("/tracking");
 	};
 
+	const [showClearSuccess, setShowClearSuccess] = useState(false);
+
 	const handleClearConfirm = () => {
 		// Reset form with empty select values
 		reset({
@@ -513,20 +515,52 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			year: "",
 			status: "",
 			benefits: "",
+			hmo: "",
+			hospital: "",
+			illness: "",
+			physician: "",
+			procedures: "",
+			procedureSpecify: "",
+			confinementFrom: "",
+			confinementTo: "",
+			load: undefined,
 			hospitalStatus: undefined,
+			certify: undefined,
 		});
 
-		// Set flag to reapply autofill - moved outside the reset object
-		setShouldReapplyAutofill(true);
+		// Reset file inputs
+		if (window && window.document) {
+			const fileInputs = document.querySelectorAll('input[type="file"]');
+			fileInputs.forEach((input) => {
+				(input as HTMLInputElement).value = "";
+			});
+		}
 
 		// Reset states
 		setDateHired(null);
 		setDateRetired(null);
 		setPhoneInputValue("+63");
-		setShowClearConfirmation(false);
+		setUploadProgress("Preparing files...");
+
+		// Flag to reapply autofill
+		setShouldReapplyAutofill(true);
 
 		// Clear persisted form data
 		clearFormData(origFormType);
+
+		// Close confirmation dialog
+		setShowClearConfirmation(false);
+
+		// Scroll to top
+		window.scrollTo({ top: 0, behavior: "smooth" });
+
+		// Show success notification
+		setShowClearSuccess(true);
+
+		// Hide success notification after 3 seconds
+		setTimeout(() => {
+			setShowClearSuccess(false);
+		}, 3000);
 	};
 
 	const handleClearCancel = () => {
@@ -563,6 +597,30 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
 	return (
 		<div className="form-body">
+			{/* Clear success notification */}
+			{showClearSuccess && (
+				<div className="success-notification">
+					<div className="success-icon success">
+						<FiCheck size={18} />
+					</div>
+					<div className="success-content">
+						<h4 className="success-title">
+							Form Cleared Successfully
+						</h4>
+						<p className="success-message">
+							The form has been reset to default values.
+						</p>
+					</div>
+					<button
+						className="success-close"
+						onClick={() => setShowClearSuccess(false)}
+						aria-label="Close notification"
+					>
+						<FiX size={18} />
+					</button>
+				</div>
+			)}
+
 			<form onSubmit={handleSubmit(onSubmit)}>
 				{isSubmitted && Object.keys(errors).length > 0 && (
 					<ValidationErrorDropdown errors={errors} />

@@ -57,6 +57,7 @@ interface AutofillData {
 	dateRetired?: string | Date | null;
 	benefits?: string;
 	hmo?: string | null;
+	ustEmail?: string;
 }
 
 export const calculateAge = (birthdateStr: string): number | undefined => {
@@ -173,8 +174,10 @@ export const getAutofillData = async (): Promise<AutofillData | null> => {
 			term: personalInfo.term || "",
 			year: personalInfo.year || "",
 			load: personalInfo.load || "",
+			status: personalInfo.status || "",
 			dateHired: personalInfo.dateHired || null,
 			dateRetired: personalInfo.dateRetired || null,
+			ustEmail: personalInfo.ustEmail || "",
 		};
 
 		console.log("Autofill: Processed data for form:", result);

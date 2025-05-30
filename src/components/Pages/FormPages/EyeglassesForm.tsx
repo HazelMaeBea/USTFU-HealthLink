@@ -27,6 +27,7 @@ import { pushPendingNotification } from "../../Page Elements/NotifBadge/NotifTri
 import { useRevisionStore } from "../../Page Elements/RevisionFuncs/revisionStore.ts";
 import { useRemoveRequest } from "../../Page Elements/RevisionFuncs/removeRequest.ts";
 import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles.tsx";
+import { formatDateToMMDDYYYY } from "../../../utils/dateUtils.ts";
 
 type FileState = {
 	[key: string]: string | null; // Each field (e.g., "applicantSignature") can have a string (file URL) or null
@@ -53,6 +54,8 @@ const MAX_EYEGLASSES_AMOUNT = 5000;
 // Extend the base schema with eyeglasses-specific fields
 const schema = baseFormSchema
 	.extend({
+		benefits: z.string().optional(),
+		hmo: z.string().optional(),
 		ORNumber: z.string().nonempty("Please enter a valid OR Number"),
 		issuedBy: z.string().nonempty("Please enter a valid Issue By"),
 		amountPaid: z.coerce
@@ -74,29 +77,20 @@ const schema = baseFormSchema
 			.max(30, "Teaching load cannot exceed 30 units"),
 		term: z.string().nonempty("Please select a term"),
 		year: z.string().nonempty("Please select an academic year"),
+		status: z.string().nonempty("Please select your employment status"),
 		dateHired: z
 			.string({
 				invalid_type_error: "Please select a valid date",
 				required_error: "Please enter the date you were hired",
 			})
-			.refine((val) => val && val.trim() !== "", {
-				message: "Please enter your date hired",
+			.optional()
+			.transform((val) => {
+				if (!val || val.trim() === "") return null;
+				return new Date(val);
 			})
 			.refine(
-				(val) =>
-					val !== "mm/dd/yyyy" &&
-					!/^\d{2}\/\d{2}\/\d{4}$/.test(val) &&
-					val !== "",
-				{
-					message: "Please select a valid date",
-				}
-			)
-			.transform((val) =>
-				val && val.trim() !== "" ? new Date(val) : null
-			)
-			.refine(
 				(date) => {
-					if (!date) return false;
+					if (!date) return true;
 					return (
 						date instanceof Date &&
 						!isNaN(date.getTime()) &&
@@ -108,6 +102,13 @@ const schema = baseFormSchema
 						"Please enter a valid date that is not in the future",
 				}
 			),
+		dateRetired: z
+			.string({
+				invalid_type_error: "Please select a valid date",
+				required_error: "Please enter the date you retired",
+			})
+			.nullable()
+			.optional(),
 		employeeID: z.any().nullable().optional(),
 		eyeglassesReceipt: z
 			.any()
@@ -115,7 +116,34 @@ const schema = baseFormSchema
 				message: "Eyeglasses receipt is required",
 			}),
 	})
-	.omit({ claimRequestCount: true }); // Remove claimRequestCount requirement
+	.omit({ claimRequestCount: true })
+	.superRefine((data, ctx) => {
+		// Only validate dateHired if status is Tenured-Track and form has been submitted
+		if (data.status === "Tenured-Track" && isSubmitted && !data.dateHired) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message:
+					"Please provide your date of hire as a Tenure-Track faculty member",
+				path: ["dateHired"],
+			});
+		}
+		// Only validate dateRetired if status is Retiree and form has been submitted
+		if (data.status === "Retiree" && isSubmitted && !data.dateRetired) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "Please provide your retirement date",
+				path: ["dateRetired"],
+			});
+		}
+		// If benefits is HMO, hmo field is required
+		if (data.benefits === "HMO" && (!data.hmo || data.hmo.trim() === "")) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "Please specify your HMO provider name",
+				path: ["hmo"],
+			});
+		}
+	});
 
 const EyeglassesForm = () => {
 	const [showSuccessNotification, setShowSuccessNotification] =
@@ -129,9 +157,11 @@ const EyeglassesForm = () => {
 	>("processing");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [dateHired, setDateHired] = useState<Date | null>(null);
+	const [dateRetired, setDateRetired] = useState<Date | null>(null);
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
+	const [showClearSuccess, setShowClearSuccess] = useState(false);
 	const navigate = useNavigate();
 
 	const {
@@ -141,15 +171,16 @@ const EyeglassesForm = () => {
 		setValue,
 		watch,
 		setError,
-		formState: { errors, isSubmitted },
+		formState: { errors, isSubmitted, touchedFields },
 	} = useForm<UnifiedFormData>({
 		resolver: zodResolver(schema),
-		mode: "onChange",
+		mode: "onTouched", // Only validate fields after they've been touched
 		defaultValues: {
 			gender: undefined,
 			college: "",
 			term: "",
 			year: "",
+			status: "", // Add status to default values
 		},
 	});
 
@@ -170,7 +201,7 @@ const EyeglassesForm = () => {
 	}, [watch]);
 
 	// Apply autofill when component loads
-	useAutofill(setValue, setDateHired, undefined, setPhoneInputValue);
+	useAutofill(setValue, setDateHired, setDateRetired, setPhoneInputValue);
 
 	// Re-apply autofill after form is cleared
 	useEffect(() => {
@@ -178,12 +209,34 @@ const EyeglassesForm = () => {
 			applyAutofill(
 				setValue,
 				setDateHired,
-				undefined,
+				setDateRetired,
 				setPhoneInputValue
 			);
 			setShouldReapplyAutofill(false);
 		}
-	}, [shouldReapplyAutofill, setValue, setDateHired, setPhoneInputValue]);
+	}, [
+		shouldReapplyAutofill,
+		setValue,
+		setDateHired,
+		setDateRetired,
+		setPhoneInputValue,
+	]);
+
+	useEffect(() => {
+		if (dateHired) {
+			setValue("dateHired", formatDateToMMDDYYYY(dateHired), {
+				shouldValidate: touchedFields.dateHired || false, // Only validate if the field has been touched
+			});
+		}
+	}, [dateHired, setValue, touchedFields.dateHired]);
+
+	useEffect(() => {
+		if (dateRetired) {
+			setValue("dateRetired", formatDateToMMDDYYYY(dateRetired), {
+				shouldValidate: true,
+			});
+		}
+	}, [dateRetired, setValue]);
 
 	const closeNotification = () => {
 		setIsNotificationHiding(true);
@@ -200,19 +253,24 @@ const EyeglassesForm = () => {
 	};
 
 	const handleClearConfirm = () => {
-		// Reset form with empty select values
-		reset({
-			gender: undefined,
-			college: "",
-			term: "",
-			year: "",
+		// Clear form using utility function
+		clearForm({
+			formType: "eyeglasses",
+			reset,
+			setDateHired,
+			setDateRetired,
+			setPhoneInputValue,
+			setShouldReapplyAutofill,
+			setShowClearSuccess,
+			additionalStates: {
+				setFiles,
+				setFileErrors,
+				setIsNewUpload,
+				setIsFileInput,
+			},
 		});
 
-		// Set flag to reapply autofill
-		setShouldReapplyAutofill(true);
-
-		// Clear file errors
-		setFileErrors({});
+		// Close confirmation dialog
 		setShowClearConfirmation(false);
 	};
 
@@ -227,16 +285,13 @@ const EyeglassesForm = () => {
 			const result = validateFileListSize(files);
 
 			if (!result.valid) {
-				// Set custom file error
 				setFileErrors((prev) => ({
 					...prev,
 					[fieldName]: result.errorMessage,
 				}));
 
-				// Clear the input
 				e.target.value = "";
 
-				// Set form error
 				setError(fieldName as any, {
 					type: "manual",
 					message: result.errorMessage,
@@ -507,6 +562,30 @@ const EyeglassesForm = () => {
 
 	return (
 		<div className="form-body">
+			{/* Clear success notification */}
+			{showClearSuccess && (
+				<div className="success-notification">
+					<div className="success-icon success">
+						<FiCheck size={18} />
+					</div>
+					<div className="success-content">
+						<h4 className="success-title">
+							Form Cleared Successfully
+						</h4>
+						<p className="success-message">
+							The form has been reset to default values.
+						</p>
+					</div>
+					<button
+						className="success-close"
+						onClick={() => setShowClearSuccess(false)}
+						aria-label="Close notification"
+					>
+						<FiX size={18} />
+					</button>
+				</div>
+			)}
+
 			<div className="button-container">
 				<BackButton />
 				<RemainingBenefit />
@@ -537,6 +616,8 @@ const EyeglassesForm = () => {
 								watch={watch}
 								dateHired={dateHired}
 								setDateHired={setDateHired}
+								dateRetired={dateRetired}
+								setDateRetired={setDateRetired}
 							/>
 
 							<FormUploadDisclaimer />

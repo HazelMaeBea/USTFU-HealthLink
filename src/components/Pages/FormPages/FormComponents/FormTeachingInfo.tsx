@@ -32,7 +32,7 @@ const statusOptions = [
 	"Extendee",
 	"Retiree",
 ];
-const benefitsOptions = ["HMO", "PCSO", "Senior Citizen"];
+const benefitsOptions = ["HMO", "PCSO", "Senior Citizen", "None"];
 
 // Get current academic year
 const getCurrentAcademicYear = () => {
@@ -99,7 +99,7 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	}, [formStatus, status]);
 
 	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		userInteractedRef.current = true; // Mark that user has interacted
+		userInteractedRef.current = true;
 		setStatus(event.target.value);
 	};
 
@@ -120,8 +120,12 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 	const handleBenefitChange = (
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
-		benefitInteractedRef.current = true; // Mark that user has interacted
+		benefitInteractedRef.current = true;
 		setBenefit(event.target.value);
+
+		if (event.target.value !== "HMO") {
+			setValue("hmo", "");
+		}
 	};
 
 	//set initial values when component mounts
@@ -313,7 +317,11 @@ const FormTeachingInfo: React.FC<FormTeachingInfoProps> = ({
 									type="radio"
 									value={option}
 									className="form-check-input"
-									onChange={handleBenefitChange}
+									onChange={(e) => {
+										handleBenefitChange(e);
+										register("benefits").onChange(e);
+									}}
+									checked={benefit === option}
 								/>
 								<label
 									htmlFor={`benefits-${index}`}

@@ -49,7 +49,7 @@ type FileField = (typeof fileFields)[number];
 
 let pendingUnmountId: string | null = null;
 
-// Extend the base schema with admission-specific fields
+// Extended the base schema with admission-specific fields
 const schema = baseFormSchema
 	.extend({
 		idNumber: z
@@ -72,6 +72,8 @@ const schema = baseFormSchema
 			.min(0, "Teaching load cannot be negative")
 			.max(30, "Teaching load cannot exceed 30 units"),
 		status: z.string().nonempty("Please select your employment status"),
+		benefits: z.string().optional(),
+		hmo: z.string().optional(),
 		dateHired: z
 			.string({
 				invalid_type_error: "Please select a valid date",
@@ -102,7 +104,7 @@ const schema = baseFormSchema
 				message: "Please upload your signature",
 			}),
 	})
-	.omit({ claimRequestCount: true }) // Remove claimRequestCount requirement
+	.omit({ claimRequestCount: true })
 	.superRefine((data, ctx) => {
 		if (data.status === "Tenured-Track" && !data.dateHired) {
 			ctx.addIssue({
@@ -117,6 +119,14 @@ const schema = baseFormSchema
 				code: z.ZodIssueCode.custom,
 				message: "Please provide your retirement date",
 				path: ["dateRetired"],
+			});
+		}
+		// If benefits is HMO, hmo field is required
+		if (data.benefits === "HMO" && (!data.hmo || data.hmo.trim() === "")) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "Please specify your HMO provider name",
+				path: ["hmo"],
 			});
 		}
 	});
@@ -137,6 +147,7 @@ const AdmissionForm = () => {
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
 	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+	const [showClearSuccess, setShowClearSuccess] = useState(false);
 	const navigate = useNavigate();
 
 	const {
@@ -176,6 +187,7 @@ const AdmissionForm = () => {
 	const { removeRequest } = useRemoveRequest();
 	const [files, setFiles] = useState<any>({});
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	// const [previewFile, setPreviewFile] = useState<any>(null);
 	const [previewFile, setPreviewFile] = useState<any>(null);
 	const [isFileInput, setIsFileInput] = useState<Record<FileField, boolean>>({
 		employeeID: false,
@@ -223,7 +235,7 @@ const AdmissionForm = () => {
 					console.log("Skipping resetRevision - likely remounted");
 				}
 
-				pendingUnmountId = null; // clean up
+				pendingUnmountId = null;
 			}, 100);
 		};
 	}, [transactionId]);
@@ -311,16 +323,24 @@ const AdmissionForm = () => {
 	};
 
 	const handleClearConfirm = () => {
-		// Reset form with empty select values
-		reset({
-			gender: undefined,
-			college: "",
-			status: "",
+		// Clear form using utility function
+		clearForm({
+			formType: "admission",
+			reset,
+			setDateHired,
+			setDateRetired,
+			setPhoneInputValue,
+			setShouldReapplyAutofill,
+			setShowClearSuccess,
+			additionalStates: {
+				setFiles,
+				setFileErrors,
+				setIsNewUpload,
+				setIsFileInput,
+			},
 		});
 
-		// Clear file errors
-		setFileErrors({});
-		setShouldReapplyAutofill(true);
+		// Close confirmation dialog
 		setShowClearConfirmation(false);
 	};
 
@@ -530,6 +550,30 @@ const AdmissionForm = () => {
 
 	return (
 		<div className="form-body">
+			{/* Clear success notification */}
+			{showClearSuccess && (
+				<div className="success-notification">
+					<div className="success-icon success">
+						<FiCheck size={18} />
+					</div>
+					<div className="success-content">
+						<h4 className="success-title">
+							Form Cleared Successfully
+						</h4>
+						<p className="success-message">
+							The form has been reset to default values.
+						</p>
+					</div>
+					<button
+						className="success-close"
+						onClick={() => setShowClearSuccess(false)}
+						aria-label="Close notification"
+					>
+						<FiX size={18} />
+					</button>
+				</div>
+			)}
+
 			<div className="button-container">
 				<BackButton />
 				<RemainingBenefit />

@@ -77,6 +77,10 @@ export const baseFormSchema = z.object({
 	// Academic fields
 	term: z.string().optional(),
 	academicYear: z.string().optional(),
+
+	// Health benefits fields
+	benefits: z.string().optional(),
+	hmo: z.string().optional(),
 });
 
 // Base FormData type from schema with updated contact field
