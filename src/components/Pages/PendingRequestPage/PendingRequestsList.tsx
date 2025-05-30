@@ -469,12 +469,60 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 		}
 	};
 
+	// For validUntil date
+	const handleValidUntilChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+		setValidUntil(value);
+
+		if (value) {
+			setValidationErrors((prev) => ({
+				...prev,
+				validUntil: undefined,
+			}));
+		}
+	};
+
+	// For benefit amount
+	const handleBenefitAmountChange = (
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
+		const value = parseInt(e.target.value) || 0;
+		setEditBenefits(value);
+
+		if (value > 0) {
+			setValidationErrors((prev) => ({
+				...prev,
+				editBenefits: undefined,
+			}));
+		}
+	};
+
+	// For official rep name
+	const handleOfficialRepChange = (
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
+		const value = e.target.value;
+		setOfficialRep(value);
+
+		if (value.trim()) {
+			setValidationErrors((prev) => ({
+				...prev,
+				officialRep: undefined,
+			}));
+		}
+	};
+
+	// For signature image upload
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (file) {
 			const reader = new FileReader();
 			reader.onload = (e) => {
 				setSignatureImage(e.target?.result as string);
+				setValidationErrors((prev) => ({
+					...prev,
+					signature: undefined,
+				}));
 			};
 			reader.readAsDataURL(file);
 		}
@@ -1077,9 +1125,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 												.toISOString()
 												.split("T")[0]
 										}
-										onChange={(e) =>
-											setValidUntil(e.target.value)
-										}
+										onChange={handleValidUntilChange}
 									/>
 									{validationErrors.validUntil && (
 										<div
@@ -1126,12 +1172,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 												]
 											}
 											className={styles["amount-input"]}
-											onChange={(e) => {
-												setEditBenefits(
-													parseInt(e.target.value) ||
-														0
-												);
-											}}
+											onChange={handleBenefitAmountChange}
 										/>
 									</div>
 									<span className={styles["amount-label"]}>
@@ -1250,9 +1291,7 @@ const PendingRequestList: React.FC<PendingRequestListProps> = ({
 													: ""
 											}`}
 											value={officialRep}
-											onChange={(e) =>
-												setOfficialRep(e.target.value)
-											}
+											onChange={handleOfficialRepChange}
 											aria-label="USTFU President"
 										/>
 										{validationErrors.officialRep && (
