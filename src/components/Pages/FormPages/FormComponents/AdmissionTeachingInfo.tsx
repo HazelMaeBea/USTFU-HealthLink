@@ -33,7 +33,6 @@ const statusOptions = [
 	"Extendee",
 	"Retiree",
 ];
-const benefitsOptions = ["HMO", "PCSO", "Senior Citizen", "None"];
 
 const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 	register,
@@ -45,7 +44,6 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 	watch,
 }) => {
 	const [status, setStatus] = useState("");
-	const [benefit, setBenefit] = useState("");
 
 	// Get current status from form
 	const formStatus = watch ? watch("status") : "";
@@ -64,10 +62,6 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		userInteractedRef.current = true; // Mark that user has interacted
 		setStatus(event.target.value);
-	};
-
-	const handleBenefitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setBenefit(event.target.value);
 	};
 
 	return (
@@ -240,62 +234,6 @@ const AdmissionTeachingInfo: React.FC<AdmissionTeachingInfoProps> = ({
 						{errors.dateRetired && (
 							<p className="text-danger">
 								{errors.dateRetired?.message as string}
-							</p>
-						)}
-					</div>
-				</div>
-			</div>
-
-			<div className="row mb-3">
-				<div className="mb-1 col-md-3">
-					<label className="form-label">Health Benefits</label>
-					{benefitsOptions.map((option, index) => (
-						<div key={index} className="form-check">
-							<input
-								{...register("benefits")}
-								id={`benefits-${index}`}
-								type="radio"
-								value={option}
-								className="form-check-input"
-								onChange={handleBenefitChange}
-							/>
-							<label
-								htmlFor={`benefits-${index}`}
-								className="form-check-label"
-							>
-								{option}
-							</label>
-						</div>
-					))}
-					{errors.benefits && (
-						<p className="text-danger">
-							{errors.benefits.message}
-						</p>
-					)}
-					<p></p>
-					{/* Only show HMO input if HMO is selected */}
-					<div
-						className="mb-1 col-md-12 hmo-input"
-						style={{
-							display: benefit === "HMO" ? "block" : "none",
-						}}
-					>
-						<label htmlFor="hmo" className="form-label">
-							If HMO, please specify:{" "}
-							<span className="required-asterisk">*</span>
-						</label>
-						<input
-							{...register("hmo")}
-							id="hmo"
-							type="text"
-							className={`form-control ${
-								errors.hmo ? "is-invalid" : ""
-							}`}
-							placeholder="Enter HMO provider name"
-						/>
-						{errors.hmo && (
-							<p className="text-danger">
-								{errors.hmo.message}
 							</p>
 						)}
 					</div>

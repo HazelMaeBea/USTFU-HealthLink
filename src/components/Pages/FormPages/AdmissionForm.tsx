@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,7 @@ import RemainingBenefit from "./RemainingBenefitPopout/RemainingBenefit.tsx";
 import { useAutofill, applyAutofill } from "./FormUtil/Autofill.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../Page Elements/Popout/Popout.tsx";
-import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
+import { FiCheck, FiArrowRight, FiX, FiInfo } from "react-icons/fi";
 import {
 	uploadFilesAndGetURLs,
 	validateFileListSize,
@@ -31,7 +31,10 @@ import {
 	saveFormData,
 	loadFormData,
 	clearFormData,
+	hasSavedFormData,
 } from "./FormUtil/formPresistence.ts";
+import { checkForRestoredFormData } from "./FormUtil/formClearUtil.ts";
+import { clearForm } from "./FormUtil/formClearUtil.ts";
 
 type FileState = {
 	[key: string]: string | null; // Each field (e.g., "applicantSignature") can have a string (file URL) or null
@@ -148,6 +151,7 @@ const AdmissionForm = () => {
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
 	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 	const [showClearSuccess, setShowClearSuccess] = useState(false);
+	const [showRestoredMessage, setShowRestoredMessage] = useState(false);
 	const navigate = useNavigate();
 
 	const {
@@ -173,15 +177,43 @@ const AdmissionForm = () => {
 		const savedData = loadFormData("admission");
 		if (savedData) {
 			reset(savedData);
+			// Display message that form was restored from previous session
+			checkForRestoredFormData("admission", setShowRestoredMessage);
 		}
 	}, [reset]);
 
-	// auto save data on change
+	const formSaveTimeout = useRef<NodeJS.Timeout | null>(null);
+
+	// auto save data on change with debouncing
 	useEffect(() => {
 		const subscription = watch((value) => {
-			saveFormData("admission", value);
+			// We don't want to save empty forms
+			if (
+				Object.keys(value).some(
+					(key) =>
+						value[key] !== undefined &&
+						value[key] !== null &&
+						value[key] !== "" &&
+						!(value[key] instanceof FileList)
+				)
+			) {
+				// Use setTimeout to debounce (only save after 500ms of no changes)
+				if (formSaveTimeout.current) {
+					clearTimeout(formSaveTimeout.current);
+				}
+
+				formSaveTimeout.current = setTimeout(() => {
+					saveFormData("admission", value);
+				}, 500);
+			}
 		});
-		return () => subscription.unsubscribe();
+
+		return () => {
+			subscription.unsubscribe();
+			if (formSaveTimeout.current) {
+				clearTimeout(formSaveTimeout.current);
+			}
+		};
 	}, [watch]);
 
 	const { removeRequest } = useRemoveRequest();
@@ -332,6 +364,7 @@ const AdmissionForm = () => {
 			setPhoneInputValue,
 			setShouldReapplyAutofill,
 			setShowClearSuccess,
+			setShowRestoredMessage,
 			additionalStates: {
 				setFiles,
 				setFileErrors,
@@ -581,6 +614,26 @@ const AdmissionForm = () => {
 			<div className="container">
 				<FormHeader formType="Hospital Admission Form" />
 				<div className="form-body">
+					{/* Restored data notification */}
+					{showRestoredMessage && (
+						<div className="info-notification">
+							<div className="info-icon">
+								<FiInfo size={18} />
+							</div>
+							<div className="info-content">
+								<p>
+									Your previous form data has been restored.
+								</p>
+							</div>
+							<button
+								className="info-close"
+								onClick={() => setShowRestoredMessage(false)}
+								aria-label="Close notification"
+							>
+								<FiX size={18} />
+							</button>
+						</div>
+					)}
 					<div className="form-container">
 						<form onSubmit={handleSubmit(onSubmit)}>
 							{isSubmitted && Object.keys(errors).length > 0 && (

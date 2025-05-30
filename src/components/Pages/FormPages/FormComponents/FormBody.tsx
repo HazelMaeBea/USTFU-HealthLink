@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,7 @@ import { addDoc, collection } from "firebase/firestore";
 import { auth, db } from "../../../../contexts/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout.tsx";
-import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
+import { FiCheck, FiArrowRight, FiX, FiInfo } from "react-icons/fi";
 import { useAutofill, applyAutofill } from "../FormUtil/Autofill.ts";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 import { pushPendingNotification } from "../../../Page Elements/NotifBadge/NotifTrigger.ts";
@@ -27,7 +27,10 @@ import {
 	saveFormData,
 	loadFormData,
 	clearFormData,
+	hasSavedFormData,
+	saveEmptyFormData,
 } from "../FormUtil/formPresistence.ts";
+import { checkForRestoredFormData } from "../FormUtil/formClearUtil.ts";
 import { convertToMMDDYYYY } from "../../../../utils/dateUtils.ts";
 
 interface FormBodyProps {
@@ -54,6 +57,9 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
 	const { resetRevision, isRevisionMode, transactionId } = useRevisionStore();
 	const { removeRequest } = useRemoveRequest();
+	const [showRestoredMessage, setShowRestoredMessage] = useState(false);
+
+	const formSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
 	const createFormSchema = (formType: string) =>
 		baseFormSchema
@@ -282,16 +288,43 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		const savedData = loadFormData(origFormType);
 		if (savedData) {
 			reset(savedData);
+			checkForRestoredFormData(origFormType, setShowRestoredMessage);
 		}
 	}, [origFormType, reset]);
 
-	//Autosave form data on change
+	//Auto-save form data on change
 	// Auto-save form data on change:
 	useEffect(() => {
 		const subscription = watch((data) => {
-			saveFormData(origFormType, data);
+			// We don't want to save empty forms
+			if (
+				Object.keys(data).some((key) => {
+					const value = data[key as keyof typeof data];
+					return (
+						value !== undefined &&
+						value !== null &&
+						value !== "" &&
+						!(value instanceof FileList)
+					);
+				})
+			) {
+				// Use setTimeout to debounce (only save after 500ms of no changes)
+				if (formSaveTimeout.current) {
+					clearTimeout(formSaveTimeout.current);
+				}
+
+				formSaveTimeout.current = setTimeout(() => {
+					saveFormData(origFormType, data);
+				}, 500);
+			}
 		});
-		return () => subscription.unsubscribe();
+
+		return () => {
+			subscription.unsubscribe();
+			if (formSaveTimeout.current) {
+				clearTimeout(formSaveTimeout.current);
+			}
+		};
 	}, [watch, origFormType]);
 
 	// Add a handler to close the notification with animation
@@ -507,7 +540,11 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [showClearSuccess, setShowClearSuccess] = useState(false);
 
 	const handleClearConfirm = () => {
-		// Reset form with empty select values
+		console.log("Starting form clear operation...");
+		// First clear localStorage data
+		clearFormData(origFormType);
+
+		// Reset form with explicit default values for all fields
 		reset({
 			gender: undefined,
 			college: "",
@@ -524,8 +561,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			confinementFrom: "",
 			confinementTo: "",
 			load: undefined,
-			hospitalStatus: undefined,
-			certify: undefined,
+			hospitalStatus: undefined, // Explicitly reset hospitalStatus
+			certify: false,
 		});
 
 		// Reset file inputs
@@ -545,8 +582,13 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		// Flag to reapply autofill
 		setShouldReapplyAutofill(true);
 
-		// Clear persisted form data
-		clearFormData(origFormType);
+		// Prevent auto-save for a short period after clearing
+		if (formSaveTimeout.current) {
+			clearTimeout(formSaveTimeout.current);
+		}
+
+		// Force immediate save of empty data to overwrite any existing data
+		saveEmptyFormData(origFormType);
 
 		// Close confirmation dialog
 		setShowClearConfirmation(false);
@@ -561,6 +603,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		setTimeout(() => {
 			setShowClearSuccess(false);
 		}, 3000);
+
+		console.log("Form cleared successfully");
 	};
 
 	const handleClearCancel = () => {
@@ -597,6 +641,25 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
 	return (
 		<div className="form-body">
+			{/* Restored data notification */}
+			{showRestoredMessage && (
+				<div className="info-notification">
+					<div className="info-icon">
+						<FiInfo size={18} />
+					</div>
+					<div className="info-content">
+						<p>Your previous form data has been restored.</p>
+					</div>
+					<button
+						className="info-close"
+						onClick={() => setShowRestoredMessage(false)}
+						aria-label="Close notification"
+					>
+						<FiX size={18} />
+					</button>
+				</div>
+			)}
+
 			{/* Clear success notification */}
 			{showClearSuccess && (
 				<div className="success-notification">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,7 @@ import BackButton from "../../Page Elements/BackButton/BackButton.tsx";
 import RemainingBenefit from "./RemainingBenefitPopout/RemainingBenefit.tsx";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../Page Elements/Popout/Popout.tsx";
-import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
+import { FiCheck, FiArrowRight, FiX, FiInfo } from "react-icons/fi";
 import { useAutofill, applyAutofill } from "./FormUtil/Autofill.ts";
 import {
 	uploadFilesAndGetURLs,
@@ -28,6 +28,16 @@ import { useRevisionStore } from "../../Page Elements/RevisionFuncs/revisionStor
 import { useRemoveRequest } from "../../Page Elements/RevisionFuncs/removeRequest.ts";
 import ViewFiles from "../../Page Elements/ViewFiles/ViewFiles.tsx";
 import { formatDateToMMDDYYYY } from "../../../utils/dateUtils.ts";
+import {
+	saveFormData,
+	loadFormData,
+	clearFormData,
+	hasSavedFormData,
+} from "./FormUtil/formPresistence.ts";
+import {
+	checkForRestoredFormData,
+	clearForm,
+} from "./FormUtil/formClearUtil.ts";
 
 type FileState = {
 	[key: string]: string | null; // Each field (e.g., "applicantSignature") can have a string (file URL) or null
@@ -42,11 +52,6 @@ const fileFields = [
 type FileField = (typeof fileFields)[number];
 
 let pendingUnmountId: string | null = null;
-import {
-	saveFormData,
-	loadFormData,
-	clearFormData,
-} from "./FormUtil/formPresistence.ts";
 
 // Maximum amount allowed for eyeglasses reimbursement - can be changed by admin
 const MAX_EYEGLASSES_AMOUNT = 5000;
@@ -118,8 +123,8 @@ const schema = baseFormSchema
 	})
 	.omit({ claimRequestCount: true })
 	.superRefine((data, ctx) => {
-		// Only validate dateHired if status is Tenured-Track and form has been submitted
-		if (data.status === "Tenured-Track" && isSubmitted && !data.dateHired) {
+		// Only validate dateHired if status is Tenured-Track
+		if (data.status === "Tenured-Track" && !data.dateHired) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
 				message:
@@ -127,8 +132,8 @@ const schema = baseFormSchema
 				path: ["dateHired"],
 			});
 		}
-		// Only validate dateRetired if status is Retiree and form has been submitted
-		if (data.status === "Retiree" && isSubmitted && !data.dateRetired) {
+		// Only validate dateRetired if status is Retiree
+		if (data.status === "Retiree" && !data.dateRetired) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
 				message: "Please provide your retirement date",
@@ -162,6 +167,7 @@ const EyeglassesForm = () => {
 	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
 	const [showClearSuccess, setShowClearSuccess] = useState(false);
+	const [showRestoredMessage, setShowRestoredMessage] = useState(false);
 	const navigate = useNavigate();
 
 	const {
@@ -184,20 +190,50 @@ const EyeglassesForm = () => {
 		},
 	});
 
+	// Define timeout ref for form auto-save
+	const formSaveTimeout = useRef<NodeJS.Timeout | null>(null);
+
 	// Load persisted form data on mount
 	useEffect(() => {
 		const savedData = loadFormData("eyeglasses");
 		if (savedData) {
 			reset(savedData);
+			// Display message that form was restored from previous session
+			if (typeof checkForRestoredFormData === "function") {
+				checkForRestoredFormData("eyeglasses", setShowRestoredMessage);
+			}
 		}
 	}, [reset]);
 
-	//Auto-save form data on changes
+	//Auto-save form data on changes, with debounce to reduce storage operations
 	useEffect(() => {
 		const subscription = watch((value) => {
-			saveFormData("eyeglasses", value);
+			// We don't want to save empty forms
+			if (
+				Object.keys(value).some(
+					(key) =>
+						value[key as keyof typeof value] !== undefined &&
+						value[key as keyof typeof value] !== null &&
+						value[key as keyof typeof value] !== "" &&
+						!(value[key as keyof typeof value] instanceof FileList)
+				)
+			) {
+				// Use setTimeout to debounce (only save after 500ms of no changes)
+				if (formSaveTimeout.current) {
+					clearTimeout(formSaveTimeout.current);
+				}
+
+				formSaveTimeout.current = setTimeout(() => {
+					saveFormData("eyeglasses", value);
+				}, 500);
+			}
 		});
-		return () => subscription.unsubscribe();
+		return () => {
+			subscription.unsubscribe();
+			if (formSaveTimeout.current) {
+				clearTimeout(formSaveTimeout.current);
+			}
+		};
 	}, [watch]);
 
 	// Apply autofill when component loads
@@ -253,25 +289,55 @@ const EyeglassesForm = () => {
 	};
 
 	const handleClearConfirm = () => {
-		// Clear form using utility function
-		clearForm({
-			formType: "eyeglasses",
-			reset,
-			setDateHired,
-			setDateRetired,
-			setPhoneInputValue,
-			setShouldReapplyAutofill,
-			setShowClearSuccess,
-			additionalStates: {
-				setFiles,
-				setFileErrors,
-				setIsNewUpload,
-				setIsFileInput,
-			},
-		});
+		try {
+			console.log("Starting form clear operation for eyeglasses form");
+			clearFormData("eyeglasses");
 
-		// Close confirmation dialog
-		setShowClearConfirmation(false);
+			clearForm({
+				formType: "eyeglasses",
+				reset,
+				setDateHired,
+				setDateRetired,
+				setPhoneInputValue,
+				setShouldReapplyAutofill,
+				setShowClearSuccess,
+				setShowRestoredMessage,
+				additionalStates: {
+					setFiles,
+					setFileErrors,
+					setIsNewUpload,
+					setIsFileInput,
+				},
+			});
+
+			// Prevent auto-save for a short period after clearing
+			if (formSaveTimeout.current) {
+				clearTimeout(formSaveTimeout.current);
+			}
+
+			// Force immediate save of empty data to overwrite any existing data
+			saveFormData("eyeglasses", {
+				gender: undefined,
+				college: "",
+				term: "",
+				year: "",
+				status: "",
+			});
+
+			// Close confirmation dialog
+			setShowClearConfirmation(false);
+
+			console.log("Form clear operation completed for eyeglasses form");
+		} catch (error) {
+			console.error("Error clearing form:", error);
+			// Fallback manual clearing
+			clearFormData("eyeglasses");
+			reset();
+			setDateHired(null);
+			setDateRetired(null);
+			setPhoneInputValue("+63");
+			setShowClearConfirmation(false);
+		}
 	};
 
 	const handleClearCancel = () => {
@@ -593,6 +659,26 @@ const EyeglassesForm = () => {
 			<div className="container">
 				<FormHeader formType="Eyeglasses Form" />
 				<div className="form-body">
+					{/* Restored data notification */}
+					{showRestoredMessage && (
+						<div className="info-notification">
+							<div className="info-icon">
+								<FiInfo size={18} />
+							</div>
+							<div className="info-content">
+								<p>
+									Your previous form data has been restored.
+								</p>
+							</div>
+							<button
+								className="info-close"
+								onClick={() => setShowRestoredMessage(false)}
+								aria-label="Close notification"
+							>
+								<FiX size={18} />
+							</button>
+						</div>
+					)}
 					<div className="form-container">
 						<form onSubmit={handleSubmit(onSubmit)}>
 							{isSubmitted && Object.keys(errors).length > 0 && (
@@ -777,11 +863,12 @@ const EyeglassesForm = () => {
 														}}
 													/>
 												)}
-												{(errors.employeeID ||
-													fileErrors.employeeID) && (
+												{(errors.eyeglassesReceipt ||
+													fileErrors.eyeglassesReceipt) && (
 													<p className="invalid-feedback">
-														{fileErrors.employeeID ||
-															(errors.employeeID
+														{fileErrors.eyeglassesReceipt ||
+															(errors
+																.eyeglassesReceipt
 																?.message as string)}
 													</p>
 												)}

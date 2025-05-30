@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { UnifiedFormData } from "../FormUtil/formTypes";
 
 interface FormHospitalStatusProps {
 	register: UseFormRegister<UnifiedFormData>;
 	errors: FieldErrors<UnifiedFormData>;
+	watch?: (name: string) => any;
 }
 
-// Keep the actual option values the same but map to new display labels
 const hospitalStatusOptions = ["In-Patient", "Out-Patient", "ER Consultation"];
 const hospitalStatusLabels: Record<string, string> = {
 	"In-Patient": "For Confinement",
@@ -18,7 +18,32 @@ const hospitalStatusLabels: Record<string, string> = {
 const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 	register,
 	errors,
+	watch,
 }) => {
+	const [resetKey, setResetKey] = useState(0);
+
+	useEffect(() => {
+		const hospitalStatusRadios = document.querySelectorAll(
+			'input[name="hospitalStatus"]'
+		);
+		hospitalStatusRadios.forEach((radio: Element) => {
+			(radio as HTMLInputElement).checked = false;
+		});
+
+		register("hospitalStatus");
+	}, [resetKey, register]);
+
+	useEffect(() => {
+		if (watch) {
+			const subscription = watch((value, { name, type }) => {
+				if (type === "change" && name === "hospitalStatus" && !value) {
+					setResetKey((prev) => prev + 1);
+				}
+			});
+			return () => subscription.unsubscribe();
+		}
+	}, [watch]);
+
 	return (
 		<>
 			<hr className="section-separator" />
