@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./HistoryPopout.module.css";
+import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+import PageButtons from "../../Page Elements/PageButtons/PageButtons"; // new import
 
 interface HistoryPopoutProps {
 	onClose: () => void;
@@ -12,62 +14,70 @@ interface HistoryItem {
 	amount: number;
 }
 
-const HistoryPopout: React.FC<HistoryPopoutProps> = ({
-	onClose,
-	requester,
-}) => {
+const HistoryPopout: React.FC<HistoryPopoutProps> = ({ onClose, requester }) => {
 	const [history, setHistory] = useState<HistoryItem[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [totalAmount, setTotalAmount] = useState(0);
+	const [currentPage, setCurrentPage] = useState(1);
+	const recordsPerPage = 5; // show 5 records per page
 
 	useEffect(() => {
-		// Fetch history data for the requester
+		let isMounted = true; // cancellation flag
+
 		const fetchHistory = async () => {
 			try {
-				// In a real application, you would fetch data from your backend
-				// For now, we'll simulate a delay and return mock data
 				setLoading(true);
 
-				// Simulate API call delay
-				await new Promise((resolve) => setTimeout(resolve, 1000));
+				// Query Firestore for history records for the requester
+				const db = getFirestore();
+				const accomplishedRef = collection(db, "AccomplishedRequests");
+				const accomplishedQuery = query(accomplishedRef, where("requester", "==", requester));
+				const querySnapshot = await getDocs(accomplishedQuery);
+				const fetchedHistory: HistoryItem[] = [];
+				querySnapshot.forEach((doc) => {
+					const data = doc.data();
+					// Check that benefitHistory exists and has a date property before using it
+					if (data.benefitHistory && data.benefitHistory.date) {
+						fetchedHistory.push({
+							date: data.benefitHistory.date.toDate().toLocaleDateString(), // convert timestamp from Firestore
+							description: `${data.benefitHistory.formType} ${data.benefitHistory.transactionId}`,
+							amount: data.benefitHistory.remainingBenefit,
+						});
+					} else {
+						console.warn(`Skipped doc ${doc.id}: missing benefitHistory or date field.`);
+					}
+				});
 
-				// Example mock data based on requester
-				const mockHistory: HistoryItem[] = [
-					{
-						date: "01/15/2024",
-						description: "Health Claim - Hospital",
-						amount: 5000,
-					},
-					{
-						date: "11/02/2023",
-						description: "Health Claim - Outpatient",
-						amount: 2500,
-					},
-					{
-						date: "09/17/2023",
-						description: "Health Claim - Dental",
-						amount: 1500,
-					},
-				];
+				// Sort history in descending order by date
+				fetchedHistory.sort(
+					(a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf()
+				);
 
-				const totalAmount = mockHistory.reduce(
-					(sum, item) => sum + item.amount,
-					0
-				); // Compute total amount
-
-				setHistory(mockHistory);
-				setTotalAmount(totalAmount);
-				setLoading(false);
+				if (isMounted) {
+					setHistory(fetchedHistory);
+					setLoading(false);
+				}
 			} catch (error) {
 				console.error("Error fetching history:", error);
-				setLoading(false);
+				if (isMounted) {
+					setLoading(false);
+				}
 			}
 		};
 
 		if (requester) {
 			fetchHistory();
 		}
+
+		return () => {
+			isMounted = false;
+		};
 	}, [requester]);
+
+	// Calculate pagination variables
+	const totalPages = Math.ceil(history.length / recordsPerPage);
+	const indexOfLastRecord = currentPage * recordsPerPage;
+	const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+	const paginatedHistory = history.slice(indexOfFirstRecord, indexOfLastRecord);
 
 	return (
 		<div className={styles["history-popout-overlay"]}>
@@ -82,7 +92,6 @@ const HistoryPopout: React.FC<HistoryPopoutProps> = ({
 					<div className={styles["user-info"]}>
 						<h3>User: {requester}</h3>
 					</div>
-
 					{loading ? (
 						<div className={styles["loading-container"]}>
 							<div className={styles["loading-spinner"]}></div>
@@ -98,51 +107,36 @@ const HistoryPopout: React.FC<HistoryPopoutProps> = ({
 										<thead>
 											<tr>
 												<th>Date</th>
-												<th>Description</th>
-												<th>Amount (PHP)</th>
+												<th>Transaction</th>
+												<th>Remaining Benefits</th>
 											</tr>
 										</thead>
 										<tbody>
-											{history.map((item, index) => (
+											{paginatedHistory.map((item, index) => (
 												<tr key={index}>
 													<td>{item.date}</td>
 													<td>{item.description}</td>
-													<td
-														className={
-															styles[
-																"amount-column"
-															]
-														}
-													>
-														₱
-														{item.amount.toLocaleString()}
+													<td className={styles["amount-column"]}>
+														₱{item.amount.toLocaleString()}
 													</td>
 												</tr>
 											))}
-											<tr>
-												<td
-													colSpan={2}
-													style={{
-														textAlign: "right",
-														fontWeight: "bold",
-													}}
-												>
-													TOTAL:
-												</td>
-												<td
-													className={
-														styles["amount-column"]
-													}
-													style={{
-														fontWeight: "bold",
-													}}
-												>
-													₱
-													{totalAmount.toLocaleString()}
-												</td>
-											</tr>
 										</tbody>
 									</table>
+									{/* Pagination layout copied from PendingRequestsList */}
+									<div className={styles.paginationContainer}>
+										<div className={styles.recordInfo}>
+											Showing {indexOfFirstRecord + 1} to{" "}
+											{Math.min(indexOfLastRecord, history.length)} of {history.length} results
+										</div>
+										<div className={styles.pageButtonsContainer}>
+											<PageButtons
+												currentPage={currentPage}
+												totalPages={totalPages}
+												onPageChange={(page: number) => setCurrentPage(page)}
+											/>
+										</div>
+									</div>
 								</>
 							) : (
 								<div className={styles["no-history-message"]}>

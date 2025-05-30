@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
-		"types": ["vitest/globals"]
+		"types": ["vitest/globals", "react"],
+		"jsx": "react"
 	},
 	"files": [],
 	"references": [
