@@ -155,7 +155,7 @@ export const clearForm = (options: ClearFormOptions): void => {
 };
 
 /**
- * Checks if a form has saved data and displays a message accordingly
+ * Checks if a form has saved data with real user-entered content and displays a message accordingly
  * @param formType Unique identifier for the form
  * @param setShowRestoredMessage Function to set state for showing restored message
  */
@@ -163,14 +163,128 @@ export const checkForRestoredFormData = (
 	formType: string,
 	setShowRestoredMessage: Dispatch<SetStateAction<boolean>>
 ): void => {
-	const hasData = hasSavedFormData(formType);
-	console.log(`Checking for restored form data (${formType}): ${hasData}`);
-	setShowRestoredMessage(hasData);
-
-	// If there's saved data, hide the message after 5 seconds
-	if (hasData) {
-		setTimeout(() => {
+	try {
+		console.log("Running updated checkForRestoredFormData function - version 4");
+		
+		// Check if this is a brand new session using sessionStorage
+		const sessionKey = `session_checked_${formType}`;
+		const hasCheckedThisSession = sessionStorage.getItem(sessionKey);
+		
+		// If we've already checked in this browser session, don't show the notification again
+		if (hasCheckedThisSession) {
+			console.log(`Already checked form ${formType} in this session, not showing notification`);
 			setShowRestoredMessage(false);
-		}, 5000);
+			return;
+		}
+		
+		// Mark that we've checked in this session
+		sessionStorage.setItem(sessionKey, "true");
+		
+		// Direct check for user-entered data in localStorage
+		const savedData = localStorage.getItem(`form_${formType}`);
+		if (!savedData) {
+			setShowRestoredMessage(false);
+			return;
+		}
+
+		// Parse the saved data
+		const data = JSON.parse(savedData);
+		
+		// Check for last save timestamp
+		const lastSaveTimeKey = `last_save_time_${formType}`;
+		const lastSaveTime = localStorage.getItem(lastSaveTimeKey);
+		const currentTime = Date.now();
+		
+		// If we have a last save time, check if enough time has passed (e.g., 1 hour = 3600000ms)
+		const TIME_THRESHOLD = 1800000; // 30 minutes
+		let hasBeenAway = false;
+		
+		if (lastSaveTime) {
+			const timeDiff = currentTime - parseInt(lastSaveTime);
+			hasBeenAway = timeDiff > TIME_THRESHOLD;
+			console.log(`Time since last save: ${timeDiff/60000} minutes, threshold: ${TIME_THRESHOLD/60000} minutes`);
+		} else {
+			// If no timestamp exists, this might be data from a previous session
+			hasBeenAway = true;
+		}
+		
+		// Update the save time for next check
+		localStorage.setItem(lastSaveTimeKey, currentTime.toString());
+
+		// If all values are empty, null, or undefined, don't show the message
+		const allEmpty = Object.entries(data).every(([key, value]) => {
+			// Skip checking certain autofill fields
+			if (
+				[
+					"gender",
+					"college",
+					"term",
+					"year",
+					"status",
+					"benefits",
+					"hospitalStatus",
+				].includes(key)
+			) {
+				return true;
+			}
+
+			// For strings, check if they're empty
+			if (typeof value === "string") {
+				return value === "";
+			}
+
+			// For other types, check if they're null or undefined
+			return value === null || value === undefined;
+		});
+
+		if (allEmpty) {
+			console.log(`Form ${formType} data is empty or contains only autofill values`);
+			setShowRestoredMessage(false);
+			return;
+		}
+
+		// Check for fields that would definitely indicate user-entered data
+		const userFields = [
+			"amountPaid",
+			"ORNumber",
+			"issuedBy",
+			"hospital",
+			"illness",
+			"physician",
+			"procedures",
+			"procedureSpecify",
+			"confinementFrom",
+			"confinementTo",
+			"idNumber",
+			"address",
+		];
+
+		const hasUserEnteredData = userFields.some((field) => {
+			return (
+				data[field] !== undefined &&
+				data[field] !== null &&
+				data[field] !== ""
+			);
+		});
+
+		// Only show notification if:
+		// 1. There is user-entered data
+		// 2. User has been away for some time (or we don't know when they last saved)
+		const shouldShowNotification = hasUserEnteredData && hasBeenAway;
+		
+		console.log(`Form ${formType} has user data: ${hasUserEnteredData}, has been away: ${hasBeenAway}`);
+		console.log(`Should show restored notification: ${shouldShowNotification}`);
+		
+		setShowRestoredMessage(shouldShowNotification);
+
+		// If showing notification, hide it after 5 seconds
+		if (shouldShowNotification) {
+			setTimeout(() => {
+				setShowRestoredMessage(false);
+			}, 5000);
+		}
+	} catch (error) {
+		console.error("Error checking for form data to restore:", error);
+		setShowRestoredMessage(false);
 	}
 };

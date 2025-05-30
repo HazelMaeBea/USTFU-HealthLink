@@ -8,11 +8,56 @@ const autofillFields = [
 	"year",
 	"status",
 	"benefits",
+	"hospitalStatus",
 	"firstname",
 	"lastname",
 	"middlename",
 	"contact",
 ];
+
+// Fields that would indicate user-entered data (not just autofill)
+const userEditedFields = [
+	"amountPaid",
+	"ORNumber",
+	"issuedBy",
+	"hospital",
+	"illness",
+	"physician",
+	"procedures",
+	"procedureSpecify",
+	"confinementFrom",
+	"confinementTo",
+	"idNumber",
+	"address",
+];
+
+/**
+ * Determines if the form data contains actual user-entered content beyond autofill
+ * @param data Form data to check
+ * @returns true if there's meaningful user-entered data, false if only autofill or empty
+ */
+const hasUserEnteredData = (data: FieldValues): boolean => {
+	// Check if any user-edited fields have values
+	const hasEditedData = userEditedFields.some((field) => {
+		return data[field] !== undefined && data[field] !== null && data[field] !== "";
+	});
+
+	// Check if any non-autofill fields have values
+	const hasOtherData = Object.entries(data).some(([key, value]) => {
+		// Skip checking autofill fields
+		if (autofillFields.includes(key)) {
+			return false;
+		}
+		// Skip checking fields we already explicitly checked
+		if (userEditedFields.includes(key)) {
+			return false;
+		}
+		// Check if the field has a non-empty value
+		return value !== undefined && value !== null && value !== "";
+	});
+
+	return hasEditedData || hasOtherData;
+};
 
 /**
  * Save form data to localStorage
@@ -61,9 +106,9 @@ export const loadFormData = (formType: string): FieldValues | null => {
 };
 
 /**
- * Check if saved form data exists in localStorage
+ * Check if saved form data exists in localStorage and contains user-entered data
  * @param formType Unique identifier for the form
- * @returns boolean indicating if saved data exists
+ * @returns boolean indicating if saved data exists with user-entered content
  */
 export const hasSavedFormData = (formType: string): boolean => {
 	try {
@@ -73,17 +118,11 @@ export const hasSavedFormData = (formType: string): boolean => {
 		// Parse the saved data
 		const data = JSON.parse(savedData);
 
-		// Check if the saved data contains only autofill fields
-		const hasUserEnteredData = Object.entries(data).some(([key, value]) => {
-			// Skip autofill fields
-			if (autofillFields.includes(key)) {
-				return false;
-			}
-			// Check if the field has a value (not undefined, null, or empty string)
-			return value !== undefined && value !== null && value !== "";
-		});
+		// Check if the data contains meaningful user-entered content
+		const hasUserData = hasUserEnteredData(data);
 
-		return hasUserEnteredData;
+		console.log(`Form ${formType} has user-entered data: ${hasUserData}`);
+		return hasUserData;
 	} catch (error) {
 		console.error("Error checking for saved form data:", error);
 		return false;
