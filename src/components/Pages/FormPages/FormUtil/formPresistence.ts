@@ -39,7 +39,11 @@ const userEditedFields = [
 const hasUserEnteredData = (data: FieldValues): boolean => {
 	// Check if any user-edited fields have values
 	const hasEditedData = userEditedFields.some((field) => {
-		return data[field] !== undefined && data[field] !== null && data[field] !== "";
+		return (
+			data[field] !== undefined &&
+			data[field] !== null &&
+			data[field] !== ""
+		);
 	});
 
 	// Check if any non-autofill fields have values
@@ -157,7 +161,6 @@ export const saveEmptyFormData = (formType: string): void => {
 			term: "",
 			year: "",
 			status: "",
-			hospitalStatus: undefined,
 			benefits: "",
 			hmo: "",
 			hospital: "",
@@ -169,7 +172,18 @@ export const saveEmptyFormData = (formType: string): void => {
 			confinementTo: "",
 			load: undefined,
 			certify: false,
+			claimRequestCount: 1, // Set default to 1
 		};
+
+		// For hospital-related forms, explicitly set hospitalStatus
+		if (formType === "inpatient") {
+			emptyData.hospitalStatus = "In-Patient";  // Explicitly set for inpatient
+		} else if (formType === "outpatient") {
+			emptyData.hospitalStatus = "Out-Patient"; // Explicitly set for outpatient
+		} else {
+			// For non-hospital forms, exclude hospitalStatus completely
+			emptyData.hospitalStatus = undefined;
+		}
 
 		localStorage.setItem(`form_${formType}`, JSON.stringify(emptyData));
 		console.log(`Empty form data for ${formType} saved to localStorage`);

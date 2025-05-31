@@ -537,11 +537,45 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		}
 	};
 
+	// Improve file type detection by checking both extension and MIME type
+	const determineFileType = (
+		file: FilePreview
+	): "pdf" | "image" | "other" => {
+		// Check for URL pattern first (Firebase storage URLs often contain file type hints)
+		if (file.url) {
+			const url = file.url.toLowerCase();
+			if (url.includes(".pdf") || url.includes("application/pdf")) {
+				return "pdf";
+			}
+			if (/\.(jpe?g|png|gif|bmp|webp)/.test(url)) {
+				return "image";
+			}
+		}
+
+		// Then check filename extension
+		const filename = file.filename || file.name || "";
+		const fileExt = filename.split(".").pop()?.toLowerCase() || "";
+
+		if (fileExt === "pdf" || file.type === "application/pdf") {
+			return "pdf";
+		}
+
+		if (
+			["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(fileExt) ||
+			(file.type && file.type.startsWith("image/"))
+		) {
+			return "image";
+		}
+
+		return "other";
+	};
+
+	// Enhanced file preview rendering
 	const renderAttachmentPreview = (
 		file: FilePreview,
 		documentType: string
 	) => {
-		if (!file) {
+		if (!file || (!file.url && !file.filename)) {
 			return (
 				<>
 					<div className={styles.thumbnailContainer}>
@@ -567,14 +601,13 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		// Get filename from either name or filename property
 		const filename = file.filename || file.name || "Unknown file";
 
-		// Check file extension from filename to determine file type
-		const fileExt = filename.split(".").pop()?.toLowerCase();
-		const isPdf = fileExt === "pdf" || file.type === "application/pdf";
-		const isImage =
-			["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(fileExt) ||
-			(file.type && file.type.startsWith("image/"));
+		// Determine file type using our improved function
+		const fileType = determineFileType(file);
 
-		if (isPdf) {
+		// Log for debugging
+		console.log(`File ${filename} detected as ${fileType}`, file);
+
+		if (fileType === "pdf") {
 			return (
 				<>
 					<div className={styles.thumbnailContainer}>
@@ -604,7 +637,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 					</div>
 				</>
 			);
-		} else if (isImage) {
+		} else if (fileType === "image") {
 			return (
 				<>
 					<div className={styles.thumbnailContainer}>
@@ -614,9 +647,20 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 								alt={filename}
 								className={styles.fileThumbnail}
 								onError={(e) => {
+									console.error(
+										`Image load error for ${filename}`,
+										e
+									);
 									const target = e.target as HTMLImageElement;
 									target.onerror = null;
 									target.src = "/images/image-error.png";
+									// Try to re-fetch with a cache-busting parameter
+									setTimeout(() => {
+										if (file.url) {
+											const cacheBuster = `?t=${Date.now()}`;
+											target.src = file.url + cacheBuster;
+										}
+									}, 500);
 								}}
 							/>
 						) : (
@@ -649,7 +693,7 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 			);
 		}
 
-		// Default file display for other types
+		// Default file display for other types with more specific icon
 		return (
 			<>
 				<div className={styles.thumbnailContainer}>
@@ -670,7 +714,8 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 						{documentType}
 					</p>
 					<p className={styles.fileName} title={filename}>
-						{filename}
+						{filename}{" "}
+						{/* Show full filename for other file types */}
 					</p>
 				</div>
 			</>
@@ -695,10 +740,33 @@ const StatusTracking: React.FC<StatusTrackingProps> = ({
 		): NormalizedAttachment | null => {
 			if (!attachment) return null;
 
+			// Enhanced debug logging to help diagnose issues
+			console.log(`Processing attachment of type ${type}:`, attachment);
+
+			// Ensure URL is properly formatted
+			let url = attachment.url || undefined;
+
+			// Fix for common issues with Firebase URLs
+			if (url && typeof url === "string") {
+				// Remove any double quotes that might be wrapping the URL
+				url = url.replace(/^"|"$/g, "");
+
+				// Ensure URL is properly encoded
+				if (!url.startsWith("http")) {
+					try {
+						url = new URL(url, window.location.origin).toString();
+					} catch (e) {
+						console.error(`Invalid URL for ${type}:`, url, e);
+					}
+				}
+			}
+
 			return {
 				type,
 				data: {
 					...attachment,
+					// Ensure URL is properly set
+					url,
 					// Ensure filename is available
 					filename:
 						attachment.filename ||

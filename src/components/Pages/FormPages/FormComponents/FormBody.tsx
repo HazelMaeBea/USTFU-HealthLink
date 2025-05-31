@@ -16,7 +16,13 @@ import { addDoc, collection } from "firebase/firestore";
 import { auth, db } from "../../../../contexts/firebase.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../../Page Elements/Popout/Popout.tsx";
-import { FiCheck, FiArrowRight, FiX, FiInfo } from "react-icons/fi";
+import {
+	FiCheck,
+	FiArrowRight,
+	FiX,
+	FiInfo,
+	FiUploadCloud,
+} from "react-icons/fi";
 import { useAutofill, applyAutofill } from "../FormUtil/Autofill.ts";
 import { uploadFilesAndGetURLs } from "../../../../utils/fileUpload.ts";
 import { pushPendingNotification } from "../../../Page Elements/NotifBadge/NotifTrigger.ts";
@@ -32,6 +38,7 @@ import {
 } from "../FormUtil/formPresistence.ts";
 import { checkForRestoredFormData } from "../FormUtil/formClearUtil.ts";
 import { convertToMMDDYYYY } from "../../../../utils/dateUtils.ts";
+import { removeTempFilePathsFromStorage } from "../../../../utils/fileCleanup";
 
 interface FormBodyProps {
 	origFormType: string;
@@ -45,7 +52,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 	const [isNotificationHiding, setIsNotificationHiding] = useState(false);
 	const [showClearConfirmation, setShowClearConfirmation] =
 		useState<boolean>(false);
-	const [formIdString] = useState<string>("");
+	const [formIdString, setFormIdString] = useState<string>(""); // Added setter function
 	const [submissionStatus, setSubmissionStatus] = useState<
 		"processing" | "success" | "error"
 	>("processing");
@@ -338,6 +345,31 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		}, 300); // Animation duration
 	};
 
+	// New state to track uploaded files and their temp paths
+	const [uploadedFiles, setUploadedFiles] = useState<
+		Record<string, { url: string; tempPath: string }>
+	>({});
+
+	// Add state to track if all required files are uploaded
+	const [allFilesUploaded, setAllFilesUploaded] = useState(false);
+
+	// Add handler for file uploads
+	const handleFileUploaded = (
+		fieldName: string,
+		url: string,
+		tempPath: string
+	) => {
+		setUploadedFiles((prev) => ({
+			...prev,
+			[fieldName]: { url, tempPath },
+		}));
+	};
+
+	// Handle upload status changes
+	const handleUploadStatusChange = (filesUploaded: boolean) => {
+		setAllFilesUploaded(filesUploaded);
+	};
+
 	const onSubmit = async (data: FieldValues) => {
 		// Show notification immediately with processing state
 		setSubmissionStatus("processing");
@@ -346,62 +378,81 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		try {
 			const email = auth?.currentUser?.email;
 
-			for (let i = data.claimRequestCount - 1; i >= 0; i--) {
-				// Extract all files to upload into a single object
-				const filesToUpload: Record<string, File[]> = {};
+			// We'll now use the already-uploaded files
+			// Only upload files that haven't been uploaded yet (if any)
+			const missingFiles: Record<string, File[]> = {};
+			const fileFields = [
+				"applicantSignature",
+				"docRequest",
+				"hospitalInvoice",
+				"labInvoice",
+				"employeeID",
+			];
 
-				// Add required files, checking that they exist first
-				if (
-					data.applicantSignature &&
-					data.applicantSignature.length > 0
-				) {
-					filesToUpload.applicantSignature = data.applicantSignature;
+			// Check if any files haven't been uploaded yet
+			fileFields.forEach((field) => {
+				const files = data[field];
+				if (files && files.length > 0 && !uploadedFiles[field]) {
+					missingFiles[field] = files;
 				}
+			});
 
-				if (data.docRequest && data.docRequest.length > 0) {
-					filesToUpload.docRequest = data.docRequest;
-				}
-
-				if (data.hospitalInvoice && data.hospitalInvoice.length > 0) {
-					filesToUpload.hospitalInvoice = data.hospitalInvoice;
-				}
-
-				if (data.labInvoice && data.labInvoice.length > 0) {
-					filesToUpload.labInvoice = data.labInvoice;
-				}
-
-				// Only add employeeID if it exists and has files
-				if (data.employeeID && data.employeeID.length > 0) {
-					filesToUpload.employeeID = data.employeeID;
-				}
-
-				console.log(
-					"Files being uploaded:",
-					Object.keys(filesToUpload)
-				);
-
-				// Pre-process and optimize files before upload
-				setUploadProgress("Optimizing files...");
-
-				// Use the new utility to upload all files and get URLs in one operation
-				setUploadProgress(
-					"Uploading files (this may take a moment)..."
-				);
-
-				const transID = isRevisionMode
-					? transactionId
-					: "TRN" + Date.now();
-				const fileUploadResults = await uploadFilesAndGetURLs(
+			// If there are any files that weren't uploaded progressively, upload them now
+			if (Object.keys(missingFiles).length > 0) {
+				setUploadProgress("Uploading remaining files...");
+				const remainingUploads = await uploadFilesAndGetURLs(
 					email,
-					transID,
-					filesToUpload
+					isRevisionMode ? transactionId : "TRN" + Date.now(),
+					missingFiles
 				);
 
-				console.log("Upload results:", fileUploadResults);
+				// Add these to our uploadedFiles state
+				Object.entries(remainingUploads).forEach(([field, url]) => {
+					uploadedFiles[field] = { url, tempPath: "" };
+				});
+			}
 
-				setUploadProgress("Creating document...");
+			// Use the same transaction ID for all claims
+			const transID = isRevisionMode ? transactionId : "TRN" + Date.now();
+			setFormIdString(transID);
+
+			// If in revision mode, remove the existing request
+			if (isRevisionMode) {
+				try {
+					await removeRequest(transactionId);
+					console.log(`Removed request with ID: ${transactionId}`);
+				} catch (error) {
+					console.error("Error removing previous request:", error);
+				}
+			}
+
+			// Create and submit claims for each count requested
+			setUploadProgress("Creating claims...");
+
+			const claimCount = data.claimRequestCount || 1;
+			console.log(`Creating ${claimCount} claims...`);
+
+			// Get all temp file paths used for this submission
+			const usedTempPaths = Object.values(uploadedFiles)
+				.map((item) => item.tempPath)
+				.filter(Boolean);
+
+			// After successful submission, remove temp paths from storage tracking
+			// This way, they won't be deleted during cleanup since they're now permanent
+			if (usedTempPaths.length > 0) {
+				// Remove the paths from temp storage tracking (don't delete the files)
+				removeTempFilePathsFromStorage(usedTempPaths);
+				console.log(
+					"Files are now permanent and won't be cleaned up:",
+					usedTempPaths
+				);
+			}
+
+			for (let i = 0; i < claimCount; i++) {
+				const claimTransID = i === 0 ? transID : `${transID}-${i}`;
+
 				const newDoc = {
-					transactionId: transID,
+					transactionId: claimTransID,
 					requester:
 						auth?.currentUser?.displayName || email || "Unknown",
 					dateSubmitted: new Date().toLocaleString("en-US", {
@@ -439,47 +490,39 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 						status: data.status,
 						benefits: data.benefits,
 						hmo: data.hmo,
-						// Store attachment data with both URL and filename
-						docRequest: fileUploadResults.docRequest
+						claimNumber: i + 1,
+						totalClaims: claimCount,
+						// Use the uploaded file URLs from our state
+						docRequest: uploadedFiles.docRequest
 							? {
-									url: fileUploadResults.docRequest,
-									filename:
-										filesToUpload.docRequest?.[0]?.name ||
-										"document.pdf",
+									url: uploadedFiles.docRequest.url,
+									filename: "document.pdf", // We don't have the filename anymore, so use a default
 							  }
 							: "",
-						hospitalInvoice: fileUploadResults.hospitalInvoice
+						hospitalInvoice: uploadedFiles.hospitalInvoice
 							? {
-									url: fileUploadResults.hospitalInvoice,
-									filename:
-										filesToUpload.hospitalInvoice?.[0]
-											?.name || "invoice.pdf",
+									url: uploadedFiles.hospitalInvoice.url,
+									filename: "invoice.pdf",
 							  }
 							: "",
-						labInvoice: fileUploadResults.labInvoice
+						labInvoice: uploadedFiles.labInvoice
 							? {
-									url: fileUploadResults.labInvoice,
-									filename:
-										filesToUpload.labInvoice?.[0]?.name ||
-										"lab_invoice.pdf",
+									url: uploadedFiles.labInvoice.url,
+									filename: "lab_invoice.pdf",
 							  }
 							: "",
-						...(fileUploadResults.employeeID
+						...(uploadedFiles.employeeID
 							? {
 									employeeID: {
-										url: fileUploadResults.employeeID,
-										filename:
-											filesToUpload.employeeID?.[0]
-												?.name || "employee_id.pdf",
+										url: uploadedFiles.employeeID.url,
+										filename: "employee_id.pdf",
 									},
 							  }
 							: {}),
-						applicantSignature: fileUploadResults.applicantSignature
+						applicantSignature: uploadedFiles.applicantSignature
 							? {
-									url: fileUploadResults.applicantSignature,
-									filename:
-										filesToUpload.applicantSignature?.[0]
-											?.name || "signature.png",
+									url: uploadedFiles.applicantSignature.url,
+									filename: "signature.png",
 							  }
 							: "",
 						hospitalStatus: data.hospitalStatus,
@@ -487,39 +530,33 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					},
 				};
 
-				if (isRevisionMode) {
-					try {
-						await removeRequest(transactionId);
-						console.log(
-							`Attempted to remove request with ID: ${transactionId}`
-						);
-						// ... proceed with submitting the new revision
-					} catch (error) {
-						console.error(
-							"Error removing previous request:",
-							error
-						);
-						// Handle the error appropriately (e.g., show a message to the user)
-					}
-				}
-
-				setUploadProgress("Saving to database...");
+				setUploadProgress(
+					`Saving claim ${i + 1} of ${claimCount} to database...`
+				);
 				await addDoc(collection(db, "FormRequests"), newDoc);
+				console.log(
+					`Claim ${
+						i + 1
+					} written with Transaction ID: ${claimTransID}`
+				);
 
-				console.log("Document written with Transaction ID: ", transID);
-
-				// Trigger real-time notification for operations handlers/admins
-				await pushPendingNotification(transID);
-
-				// Show success notification instead of old popup
-				setSubmissionStatus("success");
-
-				// Reset form after successful submission
-				resetRevision();
-				reset();
+				// Only push notification for the first claim to avoid multiple notifications
+				if (i === 0) {
+					await pushPendingNotification(transID);
+				}
 			}
 
-			//Clears on submit
+			// Show success notification
+			setSubmissionStatus("success");
+
+			// Reset form after successful submission
+			resetRevision();
+			reset();
+
+			// Clear uploaded files state BUT NOT the actual files
+			setUploadedFiles({});
+
+			// Clear persisted form data
 			clearFormData(origFormType);
 		} catch (error) {
 			console.error(error);
@@ -544,7 +581,6 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 		// First clear localStorage data
 		clearFormData(origFormType);
 
-		// Reset form with explicit default values for all fields
 		reset({
 			gender: undefined,
 			college: "",
@@ -561,7 +597,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 			confinementFrom: "",
 			confinementTo: "",
 			load: undefined,
-			hospitalStatus: undefined, // Explicitly reset hospitalStatus
+			hospitalStatus: undefined,
 			certify: false,
 		});
 
@@ -725,6 +761,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					errors={errors}
 					setError={setError}
 					setValue={setValue}
+					onFileUploaded={handleFileUploaded}
+					onUploadStatusChange={handleUploadStatusChange}
 				/>
 				<FormCertify register={register} errors={errors} />
 
@@ -732,6 +770,12 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 					<button
 						type="submit"
 						className="btn btn-submit form-submit"
+						disabled={!allFilesUploaded}
+						title={
+							!allFilesUploaded
+								? "Please wait for all files to finish uploading"
+								: ""
+						}
 					>
 						Submit
 					</button>
