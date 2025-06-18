@@ -911,88 +911,14 @@ const EyeglassesForm = () => {
 	useEffect(() => {
 		console.log("Files state changed:", files);
 	}, [files]);
-
 	// Handle modal opening and closing
 	const openModal = (file: any) => {
 		setPreviewFile(file);
 		setIsModalOpen(true);
 	};
-
 	const closeModal = () => {
 		setIsModalOpen(false);
 		setPreviewFile(null);
-	};
-
-	const handleFileChange = async (
-		fieldName: keyof UnifiedFormData,
-		e: React.ChangeEvent<HTMLInputElement>
-	) => {
-		const files = e.target.files;
-		if (!files || files.length === 0) return;
-
-		register(fieldName).onChange(e);
-
-		const result = validateFileListSize(files);
-
-		if (!result.valid) {
-			setFileErrors((prev) => ({
-				...prev,
-				[fieldName]: result.errorMessage,
-			}));
-
-			// Clear the input
-			e.target.value = "";
-
-			setError(fieldName, {
-				type: "manual",
-				message: result.errorMessage,
-			});
-			return;
-		}
-
-		try {
-			const file = files[0];
-			const email = auth?.currentUser?.email;
-			const { url, tempPath } = await uploadFileWithProgress(
-				file,
-				fieldName,
-				email,
-				() => {}, // Empty progress handler since we handle progress in the component
-				"eyeglasses" // Specify form type
-			);
-
-			// Store the URL and temp path
-			setUploadedFiles((prev) => ({
-				...prev,
-				[fieldName]: { url, tempPath },
-			}));
-
-			// Update UI state
-			setFiles((prevFiles) => ({
-				...prevFiles,
-				[fieldName]: url,
-			}));
-
-			// Update other UI states
-			setIsNewUpload((prev) => ({
-				...prev,
-				[fieldName]: true,
-			}));
-
-			// Clear errors
-			setFileErrors((prev) => ({
-				...prev,
-				[fieldName]: "",
-			}));
-		} catch (error) {
-			console.error(`Error uploading ${fieldName}:`, error);
-			setFileErrors((prev) => ({
-				...prev,
-				[fieldName]: `Upload failed: ${
-					error instanceof Error ? error.message : "Unknown error"
-				}`,
-			}));
-		}
 	};
 
 	return (
