@@ -294,6 +294,8 @@ table {
 /* File upload styling */
 .form-control[type="file"] {
 	padding: 0.5rem;
+	height: auto;
+	color: #495057;
 	background-color: #f8f9fa;
 	border: 2px dashed #dee2e6;
 	cursor: pointer;
@@ -302,6 +304,47 @@ table {
 .form-control[type="file"]:hover {
 	border-color: hsl(45, 100%, 51%);
 	background-color: hsla(45, 100%, 51%, 0.05);
+}
+
+/* Fix file inputs showing "No file chosen" on Firefox */
+.form-control[type="file"]::file-selector-button {
+	color: #212529;
+	background-color: #e9ecef;
+	padding: 0.375rem 0.75rem;
+	margin-right: 0.5rem;
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	cursor: pointer;
+	transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+		border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control[type="file"]::file-selector-button:hover {
+	background-color: #dde0e3;
+	border-color: #bdc6d0;
+}
+
+/* For webkit browsers like Chrome and Safari */
+.form-control[type="file"]::-webkit-file-upload-button {
+	color: #212529;
+	background-color: #e9ecef;
+	padding: 0.375rem 0.75rem;
+	margin-right: 0.5rem;
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	cursor: pointer;
+	transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+		border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button:hover {
+	background-color: #dde0e3;
+	border-color: #bdc6d0;
+}
+
+/* Ensure text is visible in file inputs */
+.form-control[type="file"] {
+	color: #212529 !important;
 }
 
 /* Checkbox and Radio button styling */
@@ -638,4 +681,220 @@ table {
 
 .error-list strong {
 	text-transform: capitalize;
+}
+
+/* Info notification styling */
+.info-notification {
+	display: flex;
+	align-items: center;
+	background-color: #e8f4fd;
+	border-left: 4px solid #3498db;
+	border-radius: 4px;
+	padding: 12px 16px;
+	margin-bottom: 20px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	animation: slideInDown 0.3s ease-out;
+}
+
+.info-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #3498db;
+	margin-right: 12px;
+}
+
+.info-content {
+	flex: 1;
+}
+
+.info-content p {
+	margin: 0;
+	color: #2c3e50;
+}
+
+.info-close {
+	background: none;
+	border: none;
+	color: #95a5a6;
+	cursor: pointer;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.info-close:hover {
+	color: #34495e;
+}
+
+@keyframes slideInDown {
+	from {
+		transform: translateY(-20px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+/* File upload container with progress bar */
+.file-upload-container {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	position: relative;
+}
+
+/* Enhanced file upload styling */
+.file-upload-container {
+	position: relative;
+	width: 100%;
+}
+
+/* Base styling for file input with dashed border */
+.file-upload-container .form-control[type="file"] {
+	border: 2px dashed #dee2e6;
+	transition: all 0.3s ease;
+	position: relative;
+	z-index: 1;
+	background-color: transparent;
+}
+
+/* Hover state for file input */
+.file-upload-container .form-control[type="file"]:hover:not(:disabled) {
+	border-color: hsl(45, 100%, 51%);
+}
+
+/* Focus state for file input */
+.file-upload-container .form-control[type="file"]:focus {
+	box-shadow: 0 0 0 3px hsla(45, 100%, 51%, 0.2);
+}
+
+/* Progress overlay that will fill the container */
+.file-upload-progress-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	background-color: rgba(40, 167, 69, 0.1);
+	pointer-events: none;
+	z-index: 0;
+	border-radius: 8px;
+	transition: width 0.3s ease;
+}
+
+/* Success state - green dashed border */
+.file-upload-container.upload-success .form-control[type="file"] {
+	border: 2px dashed #28a745;
+	background-color: rgba(40, 167, 69, 0.05);
+}
+
+/* Success state - green solid border when complete */
+.file-upload-container.upload-success.complete .form-control[type="file"] {
+	border: 2px solid #28a745;
+}
+
+/* Error state - red dashed border */
+.file-upload-container.upload-error .form-control[type="file"] {
+	border: 2px dashed #dc3545;
+	background-color: rgba(220, 53, 69, 0.05);
+}
+
+/* Disabled state for when upload is in progress */
+.file-upload-container .form-control[type="file"]:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
+
+/* Upload status indicator */
+.file-upload-status {
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 12px;
+	color: #6c757d;
+	z-index: 2;
+}
+
+/* Upload status for success */
+.file-upload-container.upload-success .file-upload-status {
+	color: #28a745;
+}
+
+/* Upload status for error */
+.file-upload-container.upload-error .file-upload-status {
+	color: #dc3545;
+}
+
+/* Improved file input styling */
+.file-input-wrapper {
+	position: relative;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.custom-file-input {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.browse-btn {
+	min-width: 120px;
+	border: none;
+	background-color: #e9ecef;
+	color: #495057;
+	padding: 8px 12px;
+	cursor: pointer;
+	font-size: 14px;
+	border-right: 1px solid #ced4da;
+}
+
+.browse-btn:hover {
+	background-color: #dee2e6;
+}
+
+.file-name-display {
+	padding: 8px 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	flex: 1;
+	font-size: 14px;
+	color: #495057;
+}
+
+/* Style for when a file is selected */
+.file-input-wrapper.has-file .custom-file-input {
+	border-color: #86b7fe;
+}
+
+.file-input-wrapper.has-file .file-name-display {
+	color: #212529;
+	font-weight: 500;
+}
+
+/* Upload status styling */
+.file-upload-status {
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 12px;
+	color: #6c757d;
+	z-index: 5;
+}
+
+/* Error message styling */
+.upload-error-message {
+	font-size: 12px;
+	color: #dc3545;
+	margin-top: 4px;
 }

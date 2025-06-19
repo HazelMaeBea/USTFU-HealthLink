@@ -9,6 +9,16 @@ import { validateFileListSize } from "../../../../utils/fileUpload";
 import { UnifiedFormData } from "../FormUtil/formTypes";
 import { useRevisionStore } from "../../../Page Elements/RevisionFuncs/revisionStore.ts";
 import ViewFiles from "../../../Page Elements/ViewFiles/ViewFiles.tsx";
+import { auth } from "../../../../contexts/firebase";
+import {
+	uploadFileWithProgress,
+	UploadProgress,
+} from "../../../../utils/progressiveUpload";
+import {
+	storeTempFilePaths,
+	cleanupFormTempFiles,
+} from "../../../../utils/fileCleanup";
+import { FiCheck, FiUploadCloud, FiX } from "react-icons/fi";
 
 type FileState = {
 	[key: string]: string | null; // Each field (e.g., "applicantSignature") can have a string (file URL) or null
@@ -31,6 +41,8 @@ interface FormMedicalFilesProps {
 	errors: FieldErrors<UnifiedFormData>;
 	setError?: UseFormSetError<UnifiedFormData>;
 	setValue: UseFormSetValue<UnifiedFormData>;
+	onFileUploaded: (fieldName: string, url: string, tempPath: string) => void;
+	onUploadStatusChange: (allFilesUploaded: boolean) => void;
 }
 
 const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
@@ -38,9 +50,10 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 	errors,
 	setError,
 	setValue,
+	onFileUploaded,
+	onUploadStatusChange,
 }) => {
 	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
-
 	const [files, setFiles] = useState<any>({});
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [previewFile, setPreviewFile] = useState<any>(null);
@@ -51,6 +64,33 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 		hospitalInvoice: false,
 		labInvoice: false,
 	});
+
+	// Add upload progress tracking state
+	const [uploadProgress, setUploadProgress] = useState<
+		Record<string, UploadProgress>
+	>({
+		employeeID: { progress: 0, status: "idle", url: null, tempPath: null },
+		applicantSignature: {
+			progress: 0,
+			status: "idle",
+			url: null,
+			tempPath: null,
+		},
+		docRequest: { progress: 0, status: "idle", url: null, tempPath: null },
+		hospitalInvoice: {
+			progress: 0,
+			status: "idle",
+			url: null,
+			tempPath: null,
+		},
+		labInvoice: { progress: 0, status: "idle", url: null, tempPath: null },
+	});
+
+	// Track temporary file paths for cleanup if form is not submitted
+	const [tempFilePaths, setTempFilePaths] = useState<string[]>([]);
+	const [requiredUploadsInProgress, setRequiredUploadsInProgress] =
+		useState(false);
+
 	const { formData, isRevisionMode, transactionId } = useRevisionStore();
 	const updateFileInputStates = (newFiles: any) => {
 		const inputStates = Object.fromEntries(
@@ -65,6 +105,40 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 		hospitalInvoice: false,
 		labInvoice: false,
 	});
+
+	// Check if all required uploads are complete
+	useEffect(() => {
+		// Define required fields (employeeID is optional)
+		const requiredFields = [
+			"applicantSignature",
+			"docRequest",
+			"hospitalInvoice",
+			"labInvoice",
+		];
+
+		// Check if any required field is in 'uploading' status
+		const uploadsInProgress = requiredFields.some(
+			(field) => uploadProgress[field]?.status === "uploading"
+		);
+
+		// Check if all required fields have been successfully uploaded
+		const allRequiredUploaded = requiredFields.every(
+			(field) =>
+				uploadProgress[field]?.status === "success" ||
+				(isRevisionMode &&
+					!isNewUpload[field as FileField] &&
+					files[field])
+		);
+
+		setRequiredUploadsInProgress(uploadsInProgress);
+		onUploadStatusChange(allRequiredUploaded && !uploadsInProgress);
+	}, [
+		uploadProgress,
+		isRevisionMode,
+		isNewUpload,
+		files,
+		onUploadStatusChange,
+	]);
 
 	useEffect(() => {
 		return () => {
@@ -147,9 +221,21 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 		}
 	}, [formData, isRevisionMode, setValue]);
 
-	// Handler for file input changes
+	// Update progress tracking callback
+	const handleUploadProgress = (
+		fieldName: string,
+		progress: UploadProgress
+	) => {
+		setUploadProgress((prev) => ({
+			...prev,
+			[fieldName]: progress,
+		}));
+	};
+
+	// Handler for file input changes - now with progressive upload
 	const handleFileChange =
-		(fieldName: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+		(fieldName: keyof UnifiedFormData) =>
+		async (e: React.ChangeEvent<HTMLInputElement>) => {
 			const files = e.target.files;
 			const result = validateFileListSize(files);
 
@@ -175,26 +261,71 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 				// Handle valid files
 				if (files && files.length > 0) {
 					const file = files[0];
-					// Assuming you're uploading and receiving a file URL back from the upload service
-					const uploadedFileUrl = URL.createObjectURL(file); // Example of a temporary URL
 
-					// Update the file state with the new uploaded file URL
-					setFiles((prevFiles: FileState) => ({
-						...prevFiles,
-						[fieldName]: uploadedFileUrl, // You can replace this with your actual file URL
-					}));
+					try {
+						// Start the upload immediately
+						const email = auth?.currentUser?.email;
+						const formType = "hospital"; // Use a more specific form type if available
+
+						// Set status to uploading
+						handleUploadProgress(fieldName, {
+							progress: 0,
+							status: "uploading",
+							url: null,
+							tempPath: null,
+						});
+
+						// Upload the file with progress tracking
+						const { url, tempPath } = await uploadFileWithProgress(
+							file,
+							fieldName,
+							email,
+							(field, progress) =>
+								handleUploadProgress(field, progress),
+							formType
+						);
+
+						// Add to temp paths for potential cleanup
+						setTempFilePaths((prev) => [...prev, tempPath]);
+
+						// Update the file state with the uploaded URL
+						setFiles((prevFiles: FileState) => ({
+							...prevFiles,
+							[fieldName]: url,
+						}));
+
+						// Notify parent component about the uploaded file
+						onFileUploaded(fieldName, url, tempPath);
+
+						// Set as new upload
+						setIsNewUpload((prev) => ({
+							...prev,
+							[fieldName]: true,
+						}));
+
+						// Clear error if file is valid
+						setFileErrors((prev) => ({
+							...prev,
+							[fieldName]: "",
+						}));
+					} catch (error: any) {
+						console.error(`Error uploading ${fieldName}:`, error);
+						setFileErrors((prev) => ({
+							...prev,
+							[fieldName]: `Upload failed: ${
+								error.message || "Unknown error"
+							}`,
+						}));
+
+						handleUploadProgress(fieldName, {
+							progress: 0,
+							status: "error",
+							url: null,
+							tempPath: null,
+							error: error.message,
+						});
+					}
 				}
-
-				setIsNewUpload((prev) => ({
-					...prev,
-					[fieldName]: true,
-				}));
-
-				// Clear error if file is valid
-				setFileErrors((prev) => ({
-					...prev,
-					[fieldName]: "",
-				}));
 			}
 		};
 
@@ -209,6 +340,113 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 		setPreviewFile(null);
 	};
 
+	// Render file input with progress indicator
+	const renderFileInput = (
+		fieldName: keyof UnifiedFormData,
+		label: string,
+		isRequired: boolean = false
+	) => {
+		const progress = uploadProgress[fieldName];
+		const containerClassName = `file-upload-container ${
+			progress.status === "success"
+				? "upload-success"
+				: progress.status === "error"
+				? "upload-error"
+				: ""
+		} ${progress.progress === 100 ? "complete" : ""}`;
+
+		return (
+			<tr>
+				<td>
+					{label}{" "}
+					{isRequired && <span className="required-asterisk">*</span>}
+				</td>
+				<td className="d-flex justify-content-center">
+					{isFileInput[fieldName as FileField] &&
+					files[fieldName] &&
+					isRevisionMode &&
+					!isNewUpload[fieldName as FileField] ? (
+						<div className="d-flex gap-2">
+							<button
+								type="button"
+								className="btn btn-outline-secondary btn-sm"
+								onClick={() =>
+									setIsFileInput((prev) => ({
+										...prev,
+										[fieldName]: false,
+									}))
+								}
+							>
+								Re-upload File
+							</button>
+							<a
+								href="#"
+								onClick={(e) => {
+									e.preventDefault();
+									openModal(files[fieldName]);
+								}}
+								className="btn btn-outline-primary btn-sm"
+							>
+								View Previously Uploaded File
+							</a>
+						</div>
+					) : (
+						<div className={containerClassName}>
+							{progress.status === "uploading" && (
+								<div
+									className="file-upload-progress-overlay"
+									style={{ width: `${progress.progress}%` }}
+								></div>
+							)}
+							<input
+								id={fieldName}
+								type="file"
+								accept=".pdf, .png, .jpg, .jpeg"
+								className={`form-control ${
+									errors[
+										fieldName as keyof UnifiedFormData
+									] || fileErrors[fieldName]
+										? "is-invalid"
+										: ""
+								}`}
+								{...register(fieldName)}
+								name={fieldName}
+								onChange={(e) => {
+									register(fieldName).onChange(e);
+									handleFileChange(fieldName)(e);
+								}}
+								disabled={progress.status === "uploading"}
+							/>
+							{progress.status !== "idle" && (
+								<div className="file-upload-status">
+									{progress.status === "uploading" &&
+										`${progress.progress}%`}
+									{progress.status === "success" && (
+										<FiCheck />
+									)}
+									{progress.status === "error" && <FiX />}
+								</div>
+							)}
+							{progress.status === "error" && (
+								<div className="upload-error-message">
+									{progress.error || "Upload failed"}
+								</div>
+							)}
+						</div>
+					)}
+					{(errors[fieldName as keyof UnifiedFormData] ||
+						fileErrors[fieldName]) && (
+						<p className="invalid-feedback">
+							{fileErrors[fieldName] ||
+								(errors[fieldName as keyof UnifiedFormData]
+									?.message as string)}
+						</p>
+					)}
+				</td>
+			</tr>
+		);
+	};
+
 	return (
 		<div className="document-input-container fieldset-no-line">
 			<table className="table-borderless">
@@ -221,324 +459,27 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>Employee/UST ID</td>
-						<td className="d-flex justify-content-center">
-							{isFileInput["employeeID"] &&
-							files.employeeID &&
-							isRevisionMode &&
-							!isNewUpload["employeeID"] ? (
-								<div className="d-flex gap-2">
-									<button
-										type="button"
-										className="btn btn-outline-secondary btn-sm"
-										onClick={() =>
-											setIsFileInput((prev) => ({
-												...prev,
-												employeeID: false,
-											}))
-										}
-									>
-										Re-upload File
-									</button>
-									<a
-										href="#"
-										onClick={(e) => {
-											e.preventDefault();
-											openModal(files.employeeID);
-										}}
-										className="btn btn-outline-primary btn-sm"
-									>
-										View Previously Uploaded File
-									</a>
-								</div>
-							) : (
-								<input
-									id="employeeID"
-									type="file"
-									accept=".pdf, .png, .jpg, .jpeg"
-									className={`form-control ${
-										errors.employeeID ||
-										fileErrors.employeeID
-											? "is-invalid"
-											: ""
-									}`}
-									{...register("employeeID")}
-									name="employeeID"
-									onChange={(e) => {
-										register("employeeID").onChange(e);
-										handleFileChange("employeeID")(e);
-									}}
-								/>
-							)}
-							{/* {(errors.employeeID || fileErrors.employeeID) && (
-								<p className="invalid-feedback">
-									{fileErrors.employeeID ||
-										(errors.employeeID?.message as string)}
-								</p>
-							)} */}
-						</td>
-					</tr>
-					<tr>
-						<td>
-							Doctor's Note or Request{" "}
-							<span className="required-asterisk">*</span>
-						</td>
-						<td className="d-flex justify-content-center">
-							{isFileInput["docRequest"] &&
-							files.docRequest &&
-							isRevisionMode &&
-							!isNewUpload["docRequest"] ? (
-								<div className="d-flex gap-2">
-									<button
-										type="button"
-										className="btn btn-outline-secondary btn-sm"
-										onClick={() =>
-											setIsFileInput((prev) => ({
-												...prev,
-												docRequest: false,
-											}))
-										} // Switch to file input when clicked
-									>
-										Re-upload File
-									</button>
-									<a
-										href="#"
-										onClick={(e) => {
-											e.preventDefault();
-											openModal(files.docRequest); // Open the modal with file preview
-										}}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="btn btn-outline-primary btn-sm"
-									>
-										View Previously Uploaded File
-									</a>
-								</div>
-							) : (
-								<input
-									id="docRequest"
-									type="file"
-									accept=".pdf, .png, .jpg, .jpeg"
-									className={`form-control ${
-										errors.docRequest ||
-										fileErrors.docRequest
-											? "is-invalid"
-											: ""
-									}`}
-									{...register("docRequest")}
-									name="docRequest"
-									onChange={(e) => {
-										register("docRequest").onChange(e);
-										handleFileChange("docRequest")(e);
-									}}
-								/>
-							)}
-							{/* {(errors.docRequest || fileErrors.docRequest) && (
-								<p className="invalid-feedback">
-									{fileErrors.docRequest ||
-										(errors.docRequest?.message as string)}
-								</p>
-							)} */}
-						</td>
-					</tr>
-					<tr>
-						<td>
-							Hospital Receipt/Invoice{" "}
-							<span className="required-asterisk">*</span>
-						</td>
-						<td className="d-flex justify-content-center">
-							{isFileInput["hospitalInvoice"] &&
-							files.hospitalInvoice &&
-							isRevisionMode &&
-							!isNewUpload["hospitalInvoice"] ? (
-								<div className="d-flex gap-2">
-									<button
-										type="button"
-										className="btn btn-outline-secondary btn-sm"
-										onClick={() =>
-											setIsFileInput((prev) => ({
-												...prev,
-												hospitalInvoice: false,
-											}))
-										} // Switch to file input when clicked
-									>
-										Re-upload File
-									</button>
-									<a
-										href="#"
-										onClick={(e) => {
-											e.preventDefault();
-											openModal(files.hospitalInvoice); // Open the modal with file preview
-										}}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="btn btn-outline-primary btn-sm"
-									>
-										View Previously Uploaded File
-									</a>
-								</div>
-							) : (
-								<input
-									id="hospitalInvoice"
-									type="file"
-									accept=".pdf, .png, .jpg, .jpeg"
-									className={`form-control ${
-										errors.hospitalInvoice ||
-										fileErrors.hospitalInvoice
-											? "is-invalid"
-											: ""
-									}`}
-									{...register("hospitalInvoice")}
-									name="hospitalInvoice"
-									onChange={(e) => {
-										register("hospitalInvoice").onChange(e);
-										handleFileChange("hospitalInvoice")(e);
-									}}
-								/>
-							)}
-							{/* {(errors.hospitalInvoice ||
-								fileErrors.hospitalInvoice) && (
-								<p className="invalid-feedback">
-									{fileErrors.hospitalInvoice ||
-										(errors.hospitalInvoice
-											?.message as string)}
-								</p>
-							)} */}
-						</td>
-					</tr>
-					<tr>
-						<td>
-							Laboratory Receipt/Invoice{" "}
-							<span className="required-asterisk">*</span>
-						</td>
-						<td className="d-flex justify-content-center">
-							{isFileInput["labInvoice"] &&
-							files.labInvoice &&
-							isRevisionMode &&
-							!isNewUpload["labInvoice"] ? (
-								<div className="d-flex gap-2">
-									<button
-										type="button"
-										className="btn btn-outline-secondary btn-sm"
-										onClick={() =>
-											setIsFileInput((prev) => ({
-												...prev,
-												labInvoice: false,
-											}))
-										} // Switch to file input when clicked
-									>
-										Re-upload File
-									</button>
-									<a
-										href="#"
-										onClick={(e) => {
-											e.preventDefault();
-											openModal(files.labInvoice); // Open the modal with file preview
-										}}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="btn btn-outline-primary btn-sm"
-									>
-										View Previously Uploaded File
-									</a>
-								</div>
-							) : (
-								<input
-									id="labInvoice"
-									type="file"
-									accept=".pdf, .png, .jpg, .jpeg"
-									className={`form-control ${
-										errors.labInvoice ||
-										fileErrors.labInvoice
-											? "is-invalid"
-											: ""
-									}`}
-									{...register("labInvoice")}
-									name="labInvoice"
-									onChange={(e) => {
-										register("labInvoice").onChange(e);
-										handleFileChange("labInvoice")(e);
-									}}
-								/>
-							)}
-							{/* {(errors.labInvoice || fileErrors.labInvoice) && (
-								<p className="invalid-feedback">
-									{fileErrors.labInvoice ||
-										(errors.labInvoice?.message as string)}
-								</p>
-							)} */}
-						</td>
-					</tr>
-					<tr>
-						<td>
-							Applicant's Signature{" "}
-							<span className="required-asterisk">*</span>
-						</td>
-						<td className="d-flex justify-content-center">
-							{isFileInput["applicantSignature"] &&
-							files.applicantSignature &&
-							isRevisionMode &&
-							!isNewUpload["applicantSignature"] ? (
-								<div className="d-flex gap-2">
-									<button
-										type="button"
-										className="btn btn-outline-secondary btn-sm"
-										onClick={() =>
-											setIsFileInput((prev) => ({
-												...prev,
-												applicantSignature: false,
-											}))
-										} // Switch to file input when clicked
-									>
-										Re-upload File
-									</button>
-									<a
-										href="#"
-										onClick={(e) => {
-											e.preventDefault();
-											openModal(files.applicantSignature); // Open the modal with file preview
-										}}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="btn btn-outline-primary btn-sm"
-									>
-										View Previously Uploaded File
-									</a>
-								</div>
-							) : (
-								<input
-									id="applicantSignature"
-									type="file"
-									accept=".pdf, .png, .jpg, .jpeg"
-									className={`form-control ${
-										errors.applicantSignature ||
-										fileErrors.applicantSignature
-											? "is-invalid"
-											: ""
-									}`}
-									{...register("applicantSignature")}
-									name="applicantSignature"
-									onChange={(e) => {
-										register("applicantSignature").onChange(
-											e
-										);
-										handleFileChange("applicantSignature")(
-											e
-										);
-									}}
-								/>
-							)}
-							{/* {(errors.applicantSignature ||
-								fileErrors.applicantSignature) && (
-								<p className="invalid-feedback">
-									{fileErrors.applicantSignature ||
-										(errors.applicantSignature
-											?.message as string)}
-								</p>
-							)} */}
-						</td>
-					</tr>
+					{renderFileInput("employeeID", "Employee/UST ID")}
+					{renderFileInput(
+						"docRequest",
+						"Doctor's Note or Request",
+						true
+					)}
+					{renderFileInput(
+						"hospitalInvoice",
+						"Hospital Receipt/Invoice",
+						true
+					)}
+					{renderFileInput(
+						"labInvoice",
+						"Laboratory Receipt/Invoice",
+						true
+					)}
+					{renderFileInput(
+						"applicantSignature",
+						"Applicant's Signature",
+						true
+					)}
 				</tbody>
 			</table>
 
@@ -588,6 +529,14 @@ const FormMedicalFiles: React.FC<FormMedicalFilesProps> = ({
 			</div>
 			{isModalOpen && (
 				<ViewFiles file={previewFile} onClose={closeModal} />
+			)}
+
+			{requiredUploadsInProgress && (
+				<div className="alert alert-warning mt-3">
+					<FiUploadCloud className="me-2" />
+					Please wait for all files to finish uploading before
+					submitting the form.
+				</div>
 			)}
 		</div>
 	);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,11 +17,21 @@ import RemainingBenefit from "./RemainingBenefitPopout/RemainingBenefit.tsx";
 import { useAutofill, applyAutofill } from "./FormUtil/Autofill.ts";
 import { useNavigate } from "react-router-dom";
 import Popout from "../../Page Elements/Popout/Popout.tsx";
-import { FiCheck, FiArrowRight, FiX } from "react-icons/fi";
+import {
+	FiCheck,
+	FiArrowRight,
+	FiX,
+	FiInfo,
+	FiUploadCloud,
+} from "react-icons/fi";
 import {
 	uploadFilesAndGetURLs,
 	validateFileListSize,
 } from "../../../utils/fileUpload.ts";
+import {
+	uploadFileWithProgress,
+	UploadProgress,
+} from "../../../utils/progressiveUpload";
 import { baseFormSchema, UnifiedFormData } from "./FormUtil/formTypes.ts";
 import { pushPendingNotification } from "../../Page Elements/NotifBadge/NotifTrigger.ts";
 import { useRevisionStore } from "../../Page Elements/RevisionFuncs/revisionStore.ts";
@@ -31,7 +41,14 @@ import {
 	saveFormData,
 	loadFormData,
 	clearFormData,
+	hasSavedFormData,
 } from "./FormUtil/formPresistence.ts";
+import { checkForRestoredFormData } from "./FormUtil/formClearUtil.ts";
+import { clearForm } from "./FormUtil/formClearUtil.ts";
+import {
+	cleanupFormTempFiles,
+	removeTempFilePathsFromStorage,
+} from "../../../utils/fileCleanup";
 
 type FileState = {
 	[key: string]: string | null; // Each field (e.g., "applicantSignature") can have a string (file URL) or null
@@ -49,7 +66,7 @@ type FileField = (typeof fileFields)[number];
 
 let pendingUnmountId: string | null = null;
 
-// Extend the base schema with admission-specific fields
+// Extended the base schema with admission-specific fields
 const schema = baseFormSchema
 	.extend({
 		idNumber: z
@@ -72,6 +89,8 @@ const schema = baseFormSchema
 			.min(0, "Teaching load cannot be negative")
 			.max(30, "Teaching load cannot exceed 30 units"),
 		status: z.string().nonempty("Please select your employment status"),
+		benefits: z.string().optional(),
+		hmo: z.string().optional(),
 		dateHired: z
 			.string({
 				invalid_type_error: "Please select a valid date",
@@ -101,8 +120,15 @@ const schema = baseFormSchema
 			.refine((files) => files && files.length > 0, {
 				message: "Please upload your signature",
 			}),
+		claimRequestCount: z.coerce
+			.number({
+				invalid_type_error: "Please enter a valid number",
+				required_error: "Number of claims is required",
+			})
+			.min(1, "Please enter at least 1 claim")
+			.max(10, "Maximum of 10 claims allowed"),
 	})
-	.omit({ claimRequestCount: true }) // Remove claimRequestCount requirement
+	.omit({ claimRequestCount: true })
 	.superRefine((data, ctx) => {
 		if (data.status === "Tenured-Track" && !data.dateHired) {
 			ctx.addIssue({
@@ -117,6 +143,14 @@ const schema = baseFormSchema
 				code: z.ZodIssueCode.custom,
 				message: "Please provide your retirement date",
 				path: ["dateRetired"],
+			});
+		}
+		// If benefits is HMO, hmo field is required
+		if (data.benefits === "HMO" && (!data.hmo || data.hmo.trim() === "")) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "Please specify your HMO provider name",
+				path: ["hmo"],
 			});
 		}
 	});
@@ -137,6 +171,8 @@ const AdmissionForm = () => {
 	const [phoneInputValue, setPhoneInputValue] = useState<string>("+63");
 	const [shouldReapplyAutofill, setShouldReapplyAutofill] = useState(false);
 	const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+	const [showClearSuccess, setShowClearSuccess] = useState(false);
+	const [showRestoredMessage, setShowRestoredMessage] = useState(false);
 	const navigate = useNavigate();
 
 	const {
@@ -162,20 +198,50 @@ const AdmissionForm = () => {
 		const savedData = loadFormData("admission");
 		if (savedData) {
 			reset(savedData);
+			// Display message that form was restored from previous session
+			checkForRestoredFormData("admission", setShowRestoredMessage);
 		}
 	}, [reset]);
 
-	// auto save data on change
+	const formSaveTimeout = useRef<NodeJS.Timeout | null>(null);
+
+	// auto save data on change with debouncing
 	useEffect(() => {
 		const subscription = watch((value) => {
-			saveFormData("admission", value);
+			// We don't want to save empty forms
+			if (
+				Object.keys(value).some((key) => {
+					const formKey = key as keyof typeof value;
+					return (
+						value[formKey] !== undefined &&
+						value[formKey] !== null &&
+						value[formKey] !== "" &&
+						!(value[formKey] instanceof FileList)
+					);
+				})
+			) {
+				// Use setTimeout to debounce (only save after 500ms of no changes)
+				if (formSaveTimeout.current) {
+					clearTimeout(formSaveTimeout.current);
+				}
+
+				formSaveTimeout.current = setTimeout(() => {
+					saveFormData("admission", value);
+				}, 500);
+			}
 		});
-		return () => subscription.unsubscribe();
+
+		return () => {
+			subscription.unsubscribe();
+			if (formSaveTimeout.current) {
+				clearTimeout(formSaveTimeout.current);
+			}
+		};
 	}, [watch]);
 
-	const { removeRequest } = useRemoveRequest();
-	const [files, setFiles] = useState<any>({});
+	const [files, setFiles] = useState<Record<string, string | null>>({});
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	// const [previewFile, setPreviewFile] = useState<any>(null);
 	const [previewFile, setPreviewFile] = useState<any>(null);
 	const [isFileInput, setIsFileInput] = useState<Record<FileField, boolean>>({
 		employeeID: false,
@@ -223,7 +289,7 @@ const AdmissionForm = () => {
 					console.log("Skipping resetRevision - likely remounted");
 				}
 
-				pendingUnmountId = null; // clean up
+				pendingUnmountId = null;
 			}, 100);
 		};
 	}, [transactionId]);
@@ -248,12 +314,12 @@ const AdmissionForm = () => {
 			});
 
 			// Set files based on formData
-			const prefills = {
-				applicantSignature: formData.applicantSignature,
-				docRequest: formData.docRequest,
-				hospitalInvoice: formData.hospitalInvoice,
-				labInvoice: formData.labInvoice,
-				employeeID: formData.employeeID,
+			const prefills: Record<string, string | null> = {
+				applicantSignature: formData.applicantSignature?.url || null,
+				docRequest: formData.docRequest?.url || null,
+				hospitalInvoice: formData.hospitalInvoice?.url || null,
+				labInvoice: formData.labInvoice?.url || null,
+				employeeID: formData.employeeID?.url || null,
 			};
 			setFiles(prefills);
 			updateFileInputStates(prefills);
@@ -311,16 +377,25 @@ const AdmissionForm = () => {
 	};
 
 	const handleClearConfirm = () => {
-		// Reset form with empty select values
-		reset({
-			gender: undefined,
-			college: "",
-			status: "",
+		// Clear form using utility function
+		clearForm({
+			formType: "admission",
+			reset,
+			setDateHired,
+			setDateRetired,
+			setPhoneInputValue,
+			setShouldReapplyAutofill,
+			setShowClearSuccess,
+			setShowRestoredMessage,
+			additionalStates: {
+				setFiles,
+				setFileErrors,
+				setIsNewUpload,
+				setIsFileInput,
+			},
 		});
 
-		// Clear file errors
-		setFileErrors({});
-		setShouldReapplyAutofill(true);
+		// Close confirmation dialog
 		setShowClearConfirmation(false);
 	};
 
@@ -328,53 +403,259 @@ const AdmissionForm = () => {
 		setShowClearConfirmation(false);
 	};
 
-	// Handler for file input changes
-	const handleFileChange =
-		(fieldName: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-			const files = e.target.files;
-			const result = validateFileListSize(files);
+	// Add state to track file names
+	const [fileNames, setFileNames] = useState<Record<string, string>>({
+		employeeID: "",
+		applicantSignature: "",
+		docRequest: "",
+		hospitalInvoice: "",
+		labInvoice: "",
+	});
 
-			if (!result.valid) {
-				// Set custom file error
-				setFileErrors((prev) => ({
-					...prev,
-					[fieldName]: result.errorMessage,
-				}));
+	// Handler for file changes that performs progressive upload
+	const handleChange = async (
+		fieldName: keyof UnifiedFormData,
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
+		const files = e.target.files;
+		if (!files || files.length === 0) return;
 
-				// Clear the input
-				e.target.value = "";
+		// Set the file name first for immediate UI feedback
+		setFileNames((prev) => ({
+			...prev,
+			[fieldName]: files[0].name,
+		}));
 
-				// Set form error
-				setError(fieldName as any, {
-					type: "manual",
-					message: result.errorMessage,
-				});
-			} else {
-				// Handle valid files
-				if (files && files.length > 0) {
-					const file = files[0];
-					// Assuming you're uploading and receiving a file URL back from the upload service
-					const uploadedFileUrl = URL.createObjectURL(file); // Example of a temporary URL
+		register(fieldName).onChange(e);
 
-					// Update the file state with the new uploaded file URL
-					setFiles((prevFiles: FileState) => ({
-						...prevFiles,
-						[fieldName]: uploadedFileUrl, // You can replace this with your actual file URL
-					}));
-				}
+		const result = validateFileListSize(files);
 
-				setIsNewUpload((prev) => ({
-					...prev,
-					[fieldName]: true,
-				}));
+		if (!result.valid) {
+			setFileErrors((prev) => ({
+				...prev,
+				[fieldName]: result.errorMessage,
+			}));
 
-				// Clear error if file is valid
-				setFileErrors((prev) => ({
-					...prev,
-					[fieldName]: "",
-				}));
-			}
+			// Clear the input
+			e.target.value = "";
+
+			setError(fieldName, {
+				type: "manual",
+				message: result.errorMessage,
+			});
+			return;
+		}
+
+		// Start the upload immediately
+		const email = auth?.currentUser?.email;
+		const formType = "admission";
+
+		// Set status to uploading
+		setUploadProgress((prev) => ({
+			...prev,
+			[fieldName]: {
+				progress: 0,
+				status: "uploading",
+				url: null,
+				tempPath: null,
+			},
+		}));
+
+		// Upload the file with progress tracking
+		try {
+			const { url, tempPath } = await uploadFileWithProgress(
+				files[0],
+				fieldName,
+				email,
+				(field, progress) =>
+					setUploadProgress((prev) => ({
+						...prev,
+						[field]: progress,
+					})),
+				formType
+			);
+
+			// Add to temp paths for potential cleanup
+			const filename = files[0].name;
+
+			// Update the file state with the uploaded URL
+			setFiles((prevFiles: Record<string, string | null>) => ({
+				...prevFiles,
+				[fieldName]: url,
+			}));
+
+			// Notify parent component about the uploaded file
+			handleFileUploaded(fieldName, url, tempPath);
+
+			// Set as new upload
+			setIsNewUpload((prev) => ({
+				...prev,
+				[fieldName]: true,
+			}));
+
+			// Clear error if file is valid
+			setFileErrors((prev) => ({
+				...prev,
+				[fieldName]: "",
+			}));
+		} catch (error: any) {
+			console.error(`Error uploading ${fieldName}:`, error);
+			setFileErrors((prev) => ({
+				...prev,
+				[fieldName]: `Upload failed: ${
+					error.message || "Unknown error"
+				}`,
+			}));
+
+			setUploadProgress((prev) => ({
+				...prev,
+				[fieldName]: {
+					progress: 0,
+					status: "error",
+					url: null,
+					tempPath: null,
+					error: error.message,
+				},
+			}));
+		}
+	};
+
+	// Add upload progress tracking state for all fields
+	const [uploadProgress, setUploadProgress] = useState<
+		Record<string, UploadProgress>
+	>({
+		employeeID: { progress: 0, status: "idle", url: null, tempPath: null },
+		applicantSignature: {
+			progress: 0,
+			status: "idle",
+			url: null,
+			tempPath: null,
+		},
+		docRequest: { progress: 0, status: "idle", url: null, tempPath: null },
+		hospitalInvoice: {
+			progress: 0,
+			status: "idle",
+			url: null,
+			tempPath: null,
+		},
+		labInvoice: { progress: 0, status: "idle", url: null, tempPath: null },
+	});
+
+	// Update the FileUploadWithProgress component to match FormMedicalFiles style
+	const FileUploadWithProgress = ({
+		fieldName,
+		label,
+		isRequired = false,
+	}: {
+		fieldName: keyof UnifiedFormData;
+		label: string;
+		isRequired?: boolean;
+	}) => {
+		// Use type assertion to ensure progress is properly typed
+		const progress = uploadProgress[
+			fieldName as keyof typeof uploadProgress
+		] || {
+			progress: 0,
+			status: "idle",
+			url: null,
+			tempPath: null,
 		};
+
+		const containerClassName = `file-upload-container ${
+			progress.status === "success"
+				? "upload-success"
+				: progress.status === "error"
+				? "upload-error"
+				: ""
+		} ${progress.progress === 100 ? "complete" : ""}`;
+
+		return (
+			<tr>
+				<td>
+					{label}{" "}
+					{isRequired && <span className="required-asterisk">*</span>}
+				</td>
+				<td className="d-flex justify-content-center">
+					{isFileInput[fieldName as FileField] &&
+					files[fieldName] &&
+					isRevisionMode &&
+					!isNewUpload[fieldName as FileField] ? (
+						<div className="d-flex gap-2">
+							<button
+								type="button"
+								className="btn btn-outline-secondary btn-sm"
+								onClick={() =>
+									setIsFileInput((prev) => ({
+										...prev,
+										[fieldName]: false,
+									}))
+								}
+							>
+								Re-upload File
+							</button>
+							<a
+								href="#"
+								onClick={(e) => {
+									e.preventDefault();
+									openModal(files[fieldName]);
+								}}
+								className="btn btn-outline-primary btn-sm"
+							>
+								View Previously Uploaded File
+							</a>
+						</div>
+					) : (
+						<div className={containerClassName}>
+							{progress.status === "uploading" && (
+								<div
+									className="file-upload-progress-overlay"
+									style={{
+										width: `${progress.progress}%`,
+									}}
+								></div>
+							)}
+							<input
+								id={fieldName}
+								type="file"
+								accept=".pdf, .png, .jpg, .jpeg"
+								className={`form-control ${
+									errors[fieldName] || fileErrors[fieldName]
+										? "is-invalid"
+										: ""
+								}`}
+								{...register(fieldName)}
+								onChange={(e) => handleChange(fieldName, e)}
+								disabled={progress.status === "uploading"}
+							/>
+							{progress.status !== "idle" && (
+								<div className="file-upload-status">
+									{progress.status === "uploading" &&
+										`${progress.progress}%`}
+									{progress.status === "success" && (
+										<FiCheck />
+									)}
+									{progress.status === "error" && <FiX />}
+								</div>
+							)}
+							{progress.status === "error" && (
+								<div className="upload-error-message">
+									{progress.error || "Upload failed"}
+								</div>
+							)}
+						</div>
+					)}
+					{(errors[fieldName as keyof typeof errors] ||
+						fileErrors[fieldName]) && (
+						<p className="invalid-feedback">
+							{fileErrors[fieldName] ||
+								(errors[fieldName as keyof typeof errors]
+									?.message as string)}
+						</p>
+					)}
+				</td>
+			</tr>
+		);
+	};
 
 	const onSubmit = async (data: FieldValues) => {
 		setSubmissionStatus("processing");
@@ -383,117 +664,206 @@ const AdmissionForm = () => {
 		try {
 			const email = auth?.currentUser?.email;
 
-			const filesToUpload = {
-				applicantSignature: data.applicantSignature,
-				docRequest: data.docRequest,
-				employeeID: data.employeeID,
-				hospitalInvoice: data.hospitalInvoice,
-				labInvoice: data.labInvoice,
-			};
-			const transID = isRevisionMode ? transactionId : "TRN" + Date.now(); // Use existing transactionId for revision mode
+			// Use already uploaded files from progressive uploads
+			const missingFiles: Record<string, File[]> = {};
+			const fileFields = [
+				"applicantSignature",
+				"docRequest",
+				"hospitalInvoice",
+				"labInvoice",
+				"employeeID",
+			] as const;
+
+			// Check if any files haven't been uploaded yet
+			fileFields.forEach((field) => {
+				// Type-safe field access using keyof
+				const files = data[field as keyof typeof data];
+				if (
+					files &&
+					files instanceof FileList &&
+					files.length > 0 &&
+					!uploadedFiles[field]
+				) {
+					missingFiles[field] = Array.from(files) as File[];
+				}
+			});
+
+			const transID = isRevisionMode ? transactionId : "TRN" + Date.now();
 			setFormIdString(transID);
 
-			const fileUploadResults = await uploadFilesAndGetURLs(
-				email,
-				transID,
-				filesToUpload
-			);
+			// Only upload files that weren't already progressively uploaded
+			const fileUploadResults: Record<
+				string,
+				{ url: string; filename: string }
+			> = {};
 
-			const pendingRequestData = {
-				transactionId: transID,
-				requester: auth?.currentUser?.displayName || email || "Unknown",
-				dateSubmitted: new Date().toLocaleString("en-US", {
-					timeZone: "Asia/Manila",
-					month: "2-digit",
-					day: "2-digit",
-					year: "numeric",
-					hour: "numeric",
-					minute: "numeric",
-					hour12: true,
-				}),
-				status: "pending",
-				formData: {
-					formType: "admission",
-					origFormType: "admission",
-					lastname: data["lastname"],
-					firstname: data["firstname"],
-					middlename: data["middlename"],
-					idNumber: data["idNumber"],
-					address: data["address"],
-					age: data["age"],
-					gender: data["gender"],
-					contact: data["contact"],
-					college: data["college"],
-					load: data["load"],
-					status: data["status"],
-					dateHired: data.dateHired,
-					dateRetired: data.dateRetired,
-					docRequest: fileUploadResults.docRequest
-						? {
-								url: fileUploadResults.docRequest,
-								filename:
-									filesToUpload.docRequest?.[0]?.name ||
-									"document.pdf",
-						  }
-						: "",
-					hospitalInvoice: fileUploadResults.hospitalInvoice
-						? {
-								url: fileUploadResults.hospitalInvoice,
-								filename:
-									filesToUpload.hospitalInvoice?.[0]?.name ||
-									"invoice.pdf",
-						  }
-						: "",
-					labInvoice: fileUploadResults.labInvoice
-						? {
-								url: fileUploadResults.labInvoice,
-								filename:
-									filesToUpload.labInvoice?.[0]?.name ||
-									"lab_invoice.pdf",
-						  }
-						: "",
-					...(fileUploadResults.employeeID
-						? {
-								employeeID: {
-									url: fileUploadResults.employeeID,
-									filename:
-										filesToUpload.employeeID?.[0]?.name ||
-										"employee_id.pdf",
-								},
-						  }
-						: {}),
-					applicantSignature: fileUploadResults.applicantSignature
-						? {
-								url: fileUploadResults.applicantSignature,
-								filename:
-									filesToUpload.applicantSignature?.[0]
-										?.name || "signature.png",
-						  }
-						: "",
-				},
-			};
+			if (Object.keys(missingFiles).length > 0) {
+				const uploadResults = await uploadFilesAndGetURLs(
+					email,
+					transID,
+					missingFiles
+				);
+
+				// Convert simple URL results to include filenames
+				Object.entries(uploadResults).forEach(([field, url]) => {
+					const files = missingFiles[field];
+					const filename =
+						files && files.length > 0 ? files[0].name : field;
+					fileUploadResults[field] = { url, filename };
+				});
+			}
+
+			// Combine progressively uploaded files with any remaining uploads
+			const finalFileObjects: Record<
+				string,
+				{ url: string; filename: string }
+			> = {};
+			fileFields.forEach((field) => {
+				if (uploadedFiles[field]) {
+					finalFileObjects[field] = {
+						url: uploadedFiles[field].url,
+						filename: uploadedFiles[field].filename,
+					};
+				} else if (fileUploadResults[field]) {
+					finalFileObjects[field] = fileUploadResults[field];
+				}
+			});
+
+			// Get all temp file paths used for this submission
+			const usedTempPaths = Object.values(uploadedFiles)
+				.map((item) => item.tempPath)
+				.filter((path): path is string => path !== null);
+
+			// After successful submission, mark files as permanent
+			if (usedTempPaths.length > 0) {
+				removeTempFilePathsFromStorage(usedTempPaths);
+				console.log(
+					"Files are now permanent and won't be cleaned up:",
+					usedTempPaths
+				);
+			}
 
 			if (isRevisionMode) {
 				try {
+					// Use the hook directly here
+					const { removeRequest } = useRemoveRequest();
 					await removeRequest(transactionId);
 					console.log(
 						`Attempted to remove request with ID: ${transactionId}`
 					);
-					// ... proceed with submitting the new revision
 				} catch (error) {
 					console.error("Error removing previous request:", error);
-					// Handle the error appropriately (e.g., show a message to the user)
 				}
 			}
 
-			// Add the pending request document to Firestore.
-			await addDoc(collection(db, "FormRequests"), pendingRequestData);
-			console.log("Document written with ID: ", transID);
+			// Get claim count (defaulting to 1 if not specified)
+			const claimCount = data.claimRequestCount
+				? Number(data.claimRequestCount)
+				: 1;
+
+			// Create and submit multiple claims if requested
+			for (let i = 0; i < claimCount; i++) {
+				const claimTransID = i === 0 ? transID : `${transID}-${i}`;
+
+				// Important: Create a clean object structure with *only* the fields that belong to this form
+				// This prevents any field from hospitalStatus or other forms from being included
+				const cleanFormData = {
+					formType: "admission",
+					origFormType: "admission",
+					lastname: data.lastname ? String(data.lastname) : "",
+					firstname: data.firstname ? String(data.firstname) : "",
+					middlename: data.middlename ? String(data.middlename) : "",
+					idNumber: data.idNumber ? String(data.idNumber) : "",
+					address: data.address ? String(data.address) : "",
+					age: data.age ? Number(data.age) : 0,
+					gender: data.gender ? String(data.gender) : "",
+					contact: data.contact ? String(data.contact) : "",
+					college: data.college ? String(data.college) : "",
+					load: data.load ? Number(data.load) : 0,
+					status: data.status ? String(data.status) : "",
+					dateHired: data.dateHired || null,
+					dateRetired: data.dateRetired || null,
+					hmo: data.hmo ? String(data.hmo) : null,
+					benefits: data.benefits ? String(data.benefits) : null,
+					claimNumber: i + 1,
+					totalClaims: claimCount,
+					claimRequestCount: claimCount,
+					docRequest: finalFileObjects.docRequest
+						? {
+								url: finalFileObjects.docRequest.url,
+								filename: finalFileObjects.docRequest.filename,
+						  }
+						: null,
+					hospitalInvoice: finalFileObjects.hospitalInvoice
+						? {
+								url: finalFileObjects.hospitalInvoice.url,
+								filename:
+									finalFileObjects.hospitalInvoice.filename,
+						  }
+						: null,
+					labInvoice: finalFileObjects.labInvoice
+						? {
+								url: finalFileObjects.labInvoice.url,
+								filename: finalFileObjects.labInvoice.filename,
+						  }
+						: null,
+					employeeID: finalFileObjects.employeeID
+						? {
+								url: finalFileObjects.employeeID.url,
+								filename: finalFileObjects.employeeID.filename,
+						  }
+						: null,
+					applicantSignature: finalFileObjects.applicantSignature
+						? {
+								url: finalFileObjects.applicantSignature.url,
+								filename:
+									finalFileObjects.applicantSignature
+										.filename,
+						  }
+						: null,
+				};
+
+				// Create a safe version by removing any undefined values
+				const safeFormData = JSON.parse(JSON.stringify(cleanFormData));
+
+				// Log the data for debugging
+				console.log(
+					"Safe form data being sent to Firestore:",
+					safeFormData
+				);
+
+				const pendingRequestData = {
+					transactionId: claimTransID,
+					requester:
+						auth?.currentUser?.displayName || email || "Unknown",
+					dateSubmitted: new Date().toLocaleString("en-US", {
+						timeZone: "Asia/Manila",
+						month: "2-digit",
+						day: "2-digit",
+						year: "numeric",
+						hour: "numeric",
+						minute: "numeric",
+						hour12: true,
+					}),
+					status: "pending",
+					formData: safeFormData,
+				};
+
+				// Add the pending request document to Firestore
+				await addDoc(
+					collection(db, "FormRequests"),
+					pendingRequestData
+				);
+				console.log(`Claim ${i + 1} written with ID: ${claimTransID}`);
+
+				// Only send notification for the first claim
+				if (i === 0) {
+					await pushPendingNotification(transID);
+				}
+			}
 
 			// Show success notification
 			setSubmissionStatus("success");
-
-			await pushPendingNotification(transID);
 
 			// After a successful submission clear the form data
 			clearFormData("admission");
@@ -506,8 +876,47 @@ const AdmissionForm = () => {
 			setDateRetired(null);
 			setPhoneInputValue("+63");
 			setFileErrors({});
+			setUploadedFiles({});
+			setFiles({});
+
+			// After successful submission, reset the upload progress states too
+			setSubmissionStatus("success");
+
+			// Also reset the upload progress states to clear green UI indicators
+			setUploadProgress({
+				employeeID: {
+					progress: 0,
+					status: "idle",
+					url: null,
+					tempPath: null,
+				},
+				applicantSignature: {
+					progress: 0,
+					status: "idle",
+					url: null,
+					tempPath: null,
+				},
+				docRequest: {
+					progress: 0,
+					status: "idle",
+					url: null,
+					tempPath: null,
+				},
+				hospitalInvoice: {
+					progress: 0,
+					status: "idle",
+					url: null,
+					tempPath: null,
+				},
+				labInvoice: {
+					progress: 0,
+					status: "idle",
+					url: null,
+					tempPath: null,
+				},
+			});
 		} catch (error) {
-			console.error(error);
+			console.error("Submission error details:", error);
 			setSubmissionStatus("error");
 			setErrorMessage(
 				error instanceof Error
@@ -528,8 +937,75 @@ const AdmissionForm = () => {
 		setPreviewFile(null);
 	};
 
+	// Add state to track upload status
+	const [requiredUploadsInProgress, setRequiredUploadsInProgress] =
+		useState(false);
+	const [allFilesUploaded, setAllFilesUploaded] = useState(true);
+
+	// Check if all required uploads are complete
+	useEffect(() => {
+		// Define required fields (employeeID is optional)
+		const requiredFields = [
+			"applicantSignature",
+			"docRequest",
+			"hospitalInvoice",
+			"labInvoice",
+		];
+
+		// Check if any required field is in 'uploading' status
+		const uploadsInProgress = requiredFields.some((field) => {
+			const progress = uploadProgress[field];
+			return progress?.status === "uploading";
+		});
+
+		// Check if all required fields have valid URLs
+		const allRequiredUploaded = requiredFields.every((field) => {
+			if (
+				isRevisionMode &&
+				!isNewUpload[field as FileField] &&
+				files[field]
+			) {
+				return true;
+			}
+
+			const progress = uploadProgress[field];
+			return (
+				progress?.status === "success" ||
+				(uploadedFiles[field] && uploadedFiles[field].url)
+			);
+		});
+
+		setRequiredUploadsInProgress(uploadsInProgress);
+		setAllFilesUploaded(allRequiredUploaded && !uploadsInProgress);
+	}, [uploadProgress, uploadedFiles, isRevisionMode, isNewUpload, files]);
+
+	// Add warning message before submit button
 	return (
 		<div className="form-body">
+			{/* Clear success notification */}
+			{showClearSuccess && (
+				<div className="success-notification">
+					<div className="success-icon success">
+						<FiCheck size={18} />
+					</div>
+					<div className="success-content">
+						<h4 className="success-title">
+							Form Cleared Successfully
+						</h4>
+						<p className="success-message">
+							The form has been reset to default values.
+						</p>
+					</div>
+					<button
+						className="success-close"
+						onClick={() => setShowClearSuccess(false)}
+						aria-label="Close notification"
+					>
+						<FiX size={18} />
+					</button>
+				</div>
+			)}
+
 			<div className="button-container">
 				<BackButton />
 				<RemainingBenefit />
@@ -537,6 +1013,26 @@ const AdmissionForm = () => {
 			<div className="container">
 				<FormHeader formType="Hospital Admission Form" />
 				<div className="form-body">
+					{/* Restored data notification */}
+					{showRestoredMessage && (
+						<div className="info-notification">
+							<div className="info-icon">
+								<FiInfo size={18} />
+							</div>
+							<div className="info-content">
+								<p>
+									Your previous form data has been restored.
+								</p>
+							</div>
+							<button
+								className="info-close"
+								onClick={() => setShowRestoredMessage(false)}
+								aria-label="Close notification"
+							>
+								<FiX size={18} />
+							</button>
+						</div>
+					)}
 					<div className="form-container">
 						<form onSubmit={handleSubmit(onSubmit)}>
 							{isSubmitted && Object.keys(errors).length > 0 && (
@@ -575,406 +1071,109 @@ const AdmissionForm = () => {
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td>Employee/UST ID</td>
-											<td className="d-flex justify-content-center">
-												{isFileInput["employeeID"] &&
-												files.employeeID &&
-												isRevisionMode &&
-												!isNewUpload["employeeID"] ? (
-													<div className="d-flex gap-2">
-														<button
-															type="button"
-															className="btn btn-outline-secondary btn-sm"
-															onClick={() =>
-																setIsFileInput(
-																	(prev) => ({
-																		...prev,
-																		employeeID:
-																			false,
-																	})
-																)
-															}
-														>
-															Re-upload File
-														</button>
-														<a
-															href="#"
-															onClick={(e) => {
-																e.preventDefault();
-																openModal(
-																	files.employeeID
-																);
-															}}
-															className="btn btn-outline-primary btn-sm"
-														>
-															View Previously
-															Uploaded File
-														</a>
-													</div>
-												) : (
-													<input
-														id="employeeID"
-														type="file"
-														accept=".pdf, .png, .jpg, .jpeg"
-														className={`form-control ${
-															errors.employeeID ||
-															fileErrors.employeeID
-																? "is-invalid"
-																: ""
-														}`}
-														{...register(
-															"employeeID"
-														)}
-														name="employeeID"
-														onChange={(e) => {
-															register(
-																"employeeID"
-															).onChange(e);
-															handleFileChange(
-																"employeeID"
-															)(e);
-														}}
-													/>
-												)}
-												{/* {(errors.employeeID || fileErrors.employeeID) && (
-                          <p className="invalid-feedback">
-                            {fileErrors.employeeID ||
-                              (errors.employeeID?.message as string)}
-                          </p>
-                        )} */}
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<label htmlFor="docRequest">
-													Doctor's Note/Request
-												</label>{" "}
-												<span className="required-asterisk">
-													*
-												</span>
-											</td>
-											<td className="d-flex justify-content-center">
-												{isFileInput["docRequest"] &&
-												files.docRequest &&
-												isRevisionMode &&
-												!isNewUpload["docRequest"] ? (
-													<div className="d-flex gap-2">
-														<button
-															type="button"
-															className="btn btn-outline-secondary btn-sm"
-															onClick={() =>
-																setIsFileInput(
-																	(prev) => ({
-																		...prev,
-																		docRequest:
-																			false,
-																	})
-																)
-															} // Switch to file input when clicked
-														>
-															Re-upload File
-														</button>
-														<a
-															href="#"
-															onClick={(e) => {
-																e.preventDefault();
-																openModal(
-																	files.docRequest
-																); // Open the modal with file preview
-															}}
-															target="_blank"
-															rel="noopener noreferrer"
-															className="btn btn-outline-primary btn-sm"
-														>
-															View Previously
-															Uploaded File
-														</a>
-													</div>
-												) : (
-													<input
-														id="docRequest"
-														type="file"
-														accept=".pdf, .png, .jpg, .jpeg"
-														className={`form-control ${
-															errors.docRequest ||
-															fileErrors.docRequest
-																? "is-invalid"
-																: ""
-														}`}
-														{...register(
-															"docRequest"
-														)}
-														name="docRequest"
-														onChange={(e) => {
-															register(
-																"docRequest"
-															).onChange(e);
-															handleFileChange(
-																"docRequest"
-															)(e);
-														}}
-													/>
-												)}
-												{/* {(errors.docRequest || fileErrors.docRequest) && (
-                          <p className="invalid-feedback">
-                            {fileErrors.docRequest ||
-                              (errors.docRequest?.message as string)}
-                          </p>
-                        )} */}
-											</td>
-										</tr>
-										<tr>
-											<td>
-												Hospital Receipt/Invoice{" "}
-												<span className="required-asterisk">
-													*
-												</span>
-											</td>
-											<td className="d-flex justify-content-center">
-												{isFileInput[
-													"hospitalInvoice"
-												] &&
-												files.hospitalInvoice &&
-												isRevisionMode &&
-												!isNewUpload[
-													"hospitalInvoice"
-												] ? (
-													<div className="d-flex gap-2">
-														<button
-															type="button"
-															className="btn btn-outline-secondary btn-sm"
-															onClick={() =>
-																setIsFileInput(
-																	(prev) => ({
-																		...prev,
-																		hospitalInvoice:
-																			false,
-																	})
-																)
-															} // Switch to file input when clicked
-														>
-															Re-upload File
-														</button>
-														<a
-															href="#"
-															onClick={(e) => {
-																e.preventDefault();
-																openModal(
-																	files.hospitalInvoice
-																); // Open the modal with file preview
-															}}
-															target="_blank"
-															rel="noopener noreferrer"
-															className="btn btn-outline-primary btn-sm"
-														>
-															View Previously
-															Uploaded File
-														</a>
-													</div>
-												) : (
-													<input
-														id="hospitalInvoice"
-														type="file"
-														accept=".pdf, .png, .jpg, .jpeg"
-														className={`form-control ${
-															errors.hospitalInvoice ||
-															fileErrors.hospitalInvoice
-																? "is-invalid"
-																: ""
-														}`}
-														{...register(
-															"hospitalInvoice"
-														)}
-														name="hospitalInvoice"
-														onChange={(e) => {
-															register(
-																"hospitalInvoice"
-															).onChange(e);
-															handleFileChange(
-																"hospitalInvoice"
-															)(e);
-														}}
-													/>
-												)}
-												{/* {(errors.hospitalInvoice ||
-                          fileErrors.hospitalInvoice) && (
-                          <p className="invalid-feedback">
-                            {fileErrors.hospitalInvoice ||
-                              (errors.hospitalInvoice?.message as string)}
-                          </p>
-                        )} */}
-											</td>
-										</tr>
-										<tr>
-											<td>
-												Laboratory Receipt/Invoice{" "}
-												<span className="required-asterisk">
-													*
-												</span>
-											</td>
-											<td className="d-flex justify-content-center">
-												{isFileInput["labInvoice"] &&
-												files.labInvoice &&
-												isRevisionMode &&
-												!isNewUpload["labInvoice"] ? (
-													<div className="d-flex gap-2">
-														<button
-															type="button"
-															className="btn btn-outline-secondary btn-sm"
-															onClick={() =>
-																setIsFileInput(
-																	(prev) => ({
-																		...prev,
-																		labInvoice:
-																			false,
-																	})
-																)
-															} // Switch to file input when clicked
-														>
-															Re-upload File
-														</button>
-														<a
-															href="#"
-															onClick={(e) => {
-																e.preventDefault();
-																openModal(
-																	files.labInvoice
-																); // Open the modal with file preview
-															}}
-															target="_blank"
-															rel="noopener noreferrer"
-															className="btn btn-outline-primary btn-sm"
-														>
-															View Previously
-															Uploaded File
-														</a>
-													</div>
-												) : (
-													<input
-														id="labInvoice"
-														type="file"
-														accept=".pdf, .png, .jpg, .jpeg"
-														className={`form-control ${
-															errors.labInvoice ||
-															fileErrors.labInvoice
-																? "is-invalid"
-																: ""
-														}`}
-														{...register(
-															"labInvoice"
-														)}
-														name="labInvoice"
-														onChange={(e) => {
-															register(
-																"labInvoice"
-															).onChange(e);
-															handleFileChange(
-																"labInvoice"
-															)(e);
-														}}
-													/>
-												)}
-												{/* {(errors.labInvoice || fileErrors.labInvoice) && (
-                          <p className="invalid-feedback">
-                            {fileErrors.labInvoice ||
-                              (errors.labInvoice?.message as string)}
-                          </p>
-                        )} */}
-											</td>
-										</tr>
-										<tr>
-											<td>
-												Applicant's Signature{" "}
-												<span className="required-asterisk">
-													*
-												</span>
-											</td>
-											<td className="d-flex justify-content-center">
-												{isFileInput[
-													"applicantSignature"
-												] &&
-												files.applicantSignature &&
-												isRevisionMode &&
-												!isNewUpload[
-													"applicantSignature"
-												] ? (
-													<div className="d-flex gap-2">
-														<button
-															type="button"
-															className="btn btn-outline-secondary btn-sm"
-															onClick={() =>
-																setIsFileInput(
-																	(prev) => ({
-																		...prev,
-																		applicantSignature:
-																			false,
-																	})
-																)
-															} // Switch to file input when clicked
-														>
-															Re-upload File
-														</button>
-														<a
-															href="#"
-															onClick={(e) => {
-																e.preventDefault();
-																openModal(
-																	files.applicantSignature
-																); // Open the modal with file preview
-															}}
-															target="_blank"
-															rel="noopener noreferrer"
-															className="btn btn-outline-primary btn-sm"
-														>
-															View Previously
-															Uploaded File
-														</a>
-													</div>
-												) : (
-													<input
-														id="applicantSignature"
-														type="file"
-														accept=".pdf, .png, .jpg, .jpeg"
-														className={`form-control ${
-															errors.applicantSignature ||
-															fileErrors.applicantSignature
-																? "is-invalid"
-																: ""
-														}`}
-														{...register(
-															"applicantSignature"
-														)}
-														name="applicantSignature"
-														onChange={(e) => {
-															register(
-																"applicantSignature"
-															).onChange(e);
-															handleFileChange(
-																"applicantSignature"
-															)(e);
-														}}
-													/>
-												)}
-												{/* {(errors.applicantSignature ||
-                          fileErrors.applicantSignature) && (
-                          <p className="invalid-feedback">
-                            {fileErrors.applicantSignature ||
-                              (errors.applicantSignature?.message as string)}
-                          </p>
-                        )} */}
-											</td>
-										</tr>
+										<FileUploadWithProgress
+											fieldName="employeeID"
+											label="Employee/UST ID"
+										/>
+										<FileUploadWithProgress
+											fieldName="docRequest"
+											label="Doctor's Note/Request"
+											isRequired={true}
+										/>
+										<FileUploadWithProgress
+											fieldName="hospitalInvoice"
+											label="Hospital Receipt/Invoice"
+											isRequired={true}
+										/>
+										<FileUploadWithProgress
+											fieldName="labInvoice"
+											label="Laboratory Receipt/Invoice"
+											isRequired={true}
+										/>
+										<FileUploadWithProgress
+											fieldName="applicantSignature"
+											label="Applicant's Signature"
+											isRequired={true}
+										/>
 									</tbody>
 								</table>
 							</div>
 
+							{/* Add claim request count field */}
+							<div className="claim-request-container">
+								<div className="claim-request">
+									<div>
+										<label htmlFor="claimRequestCount">
+											{" "}
+										</label>
+										How many claims do you want to request?{" "}
+										<span className="required-asterisk">
+											*
+										</span>
+										<br />
+										<span className="claim-example">
+											(e.g. Multiple hospital visits)
+										</span>
+										<div className="claim-input">
+											<input
+												{...register(
+													"claimRequestCount",
+													{
+														valueAsNumber: true,
+														min: 1,
+														max: 10,
+													}
+												)}
+												id="claimRequestCount"
+												type="number"
+												className="form-control claimRequestCount"
+												placeholder="1-10"
+												defaultValue={1}
+											/>
+											<span
+												className="claim-text"
+												style={{ fontWeight: "normal" }}
+											>
+												{" "}
+												claims
+											</span>
+										</div>
+										{errors.claimRequestCount && (
+											<span
+												className="text-danger claim-error"
+												style={{ fontWeight: "normal" }}
+											>
+												{
+													errors.claimRequestCount
+														.message
+												}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+
 							<FormCertify register={register} errors={errors} />
+
+							{/* Add a file upload warning */}
+							{requiredUploadsInProgress && (
+								<div className="alert alert-warning mt-3">
+									<FiUploadCloud className="me-2" />
+									Please wait for all files to finish
+									uploading before submitting the form.
+								</div>
+							)}
 
 							<div className="buttonDiv">
 								<button
 									type="submit"
 									className="btn btn-submit form-submit"
+									disabled={!allFilesUploaded}
+									title={
+										!allFilesUploaded
+											? "Please wait for all files to finish uploading"
+											: ""
+									}
 								>
 									Submit
 								</button>

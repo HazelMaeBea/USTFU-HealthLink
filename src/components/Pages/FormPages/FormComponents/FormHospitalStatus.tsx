@@ -1,13 +1,15 @@
-import React from "react";
-import { UseFormRegister, FieldErrors } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
 import { UnifiedFormData } from "../FormUtil/formTypes";
 
 interface FormHospitalStatusProps {
 	register: UseFormRegister<UnifiedFormData>;
 	errors: FieldErrors<UnifiedFormData>;
+	watch?: (name: string) => any;
+	setValue?: UseFormSetValue<UnifiedFormData>;
+	formType?: string;
 }
 
-// Keep the actual option values the same but map to new display labels
 const hospitalStatusOptions = ["In-Patient", "Out-Patient", "ER Consultation"];
 const hospitalStatusLabels: Record<string, string> = {
 	"In-Patient": "For Confinement",
@@ -18,7 +20,58 @@ const hospitalStatusLabels: Record<string, string> = {
 const FormHospitalStatus: React.FC<FormHospitalStatusProps> = ({
 	register,
 	errors,
+	watch,
+	setValue,
+	formType,
 }) => {
+	const [resetKey, setResetKey] = useState(0);
+
+	useEffect(() => {
+		// Get current pathname to determine form type if not provided
+		const pathname = window.location.pathname;
+		const isOutpatient =
+			formType === "outpatient" || pathname.includes("outpatient");
+
+		// Register the field
+		register("hospitalStatus");
+
+		// For outpatient forms, pre-select "Out-Patient"
+		if (isOutpatient && setValue) {
+			setValue("hospitalStatus", "Out-Patient", { shouldValidate: true });
+			console.log("Auto-setting hospitalStatus to Out-Patient");
+		}
+
+		const hospitalStatusRadios = document.querySelectorAll(
+			'input[name="hospitalStatus"]'
+		);
+
+		// For outpatient forms, ensure the UI reflects the selection
+		if (isOutpatient) {
+			hospitalStatusRadios.forEach((radio: Element) => {
+				const inputElement = radio as HTMLInputElement;
+				if (inputElement.value === "Out-Patient") {
+					inputElement.checked = true;
+				}
+			});
+		} else {
+			// For other forms, clear the selection as default
+			hospitalStatusRadios.forEach((radio: Element) => {
+				(radio as HTMLInputElement).checked = false;
+			});
+		}
+	}, [resetKey, register, setValue, formType]);
+
+	useEffect(() => {
+		if (watch) {
+			const subscription = watch((value, { name, type }) => {
+				if (type === "change" && name === "hospitalStatus" && !value) {
+					setResetKey((prev) => prev + 1);
+				}
+			});
+			return () => subscription.unsubscribe();
+		}
+	}, [watch]);
+
 	return (
 		<>
 			<hr className="section-separator" />

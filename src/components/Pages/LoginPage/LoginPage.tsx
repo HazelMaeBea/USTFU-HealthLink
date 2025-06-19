@@ -60,7 +60,6 @@ const LoginPage: React.FC = () => {
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, []);
-
 	const handleLogin = async () => {
 		try {
 			setIsLoggingIn(true);
@@ -79,6 +78,23 @@ const LoginPage: React.FC = () => {
 
 			if (!refreshedUser) {
 				setError("Failed to refresh user. Please try again.");
+				return;
+			} // Check if the user has a UST email
+			if (!refreshedUser.email?.endsWith("ust.edu.ph")) {
+				setPopoutData({
+					title: "Invalid Email Domain",
+					message:
+						"This application is only available for users with a UST email address (ust.edu.ph). Please sign in with your UST email account.",
+					onConfirm: () => {
+						setShowPopout(false);
+						auth.signOut();
+					},
+					onCancel: () => {
+						setShowPopout(false);
+						auth.signOut();
+					},
+				});
+				setShowPopout(true);
 				return;
 			}
 
@@ -136,14 +152,12 @@ const LoginPage: React.FC = () => {
 				<img src={USTFULogo} alt="Logo" className="page-logo" />
 				<div className="white-box">
 					<h1 className="sign-in-title">Sign in</h1>
-					{error && <div className="error-message">{error}</div>}
+					{error && <div className="error-message">{error}</div>}{" "}
 					<p className="sign-in-description">
 						To access MyUSTFU HealthLink, please make sure you meet
 						the following requirement:
 					</p>
-					<p className="requirement">
-						UST Google Workspace Personal Account
-					</p>
+					<p className="requirement">UST Google Workspace Account</p>
 					<button
 						className="google-signin"
 						onClick={handleLogin}
@@ -157,7 +171,7 @@ const LoginPage: React.FC = () => {
 						{isLoggingIn ? "Signing in..." : "Sign in with Google"}
 					</button>
 				</div>
-			</div>
+			</div>{" "}
 			{showPopout && (
 				<Popout
 					title={popoutData.title}
@@ -165,6 +179,14 @@ const LoginPage: React.FC = () => {
 					onConfirm={popoutData.onConfirm}
 					onCancel={popoutData.onCancel}
 					isOpen={showPopout}
+					showCancelButton={
+						popoutData.title !== "Invalid Email Domain"
+					}
+					confirmText={
+						popoutData.title === "Invalid Email Domain"
+							? "OK"
+							: "Confirm"
+					}
 				/>
 			)}
 		</div>

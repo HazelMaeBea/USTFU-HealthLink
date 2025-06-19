@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
 	BrowserRouter as Router,
 	Routes,
@@ -21,10 +21,15 @@ import ErrorBoundary from "./components/Pages/PendingRequestPage/ErrorBoundary";
 import { UserProvider } from "./contexts/userContext";
 import { FirebaseProvider } from "./contexts/firebaseContext";
 import ProtectedRoute from "./components/Page Elements/Routing/protectedRoutes";
+import { initFileCleanupSystem } from "./utils/fileCleanup";
 //TEMP
 // import FormGenerator from "./components/Pages/FormGenerator";
 
 const App: React.FC = () => {
+	useEffect(() => {
+		initFileCleanupSystem();
+	}, []);
+
 	return (
 		<FirebaseProvider>
 			<UserProvider>
@@ -63,7 +68,7 @@ const App: React.FC = () => {
 									/>
 									{/* <Route
 										path="/generate"
-										element={<FormGenerator />}
+									element={<FormGenerator />}
 									/> */}
 
 									<Route path="/faqs" element={<FAQ />} />
