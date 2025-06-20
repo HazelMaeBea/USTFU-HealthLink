@@ -259,7 +259,8 @@ const RegistrationPage: React.FC = () => {
 					status: formData.status,
 					term: formData.term,
 					year: formData.year,
-					remainingBenefits: 0,
+					remainingBenefits: 0, // connect to benefits system later to set max 
+					// hiringStatus: "Tenured", // kinda wanna add 
 					ustEmail: email || "",
 				},
 				settings: {

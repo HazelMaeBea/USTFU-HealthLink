@@ -3,10 +3,10 @@ import { TbSearch } from "react-icons/tb";
 import { RxHamburgerMenu } from "react-icons/rx";
 import VerificationPage from "./VerificationPage";
 import UserManagement from "./UserManagement";
+import BenefitLimits from "./BenefitLimits"; // new import
 import "./AdminSettings.css";
 
 const AdminSettings = () => {
-	// Removed duplicate Firestore fetching; only tab and search state remain.
 	const [activeTab, setActiveTab] = useState("userManagement");
 	const [searchQuery, setSearchQuery] = useState("");
 
@@ -33,6 +33,14 @@ const AdminSettings = () => {
 					>
 						REGISTRATION VERIFICATION
 					</button>
+					<button
+						className={`ustfu-as-btn tab-btn ${
+							activeTab === "benefitLimits" ? "active-tab" : ""
+						}`}
+						onClick={() => setActiveTab("benefitLimits")}
+					>
+						BENEFIT LIMITS
+					</button>
 				</div>
 				<div className="col-md-6">
 					<div className="search-container">
@@ -51,9 +59,11 @@ const AdminSettings = () => {
 			<hr className="ustfu-hr" />
 			{activeTab === "userManagement" ? (
 				<UserManagement searchQuery={searchQuery} />
-			) : (
+			) : activeTab === "registrationVerification" ? (
 				<VerificationPage searchQuery={searchQuery} />
-			)}
+			) : activeTab === "benefitLimits" ? (
+				<BenefitLimits />
+			) : null}
 		</div>
 	);
 };
