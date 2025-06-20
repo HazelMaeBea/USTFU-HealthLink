@@ -441,7 +441,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
             lastname: data.lastname,
             firstname: data.firstname,
             middlename: data.middlename,
-            suffix: data.suffix,
+            suffix: data.suffix || "" ,
             age: data.age,
             gender: data.gender,
             contact: data.contact,
