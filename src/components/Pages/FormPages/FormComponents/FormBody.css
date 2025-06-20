@@ -829,6 +829,93 @@ table {
 	color: #dc3545;
 }
 
+/* File upload controls styling */
+.file-upload-controls {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	width: 100%;
+}
+
+/* File removal button styling */
+.btn-remove-file {
+	background-color: #fff;
+	border: 2px solid #dc3545;
+	color: #dc3545;
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+	min-width: fit-content;
+}
+
+.btn-remove-file:hover:not(:disabled) {
+	background-color: #dc3545;
+	color: white;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+}
+
+.btn-remove-file:active {
+	transform: translateY(0);
+}
+
+.btn-remove-file:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* Revision mode button styling */
+.revision-file-controls {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.btn-re-upload {
+	background-color: #fff;
+	border: 2px solid #6c757d;
+	color: #6c757d;
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.btn-re-upload:hover {
+	background-color: #6c757d;
+	color: white;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+}
+
+.btn-view-file {
+	background-color: #fff;
+	border: 2px solid hsl(45, 100%, 51%);
+	color: hsl(45, 100%, 51%);
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.btn-view-file:hover {
+	background-color: hsl(45, 100%, 51%);
+	color: white;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px hsla(45, 100%, 51%, 0.2);
+	text-decoration: none;
+}
+
 /* Improved file input styling */
 .file-input-wrapper {
 	position: relative;
@@ -881,20 +968,30 @@ table {
 	font-weight: 500;
 }
 
-/* Upload status styling */
-.file-upload-status {
-	position: absolute;
-	right: 10px;
-	top: 50%;
-	transform: translateY(-50%);
-	font-size: 12px;
-	color: #6c757d;
-	z-index: 5;
-}
-
 /* Error message styling */
 .upload-error-message {
 	font-size: 12px;
 	color: #dc3545;
 	margin-top: 4px;
+}
+
+/* Responsive adjustments for file upload buttons */
+@media screen and (max-width: 768px) {
+    .file-upload-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .revision-file-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-remove-file,
+    .btn-re-upload,
+    .btn-view-file {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.25rem;
+    }
 }
