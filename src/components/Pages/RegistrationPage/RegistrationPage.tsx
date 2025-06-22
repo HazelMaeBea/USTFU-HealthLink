@@ -256,11 +256,10 @@ const RegistrationPage: React.FC = () => {
 					idNumber: formData.idNumber,
 					load: formData.load.toString(),
 					phoneNumber: formattedPhoneNumber,
-					status: formData.status,
+					status: formData.status, // depeding on the status, this can be "Tenured", "Tenured-Track", etc.
 					term: formData.term,
 					year: formData.year,
 					remainingBenefits: 0, // connect to benefits system later to set max 
-					// hiringStatus: "Tenured", // kinda wanna add 
 					ustEmail: email || "",
 				},
 				settings: {

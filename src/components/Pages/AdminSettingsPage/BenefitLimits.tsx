@@ -18,6 +18,11 @@ export default function BenefitsConfiguration() {
   const [frequency1, setFrequency1] = useState("Yearly");
   const [frequency2, setFrequency2] = useState("Every 2 Years");
 
+  // Track last edited timestamps for each card
+  const [lastEditedDefault, setLastEditedDefault] = useState<string>("");
+  const [lastEditedAllowable, setLastEditedAllowable] = useState<string>("");
+  const [lastEditedEyeglass, setLastEditedEyeglass] = useState<string>("");
+
   const toggleStatus = (
     status: string,
     list: string[],
@@ -28,6 +33,10 @@ export default function BenefitsConfiguration() {
     } else {
       setList([...list, status]);
     }
+  };
+
+  const handleSave = (setLastEdited: React.Dispatch<React.SetStateAction<string>>) => {
+    setLastEdited(new Date().toLocaleString());
   };
 
   return (
@@ -44,6 +53,14 @@ export default function BenefitsConfiguration() {
             value={defaultMaxBenefit}
             onChange={(e) => setDefaultMaxBenefit(Number(e.target.value))}
           />
+        </div>
+        <button className="benefit-button" onClick={() => handleSave(setLastEditedDefault)}>
+          Save
+        </button>
+        <div className="last-edited">
+          {lastEditedDefault && (
+            <span>Last edited on: {lastEditedDefault}</span>
+          )}
         </div>
       </div>
 
@@ -100,6 +117,14 @@ export default function BenefitsConfiguration() {
             </select>
           </div>
         </div>
+        <button className="benefit-button" onClick={() => handleSave(setLastEditedAllowable)}>
+          Save
+        </button>
+        <div className="last-edited">
+          {lastEditedAllowable && (
+            <span>Last edited on: {lastEditedAllowable}</span>
+          )}
+        </div>
       </div>
 
       {/* Card 3: Eyeglasses Reimbursement */}
@@ -154,6 +179,14 @@ export default function BenefitsConfiguration() {
               ))}
             </select>
           </div>
+        </div>
+        <button className="benefit-button" onClick={() => handleSave(setLastEditedEyeglass)}>
+          Save
+        </button>
+        <div className="last-edited">
+          {lastEditedEyeglass && (
+            <span>Last edited on: {lastEditedEyeglass}</span>
+          )}
         </div>
       </div>
     </div>
