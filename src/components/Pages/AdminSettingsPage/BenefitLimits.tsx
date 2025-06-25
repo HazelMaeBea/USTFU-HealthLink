@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import "./BenefitLimits.css"; // import your manual CSS
+import "./BenefitLimits.css";
+import { addBenefitLimit } from "./BenefitLimitsBackend";
 
-const facultyStatuses = ["All", "Tenured", "Tenure-Track", "Probationary", "Part-Time"];
+const facultyStatuses = ["All", "Tenured", "Tenured-Track", "Lecturer Before 2001", "Extendee", "Retiree"];
 const frequencies = ["Semestral", "Yearly", "Every 2 Years"];
 
 export default function BenefitsConfiguration() {
@@ -9,8 +10,8 @@ export default function BenefitsConfiguration() {
   const [maxAllowableBenefit, setMaxAllowableBenefit] = useState(0);
   const [eyeglassAmount, setEyeglassAmount] = useState(2500);
 
-  const [selectedStatuses1, setSelectedStatuses1] = useState<string[]>([]);
-  const [selectedStatuses2, setSelectedStatuses2] = useState<string[]>(["Tenured"]);
+  const [selectedStatus1, setSelectedStatus1] = useState<string>("");
+  const [selectedStatus2, setSelectedStatus2] = useState<string>("Tenured");
 
   const [startDate1, setStartDate1] = useState("");
   const [startDate2, setStartDate2] = useState("");
@@ -18,25 +19,16 @@ export default function BenefitsConfiguration() {
   const [frequency1, setFrequency1] = useState("Yearly");
   const [frequency2, setFrequency2] = useState("Every 2 Years");
 
-  // Track last edited timestamps for each card
   const [lastEditedDefault, setLastEditedDefault] = useState<string>("");
   const [lastEditedAllowable, setLastEditedAllowable] = useState<string>("");
   const [lastEditedEyeglass, setLastEditedEyeglass] = useState<string>("");
 
-  const toggleStatus = (
-    status: string,
-    list: string[],
-    setList: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    if (list.includes(status)) {
-      setList(list.filter((s) => s !== status));
-    } else {
-      setList([...list, status]);
-    }
-  };
-
   const handleSave = (setLastEdited: React.Dispatch<React.SetStateAction<string>>) => {
     setLastEdited(new Date().toLocaleString());
+  };
+
+  const resolveStatuses = (selected: string): string[] => {
+    return selected === "All" ? facultyStatuses.filter((s) => s !== "All") : [selected];
   };
 
   return (
@@ -54,13 +46,29 @@ export default function BenefitsConfiguration() {
             onChange={(e) => setDefaultMaxBenefit(Number(e.target.value))}
           />
         </div>
-        <button className="benefit-button" onClick={() => handleSave(setLastEditedDefault)}>
+        <button
+          className="benefit-button"
+          onClick={async () => {
+            if (!defaultMaxBenefit || defaultMaxBenefit <= 0) {
+              alert("Please enter a valid amount for Default Max Benefits.");
+              return;
+            }
+            handleSave(setLastEditedDefault);
+            try {
+              await addBenefitLimit("UponRegistration", {
+                amount: defaultMaxBenefit,
+                createdAt: new Date().toISOString(),
+              });
+              console.log("Document added to UponRegistration");
+            } catch (err) {
+              console.error("Failed to save to UponRegistration:", err);
+            }
+          }}
+        >
           Save
         </button>
         <div className="last-edited">
-          {lastEditedDefault && (
-            <span>Last edited on: {lastEditedDefault}</span>
-          )}
+          {lastEditedDefault && <span>Last edited on: {lastEditedDefault}</span>}
         </div>
       </div>
 
@@ -78,14 +86,13 @@ export default function BenefitsConfiguration() {
         </div>
         <div className="form-group">
           <label>Apply to:</label>
-          {/* Modified checkboxes to custom toggle buttons */}
           <div className="checkbox-group">
             {facultyStatuses.map((status) => (
-              <button 
-                key={status} 
-                type="button" 
-                className={`checkbox-button ${selectedStatuses1.includes(status) ? 'selected' : ''}`}
-                onClick={() => toggleStatus(status, selectedStatuses1, setSelectedStatuses1)}
+              <button
+                key={status}
+                type="button"
+                className={`checkbox-button ${selectedStatus1 === status ? "selected" : ""}`}
+                onClick={() => setSelectedStatus1(status)}
               >
                 {status}
               </button>
@@ -117,13 +124,32 @@ export default function BenefitsConfiguration() {
             </select>
           </div>
         </div>
-        <button className="benefit-button" onClick={() => handleSave(setLastEditedAllowable)}>
+        <button
+          className="benefit-button"
+          onClick={async () => {
+            if (!maxAllowableBenefit || maxAllowableBenefit <= 0 || !selectedStatus1 || !startDate1 || !frequency1) {
+              alert("Please complete all fields in Max Allowable Benefits.");
+              return;
+            }
+            handleSave(setLastEditedAllowable);
+            try {
+              await addBenefitLimit("MaxAllowable", {
+                amount: maxAllowableBenefit,
+                applicableTo: resolveStatuses(selectedStatus1),
+                startDate: startDate1,
+                frequency: frequency1,
+                createdAt: new Date().toISOString(),
+              });
+              console.log("Document added to MaxAllowable");
+            } catch (err) {
+              console.error("Failed to save to MaxAllowable:", err);
+            }
+          }}
+        >
           Save
         </button>
         <div className="last-edited">
-          {lastEditedAllowable && (
-            <span>Last edited on: {lastEditedAllowable}</span>
-          )}
+          {lastEditedAllowable && <span>Last edited on: {lastEditedAllowable}</span>}
         </div>
       </div>
 
@@ -141,14 +167,13 @@ export default function BenefitsConfiguration() {
         </div>
         <div className="form-group">
           <label>Apply to:</label>
-          {/* Replacing checkbox with toggle buttons */}
           <div className="checkbox-group">
             {facultyStatuses.map((status) => (
-              <button 
-                key={status} 
-                type="button" 
-                className={`checkbox-button ${selectedStatuses2.includes(status) ? 'selected' : ''}`}
-                onClick={() => toggleStatus(status, selectedStatuses2, setSelectedStatuses2)}
+              <button
+                key={status}
+                type="button"
+                className={`checkbox-button ${selectedStatus2 === status ? "selected" : ""}`}
+                onClick={() => setSelectedStatus2(status)}
               >
                 {status}
               </button>
@@ -180,13 +205,32 @@ export default function BenefitsConfiguration() {
             </select>
           </div>
         </div>
-        <button className="benefit-button" onClick={() => handleSave(setLastEditedEyeglass)}>
+        <button
+          className="benefit-button"
+          onClick={async () => {
+            if (!eyeglassAmount || eyeglassAmount <= 0 || !selectedStatus2 || !startDate2 || !frequency2) {
+              alert("Please complete all fields in Eyeglasses Reimbursement.");
+              return;
+            }
+            handleSave(setLastEditedEyeglass);
+            try {
+              await addBenefitLimit("Eyeglasses", {
+                amount: eyeglassAmount,
+                applicableTo: resolveStatuses(selectedStatus2),
+                startDate: startDate2,
+                frequency: frequency2,
+                createdAt: new Date().toISOString(),
+              });
+              console.log("Document added to Eyeglasses");
+            } catch (err) {
+              console.error("Failed to save to Eyeglasses:", err);
+            }
+          }}
+        >
           Save
         </button>
         <div className="last-edited">
-          {lastEditedEyeglass && (
-            <span>Last edited on: {lastEditedEyeglass}</span>
-          )}
+          {lastEditedEyeglass && <span>Last edited on: {lastEditedEyeglass}</span>}
         </div>
       </div>
     </div>
