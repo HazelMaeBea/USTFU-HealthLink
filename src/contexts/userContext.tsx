@@ -39,13 +39,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Cache Firebase profile data locally when it changes
   useEffect(() => {
-    if (firebaseDisplayName !== displayName) {
-      setDisplayName(firebaseDisplayName);
-    }
-    if (firebasePhotoURL !== photoURL) {
-      setPhotoURL(firebasePhotoURL);
-    }
-  }, [firebaseDisplayName, firebasePhotoURL, displayName, photoURL]);
+    setDisplayName(firebaseDisplayName);
+    setPhotoURL(firebasePhotoURL);
+  }, [firebaseDisplayName, firebasePhotoURL]);
 
   // First, set the role from user claims when they become available
   useEffect(() => {
