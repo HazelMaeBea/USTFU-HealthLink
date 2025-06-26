@@ -65,6 +65,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
   const { removeRequest } = useRemoveRequest();
   const [showRestoredMessage, setShowRestoredMessage] = useState(false);
   const [fileInputResetKey, setFileInputResetKey] = useState(0);
+  // Add this state to control auto-save behavior
+  const [disableAutoSave, setDisableAutoSave] = useState(false);
 
   const formSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -270,9 +272,11 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
     }
   }, [origFormType, reset]);
 
-  //Auto-save form data on change
-  // Auto-save form data on change:
+  // Modified auto-save effect with disableAutoSave check
   useEffect(() => {
+    // Skip auto-saving if disabled
+    if (disableAutoSave) return;
+    
     const subscription = watch((data) => {
       // We don't want to save empty forms
       if (
@@ -303,7 +307,7 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
         clearTimeout(formSaveTimeout.current);
       }
     };
-  }, [watch, origFormType]);
+  }, [watch, origFormType, disableAutoSave]); // Add disableAutoSave to dependencies
 
   // Add a handler to close the notification with animation
   const closeNotification = () => {
@@ -517,15 +521,26 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
       // Show success notification
       setSubmissionStatus("success");
 
+      // Disable auto-save before clearing and resetting form
+      setDisableAutoSave(true);
+      
       // Reset form after successful submission
       resetRevision();
+      
+      // Clear persisted form data
+      clearFormData(origFormType);
+      
+      // Reset the form
       reset();
 
       // Clear uploaded files state BUT NOT the actual files
       setUploadedFiles({});
 
-      // Clear persisted form data
-      clearFormData(origFormType);
+      // Re-enable auto-save after a short delay
+      setTimeout(() => {
+        setDisableAutoSave(false);
+      }, 1000);
+      
     } catch (error) {
       console.error(error);
       setSubmissionStatus("error");
@@ -544,6 +559,10 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
 
   const handleClearConfirm = () => {
     console.log("Starting form clear operation...");
+    
+    // Disable auto-save before clearing
+    setDisableAutoSave(true);
+    
     // First clear localStorage data
     clearFormData(origFormType);
 
@@ -601,6 +620,8 @@ const FormBody = ({ origFormType }: FormBodyProps) => {
     // Hide success notification after 3 seconds
     setTimeout(() => {
       setShowClearSuccess(false);
+      // Re-enable auto-save
+      setDisableAutoSave(false);
     }, 3000);
 
     console.log("Form cleared successfully");
